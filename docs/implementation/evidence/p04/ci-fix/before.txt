@@ -1,0 +1,91 @@
+✔ questions go to POST /api/query with the chosen model (1.241016ms)
+✔ without a model the server default is used (3.740668ms)
+✔ refused queries keep the SQL and explain the refusal (0.325697ms)
+✔ outages are retryable and keep the server's safe message (0.201138ms)
+✔ rate limits, bad questions, proxy pages and network failures become friendly errors (0.347956ms)
+✔ cancelling a question rejects with AbortError instead of showing an error (0.419355ms)
+✔ only well-formed replies become answers; anything else is a retryable error (0.174708ms)
+✔ sign-in problems become sign_in_required or access_denied, and no CSRF token means no request (0.180258ms)
+✔ the CSRF token and session cookie travel with every question (0.179298ms)
+✔ models come from GET /api/models, server default first, and failures give an empty list (0.317916ms)
+✔ the answering model is kept, so a fallback to Ollama is visible (0.151629ms)
+✔ live sessions start with an empty conversation and no fictional history (0.90576ms)
+✔ project folders reference the same distinct centralized conversations (0.713752ms)
+✔ stream callbacks carry cumulative text and routing IDs before completed structured data (1136.886751ms)
+✔ legacy promise requests, safe errors, retry and no-data remain supported (1051.178755ms)
+✔ concurrent model choices retain their own streaming request context (1480.264945ms)
+✔ abort stops both waiting requests and an active simulated stream (1051.732982ms)
+✔ login configuration and restored identity use the relative private API (19.197482ms)
+✔ a missing browser session returns null without exposing server detail (0.333936ms)
+✔ Google credential and CSRF stay in the POST body/header, and logout handles 204 (0.793811ms)
+✔ auth HTTP 401 produces a typed safe error (0.597534ms)
+✔ auth HTTP 403 produces a typed safe error (0.262747ms)
+✔ auth HTTP 503 produces a typed safe error (0.228137ms)
+✔ invalid session envelope is rejected: missing CSRF (0.345996ms)
+✔ invalid session envelope is rejected: empty optional Google subject (0.420185ms)
+✔ invalid session envelope is rejected: missing canonical account id (0.336006ms)
+✔ invalid session envelope is rejected: Google subject substituted for account id (3.53216ms)
+✔ invalid session envelope is rejected: malformed canonical account id (0.967969ms)
+✔ invalid session envelope is rejected: nil canonical account id (0.279827ms)
+✔ invalid session envelope is rejected: invalid capabilities (0.247867ms)
+✔ invalid session envelope is rejected: invalid permission flag (0.177548ms)
+✔ invalid session envelope is rejected: missing identity (0.183308ms)
+✔ canonical account identity is normalized without inventing a provider subject (0.219207ms)
+✔ capabilities preserve only explicit server booleans and do not grant query permission (0.233617ms)
+✔ login configuration must contain a browser nonce (0.220188ms)
+✔ missing login credentials or logout CSRF never call the network (0.182998ms)
+✔ auth malformed JSON and network failures produce safe typed errors (0.387636ms)
+✔ cancelled auth requests propagate AbortError unchanged (0.156079ms)
+✔ clipboard TSV treats text and headers as literals while keeping negative numbers numeric (0.957969ms)
+✔ clipboard cell controls cannot manufacture new rows or columns (0.158728ms)
+✔ CSV and clipboard protect formula prefixes behind ignored control characters (0.90053ms)
+✔ CSV preserves delimiters/newlines, protects formulas, and retains negative numbers (0.215048ms)
+✔ financial formatting honors currency metadata and percentage points (9.439953ms)
+✔ headline numbers use the response's currency, dollars otherwise (0.243778ms)
+✔ years and ids are shown without thousands separators (0.266707ms)
+✔ send routes live queries through the authenticated relative API (16.308275ms)
+✔ retry routes live queries through the authenticated relative API (0.385876ms)
+✔ live requests without CSRF never call the network (0.196098ms)
+✔ requests use the live API by default (0.341906ms)
+✔ live HTTP 401 produces a safe sign_in_required response (0.352136ms)
+✔ live HTTP 403 produces a safe access_denied response (0.216948ms)
+✔ live HTTP 503 produces a safe unavailable response (0.218807ms)
+✔ a live network failure returns a safe service error (0.177088ms)
+✔ live cancellation is propagated rather than rendered as a failed query (0.555423ms)
+✔ a rejected SQL result stays an error, keeps its SQL and says why (0.445365ms)
+✔ a malformed successful response cannot be rendered as valid customer data (0.319966ms)
+✔ explicit demo mode keeps callbacks and avoids customer API requests (1138.015294ms)
+node:internal/modules/package_json_reader:301
+  throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+        ^
+
+Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'react' imported from /work/checks/safe-markdown.test.mjs
+    at Object.getPackageJSONURL (node:internal/modules/package_json_reader:301:9)
+    at packageResolve (node:internal/modules/esm/resolve:768:81)
+    at moduleResolve (node:internal/modules/esm/resolve:859:18)
+    at defaultResolve (node:internal/modules/esm/resolve:992:11)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:701:20)
+    at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:721:38)
+    at ModuleLoader.resolveSync (node:internal/modules/esm/loader:759:56)
+    at #resolve (node:internal/modules/esm/loader:683:17)
+    at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:603:35)
+    at ModuleJob.syncLink (node:internal/modules/esm/module_job:163:33) {
+  code: 'ERR_MODULE_NOT_FOUND'
+}
+
+Node.js v24.19.0
+✖ checks/safe-markdown.test.mjs (23.904478ms)
+ℹ tests 58
+ℹ suites 0
+ℹ pass 57
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 6145.189954
+
+✖ failing tests:
+
+test at checks/safe-markdown.test.mjs:1:1
+✖ checks/safe-markdown.test.mjs (23.904478ms)
+  'test failed'
