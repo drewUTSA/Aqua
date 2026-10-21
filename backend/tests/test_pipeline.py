@@ -280,14 +280,18 @@ def test_plural_ranking_questions_ask_the_model_for_ten_rows(
     assert answer.size.kind == "list" and answer.size.rows == 10
 
 
-def test_singular_ranking_questions_ask_for_ties(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_singular_ranking_questions_ask_for_ties(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     calls = fake_model(monkeypatch, "SELECT title FROM film")
     fake_database(monkeypatch, OK)
     answer_question("What is the least popular film?", SETTINGS, SCHEMA)
     assert "every tied row" in calls[0]["size"]
 
 
-def test_questions_without_ranking_get_no_size_line(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_questions_without_ranking_get_no_size_line(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     calls = fake_model(monkeypatch, "SELECT count(*) AS films FROM film")
     fake_database(monkeypatch, OK)
     answer_question("How many films are there?", SETTINGS, SCHEMA)

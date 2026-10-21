@@ -28,13 +28,18 @@ SETTINGS = Settings(ollama_base_url="http://ollama.test")
 SCHEMA = "CREATE TABLE film (film_id INT, title VARCHAR(128));"
 
 
-def mock_client(content: str = '{"sql": "SELECT 1"}', thinking: str = "", status: int = 200):
+def mock_client(
+    content: str = '{"sql": "SELECT 1"}', thinking: str = "", status: int = 200
+):
     """Return (client, requests) for a fake Ollama that replies with `content`."""
     requests: list[dict] = []
 
     def handler(request: httpx.Request) -> httpx.Response:
         requests.append(json.loads(request.content))
-        reply = {"model": "test-model", "message": {"content": content, "thinking": thinking}}
+        reply = {
+            "model": "test-model",
+            "message": {"content": content, "thinking": thinking},
+        }
         return httpx.Response(status, json=reply)
 
     return httpx.Client(transport=httpx.MockTransport(handler)), requests
@@ -109,7 +114,9 @@ def test_sends_question_schema_rules_and_reply_schema() -> None:
 
 
 def test_returns_sql_reasoning_and_model() -> None:
-    client, _ = mock_client('{"sql": "SELECT COUNT(*) FROM film"}', thinking="Count rows.")
+    client, _ = mock_client(
+        '{"sql": "SELECT COUNT(*) FROM film"}', thinking="Count rows."
+    )
     result = generate_sql("How many films?", SCHEMA, SETTINGS, client=client)
     assert result.sql == "SELECT COUNT(*) FROM film"
     assert result.thinking == "Count rows."
@@ -143,7 +150,11 @@ def test_model_failure_surfaces_as_llm_error() -> None:
 def test_examples_sit_between_schema_and_question() -> None:
     examples = [Example("How many actors?", "SELECT count(*) FROM actor")]
     prompt = build_prompt("How many films?", SCHEMA, examples)
-    assert prompt.index(SCHEMA) < prompt.index("How many actors?") < prompt.index("Question: How many films?")
+    assert (
+        prompt.index(SCHEMA)
+        < prompt.index("How many actors?")
+        < prompt.index("Question: How many films?")
+    )
     assert "SQL: SELECT count(*) FROM actor" in prompt
 
 

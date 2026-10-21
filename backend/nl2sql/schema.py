@@ -195,7 +195,12 @@ def _create_table(table: Table) -> str:
         head, sep, comment = line.partition("  -- ")
         body.append(head + ("" if last else ",") + (f"  -- {comment}" if sep else ""))
     head = f"-- {table.comment}\n" if table.comment else ""
-    return head + f"CREATE TABLE {table.quoted_name or table.name} (\n" + "\n".join(body) + "\n);"
+    return (
+        head
+        + f"CREATE TABLE {table.quoted_name or table.name} (\n"
+        + "\n".join(body)
+        + "\n);"
+    )
 
 
 # Ordinary and partitioned tables in public, without the monthly payment

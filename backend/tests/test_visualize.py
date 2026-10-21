@@ -28,7 +28,11 @@ REAL_RESULTS = [
     (
         "How many rentals were made each month?",
         ["year", "month", "rental_count"],
-        [(Decimal(2022), Decimal(2), 182), (Decimal(2022), Decimal(5), 1156), (Decimal(2022), Decimal(6), 2311)],
+        [
+            (Decimal(2022), Decimal(2), 182),
+            (Decimal(2022), Decimal(5), 1156),
+            (Decimal(2022), Decimal(6), 2311),
+        ],
         "line",
         ("year", "month"),
         "rental_count",
@@ -36,7 +40,11 @@ REAL_RESULTS = [
     (
         "What is the total revenue for each film category?",
         ["name", "total_revenue"],
-        [("Sports", Decimal("5314.21")), ("Classics", Decimal("3639.59")), ("New", Decimal("4361.57"))],
+        [
+            ("Sports", Decimal("5314.21")),
+            ("Classics", Decimal("3639.59")),
+            ("New", Decimal("4361.57")),
+        ],
         "bar",
         ("name",),
         "total_revenue",
@@ -85,7 +93,9 @@ def test_a_real_date_column_gives_a_line() -> None:
 
 def test_id_columns_are_never_the_measure() -> None:
     """film_id is a number but measures nothing, so there is nothing to chart."""
-    chart = suggest_chart(["film_id", "title"], [(1, "ACADEMY DINOSAUR"), (2, "ACE GOLDFINGER")])
+    chart = suggest_chart(
+        ["film_id", "title"], [(1, "ACADEMY DINOSAUR"), (2, "ACE GOLDFINGER")]
+    )
     assert chart.type == "table"
 
 
@@ -100,7 +110,10 @@ def test_missing_values_do_not_change_the_column_kind() -> None:
 
 def test_one_labelled_row_is_a_table() -> None:
     """A bar chart of a single bar says nothing a table doesn't."""
-    assert suggest_chart(["title", "rentals"], [("BUCKET BROTHERHOOD", 34)]).type == "table"
+    assert (
+        suggest_chart(["title", "rentals"], [("BUCKET BROTHERHOOD", 34)]).type
+        == "table"
+    )
 
 
 def test_too_many_rows_for_a_bar_chart() -> None:
@@ -129,7 +142,9 @@ def test_chart_cannot_be_changed() -> None:
 
 
 def test_limitation_only_the_first_measure_is_charted() -> None:
-    chart = suggest_chart(["name", "rentals", "revenue"], [("A", 1, Decimal(2)), ("B", 3, Decimal(4))])
+    chart = suggest_chart(
+        ["name", "rentals", "revenue"], [("A", 1, Decimal(2)), ("B", 3, Decimal(4))]
+    )
     assert chart.y == "rentals"
 
 

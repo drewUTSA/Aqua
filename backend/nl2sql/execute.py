@@ -86,7 +86,9 @@ def execute(
     rejects the query and db.DatabaseError if it cannot be reached.
     """
     if not isinstance(query, exp.Query):
-        raise TypeError("execute() takes the parsed query from validate_sql(), not a string.")
+        raise TypeError(
+            "execute() takes the parsed query from validate_sql(), not a string."
+        )
 
     probe_sql = limit_rows(query, max_rows + 1).sql(dialect=dialect)
     with connect(settings) as conn:

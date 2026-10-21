@@ -22,7 +22,9 @@ from nl2sql.llm import (
 SETTINGS = Settings(ollama_base_url="http://ollama.test", ollama_model="test-model")
 
 
-def mock_client(reply: dict | None = None, status: int = 200, error: Exception | None = None):
+def mock_client(
+    reply: dict | None = None, status: int = 200, error: Exception | None = None
+):
     """Return (client, requests). `requests` fills up as the client is used."""
     requests: list[dict] = []
 
@@ -122,7 +124,9 @@ def test_missing_thinking_becomes_empty_string() -> None:
     assert complete("q", SETTINGS, client=client).thinking == ""
 
 
-@pytest.mark.parametrize("reply", [ollama_reply(""), ollama_reply("   "), {"done_reason": "length"}])
+@pytest.mark.parametrize(
+    "reply", [ollama_reply(""), ollama_reply("   "), {"done_reason": "length"}]
+)
 def test_empty_answer_is_an_error(reply: dict) -> None:
     client, _ = mock_client(reply)
     with pytest.raises(LLMError, match="no answer"):

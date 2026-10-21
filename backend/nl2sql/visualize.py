@@ -86,19 +86,40 @@ def suggest_chart(columns: Sequence[str], rows: Sequence[Sequence[Any]]) -> Char
         return Chart("table", reason="no rows")
 
     kinds = {col: _kind([row[i] for row in rows]) for i, col in enumerate(columns)}
-    time_parts = [c for c in columns if kinds[c] == "number" and c.lower() in TIME_PART_NAMES]
-    numbers = [c for c in columns if kinds[c] == "number" and not _is_id(c) and c not in time_parts]
+    time_parts = [
+        c for c in columns if kinds[c] == "number" and c.lower() in TIME_PART_NAMES
+    ]
+    numbers = [
+        c
+        for c in columns
+        if kinds[c] == "number" and not _is_id(c) and c not in time_parts
+    ]
     times = [c for c in columns if kinds[c] == "time"]
     texts = [c for c in columns if kinds[c] == "text"]
 
     if len(rows) == 1 and len(columns) == 1 and numbers:
         return Chart("number", y=numbers[0], reason="a single number")
     if len(times) == 1 and numbers and len(rows) >= 2:
-        return Chart("line", x=(times[0],), y=numbers[0], reason="a date column and a number column")
+        return Chart(
+            "line",
+            x=(times[0],),
+            y=numbers[0],
+            reason="a date column and a number column",
+        )
     if time_parts and numbers and len(rows) >= 2:
-        return Chart("line", x=tuple(time_parts), y=numbers[0], reason="year/month columns and a number column")
+        return Chart(
+            "line",
+            x=tuple(time_parts),
+            y=numbers[0],
+            reason="year/month columns and a number column",
+        )
     if texts and numbers and 2 <= len(rows) <= MAX_BAR_ROWS:
-        return Chart("bar", x=tuple(texts[:2]), y=numbers[0], reason="text labels and a number column")
+        return Chart(
+            "bar",
+            x=tuple(texts[:2]),
+            y=numbers[0],
+            reason="text labels and a number column",
+        )
     if texts and numbers and len(rows) > MAX_BAR_ROWS:
         return Chart("table", reason=f"more than {MAX_BAR_ROWS} rows for a bar chart")
     return Chart("table", reason="no column to measure")
