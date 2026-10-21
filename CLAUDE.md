@@ -2,6 +2,12 @@
 
 Instructions for coding agents working in this repository. Read this file before making changes.
 
+Latest P05 checkpoint: PR #42 is open at `0ffb3bd`. Its first CI run failed before
+the real-database browser checks. A fixture-only startup/readiness and sanitized
+bridge-reporting correction awaits human follow-up commit/push; see
+`docs/implementation/P05_CI_FIX.md`. This supersedes earlier pre-commit P05 status
+below. Production remains P04/schema 3, and app login/session code is unchanged.
+
 ## What this project is
 
 A natural-language-to-SQL app. A user asks a question in plain English and gets back the result rows, a short readable summary, and the exact SQL that produced them.

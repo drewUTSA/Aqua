@@ -4,8 +4,9 @@ Status: final run 3 passed all local gates: 120 unit cases and, for each shell,
 77 synthetic browser checks plus 20 real-backend browser checks. Both image
 builds and exact-asset rebuild comparisons passed after the last contrast fix.
 Evidence is sealed; copy/hash guards verify the actual checkout before human
-review. All current measurements below describe run 3. Neither shell
-from this follow-up is committed, merged or deployed. This record supersedes the
+review. Measurements below describe run 3, now committed in PR #42; the later
+[fixture CI correction](P05_CI_FIX.md) has its own evidence and review checkpoint.
+Neither shell is merged or deployed. This record supersedes the
 earlier P05 readiness conclusion. Previous evidence is retained separately from
 the current results below.
 

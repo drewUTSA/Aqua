@@ -1,6 +1,11 @@
 # Aqua
 Ask a database a question in plain English. Get back data, a readable summary and the exact SQL that produced it.
 
+Latest review update: P05 is committed in PR #42. Its first CI run stopped at
+the browser fixture's startup; the [tested fixture correction](docs/implementation/P05_CI_FIX.md)
+awaits a human follow-up commit/push. This supersedes the pre-commit checkpoint
+below. Production remains P04; wait for all PR checks before merging P05.
+
 Current checkpoint: [P04 PR #41](https://github.com/drewUTSA/Aqua/pull/41) is deployed at `067fb5a`, with private storage ready at schema 3 and all new password/mail flags disabled; see [the release record](docs/implementation/P04_RELEASE.md). [P05 Opal shell and account browser journeys](docs/implementation/P05.md) passed the [handoff follow-up](docs/implementation/P05_ROLLBACK.md) for reversible presentation, legal-navigation draft preservation, bounded title search and viewport/delivery evidence: 120 unit cases, plus 77 synthetic and 20 actual-backend browser checks for each shell. Copy/hash guards verify the actual checkout; human commit/push, remote PR checks and merge remain required. P05 is not deployed. The [approved phased specification](docs/planning/AQUA_CODEX_HANDOFF.md) covers the remaining frontend/backend work. Verification: [check runner guide](tools/checks/README.md).
 
 ## Private application storage and identity

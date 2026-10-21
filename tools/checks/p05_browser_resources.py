@@ -10,6 +10,45 @@ from p05_browser_docker import ROOT, create, docker, owned_resource, source_arch
 from p05_browser_protocol import MAX_SECONDS, POSTGRES
 
 
+def wait_for_postgres(pg: str) -> None:
+    """Wait for the final postmaster, never initdb's temporary socket server.
+
+    The pinned image starts a socket-only temporary server while PID 1 is still
+    its entrypoint shell. Accepting that socket races the entrypoint's shutdown.
+    Only the final ``exec postgres`` makes postgres PID 1. Keep TCP disabled and
+    check the private socket only after that transition, within one deadline.
+    """
+    deadline = time.monotonic() + 45
+    while True:
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            raise RuntimeError("fixture_postgres_unavailable")
+        try:
+            process = docker(
+                "exec", pg, "cat", "/proc/1/comm", timeout=min(5, remaining)
+            )
+            remaining = deadline - time.monotonic()
+            if process == b"postgres\n" and remaining > 0:
+                docker(
+                    "exec",
+                    pg,
+                    "pg_isready",
+                    "-h",
+                    "/run/aqua-app-db",
+                    "-U",
+                    "postgres",
+                    timeout=min(5, remaining),
+                )
+                if time.monotonic() < deadline:
+                    return
+        except (RuntimeError, subprocess.TimeoutExpired):
+            pass  # Startup/restart errors may recover, but never extend the bound.
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            raise RuntimeError("fixture_postgres_unavailable")
+        time.sleep(min(0.5, remaining))
+
+
 class Resources:
     def __init__(self, name: str) -> None:
         if not re.fullmatch(r"aqua-p05-browser-[a-f0-9]{24}", name):
@@ -75,15 +114,7 @@ class Resources:
         self.uncertain.discard(name + "-pg")
         docker("start", pg)
         report["step"] = "postgres_ready"
-        deadline = time.monotonic() + 45
-        while True:
-            try:
-                docker("exec", pg, "pg_isready", "-U", "postgres", timeout=5)
-                break
-            except RuntimeError:
-                if time.monotonic() >= deadline:
-                    raise RuntimeError("fixture_postgres_unavailable") from None
-                time.sleep(0.5)
+        wait_for_postgres(pg)
         docker(
             "exec",
             "-i",

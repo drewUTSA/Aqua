@@ -36,6 +36,7 @@ jobs:
           python -m black --check backend eval tools/checks ops
           python -m ruff check backend eval tools/checks ops
           python tools/checks/p05_browser_cleanup_test.py
+          python tools/checks/p05_browser_startup_test.py
       - name: Audit pinned runtime dependencies
         run: python -m pip_audit --no-deps --disable-pip -r tools/checks/requirements-runtime.lock
       - name: Prepare isolated test images
@@ -86,6 +87,7 @@ jobs:
           AQUA_P05_EXPECTED_SHELL: opal
           AQUA_P05_ARTIFACT_DIR: ${{ runner.temp }}/aqua-p05/opal/real
         run: |
+          python tools/checks/p05_browser_startup_smoke.py
           export AQUA_CHROME_EXECUTABLE="$(command -v google-chrome)"
           test -x "$AQUA_CHROME_EXECUTABLE"
           export AQUA_P05_BRIDGE_EXECUTABLE="$(command -v python)"

@@ -2,6 +2,7 @@
 // contacted. The reviewed JSONL bridge owns fixture DB/outbox setup and cleanup.
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
+import { FixtureBridge } from "./p05-browser-bridge.mjs";
 import { createServer } from "node:http";
 import { readFile, readdir, lstat, realpath, mkdtemp, mkdir, writeFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -23,7 +24,7 @@ async function ensureArtifacts() {
   await mkdir(artifacts, { recursive: true });
   if ((await lstat(artifacts)).isSymbolicLink()) throw new Error("artifact_directory_symlink_rejected");
 }
-const MAX_MS = 240000, MAX_BODY = 16384, MAX_REQUESTS = 400, MAX_FRAME = 131072;
+const MAX_MS = 240000, MAX_BODY = 16384, MAX_REQUESTS = 400;
 const EMAIL = "p05-browser-reader@example.test";
 const PASSWORD = "Synthetic orbital meadow password 27";
 const NEXT_PASSWORD = "Synthetic restored mountain password 48";
@@ -38,54 +39,6 @@ let navigating = false, canceled = 0, staticCount = 0, fixtureClockSteps = 0;
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const quote = JSON.stringify;
 
-class Bridge {
-  constructor(executable, argv) {
-    this.pending = new Map(); this.id = 0; this.buffer = Buffer.alloc(0); this.stderrBytes = 0;
-    this.process = spawn(executable, [...argv, "--origin", origin], { windowsHide: true, stdio: ["pipe", "pipe", "pipe"] });
-    this.closed = new Promise((resolve) => this.process.once("exit", resolve));
-    this.ready = new Promise((resolve, reject) => {
-      this.readyTask = { resolve, reject, timer: setTimeout(() => reject(new Error("bridge_startup_timeout")), 90000) };
-    });
-    this.process.stdout.on("data", (chunk) => {
-      this.buffer = Buffer.concat([this.buffer, chunk]);
-      if (this.buffer.length > MAX_FRAME) return this.fail("bridge_output_bound");
-      let end;
-      while ((end = this.buffer.indexOf(10)) >= 0) {
-        const line = this.buffer.subarray(0, end); this.buffer = this.buffer.subarray(end + 1);
-        if (!line.length) continue;
-        let response;
-        try { response = JSON.parse(line.toString("utf8")); } catch { return this.fail("bridge_invalid_json"); }
-        if (response.kind === "ready" && this.readyTask) {
-          clearTimeout(this.readyTask.timer); this.readyTask.resolve(response); this.readyTask = null; continue;
-        }
-        const task = this.pending.get(response.id);
-        if (!task) return this.fail("bridge_unmatched_response");
-        this.pending.delete(response.id); clearTimeout(task.timer);
-        if (response.error) task.reject(new Error("bridge_operation_failed")); else task.resolve(response);
-      }
-    });
-    // Deliberately never retain or print stderr: exceptions could contain bearer
-    // request material. A byte counter can explain a failing helper safely.
-    this.process.stderr.on("data", (chunk) => { this.stderrBytes += chunk.length; if (this.stderrBytes > MAX_FRAME) this.fail("bridge_stderr_bound"); });
-    this.process.once("error", () => this.fail("bridge_start_failed"));
-    this.process.stdin.on("error", () => this.fail("bridge_pipe_closed"));
-    this.process.once("exit", () => this.fail("bridge_exited"));
-  }
-  fail(reason) {
-    if (this.readyTask) { clearTimeout(this.readyTask.timer); this.readyTask.reject(new Error(reason)); this.readyTask = null; }
-    for (const task of this.pending.values()) { clearTimeout(task.timer); task.reject(new Error(reason)); }
-    this.pending.clear();
-  }
-  send(kind, data = {}, timeout = 20000) {
-    if (this.process.exitCode !== null || this.process.stdin.destroyed) throw new Error("bridge_closed");
-    const id = ++this.id, frame = JSON.stringify({ id, kind, ...data });
-    if (Buffer.byteLength(frame) > MAX_FRAME) throw new Error("bridge_input_bound");
-    return new Promise((resolve, reject) => {
-      const timer = setTimeout(() => { this.pending.delete(id); reject(new Error("bridge_request_timeout")); }, timeout);
-      this.pending.set(id, { resolve, reject, timer }); this.process.stdin.write(frame + "\n");
-    });
-  }
-}
 class CDP {
   constructor(child) {
     this.pending = new Map(); this.id = 0; this.buffer = Buffer.alloc(0); this.event = () => {};
@@ -219,7 +172,7 @@ try {
     response.writeHead(200, { "Content-Type": type, "Cache-Control": "no-store", "Referrer-Policy": "no-referrer", "X-Content-Type-Options": "nosniff" }); response.end(files.get(key));
   });
   await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve)); origin = `http://127.0.0.1:${server.address().port}`;
-  bridge = new Bridge(executable, argv);
+  bridge = new FixtureBridge(executable, argv, origin);
   const ready = await bridge.ready;
   assert.equal(ready.schema_version, 3, "schema3_fixture_required");
   assert.equal(ready.origin, origin, "exact_loopback_origin_required");
@@ -367,10 +320,14 @@ try {
     await cdp?.send("Browser.close", {}, null).catch(() => {}); await delay(500);
     if (browser.exitCode === null) { browser.kill(); await delay(500); }
   }
+  if (bridge?.finished) bridgeCleanup = bridge.finished;
   if (bridge && bridge.process.exitCode === null) {
-    try { bridgeCleanup = await bridge.send("finish", {}, 30000); } catch { bridgeCleanup = { status: "unconfirmed" }; }
+    if (!bridge.finished) {
+      try { bridgeCleanup = await bridge.send("finish", {}, 30000); } catch { bridgeCleanup = bridge.finished || { status: "unconfirmed" }; }
+    }
     bridge.process.stdin.end(); await Promise.race([bridge.closed, delay(3000)]);
     if (bridge.process.exitCode === null) bridge.process.kill();
+    if (bridge.finished) bridgeCleanup = bridge.finished;
   }
   server?.closeAllConnections(); if (server?.listening) await new Promise((resolve) => server.close(resolve));
   if (profile) {
@@ -380,16 +337,17 @@ try {
   }
 }
 await ensureArtifacts();
-const backendRemoved = bridgeCleanup?.report?.status === "passed" && bridgeCleanup?.report?.cleanup === "removed_and_absence_confirmed" && Array.isArray(bridgeCleanup?.report?.remaining_ids) && bridgeCleanup.report.remaining_ids.length === 0;
-const backendReport = Object.fromEntries(["run", "status", "cleanup", "remaining_ids", "worker_exit", "failure"].filter((key) => Object.hasOwn(bridgeCleanup?.report ?? {}, key)).map((key) => [key, bridgeCleanup.report[key]]));
-if (!failure && (!backendRemoved || bridgeCleanup?.status !== "passed")) failure = "backend_cleanup_unconfirmed";
+const backendRemoved = bridgeCleanup?.report?.cleanup === "removed_and_absence_confirmed" && Array.isArray(bridgeCleanup?.report?.remaining_ids) && bridgeCleanup.report.remaining_ids.length === 0;
+const backendPassed = bridgeCleanup?.status === "passed" && bridgeCleanup?.report?.status === "passed";
+const backendReport = Object.fromEntries(["run", "status", "step", "cleanup", "remaining_ids", "worker_exit", "failure", "worker_error"].filter((key) => Object.hasOwn(bridgeCleanup?.report ?? {}, key)).map((key) => [key, bridgeCleanup.report[key]]));
+if (!failure && (!backendRemoved || !backendPassed)) failure = "backend_cleanup_unconfirmed";
 // Only explicitly sanitized bridge cleanup fields are persisted. Mail payloads,
 // cookies, credentials, CSRF values and proof links never enter the report.
 const report = { status: failure ? "failed" : "passed", failure, checked_utc: new Date().toISOString(), mode: "real_fastapi_disposable_postgres_browser",
-  expected_shell: EXPECTED_SHELL, loadedAssets, results, screenshots, performanceSamples, observations: { requests, apiRequests, external_attempts: external, consoleLeaks, browserErrors, protocolErrors, canceled, explicit_fixture_admission_clock_steps: fixtureClockSteps, apiOutcomes },
+  expected_shell: EXPECTED_SHELL, bridge_diagnostic: bridge?.diagnostic ?? null, loadedAssets, results, screenshots, performanceSamples, observations: { requests, apiRequests, external_attempts: external, consoleLeaks, browserErrors, protocolErrors, canceled, explicit_fixture_admission_clock_steps: fixtureClockSteps, apiOutcomes },
   cleanup: { browser_stopped: !browser || browser.exitCode !== null, temporary_profile_removed: Boolean(profile), loopback_closed: !server?.listening, backend_status: bridgeCleanup?.status ?? null, backend_resources_removed: backendRemoved, backend_report: backendReport },
   elapsed_seconds: Math.round((performance.now() - started) / 10) / 100,
   limitations: ["Real FastAPI/auth/database code against synthetic disposable fixtures; no deployed origin or production data validation.", "Google verifier and email sender are synthetic test adapters; no Google or email provider contacted.", "No analytical database or AI model is exercised."] };
 await writeFile(path.join(artifacts, "report.json"), JSON.stringify(report, null, 2) + "\n");
-console.log(JSON.stringify({ status: report.status, checks: results.length, failure, report: path.join(artifacts, "report.json") }));
+console.log(JSON.stringify({ status: report.status, checks: results.length, failure, bridge_diagnostic: report.bridge_diagnostic, backend_cleanup: backendReport, report: path.join(artifacts, "report.json") }));
 if (failure || !report.cleanup.browser_stopped || !report.cleanup.loopback_closed || report.cleanup.backend_status !== "passed") process.exitCode = 1;

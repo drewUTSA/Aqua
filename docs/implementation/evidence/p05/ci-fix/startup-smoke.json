@@ -1,0 +1,14 @@
+{
+  "purpose": "p05_temporary_postgres_readiness_regression",
+  "status": "passed",
+  "postgres_image": "sha256:3645570cccdfa447589da9f57dd740faa29b30938e861289a5574b6ca6b03826",
+  "old_gate_accepts_temporary_server": true,
+  "initialization_release_barrier_seconds": 60,
+  "pinned_entrypoint_sha256": "9c440299ae04a0a79d55b8bf03307036d890a40979d2fb698073c9050d4b20a5",
+  "final_process_gate": true,
+  "final_socket_query": true,
+  "network": "none",
+  "tcp_listener": false,
+  "cleanup": "removed_and_absence_confirmed",
+  "remaining_ids": []
+}

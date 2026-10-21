@@ -1,5 +1,9 @@
 # P05 PR draft — Opal workspace and secure account journeys
 
+PR #42 is now open at `0ffb3bd`. Its first CI run failed in fixture startup;
+the [tested infrastructure correction](P05_CI_FIX.md) awaits a human follow-up
+commit/push to this same PR. All checks must pass before merge.
+
 Status: all final run-3 local follow-up gates passed after the last contrast
 correction; evidence is sealed. Copy/hash guards verify the actual checkout
 before human review.
