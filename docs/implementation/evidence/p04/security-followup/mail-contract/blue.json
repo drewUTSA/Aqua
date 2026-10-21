@@ -1,0 +1,7 @@
+{
+  "purpose": "p04_account_mail_contract_blue",
+  "exit_code": 0,
+  "egress": "denied",
+  "database_access": false,
+  "synthetic_key_only": true
+}

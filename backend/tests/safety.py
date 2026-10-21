@@ -57,6 +57,9 @@ def configure(environ: MutableMapping[str, str]) -> str:
             name in CONFIG_NAMES
             or name.startswith("PG")
             or name.startswith("APP_DB")
+            or name.startswith("PASSWORD_")
+            or name.startswith("ACCOUNT_MAIL_")
+            or name in {"ACCOUNT_PUBLIC_ORIGIN", "RESEND_API_KEY"}
             or name == "APP_STORAGE_ENABLED"
         ):
             del environ[name]

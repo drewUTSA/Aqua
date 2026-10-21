@@ -1,0 +1,15 @@
+{
+  "purpose": "aqua_catalog_object_metadata_canary",
+  "scope": "parser-only synthetic literals; no database access; metadata resolution policy, not code execution proof",
+  "stage": "before",
+  "cases": [
+    {
+      "case": "catalog_object_scalar",
+      "result": "accepted"
+    },
+    {
+      "case": "catalog_object_array",
+      "result": "rejected"
+    }
+  ]
+}

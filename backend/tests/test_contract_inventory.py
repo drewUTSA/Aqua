@@ -22,6 +22,12 @@ def test_current_http_surface_is_explicit():
         ("/api/auth/google", "POST"),
         ("/api/auth/me", "GET"),
         ("/api/auth/logout", "POST"),
+        ("/api/v1/auth/bootstrap", "GET"),
+        ("/api/v1/auth/registrations", "POST"),
+        ("/api/v1/auth/email-verifications", "POST"),
+        ("/api/v1/auth/password-login", "POST"),
+        ("/api/v1/auth/password-reset-requests", "POST"),
+        ("/api/v1/auth/password-resets", "POST"),
     }
     for path in ("/openapi.json", "/docs", "/docs/oauth2-redirect", "/redoc"):
         expected.update({(path, "GET"), (path, "HEAD")})

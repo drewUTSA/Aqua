@@ -1,0 +1,6 @@
+{
+  "status": "stopped_before_privilege_checks",
+  "reason": "unexpected_server_changes",
+  "context": "An agent-created disposable P04 build directory was present while source cleanliness was checked. Verification was rerun only after that exact temporary context was removed; no source guard was bypassed.",
+  "retest": "p03-release-verify.json"
+}

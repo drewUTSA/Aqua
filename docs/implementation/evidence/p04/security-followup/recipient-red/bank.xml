@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="1.026" timestamp="2026-10-21T04:11:36.040901+00:00" hostname="00a986af8238"><testcase classname="tests.test_mail_recipient_abuse" name="test_repeated_public_mail_requests_queue_one_job_before_cooldown" time="0.913"><failure message="assert (3,) == (1,)&#10;  &#10;  At index 0 diff: 3 != 1&#10;  Use -v to get more diff">tests/test_mail_recipient_abuse.py:258: in test_repeated_public_mail_requests_queue_one_job_before_cooldown
+    assert conn.execute(
+E   assert (3,) == (1,)
+E     
+E     At index 0 diff: 3 != 1
+E     Use -v to get more diff</failure></testcase></testsuite></testsuites>

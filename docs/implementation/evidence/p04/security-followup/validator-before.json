@@ -1,0 +1,27 @@
+{
+  "purpose": "aqua_sql_execution_boundary_canary",
+  "scope": "local parser only; synthetic literals; no database/provider/file execution",
+  "stage": "before",
+  "cases": [
+    {
+      "case": "custom_qualified_operator",
+      "result": "accepted"
+    },
+    {
+      "case": "custom_qualified_cast",
+      "result": "accepted"
+    },
+    {
+      "case": "custom_array_cast",
+      "result": "accepted"
+    },
+    {
+      "case": "builtin_qualified_operator",
+      "result": "accepted"
+    },
+    {
+      "case": "builtin_qualified_cast",
+      "result": "accepted"
+    }
+  ]
+}

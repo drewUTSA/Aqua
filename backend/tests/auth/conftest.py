@@ -8,6 +8,7 @@ from auth import router
 from nl2sql.config import Settings
 from _auth_test_helpers import CLIENT_ID, EMAIL, ORIGIN, SUBJECT
 from _durable_route_helpers import durable_browser  # noqa: F401
+from _password_route_helpers import password_browser  # noqa: F401
 
 
 @pytest.fixture

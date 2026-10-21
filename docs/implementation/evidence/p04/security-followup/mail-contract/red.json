@@ -1,0 +1,8 @@
+{
+  "purpose": "p04_account_mail_contract_red",
+  "expected_failure": true,
+  "exit_code": 1,
+  "egress": "denied",
+  "database_access": false,
+  "synthetic_key_only": true
+}

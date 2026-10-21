@@ -1,5 +1,5 @@
 ﻿import React, { useMemo, useState } from "react";
-import { createCsv, formatCell } from "./financialValues.js";
+import { createCsv, createTsv, formatCell } from "./financialValues.js";
 
 const numericTypes = ["currency", "percentage", "number"];
 
@@ -20,10 +20,7 @@ export default function FinancialTable({ table }) {
     ? { key, direction: current.direction === "asc" ? "desc" : "asc" } : { key, direction: "asc" });
   const copyTable = async () => {
     try {
-      await navigator.clipboard.writeText([
-        table.columns.map((column) => column.label).join("\t"),
-        ...rows.map((row) => table.columns.map((column) => formatCell(row[column.key], column, table)).join("\t"))
-      ].join("\n"));
+      await navigator.clipboard.writeText(createTsv(table, rows));
       setFeedback("Table copied");
     } catch { setFeedback("Copy unavailable in this browser"); }
   };

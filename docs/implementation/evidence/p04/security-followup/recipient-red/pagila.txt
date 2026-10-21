@@ -1,0 +1,12 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_______ test_repeated_public_mail_requests_queue_one_job_before_cooldown _______
+tests/test_mail_recipient_abuse.py:258: in test_repeated_public_mail_requests_queue_one_job_before_cooldown
+    assert conn.execute(
+E   assert (3,) == (1,)
+E     
+E     At index 0 diff: 3 != 1
+E     Use -v to get more diff
+=========================== short test summary info ============================
+FAILED tests/test_mail_recipient_abuse.py::test_repeated_public_mail_requests_queue_one_job_before_cooldown
+1 failed in 1.01s

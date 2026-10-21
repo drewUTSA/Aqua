@@ -1,0 +1,649 @@
+................................................F.FF......FFF......FFFFF [  7%]
+FF.FFF.................................................................. [ 14%]
+.......................................................F................ [ 22%]
+........................................................................ [ 29%]
+................F.....................ssssss...ssssssss................. [ 36%]
+........................................................................ [ 44%]
+........................................................................ [ 51%]
+.................s........................FF.FF.FFFFFF.F.FFF........F... [ 58%]
+..............F.FFFFFFFFF.FFFFF......................................... [ 66%]
+............................sss.s....................................... [ 73%]
+........................................................................ [ 81%]
+........................................................................ [ 88%]
+........................................................................ [ 95%]
+.........................................                                [100%]
+=================================== FAILURES ===================================
+______ test_password_login_is_independent_of_google_and_mail_availability ______
+tests/auth/test_password_routes_availability.py:23: in test_password_login_is_independent_of_google_and_mail_availability
+    browser.register()
+tests/auth/_password_route_helpers.py:86: in register
+    assert verified.status_code == 204
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError
+------------------------------ Captured log call -------------------------------
+WARNING  aqua.password:password_errors.py:33 password_event action=deny reason=service_unavailable
+____ test_wrong_and_absent_accounts_have_same_public_failure_and_hash_work _____
+tests/auth/test_password_routes_availability.py:69: in test_wrong_and_absent_accounts_have_same_public_failure_and_hash_work
+    browser.register()
+tests/auth/_password_route_helpers.py:86: in register
+    assert verified.status_code == 204
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError
+------------------------------ Captured log call -------------------------------
+WARNING  aqua.password:password_errors.py:33 password_event action=deny reason=service_unavailable
+______ test_address_limit_survives_cookie_and_header_churn_then_recovers _______
+tests/auth/test_password_routes_availability.py:85: in test_address_limit_survives_cookie_and_header_churn_then_recovers
+    browser.register()
+tests/auth/_password_route_helpers.py:86: in register
+    assert verified.status_code == 204
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError
+------------------------------ Captured log call -------------------------------
+WARNING  aqua.password:password_errors.py:33 password_event action=deny reason=service_unavailable
+_______ test_known_and_unknown_email_requests_share_bounded_timing_floor _______
+tests/auth/test_password_routes_availability.py:183: in test_known_and_unknown_email_requests_share_bounded_timing_floor
+    browser.register()
+tests/auth/_password_route_helpers.py:86: in register
+    assert verified.status_code == 204
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError
+------------------------------ Captured log call -------------------------------
+WARNING  aqua.password:password_errors.py:33 password_event action=deny reason=service_unavailable
+________ test_pausing_new_mail_flows_preserves_existing_password_login _________
+tests/auth/test_password_routes_availability.py:209: in test_pausing_new_mail_flows_preserves_existing_password_login
+    browser.register()
+tests/auth/_password_route_helpers.py:86: in register
+    assert verified.status_code == 204
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError
+------------------------------ Captured log call -------------------------------
+WARNING  aqua.password:password_errors.py:33 password_event action=deny reason=service_unavailable
+____ test_hash_flood_has_two_slots_no_db_leases_and_logout_stays_available _____
+tests/auth/test_password_routes_resources.py:17: in test_hash_flood_has_two_slots_no_db_leases_and_logout_stays_available
+    browser.register()
+tests/auth/_password_route_helpers.py:86: in register
+    assert verified.status_code == 204
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError
+------------------------------ Captured log call -------------------------------
+WARNING  aqua.password:password_errors.py:33 password_event action=deny reason=service_unavailable
+_____ test_registration_activates_only_password_chosen_with_mailbox_proof ______
+tests/auth/test_password_routes_security.py:76: in test_registration_activates_only_password_chosen_with_mailbox_proof
+    assert failed.status_code == 400
+E   assert 503 == 400
+E    +  where 503 = <Response [503 Service Unavailable]>.status_code
+------------------------------ Captured log call -------------------------------
+INFO     aqua.password:password_router.py:92 password_event action=allow reason=registration_requested
+WARNING  aqua.password:password_errors.py:33 password_event action=deny reason=service_unavailable
+___ test_existing_registration_has_generic_ack_and_cannot_replace_credential ___
+tests/auth/test_password_routes_security.py:114: in test_existing_registration_has_generic_ack_and_cannot_replace_credential
+    owner = browser.register()
+            ^^^^^^^^^^^^^^^^^^
+tests/auth/_password_route_helpers.py:86: in register
+    assert verified.status_code == 204
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError
+------------------------------ Captured log call -------------------------------
+WARNING  aqua.password:password_errors.py:33 password_event action=deny reason=service_unavailable
+_ test_recovery_links_do_not_mutate_on_get[/email-verifications-verification] __
+tests/auth/test_password_routes_security.py:144: in test_recovery_links_do_not_mutate_on_get
+    browser.register()
+tests/auth/_password_route_helpers.py:86: in register
+    assert verified.status_code == 204
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError
+------------------------------ Captured log call -------------------------------
+WARNING  aqua.password:password_errors.py:33 password_event action=deny reason=service_unavailable
+_______ test_recovery_links_do_not_mutate_on_get[/password-resets-reset] _______
+tests/auth/test_password_routes_security.py:144: in test_recovery_links_do_not_mutate_on_get
+    browser.register()
+tests/auth/_password_route_helpers.py:86: in register
+    assert verified.status_code == 204
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError
+------------------------------ Captured log call -------------------------------
+WARNING  aqua.password:password_errors.py:33 password_event action=deny reason=service_unavailable
+_ test_concurrent_consumption_has_one_transition_and_no_automatic_login[verification] _
+tests/auth/test_password_routes_security.py:190: in test_concurrent_consumption_has_one_transition_and_no_automatic_login
+    assert sorted(workers.map(submit, range(2))) == [204, 400]
+E   assert [503, 503] == [204, 400]
+E     
+E     At index 0 diff: 503 != 204
+E     Use -v to get more diff
+------------------------------ Captured log call -------------------------------
+WARNING  aqua.password:password_errors.py:33 password_event action=deny reason=service_unavailable
+WARNING  aqua.password:password_errors.py:33 password_event action=deny reason=service_unavailable
+_ test_concurrent_consumption_has_one_transition_and_no_automatic_login[reset] _
+tests/auth/test_password_routes_security.py:164: in test_concurrent_consumption_has_one_transition_and_no_automatic_login
+    browser.register()
+tests/auth/_password_route_helpers.py:86: in register
+    assert verified.status_code == 204
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError
+------------------------------ Captured log call -------------------------------
+WARNING  aqua.password:password_errors.py:33 password_event action=deny reason=service_unavailable
+_________ test_reset_revokes_copied_sessions_and_all_outstanding_links _________
+tests/auth/test_password_routes_security.py:203: in test_reset_revokes_copied_sessions_and_all_outstanding_links
+    owner = browser.register()
+            ^^^^^^^^^^^^^^^^^^
+tests/auth/_password_route_helpers.py:86: in register
+    assert verified.status_code == 204
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError
+------------------------------ Captured log call -------------------------------
+WARNING  aqua.password:password_errors.py:33 password_event action=deny reason=service_unavailable
+_ test_verification_token_cannot_be_used_for_recovery_or_activate_weak_password _
+tests/auth/test_password_routes_security.py:310: in test_verification_token_cannot_be_used_for_recovery_or_activate_weak_password
+    assert swapped.status_code == 400 and weak.status_code == 422
+E   assert (503 == 400)
+E    +  where 503 = <Response [503 Service Unavailable]>.status_code
+------------------------------ Captured log call -------------------------------
+WARNING  aqua.password:password_errors.py:33 password_event action=deny reason=service_unavailable
+WARNING  aqua.password:password_errors.py:41 password_event action=deny reason=policy_invalid
+__________ test_expired_mail_link_never_hashes_or_creates_an_account ___________
+tests/auth/test_password_routes_security.py:345: in test_expired_mail_link_never_hashes_or_creates_an_account
+    assert expired.status_code == 400 and browser.hash_calls == []
+E   assert (503 == 400)
+E    +  where 503 = <Response [503 Service Unavailable]>.status_code
+------------------------------ Captured log call -------------------------------
+WARNING  aqua.password:password_errors.py:33 password_event action=deny reason=service_unavailable
+____ test_password_at_normalized_limit_accepts_equivalent_decomposed_input _____
+tests/auth/test_password_routes_security.py:358: in test_password_at_normalized_limit_accepts_equivalent_decomposed_input
+    browser.register(password=password)
+tests/auth/_password_route_helpers.py:86: in register
+    assert verified.status_code == 204
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError
+------------------------------ Captured log call -------------------------------
+WARNING  aqua.password:password_errors.py:33 password_event action=deny reason=service_unavailable
+____ test_wrong_binding_expired_and_wrong_purpose_challenges_fail[purpose] _____
+tests/test_auth_admission.py:45: in test_wrong_binding_expired_and_wrong_purpose_challenges_fail
+    with storage.transaction() as conn:
+         ^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.12/contextlib.py:158: in __exit__
+    self.gen.throw(value)
+storage/pool.py:96: in transaction
+    raise StorageUnavailable("application_storage_unavailable") from None
+E   storage.pool.StorageUnavailable: application_storage_unavailable
+------------------------------ Captured log call -------------------------------
+WARNING  aqua.storage:pool.py:95 application_storage_failure action=deny
+____________________ test_current_http_surface_is_explicit _____________________
+tests/test_contract_inventory.py:28: in test_current_http_surface_is_explicit
+    assert actual == expected
+E   AssertionError: assert {('/api/auth/..., 'GET'), ...} == {('/api/auth/..., 'GET'), ...}
+E     
+E     Extra items in the left set:
+E     ('/api/v1/auth/password-login', 'POST')
+E     ('/api/v1/auth/email-verifications', 'POST')
+E     ('/api/v1/auth/password-resets', 'POST')
+E     ('/api/v1/auth/registrations', 'POST')
+E     ('/api/v1/auth/bootstrap', 'GET')
+E     ('/api/v1/auth/password-reset-requests', 'POST')
+E     Use -v to get more diff
+_ test_known_and_unknown_mail_capacity_fail_identically_without_partial_ticket _
+tests/test_password_abuse.py:31: in test_known_and_unknown_mail_capacity_fail_identically_without_partial_ticket
+    register(store)
+tests/password_core_helpers.py:67: in register
+    return store.complete_verification(token, password, "fixture"), token
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+auth/passwords.py:68: in complete_verification
+    password = normalize_password(password)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+auth/password_policy.py:137: in normalize_password
+    or is_common(normalized)
+       ^^^^^^^^^^^^^^^^^^^^^
+auth/password_blocklist.py:36: in is_common
+    hashlib.sha256(value.casefold().encode("utf-8")).hexdigest() in common_digests()
+                                                                    ^^^^^^^^^^^^^^^^
+auth/password_blocklist.py:31: in common_digests
+    raise AuthDenied("password_policy_unavailable") from None
+E   auth.config.AuthDenied: password_policy_unavailable
+_____ test_address_budget_survives_cookie_peer_store_rotation_and_recovers _____
+tests/test_password_abuse.py:45: in test_address_budget_survives_cookie_peer_store_rotation_and_recovers
+    register(store)
+tests/password_core_helpers.py:67: in register
+    return store.complete_verification(token, password, "fixture"), token
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+auth/passwords.py:68: in complete_verification
+    password = normalize_password(password)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+auth/password_policy.py:137: in normalize_password
+    or is_common(normalized)
+       ^^^^^^^^^^^^^^^^^^^^^
+auth/password_blocklist.py:36: in is_common
+    hashlib.sha256(value.casefold().encode("utf-8")).hexdigest() in common_digests()
+                                                                    ^^^^^^^^^^^^^^^^
+auth/password_blocklist.py:31: in common_digests
+    raise AuthDenied("password_policy_unavailable") from None
+E   auth.config.AuthDenied: password_policy_unavailable
+_ test_retained_hash_slots_fail_closed_and_operator_recovery_does_not_lose_accounts _
+tests/test_password_abuse.py:95: in test_retained_hash_slots_fail_closed_and_operator_recovery_does_not_lose_accounts
+    owner, _ = register(store)
+               ^^^^^^^^^^^^^^^
+tests/password_core_helpers.py:67: in register
+    return store.complete_verification(token, password, "fixture"), token
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+auth/passwords.py:68: in complete_verification
+    password = normalize_password(password)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+auth/password_policy.py:137: in normalize_password
+    or is_common(normalized)
+       ^^^^^^^^^^^^^^^^^^^^^
+auth/password_blocklist.py:36: in is_common
+    hashlib.sha256(value.casefold().encode("utf-8")).hexdigest() in common_digests()
+                                                                    ^^^^^^^^^^^^^^^^
+auth/password_blocklist.py:31: in common_digests
+    raise AuthDenied("password_policy_unavailable") from None
+E   auth.config.AuthDenied: password_policy_unavailable
+_________ test_hash_exception_releases_its_slot_and_allows_next_login __________
+tests/test_password_abuse.py:116: in test_hash_exception_releases_its_slot_and_allows_next_login
+    register(store)
+tests/password_core_helpers.py:67: in register
+    return store.complete_verification(token, password, "fixture"), token
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+auth/passwords.py:68: in complete_verification
+    password = normalize_password(password)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+auth/password_policy.py:137: in normalize_password
+    or is_common(normalized)
+       ^^^^^^^^^^^^^^^^^^^^^
+auth/password_blocklist.py:36: in is_common
+    hashlib.sha256(value.casefold().encode("utf-8")).hexdigest() in common_digests()
+                                                                    ^^^^^^^^^^^^^^^^
+auth/password_blocklist.py:31: in common_digests
+    raise AuthDenied("password_policy_unavailable") from None
+E   auth.config.AuthDenied: password_policy_unavailable
+_____ test_parallel_consumption_is_exactly_once_across_connections[verify] _____
+tests/test_password_abuse.py:180: in test_parallel_consumption_is_exactly_once_across_connections
+    assert sorted(threads.map(attempt, range(2))) == ["accepted", "denied"]
+E   AssertionError: assert ['denied', 'denied'] == ['accepted', 'denied']
+E     
+E     At index 0 diff: 'denied' != 'accepted'
+E     Use -v to get more diff
+_____ test_parallel_consumption_is_exactly_once_across_connections[reset] ______
+tests/test_password_abuse.py:163: in test_parallel_consumption_is_exactly_once_across_connections
+    register(stores[0])
+tests/password_core_helpers.py:67: in register
+    return store.complete_verification(token, password, "fixture"), token
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+auth/passwords.py:68: in complete_verification
+    password = normalize_password(password)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+auth/password_policy.py:137: in normalize_password
+    or is_common(normalized)
+       ^^^^^^^^^^^^^^^^^^^^^
+auth/password_blocklist.py:36: in is_common
+    hashlib.sha256(value.casefold().encode("utf-8")).hexdigest() in common_digests()
+                                                                    ^^^^^^^^^^^^^^^^
+auth/password_blocklist.py:31: in common_digests
+    raise AuthDenied("password_policy_unavailable") from None
+E   auth.config.AuthDenied: password_policy_unavailable
+____ test_reset_during_detached_password_check_cannot_mint_a_stale_session _____
+tests/test_password_abuse.py:192: in test_reset_during_detached_password_check_cannot_mint_a_stale_session
+    register(store)
+tests/password_core_helpers.py:67: in register
+    return store.complete_verification(token, password, "fixture"), token
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+auth/passwords.py:68: in complete_verification
+    password = normalize_password(password)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+auth/password_policy.py:137: in normalize_password
+    or is_common(normalized)
+       ^^^^^^^^^^^^^^^^^^^^^
+auth/password_blocklist.py:36: in is_common
+    hashlib.sha256(value.casefold().encode("utf-8")).hexdigest() in common_digests()
+                                                                    ^^^^^^^^^^^^^^^^
+auth/password_blocklist.py:31: in common_digests
+    raise AuthDenied("password_policy_unavailable") from None
+E   auth.config.AuthDenied: password_policy_unavailable
+______ test_request_stores_no_pending_account_password_or_plaintext_token ______
+tests/test_password_credentials.py:43: in test_request_stores_no_pending_account_password_or_plaintext_token
+    owner = store.complete_verification(token, PASSWORD, "fresh-mailbox-browser")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+auth/passwords.py:68: in complete_verification
+    password = normalize_password(password)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+auth/password_policy.py:137: in normalize_password
+    or is_common(normalized)
+       ^^^^^^^^^^^^^^^^^^^^^
+auth/password_blocklist.py:36: in is_common
+    hashlib.sha256(value.casefold().encode("utf-8")).hexdigest() in common_digests()
+                                                                    ^^^^^^^^^^^^^^^^
+auth/password_blocklist.py:31: in common_digests
+    raise AuthDenied("password_policy_unavailable") from None
+E   auth.config.AuthDenied: password_policy_unavailable
+_ test_repeated_registration_and_replayed_verification_never_replace_password __
+tests/test_password_credentials.py:59: in test_repeated_registration_and_replayed_verification_never_replace_password
+    owner, token = register(store)
+                   ^^^^^^^^^^^^^^^
+tests/password_core_helpers.py:67: in register
+    return store.complete_verification(token, password, "fixture"), token
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+auth/passwords.py:68: in complete_verification
+    password = normalize_password(password)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+auth/password_policy.py:137: in normalize_password
+    or is_common(normalized)
+       ^^^^^^^^^^^^^^^^^^^^^
+auth/password_blocklist.py:36: in is_common
+    hashlib.sha256(value.casefold().encode("utf-8")).hexdigest() in common_digests()
+                                                                    ^^^^^^^^^^^^^^^^
+auth/password_blocklist.py:31: in common_digests
+    raise AuthDenied("password_policy_unavailable") from None
+E   auth.config.AuthDenied: password_policy_unavailable
+_ test_pending_precreation_uses_recipients_fresh_password_and_consumes_all_links _
+tests/test_password_credentials.py:77: in test_pending_precreation_uses_recipients_fresh_password_and_consumes_all_links
+    owner = store.complete_verification(newer, NEW_PASSWORD, "mailbox-browser")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+auth/passwords.py:68: in complete_verification
+    password = normalize_password(password)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+auth/password_policy.py:137: in normalize_password
+    or is_common(normalized)
+       ^^^^^^^^^^^^^^^^^^^^^
+auth/password_blocklist.py:36: in is_common
+    hashlib.sha256(value.casefold().encode("utf-8")).hexdigest() in common_digests()
+                                                                    ^^^^^^^^^^^^^^^^
+auth/password_blocklist.py:31: in common_digests
+    raise AuthDenied("password_policy_unavailable") from None
+E   auth.config.AuthDenied: password_policy_unavailable
+_ test_reset_revokes_copied_sessions_all_links_and_notifies_without_auto_login _
+tests/test_password_credentials.py:120: in test_reset_revokes_copied_sessions_all_links_and_notifies_without_auto_login
+    owner, _ = register(store)
+               ^^^^^^^^^^^^^^^
+tests/password_core_helpers.py:67: in register
+    return store.complete_verification(token, password, "fixture"), token
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+auth/passwords.py:68: in complete_verification
+    password = normalize_password(password)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+auth/password_policy.py:137: in normalize_password
+    or is_common(normalized)
+       ^^^^^^^^^^^^^^^^^^^^^
+auth/password_blocklist.py:36: in is_common
+    hashlib.sha256(value.casefold().encode("utf-8")).hexdigest() in common_digests()
+                                                                    ^^^^^^^^^^^^^^^^
+auth/password_blocklist.py:31: in common_digests
+    raise AuthDenied("password_policy_unavailable") from None
+E   auth.config.AuthDenied: password_policy_unavailable
+_ test_expired_or_wrong_purpose_email_tokens_cannot_change_credentials[password_reset] _
+tests/test_password_credentials.py:156: in test_expired_or_wrong_purpose_email_tokens_cannot_change_credentials
+    register(store)
+tests/password_core_helpers.py:67: in register
+    return store.complete_verification(token, password, "fixture"), token
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+auth/passwords.py:68: in complete_verification
+    password = normalize_password(password)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+auth/password_policy.py:137: in normalize_password
+    or is_common(normalized)
+       ^^^^^^^^^^^^^^^^^^^^^
+auth/password_blocklist.py:36: in is_common
+    hashlib.sha256(value.casefold().encode("utf-8")).hexdigest() in common_digests()
+                                                                    ^^^^^^^^^^^^^^^^
+auth/password_blocklist.py:31: in common_digests
+    raise AuthDenied("password_policy_unavailable") from None
+E   auth.config.AuthDenied: password_policy_unavailable
+____ test_mail_outage_is_uniform_for_known_unknown_and_does_not_break_login ____
+tests/test_password_credentials.py:184: in test_mail_outage_is_uniform_for_known_unknown_and_does_not_break_login
+    register(store)
+tests/password_core_helpers.py:67: in register
+    return store.complete_verification(token, password, "fixture"), token
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+auth/passwords.py:68: in complete_verification
+    password = normalize_password(password)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+auth/password_policy.py:137: in normalize_password
+    or is_common(normalized)
+       ^^^^^^^^^^^^^^^^^^^^^
+auth/password_blocklist.py:36: in is_common
+    hashlib.sha256(value.casefold().encode("utf-8")).hexdigest() in common_digests()
+                                                                    ^^^^^^^^^^^^^^^^
+auth/password_blocklist.py:31: in common_digests
+    raise AuthDenied("password_policy_unavailable") from None
+E   auth.config.AuthDenied: password_policy_unavailable
+_ test_argon2_never_holds_the_only_app_connection_and_unknown_does_equivalent_work _
+tests/test_password_credentials.py:212: in test_argon2_never_holds_the_only_app_connection_and_unknown_does_equivalent_work
+    register(store)
+tests/password_core_helpers.py:67: in register
+    return store.complete_verification(token, password, "fixture"), token
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+auth/passwords.py:68: in complete_verification
+    password = normalize_password(password)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+auth/password_policy.py:137: in normalize_password
+    or is_common(normalized)
+       ^^^^^^^^^^^^^^^^^^^^^
+auth/password_blocklist.py:36: in is_common
+    hashlib.sha256(value.casefold().encode("utf-8")).hexdigest() in common_digests()
+                                                                    ^^^^^^^^^^^^^^^^
+auth/password_blocklist.py:31: in common_digests
+    raise AuthDenied("password_policy_unavailable") from None
+E   auth.config.AuthDenied: password_policy_unavailable
+______ test_nfc_spaces_managers_and_long_inputs_have_one_consistent_value ______
+tests/test_password_policy.py:29: in test_nfc_spaces_managers_and_long_inputs_have_one_consistent_value
+    assert normalize_password(
+auth/password_policy.py:137: in normalize_password
+    or is_common(normalized)
+       ^^^^^^^^^^^^^^^^^^^^^
+auth/password_blocklist.py:36: in is_common
+    hashlib.sha256(value.casefold().encode("utf-8")).hexdigest() in common_digests()
+                                                                    ^^^^^^^^^^^^^^^^
+auth/password_blocklist.py:31: in common_digests
+    raise AuthDenied("password_policy_unavailable") from None
+E   auth.config.AuthDenied: password_policy_unavailable
+____ test_pinned_offline_corpus_blocks_long_common_values_and_case_variants ____
+tests/test_password_policy.py:82: in test_pinned_offline_corpus_blocks_long_common_values_and_case_variants
+    assert len(password_blocklist.common_digests()) == 10898
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+auth/password_blocklist.py:31: in common_digests
+    raise AuthDenied("password_policy_unavailable") from None
+E   auth.config.AuthDenied: password_policy_unavailable
+________________ test_argon2_salt_policy_and_unicode_roundtrip _________________
+tests/test_password_policy.py:116: in test_argon2_salt_policy_and_unicode_roundtrip
+    value = normalize_password("a fresh caf\u00e9 passphrase 81")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+auth/password_policy.py:137: in normalize_password
+    or is_common(normalized)
+       ^^^^^^^^^^^^^^^^^^^^^
+auth/password_blocklist.py:36: in is_common
+    hashlib.sha256(value.casefold().encode("utf-8")).hexdigest() in common_digests()
+                                                                    ^^^^^^^^^^^^^^^^
+auth/password_blocklist.py:31: in common_digests
+    raise AuthDenied("password_policy_unavailable") from None
+E   auth.config.AuthDenied: password_policy_unavailable
+_ test_corrupted_hash_costs_do_dummy_work_without_allocating_requested_cost[None] _
+tests/test_password_policy.py:146: in test_corrupted_hash_costs_do_dummy_work_without_allocating_requested_cost
+    monkeypatch.setattr(ARGON, "verify", verify)
+E   AttributeError: 'PasswordHasher' object attribute 'verify' is read-only
+_ test_corrupted_hash_costs_do_dummy_work_without_allocating_requested_cost[not an encoded hash] _
+tests/test_password_policy.py:146: in test_corrupted_hash_costs_do_dummy_work_without_allocating_requested_cost
+    monkeypatch.setattr(ARGON, "verify", verify)
+E   AttributeError: 'PasswordHasher' object attribute 'verify' is read-only
+_ test_corrupted_hash_costs_do_dummy_work_without_allocating_requested_cost[$argon2id$v=19$m=999999999,t=2,p=1$iRtYe7i7c3oiKS3FbFUkUQ$/5qDggKXj37+OEc/qAJmT4iuQYl1APY2kJVvHoeWwg8] _
+tests/test_password_policy.py:146: in test_corrupted_hash_costs_do_dummy_work_without_allocating_requested_cost
+    monkeypatch.setattr(ARGON, "verify", verify)
+E   AttributeError: 'PasswordHasher' object attribute 'verify' is read-only
+_ test_corrupted_hash_costs_do_dummy_work_without_allocating_requested_cost[$argon2id$v=19$m=8192,t=2,p=1$iRtYe7i7c3oiKS3FbFUkUQ$/5qDggKXj37+OEc/qAJmT4iuQYl1APY2kJVvHoeWwg8] _
+tests/test_password_policy.py:146: in test_corrupted_hash_costs_do_dummy_work_without_allocating_requested_cost
+    monkeypatch.setattr(ARGON, "verify", verify)
+E   AttributeError: 'PasswordHasher' object attribute 'verify' is read-only
+_ test_corrupted_hash_costs_do_dummy_work_without_allocating_requested_cost[$argon2id$v=19$m=19456,t=1,p=1$iRtYe7i7c3oiKS3FbFUkUQ$/5qDggKXj37+OEc/qAJmT4iuQYl1APY2kJVvHoeWwg8] _
+tests/test_password_policy.py:146: in test_corrupted_hash_costs_do_dummy_work_without_allocating_requested_cost
+    monkeypatch.setattr(ARGON, "verify", verify)
+E   AttributeError: 'PasswordHasher' object attribute 'verify' is read-only
+_ test_corrupted_hash_costs_do_dummy_work_without_allocating_requested_cost[$argon2id$v=19$m=19456,t=1000,p=1$iRtYe7i7c3oiKS3FbFUkUQ$/5qDggKXj37+OEc/qAJmT4iuQYl1APY2kJVvHoeWwg8] _
+tests/test_password_policy.py:146: in test_corrupted_hash_costs_do_dummy_work_without_allocating_requested_cost
+    monkeypatch.setattr(ARGON, "verify", verify)
+E   AttributeError: 'PasswordHasher' object attribute 'verify' is read-only
+_ test_corrupted_hash_costs_do_dummy_work_without_allocating_requested_cost[$argon2id$v=19$m=19456,t=2,p=512$iRtYe7i7c3oiKS3FbFUkUQ$/5qDggKXj37+OEc/qAJmT4iuQYl1APY2kJVvHoeWwg8] _
+tests/test_password_policy.py:146: in test_corrupted_hash_costs_do_dummy_work_without_allocating_requested_cost
+    monkeypatch.setattr(ARGON, "verify", verify)
+E   AttributeError: 'PasswordHasher' object attribute 'verify' is read-only
+_ test_pending_mail_never_reserves_email_and_expiry_allows_fresh_registration __
+tests/test_password_resources.py:36: in test_pending_mail_never_reserves_email_and_expiry_allows_fresh_registration
+    assert store.complete_verification(token, PASSWORD, "fixture")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+auth/passwords.py:68: in complete_verification
+    password = normalize_password(password)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+auth/password_policy.py:137: in normalize_password
+    or is_common(normalized)
+       ^^^^^^^^^^^^^^^^^^^^^
+auth/password_blocklist.py:36: in is_common
+    hashlib.sha256(value.casefold().encode("utf-8")).hexdigest() in common_digests()
+                                                                    ^^^^^^^^^^^^^^^^
+auth/password_blocklist.py:31: in common_digests
+    raise AuthDenied("password_policy_unavailable") from None
+E   auth.config.AuthDenied: password_policy_unavailable
+_____ test_password_sessions_share_google_cap_and_recover_after_revocation _____
+tests/test_password_resources.py:69: in test_password_sessions_share_google_cap_and_recover_after_revocation
+    owner, _ = register(store)
+               ^^^^^^^^^^^^^^^
+tests/password_core_helpers.py:67: in register
+    return store.complete_verification(token, password, "fixture"), token
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+auth/passwords.py:68: in complete_verification
+    password = normalize_password(password)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+auth/password_policy.py:137: in normalize_password
+    or is_common(normalized)
+       ^^^^^^^^^^^^^^^^^^^^^
+auth/password_blocklist.py:36: in is_common
+    hashlib.sha256(value.casefold().encode("utf-8")).hexdigest() in common_digests()
+                                                                    ^^^^^^^^^^^^^^^^
+auth/password_blocklist.py:31: in common_digests
+    raise AuthDenied("password_policy_unavailable") from None
+E   auth.config.AuthDenied: password_policy_unavailable
+_____ test_reset_cannot_retarget_token_to_another_accounts_email_or_epoch ______
+tests/test_password_resources.py:81: in test_reset_cannot_retarget_token_to_another_accounts_email_or_epoch
+    owner, _ = register(store)
+               ^^^^^^^^^^^^^^^
+tests/password_core_helpers.py:67: in register
+    return store.complete_verification(token, password, "fixture"), token
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+auth/passwords.py:68: in complete_verification
+    password = normalize_password(password)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+auth/password_policy.py:137: in normalize_password
+    or is_common(normalized)
+       ^^^^^^^^^^^^^^^^^^^^^
+auth/password_blocklist.py:36: in is_common
+    hashlib.sha256(value.casefold().encode("utf-8")).hexdigest() in common_digests()
+                                                                    ^^^^^^^^^^^^^^^^
+auth/password_blocklist.py:31: in common_digests
+    raise AuthDenied("password_policy_unavailable") from None
+E   auth.config.AuthDenied: password_policy_unavailable
+__ test_disabled_or_unverified_users_do_not_gain_password_sessions[disabled] ___
+tests/test_password_resources.py:98: in test_disabled_or_unverified_users_do_not_gain_password_sessions
+    owner, _ = register(store)
+               ^^^^^^^^^^^^^^^
+tests/password_core_helpers.py:67: in register
+    return store.complete_verification(token, password, "fixture"), token
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+auth/passwords.py:68: in complete_verification
+    password = normalize_password(password)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+auth/password_policy.py:137: in normalize_password
+    or is_common(normalized)
+       ^^^^^^^^^^^^^^^^^^^^^
+auth/password_blocklist.py:36: in is_common
+    hashlib.sha256(value.casefold().encode("utf-8")).hexdigest() in common_digests()
+                                                                    ^^^^^^^^^^^^^^^^
+auth/password_blocklist.py:31: in common_digests
+    raise AuthDenied("password_policy_unavailable") from None
+E   auth.config.AuthDenied: password_policy_unavailable
+__ test_disabled_or_unverified_users_do_not_gain_password_sessions[deleting] ___
+tests/test_password_resources.py:98: in test_disabled_or_unverified_users_do_not_gain_password_sessions
+    owner, _ = register(store)
+               ^^^^^^^^^^^^^^^
+tests/password_core_helpers.py:67: in register
+    return store.complete_verification(token, password, "fixture"), token
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+auth/passwords.py:68: in complete_verification
+    password = normalize_password(password)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+auth/password_policy.py:137: in normalize_password
+    or is_common(normalized)
+       ^^^^^^^^^^^^^^^^^^^^^
+auth/password_blocklist.py:36: in is_common
+    hashlib.sha256(value.casefold().encode("utf-8")).hexdigest() in common_digests()
+                                                                    ^^^^^^^^^^^^^^^^
+auth/password_blocklist.py:31: in common_digests
+    raise AuthDenied("password_policy_unavailable") from None
+E   auth.config.AuthDenied: password_policy_unavailable
+___ test_disabled_or_unverified_users_do_not_gain_password_sessions[pending] ___
+tests/test_password_resources.py:98: in test_disabled_or_unverified_users_do_not_gain_password_sessions
+    owner, _ = register(store)
+               ^^^^^^^^^^^^^^^
+tests/password_core_helpers.py:67: in register
+    return store.complete_verification(token, password, "fixture"), token
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+auth/passwords.py:68: in complete_verification
+    password = normalize_password(password)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+auth/password_policy.py:137: in normalize_password
+    or is_common(normalized)
+       ^^^^^^^^^^^^^^^^^^^^^
+auth/password_blocklist.py:36: in is_common
+    hashlib.sha256(value.casefold().encode("utf-8")).hexdigest() in common_digests()
+                                                                    ^^^^^^^^^^^^^^^^
+auth/password_blocklist.py:31: in common_digests
+    raise AuthDenied("password_policy_unavailable") from None
+E   auth.config.AuthDenied: password_policy_unavailable
+=============================== warnings summary ===============================
+../../usr/local/lib/python3.12/site-packages/fastapi/testclient.py:1
+  /usr/local/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/auth/test_password_routes_availability.py::test_password_login_is_independent_of_google_and_mail_availability
+FAILED tests/auth/test_password_routes_availability.py::test_wrong_and_absent_accounts_have_same_public_failure_and_hash_work
+FAILED tests/auth/test_password_routes_availability.py::test_address_limit_survives_cookie_and_header_churn_then_recovers
+FAILED tests/auth/test_password_routes_availability.py::test_known_and_unknown_email_requests_share_bounded_timing_floor
+FAILED tests/auth/test_password_routes_availability.py::test_pausing_new_mail_flows_preserves_existing_password_login
+FAILED tests/auth/test_password_routes_resources.py::test_hash_flood_has_two_slots_no_db_leases_and_logout_stays_available
+FAILED tests/auth/test_password_routes_security.py::test_registration_activates_only_password_chosen_with_mailbox_proof
+FAILED tests/auth/test_password_routes_security.py::test_existing_registration_has_generic_ack_and_cannot_replace_credential
+FAILED tests/auth/test_password_routes_security.py::test_recovery_links_do_not_mutate_on_get[/email-verifications-verification]
+FAILED tests/auth/test_password_routes_security.py::test_recovery_links_do_not_mutate_on_get[/password-resets-reset]
+FAILED tests/auth/test_password_routes_security.py::test_concurrent_consumption_has_one_transition_and_no_automatic_login[verification]
+FAILED tests/auth/test_password_routes_security.py::test_concurrent_consumption_has_one_transition_and_no_automatic_login[reset]
+FAILED tests/auth/test_password_routes_security.py::test_reset_revokes_copied_sessions_and_all_outstanding_links
+FAILED tests/auth/test_password_routes_security.py::test_verification_token_cannot_be_used_for_recovery_or_activate_weak_password
+FAILED tests/auth/test_password_routes_security.py::test_expired_mail_link_never_hashes_or_creates_an_account
+FAILED tests/auth/test_password_routes_security.py::test_password_at_normalized_limit_accepts_equivalent_decomposed_input
+FAILED tests/test_auth_admission.py::test_wrong_binding_expired_and_wrong_purpose_challenges_fail[purpose]
+FAILED tests/test_contract_inventory.py::test_current_http_surface_is_explicit
+FAILED tests/test_password_abuse.py::test_known_and_unknown_mail_capacity_fail_identically_without_partial_ticket
+FAILED tests/test_password_abuse.py::test_address_budget_survives_cookie_peer_store_rotation_and_recovers
+FAILED tests/test_password_abuse.py::test_retained_hash_slots_fail_closed_and_operator_recovery_does_not_lose_accounts
+FAILED tests/test_password_abuse.py::test_hash_exception_releases_its_slot_and_allows_next_login
+FAILED tests/test_password_abuse.py::test_parallel_consumption_is_exactly_once_across_connections[verify]
+FAILED tests/test_password_abuse.py::test_parallel_consumption_is_exactly_once_across_connections[reset]
+FAILED tests/test_password_abuse.py::test_reset_during_detached_password_check_cannot_mint_a_stale_session
+FAILED tests/test_password_credentials.py::test_request_stores_no_pending_account_password_or_plaintext_token
+FAILED tests/test_password_credentials.py::test_repeated_registration_and_replayed_verification_never_replace_password
+FAILED tests/test_password_credentials.py::test_pending_precreation_uses_recipients_fresh_password_and_consumes_all_links
+FAILED tests/test_password_credentials.py::test_reset_revokes_copied_sessions_all_links_and_notifies_without_auto_login
+FAILED tests/test_password_credentials.py::test_expired_or_wrong_purpose_email_tokens_cannot_change_credentials[password_reset]
+FAILED tests/test_password_credentials.py::test_mail_outage_is_uniform_for_known_unknown_and_does_not_break_login
+FAILED tests/test_password_credentials.py::test_argon2_never_holds_the_only_app_connection_and_unknown_does_equivalent_work
+FAILED tests/test_password_policy.py::test_nfc_spaces_managers_and_long_inputs_have_one_consistent_value
+FAILED tests/test_password_policy.py::test_pinned_offline_corpus_blocks_long_common_values_and_case_variants
+FAILED tests/test_password_policy.py::test_argon2_salt_policy_and_unicode_roundtrip
+FAILED tests/test_password_policy.py::test_corrupted_hash_costs_do_dummy_work_without_allocating_requested_cost[None]
+FAILED tests/test_password_policy.py::test_corrupted_hash_costs_do_dummy_work_without_allocating_requested_cost[not an encoded hash]
+FAILED tests/test_password_policy.py::test_corrupted_hash_costs_do_dummy_work_without_allocating_requested_cost[$argon2id$v=19$m=999999999,t=2,p=1$iRtYe7i7c3oiKS3FbFUkUQ$/5qDggKXj37+OEc/qAJmT4iuQYl1APY2kJVvHoeWwg8]
+FAILED tests/test_password_policy.py::test_corrupted_hash_costs_do_dummy_work_without_allocating_requested_cost[$argon2id$v=19$m=8192,t=2,p=1$iRtYe7i7c3oiKS3FbFUkUQ$/5qDggKXj37+OEc/qAJmT4iuQYl1APY2kJVvHoeWwg8]
+FAILED tests/test_password_policy.py::test_corrupted_hash_costs_do_dummy_work_without_allocating_requested_cost[$argon2id$v=19$m=19456,t=1,p=1$iRtYe7i7c3oiKS3FbFUkUQ$/5qDggKXj37+OEc/qAJmT4iuQYl1APY2kJVvHoeWwg8]
+FAILED tests/test_password_policy.py::test_corrupted_hash_costs_do_dummy_work_without_allocating_requested_cost[$argon2id$v=19$m=19456,t=1000,p=1$iRtYe7i7c3oiKS3FbFUkUQ$/5qDggKXj37+OEc/qAJmT4iuQYl1APY2kJVvHoeWwg8]
+FAILED tests/test_password_policy.py::test_corrupted_hash_costs_do_dummy_work_without_allocating_requested_cost[$argon2id$v=19$m=19456,t=2,p=512$iRtYe7i7c3oiKS3FbFUkUQ$/5qDggKXj37+OEc/qAJmT4iuQYl1APY2kJVvHoeWwg8]
+FAILED tests/test_password_resources.py::test_pending_mail_never_reserves_email_and_expiry_allows_fresh_registration
+FAILED tests/test_password_resources.py::test_password_sessions_share_google_cap_and_recover_after_revocation
+FAILED tests/test_password_resources.py::test_reset_cannot_retarget_token_to_another_accounts_email_or_epoch
+FAILED tests/test_password_resources.py::test_disabled_or_unverified_users_do_not_gain_password_sessions[disabled]
+FAILED tests/test_password_resources.py::test_disabled_or_unverified_users_do_not_gain_password_sessions[deleting]
+FAILED tests/test_password_resources.py::test_disabled_or_unverified_users_do_not_gain_password_sessions[pending]
+48 failed, 910 passed, 19 skipped, 1 warning in 18.31s

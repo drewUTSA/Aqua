@@ -142,3 +142,22 @@ management. The P03 core checks epoch/status changes, but those future endpoints
 are not advertised as working. These boundaries remain mandatory before public
 launch; isolated red/blue checks are not a claim of zero breaches or a full live
 penetration assessment.
+
+## P04 review checkpoint
+
+P03 is deployed at c25a333 with private schema 2. Prepared P04 source adds
+password-only authentication alongside Google and requires explicit schema 3.
+Email-first registration never accepts an attacker-preselected password; reset
+cannot add a first password to a Google-only identity. Reset invalidates epochs,
+all usable sessions and outstanding proofs transactionally. Corrupt/unknown
+credential rows receive bounded real dummy hashing. Two durable hash slots span
+processes; no DB connection is held while hashing. Crash cleanup requires every
+hash worker to be stopped first. The corpus is pinned, licensed and fail-closed.
+
+AEAD-encrypted mail, a separately keyed explicit worker, purpose-reserved queues,
+volume limits, stable retries and replay fencing bound message work. Registration
+cannot spend recovery's POST or mail allocation; shared anonymous bootstrap and
+aggregate tunnel-peer quotas can still throttle legitimate visitors during abuse.
+These are documented availability tradeoffs, not production capacity guarantees.
+P04 does not enable registration/mail or deliver P05's browser forms. See
+`../implementation/P04.md` for final scoped red/blue evidence and later gates.

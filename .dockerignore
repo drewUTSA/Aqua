@@ -10,3 +10,6 @@
 !backend/migrations/*.sql
 !tools/checks/Dockerfile
 !tools/checks/requirements-runtime.lock
+
+!backend/auth/password_blocklist_*.txt
+!backend/auth/password_blocklist_provenance.json

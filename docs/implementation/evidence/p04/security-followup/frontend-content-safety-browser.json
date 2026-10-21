@@ -1,0 +1,32 @@
+{
+  "status": "passed",
+  "browser": "Chrome/155.0.8059.85",
+  "mode": "isolated_real_browser",
+  "fixture_count": 14,
+  "max_requests": 20,
+  "max_seconds": 15,
+  "intercepted_requests": 2,
+  "external_attempts": 0,
+  "unexpected_loopback_actions": 0,
+  "assertions": {
+    "untouched": true,
+    "fixtures": 14,
+    "active": 0,
+    "handlers": false,
+    "control": true,
+    "code": true
+  },
+  "limitations": "Synthetic renderer HTML only; no app session, Google, provider, email, spreadsheet or production browser journey. CSP is not claimed or used to mask renderer behavior.",
+  "cleanup": "browser_stopped_server_closed_profile_removed",
+  "elapsed_seconds": 0.79,
+  "provenance": {
+    "production_component": "frontend/src/components/chat/SafeMarkdown.js",
+    "production_component_sha256": "132f5c6b19725e4854552e09248aa9d121cc7831cc381cd43b90120b54ed330a",
+    "browser_harness": "frontend/checks/content-safety-browser.mjs",
+    "browser_harness_sha256": "76387bb8890fcdf74cb05bf4fb0564d220aa206bdfb2a3b2db635089a90c2014",
+    "executed_mirror_matches_staged_source": true,
+    "network_interception_acknowledged_before_navigation": true,
+    "debugger_transport": "pipe",
+    "default_test_suite": "71 passed, 0 failed, 0 skipped"
+  }
+}

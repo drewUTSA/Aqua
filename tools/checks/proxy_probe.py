@@ -55,6 +55,7 @@ def probe(baseline: bool = False) -> dict:
             result = {
                 "status": reply.status,
                 "retry_after": reply.getheader("Retry-After"),
+                "cache_control": reply.getheader("Cache-Control"),
             }
             reply.read(65536)
             return result
@@ -101,7 +102,8 @@ def probe(baseline: bool = False) -> dict:
         assert request("/api/auth/logout")["status"] == 200
         assert request("/api/health")["status"] == 200
         before = calls["/api/oversize"]
-        assert request("/api/oversize", body=b"x" * 17000)["status"] == 413
+        oversize = request("/api/oversize", body=b"x" * 17000)
+        assert oversize["status"] == 413 and oversize["cache_control"] == "no-store"
         assert calls["/api/oversize"] == before
         for path in ("/api/ready", "/api/ready/", "/api/%72eady", "/api//ready"):
             before = sum(calls.values())
@@ -128,7 +130,65 @@ def probe(baseline: bool = False) -> dict:
             before = sum(calls.values())
             assert request(path, method="GET")["status"] == 429
             assert sum(calls.values()) == before
+        # Password bootstrap shares the bounded challenge budget; the cost
+        # routes have separate budgets so registration cannot spend recovery.
+        for path in (
+            "/api/v1/auth/bootstrap?action=login",
+            "/api/v1/auth/bootstrap/",
+            "/api/v1/auth/%62ootstrap",
+            "/api//v1/auth/bootstrap",
+        ):
+            before = sum(calls.values())
+            assert request(path, method="GET")["status"] == 429
+            assert sum(calls.values()) == before
+        password_paths = (
+            "password-login",
+            "registrations",
+            "password-reset-requests",
+            "email-verifications",
+        )
+        password_waves = {}
+        for route in password_paths:
+            before = sum(calls.values())
+            wave = [
+                request(
+                    "/api/v1/auth/" + route,
+                    headers={
+                        "CF-Connecting-IP": f"192.0.2.{n+1}",
+                        "Cookie": f"churn={n}",
+                    },
+                )
+                for n in range(6)
+            ]
+            assert (
+                wave[0]["status"] == 200
+            )  # Previous route's flood cannot spend this route's quota.
+            assert any(x["status"] == 429 for x in wave)
+            assert all(x["status"] in {200, 429} for x in wave)
+            assert sum(calls.values()) - before == sum(x["status"] == 200 for x in wave)
+            password_waves[route] = wave
+            for alias in (
+                "/api/v1/auth/" + route + "/",
+                "/api/v1/auth/%" + format(ord(route[0]), "02x") + route[1:],
+                "/api//v1/auth/" + route,
+            ):
+                before = sum(calls.values())
+                assert request(alias)["status"] == 429
+                assert sum(calls.values()) == before
+        for alias in (
+            "/api/v1/auth/password-resets",
+            "/api/v1/auth/password-resets/",
+            "/api/v1/auth/%70assword-resets",
+            "/api//v1/auth/password-resets",
+        ):
+            before = sum(calls.values())
+            assert request(alias)["status"] == 429
+            assert sum(calls.values()) == before
+        assert request("/api/auth/logout")["status"] == 200
+        assert request("/api/health")["status"] == 200
         time.sleep(12)
+        for route in password_paths:
+            assert request("/api/v1/auth/" + route)["status"] == 200
         assert request()["status"] == 200
         assert request("/api/auth/config", method="GET")["status"] == 200
         before = sum(calls.values())
@@ -147,6 +207,8 @@ def probe(baseline: bool = False) -> dict:
             "recovery": "passed",
             "private_readiness_boundary": "passed",
             "challenge_bootstrap_budget": "passed",
+            "password_route_budgets": "passed",
+            "password_waves": password_waves,
             "duration_seconds": round(time.monotonic() - start, 2),
         }
     finally:

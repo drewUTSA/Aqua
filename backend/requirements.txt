@@ -14,3 +14,7 @@ certifi>=2026.10.19
 
 # Maintained bounded connection pool for private application storage.
 psycopg-pool>=3.3,<4
+
+# P04 password hashing and authenticated encryption for temporary mail payloads.
+argon2-cffi>=25.1,<26
+cryptography>=50,<51

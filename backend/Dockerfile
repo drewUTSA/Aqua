@@ -7,6 +7,7 @@ RUN useradd --uid 1000 --create-home appuser
 WORKDIR /app
 COPY --chown=1000:1000 backend/main.py .
 COPY --chown=1000:1000 backend/auth/*.py ./auth/
+COPY --chown=1000:1000 backend/auth/password_blocklist_*.txt backend/auth/password_blocklist_provenance.json ./auth/
 COPY --chown=1000:1000 backend/nl2sql/*.py ./nl2sql/
 COPY --chown=1000:1000 backend/nl2sql/retrieval/*.py ./nl2sql/retrieval/
 COPY --chown=1000:1000 backend/storage/*.py ./storage/
