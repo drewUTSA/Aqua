@@ -1,9 +1,11 @@
 ﻿* { box-sizing: border-box; }
 html { min-width: 320px; min-height: 100%; background: var(--color-bg); }
-body { min-width: 320px; margin: 0; color: var(--color-text); background: radial-gradient(ellipse at 65% 34%, rgba(31, 103, 132, .17), transparent 55%), linear-gradient(145deg, #091b29, #061320 65%, #050f1b); }
-button, textarea { font: inherit; }
+body { min-width: 320px; margin: 0; color: var(--color-text); background: var(--color-bg); }
+button, textarea, input, select { font: inherit; }
 button { color: inherit; }
-button:focus-visible, textarea:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--color-aqua-bright); outline-offset: 4px; }
+button:focus-visible, textarea:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--color-aqua-bright); outline-offset: 4px; }
+a { color: var(--color-aqua); }
+[hidden] { display: none !important; }
 button:disabled { cursor: not-allowed; }
 ::selection { color: #04111c; background: var(--color-aqua-bright); }
 * { scrollbar-width: thin; scrollbar-color: rgba(135, 163, 181, .24) transparent; }

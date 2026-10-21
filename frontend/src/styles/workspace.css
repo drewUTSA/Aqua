@@ -1,0 +1,147 @@
+.opal-workspace { position: relative; isolation: isolate; display: flex; gap: 24px; height: 100dvh; min-height: 360px; padding: 16px; overflow: hidden; background: var(--color-bg); }
+.opal-workspace > :not(.opal-backdrop) { z-index: 1; }
+.desktop-sidebar { flex: 0 0 252px; min-width: 0; }
+.opal-sidebar { display: flex; flex-direction: column; gap: 24px; height: 100%; min-height: 0; padding: 16px; border: 1px solid #303239; border-radius: 20px; background: #191a1e; }
+.opal-brand { display: flex; align-items: center; gap: 10px; min-height: 40px; }
+.opal-brand > img { width: 28px; height: 32px; }
+.opal-brand > span { font-size: 18px; letter-spacing: .25em; }
+.icon-button { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; width: 44px; height: 44px; padding: 12px; border: 0; border-radius: 12px; background: transparent; color: var(--color-text); cursor: pointer; }
+.icon-button img { display: block; width: 20px; height: 20px; object-fit: contain; }
+.icon-contrast { display: none; width: 20px; height: 20px; mask-repeat: no-repeat; mask-position: center; mask-size: contain; }
+.icon-button:hover { background: #2b2d33; }
+.opal-brand .icon-button { margin-left: auto; width: 44px; height: 44px; padding: 8px; }
+.new-chat { display: flex; align-items: center; gap: 8px; min-height: 44px; border: 1px solid #f2f1ed; border-radius: 12px; padding: 10px 12px; background: #f2f1ed; color: #121317; text-align: left; cursor: pointer; }
+.new-chat > img { width: 16px; height: 16px; }
+.opal-sidebar__scroll { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+.opal-sidebar section + section { margin-top: 24px; }
+.opal-sidebar h2 { margin: 0 0 8px; color: #adb0ba; font-size: 12px; font-weight: 500; }
+.opal-sidebar section button { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 44px; padding: 10px 12px; border: 0; border-radius: 12px; background: transparent; color: #f2f1ed; text-align: left; font-size: 13px; cursor: pointer; }
+.opal-sidebar section button img { width: 16px; height: 16px; flex-shrink: 0; }
+.opal-sidebar section button span { overflow-wrap: anywhere; }
+.opal-sidebar section button:hover, .opal-sidebar section button[aria-current] { background: #2b2d33; }
+.opal-sidebar button:disabled { color: #adb0ba; cursor: not-allowed; }
+.sidebar-note { margin: 4px 0 12px; color: #adb0ba; font-size: 12px; line-height: 1.6; }
+.opal-account { display: flex; align-items: center; gap: 12px; min-height: 56px; }
+.account-initial { display: grid; place-items: center; flex-shrink: 0; width: 36px; height: 36px; border-radius: 12px; background: #2b2d33; color: #cdc8ec; font-size: 12px; }
+.opal-account > div:not(.account-menu) { flex: 1; min-width: 0; overflow-wrap: anywhere; font-size: 13px; }
+.opal-account small { display: block; margin-top: 4px; color: #adb0ba; font-size: 11px; }
+.account-menu { position: relative; flex-shrink: 0; }
+.account-menu .icon-button { padding: 0; }
+.account-menu .icon-button > img, .account-menu .icon-contrast { width: 44px; height: 44px; }
+.opal-brand .icon-button > img, .opal-brand .icon-contrast, .mobile-new-chat > img, .mobile-new-chat .icon-contrast { width: 18px; height: 18px; }
+.account-menu__panel { position: absolute; z-index: 30; top: calc(100% + 8px); right: 0; width: min(240px, 85vw); padding: 8px; border: 1px solid #3d4049; border-radius: 12px; background: #2b2d33; box-shadow: 0 12px 32px #0005; }
+.account-menu--above .account-menu__panel { top: auto; bottom: calc(100% + 8px); left: 0; right: auto; }
+.account-menu__panel p { margin: 4px 4px 8px; font-size: 12px; color: #adb0ba; overflow-wrap: anywhere; }
+.account-menu__panel button { display: block; width: 100%; min-height: 44px; padding: 10px; border: 1px solid #454853; border-radius: 10px; background: transparent; color: #f2f1ed; cursor: pointer; }
+.account-menu__panel button + button { margin-top: 6px; color: #efb1a8; }
+.account-menu__panel button:hover { background: #353740; }
+.opal-main { position: relative; display: flex; flex: 1; flex-direction: column; min-width: 0; min-height: 0; }
+.workspace-header { display: flex; align-items: center; gap: 12px; flex-shrink: 0; min-height: 48px; padding: 0 4px 0 8px; }
+.breadcrumb { color: #adb0ba; font-size: 14px; line-height: 1.6; }
+.breadcrumb > span { padding: 0 12px; }
+.breadcrumb strong { color: #f2f1ed; font-weight: 500; }
+.workspace-header__actions { display: flex; align-items: center; gap: 12px; margin-left: auto; min-width: 0; }
+.data-badge { padding: 10px; border-radius: 8px; background: #2b2d33; color: #adb0ba; font-size: 12px; white-space: nowrap; }
+.navigation-toggle, .mobile-new-chat { display: none; }
+.opal-workspace--collapsed .navigation-toggle { display: inline-flex; }
+.header-model .model-selector { position: relative; min-width: 0; }
+.header-model .model-selector__label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.header-model .model-selector__trigger { display: flex; align-items: center; gap: 8px; max-width: 230px; min-height: 44px; padding: 10px 12px; border: 1px solid transparent; border-radius: 8px; background: #232429; color: #adb0ba; cursor: pointer; }
+.header-model .model-selector__name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.header-model svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.5; }
+.header-model .model-selector__menu { position: absolute; z-index: 25; top: calc(100% + 8px); right: 0; width: min(300px, 85vw); padding: 6px; border: 1px solid #3d4049; border-radius: 12px; background: #232429; }
+.header-model .model-selector__option { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 44px; padding: 10px; border: 0; border-radius: 8px; background: transparent; text-align: left; cursor: pointer; }
+.header-model .model-selector__option:hover, .header-model .model-selector__option[aria-checked="true"] { background: #353740; }
+.header-model .model-selector__option-copy { flex: 1; }
+.header-model .model-selector__description { display: block; margin-top: 4px; color: #adb0ba; font-size: 12px; line-height: 1.5; }
+.chat-route { flex: 1; min-height: 0; }
+.opal-chat { display: flex; flex-direction: column; align-items: center; justify-content: safe center; gap: 24px; height: 100%; min-height: 0; padding: 32px; overflow-y: auto; }
+.opal-welcome { width: min(100%, 820px); text-align: center; }
+.opal-welcome > img { display: block; width: 32px; height: 40px; margin: 0 auto 16px; }
+.opal-welcome h1 { margin: 0; font-size: clamp(26px, 2.65vw, 38px); font-weight: 600; line-height: 1.28; letter-spacing: -.025em; }
+.opal-welcome p { margin: 16px 0 0; color: #adb0ba; font-size: 16px; line-height: 26px; }
+.opal-composer-wrap { width: min(100%, 820px); flex-shrink: 0; }
+.opal-composer { padding: 20px; border: 1px solid #737682; border-radius: 20px; background: #232429; }
+.opal-composer:focus-within { border-color: #cdc8ec; }
+.opal-composer textarea { display: block; resize: vertical; width: 100%; min-height: 52px; max-height: 180px; padding: 0; border: 0; outline-offset: 6px; background: transparent; color: #f2f1ed; line-height: 26px; font-size: 16px; }
+.opal-composer textarea::placeholder { color: #adb0ba; opacity: 1; }
+.opal-composer__toolbar { display: flex; align-items: center; gap: 12px; margin-top: 16px; }
+.opal-composer__toolbar > span { display: flex; align-items: center; gap: 8px; flex: 1; color: #adb0ba; font-size: 12px; }
+.opal-composer__toolbar > span img { width: 16px; height: 16px; }
+.opal-send { display: grid; place-items: center; flex-shrink: 0; width: 44px; height: 44px; padding: 12px; border: 1px solid #f2f1ed; border-radius: 12px; background: #f2f1ed; color: #121317; cursor: pointer; }
+.opal-send > img { width: 20px; height: 20px; }
+.opal-send:disabled { background: #adb0ba; border-color: #adb0ba; cursor: not-allowed; }
+.opal-stop { width: 14px; height: 14px; border-radius: 3px; background: #121317; }
+.opal-send__contrast-icon { display: none; width: 20px; height: 20px; mask-repeat: no-repeat; mask-position: center; mask-size: contain; }
+.mobile-model { display: none; }
+.opal-composer-wrap .composer-hint { margin-top: 8px; color: #adb0ba; line-height: 1.6; font-size: 11px; }
+.opal-suggestions { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; width: min(100%, 820px); }
+.opal-suggestions button { display: flex; flex-direction: column; gap: 8px; min-height: 112px; padding: 16px; border: 1px solid #303239; border-radius: 12px; background: #17181c; text-align: left; cursor: pointer; }
+.opal-suggestions button:hover { border-color: #77738e; background: #232429; }
+.opal-suggestions button > span { display: flex; align-items: center; gap: 8px; font-size: 14px; line-height: 22px; }
+.opal-suggestions img { width: 18px; height: 18px; }
+.opal-suggestions small { color: #adb0ba; font-size: 12px; line-height: 18px; }
+.opal-disclaimer { margin: 0; color: #adb0ba; font-size: 12px; line-height: 18px; text-align: center; }
+.opal-chat--active { justify-content: flex-start; gap: 12px; overflow-y: auto; padding-top: 16px; }
+.opal-chat--active .conversation { flex: 1; width: min(100%, 900px); min-height: 80px; }
+.opal-workspace .message__bubble { border: 1px solid #3d4049; background: #17181c; box-shadow: none; border-radius: 16px; }
+.opal-workspace .message__bubble::before, .opal-workspace .message__bubble::after { display: none; }
+.opal-workspace .message__bubble--user { background: #232429; }
+.opal-workspace .markdown-response, .opal-workspace .message__bubble, .opal-workspace .financial-table td { color: #f2f1ed; }
+.opal-workspace .status-mark, .opal-workspace .markdown-response code { color: #cdc8ec; }
+.opal-workspace .financial-table, .opal-workspace .financial-table th, .opal-workspace .sql-block { background: #101114; }
+.navigation-dialog { position: fixed; inset: 0 auto 0 0; width: min(320px, 92vw); height: 100dvh; max-height: 100dvh; max-width: 92vw; margin: 0; padding: 12px; border: 0; background: transparent; color: #f2f1ed; }
+.navigation-dialog::backdrop { background: #0009; }
+.navigation-dialog .account-menu--above .account-menu__panel { left: auto; right: 0; }
+.settings-shell { flex: 1; min-height: 0; overflow-y: auto; padding: 32px 24px; }
+.settings-shell h1 { margin: 16px 0 8px; font-size: 36px; font-weight: 600; }
+.settings-shell p { color: #adb0ba; line-height: 1.65; }
+.settings-shell__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 16px; margin: 28px 0; }
+.settings-shell section { padding: 20px; border: 1px solid #3d4049; border-radius: 16px; background: #17181c; overflow-wrap: anywhere; }
+.settings-shell h2 { margin-top: 0; font-size: 18px; }
+.settings-unavailable { padding-top: 12px; border-top: 1px solid #3d4049; }
+.opal-primary, .not-found button { min-height: 44px; padding: 12px 20px; border: 1px solid #cdc8ec; border-radius: 12px; background: #cdc8ec; color: #121317; cursor: pointer; }
+.workspace-notice { padding: 12px; color: #efb1a8; }
+.not-found { max-width: 600px; margin: 15dvh auto; padding: 24px; }
+@media (max-width: 1100px) { .opal-workspace { gap: 12px; } .desktop-sidebar { flex-basis: 232px; } .opal-chat { padding: 24px 16px; } .workspace-header__actions { gap: 6px; } .data-badge { display: none; } }
+@media (max-width: 900px) {
+  .opal-workspace { display: block; padding: max(16px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left)); }
+  .desktop-sidebar { display: none; }
+  .opal-main { height: 100%; }
+  .workspace-header { padding: 0; gap: 8px; }
+  .navigation-toggle, .mobile-new-chat { display: inline-flex; }
+  .workspace-header__actions { gap: 4px; }
+  .header-model, .workspace-header .breadcrumb > span { display: none; }
+  .workspace-header .breadcrumb { font-size: 0; }
+  .workspace-header .breadcrumb strong { font-size: 14px; }
+  .mobile-new-chat { background: #191a1e; }
+  .mobile-new-chat img { filter: invert(1); }
+  .opal-chat { padding: 24px 0 0; gap: 24px; }
+  .opal-welcome { margin-top: auto; }
+  .opal-welcome h1 { max-width: 350px; margin: 24px auto 0; font-size: 26px; line-height: 36px; }
+  .opal-welcome p { margin-top: 24px; font-size: 14px; line-height: 22px; }
+  .opal-composer { padding: 16px; }
+  .mobile-model { display: block; min-width: 0; max-width: 36%; }
+  .mobile-model select { width: 100%; min-height: 44px; border: 0; border-radius: 8px; background: #232429; color: #cdc8ec; font-size: 12px; }
+  .opal-composer__toolbar > span { min-width: 0; font-size: 11px; overflow-wrap: anywhere; }
+  .opal-suggestions { grid-template-columns: 1fr; }
+  .opal-suggestions button { min-height: 44px; padding: 12px 16px; background: #2b2d33; text-align: center; align-items: center; justify-content: center; }
+  .opal-suggestions small, .opal-suggestions img { display: none; }
+  .opal-disclaimer { margin-top: auto; padding-top: 16px; }
+  .opal-chat--active .opal-disclaimer { padding-top: 0; margin-top: 0; }
+  .settings-shell { padding: 24px 0; }
+}
+@media (max-height: 700px) { .opal-chat:not(.opal-chat--active) { justify-content: flex-start; } .opal-welcome { margin-top: 12px; } .opal-disclaimer { margin-top: 0; } }
+/* Leave room for the complete composer when a mobile keyboard reduces the
+   layout viewport. The heading remains available; decorative prompts can wait. */
+@media (max-width: 900px) and (max-height: 520px) {
+  .opal-workspace .opal-chat { gap: 8px; padding-top: 8px; }
+  .opal-workspace .opal-chat:not(.opal-chat--active) .opal-welcome { flex: 0 0 auto; margin: 0; padding: 0; }
+  .opal-workspace .opal-welcome > img, .opal-workspace .opal-welcome p, .opal-workspace .opal-suggestions, .opal-workspace .opal-disclaimer { display: none; }
+  .opal-workspace .opal-welcome h1 { margin: 0; font-size: 20px; line-height: 1.4; }
+  .opal-workspace .opal-composer-wrap { margin-top: auto; }
+}
+@media (forced-colors: active) { .opal-sidebar, .opal-composer, .opal-suggestions button, .account-menu__panel, .settings-shell section { border: 1px solid CanvasText; } .icon-button img, .opal-brand img, .opal-welcome img { forced-color-adjust: none; } }
+@media (forced-colors: active) { .opal-send > img { display: none; } .opal-send__contrast-icon { display: block; background: ButtonText; forced-color-adjust: none; } .opal-send:disabled .opal-send__contrast-icon { background: GrayText; } .opal-stop { background: ButtonText; forced-color-adjust: none; } }
+@media (forced-colors: active) { .icon-button > img { display: none; } .icon-button .icon-contrast { display: block; background: ButtonText; forced-color-adjust: none; } .icon-button:disabled .icon-contrast { background: GrayText; } }
+@media (prefers-reduced-motion: reduce) { .opal-workspace *, .opal-workspace *::before, .opal-workspace *::after { animation: none !important; transition: none !important; } }

@@ -1,0 +1,297 @@
+{
+  "name": "aqua-proxy-check-3e06117d1db30fffa8e5d75b",
+  "network": "none",
+  "status": "passed",
+  "cleanup": "removed_and_absence_confirmed",
+  "config_sha256": "09d379dad3dcc705f0346b654f5d9598a31b5c1b115412424002653d4e84fa03",
+  "nginx_image": "sha256:99d5ee833dc643155e1df01fdf38d992215cebde5a0fc31da8ac77c5f3364cd9",
+  "tests_image": "sha256:b847dc793be6cc8aa48f081807043ebd0b1fd4d19a1032b7fdb9c3e99e94d34f",
+  "exercise": {
+    "mode": "blue_retest",
+    "status": "passed",
+    "requests": 98,
+    "admitted_work": 42,
+    "query_statuses": [
+      {
+        "status": 200,
+        "retry_after": null,
+        "cache_control": "no-store"
+      },
+      {
+        "status": 200,
+        "retry_after": null,
+        "cache_control": "no-store"
+      },
+      {
+        "status": 200,
+        "retry_after": null,
+        "cache_control": "no-store"
+      },
+      {
+        "status": 200,
+        "retry_after": null,
+        "cache_control": "no-store"
+      },
+      {
+        "status": 200,
+        "retry_after": null,
+        "cache_control": "no-store"
+      },
+      {
+        "status": 200,
+        "retry_after": null,
+        "cache_control": "no-store"
+      },
+      {
+        "status": 429,
+        "retry_after": "12",
+        "cache_control": "no-store"
+      },
+      {
+        "status": 429,
+        "retry_after": "12",
+        "cache_control": "no-store"
+      },
+      {
+        "status": 429,
+        "retry_after": "12",
+        "cache_control": "no-store"
+      },
+      {
+        "status": 429,
+        "retry_after": "12",
+        "cache_control": "no-store"
+      },
+      {
+        "status": 429,
+        "retry_after": "12",
+        "cache_control": "no-store"
+      },
+      {
+        "status": 429,
+        "retry_after": "12",
+        "cache_control": "no-store"
+      }
+    ],
+    "auth_statuses": [
+      {
+        "status": 200,
+        "retry_after": null,
+        "cache_control": "no-store"
+      },
+      {
+        "status": 200,
+        "retry_after": null,
+        "cache_control": "no-store"
+      },
+      {
+        "status": 200,
+        "retry_after": null,
+        "cache_control": "no-store"
+      },
+      {
+        "status": 200,
+        "retry_after": null,
+        "cache_control": "no-store"
+      },
+      {
+        "status": 429,
+        "retry_after": "12",
+        "cache_control": "no-store"
+      },
+      {
+        "status": 429,
+        "retry_after": "12",
+        "cache_control": "no-store"
+      },
+      {
+        "status": 429,
+        "retry_after": "12",
+        "cache_control": "no-store"
+      }
+    ],
+    "concurrent_wave": [
+      {
+        "status": 200,
+        "retry_after": null,
+        "cache_control": "no-store"
+      },
+      {
+        "status": 200,
+        "retry_after": null,
+        "cache_control": "no-store"
+      },
+      {
+        "status": 429,
+        "retry_after": "12",
+        "cache_control": "no-store"
+      },
+      {
+        "status": 429,
+        "retry_after": "12",
+        "cache_control": "no-store"
+      }
+    ],
+    "recovery": "passed",
+    "private_readiness_boundary": "passed",
+    "challenge_bootstrap_budget": "passed",
+    "password_route_budgets": "passed",
+    "password_waves": {
+      "password-login": [
+        {
+          "status": 200,
+          "retry_after": null,
+          "cache_control": "no-store"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "cache_control": "no-store"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "cache_control": "no-store"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "cache_control": "no-store"
+        },
+        {
+          "status": 429,
+          "retry_after": "12",
+          "cache_control": "no-store"
+        },
+        {
+          "status": 429,
+          "retry_after": "12",
+          "cache_control": "no-store"
+        }
+      ],
+      "registrations": [
+        {
+          "status": 200,
+          "retry_after": null,
+          "cache_control": "no-store"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "cache_control": "no-store"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "cache_control": "no-store"
+        },
+        {
+          "status": 429,
+          "retry_after": "12",
+          "cache_control": "no-store"
+        },
+        {
+          "status": 429,
+          "retry_after": "12",
+          "cache_control": "no-store"
+        },
+        {
+          "status": 429,
+          "retry_after": "12",
+          "cache_control": "no-store"
+        }
+      ],
+      "password-reset-requests": [
+        {
+          "status": 200,
+          "retry_after": null,
+          "cache_control": "no-store"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "cache_control": "no-store"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "cache_control": "no-store"
+        },
+        {
+          "status": 429,
+          "retry_after": "12",
+          "cache_control": "no-store"
+        },
+        {
+          "status": 429,
+          "retry_after": "12",
+          "cache_control": "no-store"
+        },
+        {
+          "status": 429,
+          "retry_after": "12",
+          "cache_control": "no-store"
+        }
+      ],
+      "email-verifications": [
+        {
+          "status": 200,
+          "retry_after": null,
+          "cache_control": "no-store"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "cache_control": "no-store"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "cache_control": "no-store"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "cache_control": "no-store"
+        },
+        {
+          "status": 429,
+          "retry_after": "12",
+          "cache_control": "no-store"
+        },
+        {
+          "status": 429,
+          "retry_after": "12",
+          "cache_control": "no-store"
+        }
+      ]
+    },
+    "duration_seconds": 32.19
+  },
+  "resource_snapshots": [
+    {
+      "BlockIO": "0B / 0B",
+      "CPUPerc": "0.00%",
+      "Container": "f20ebb49448786794fb308eea8470e08499ad50c3520929ff102fc851121a8a4",
+      "ID": "f20ebb494487",
+      "MemPerc": "0.64%",
+      "MemUsage": "6.578MiB / 1GiB",
+      "Name": "aqua-proxy-check-3e06117d1db30fffa8e5d75b-nginx",
+      "NetIO": "0B / 0B",
+      "PIDs": "4"
+    },
+    {
+      "BlockIO": "0B / 0B",
+      "CPUPerc": "0.00%",
+      "Container": "43d1599ef430d57f28ac0cf3810582e22419db187d29b1c54246fdd0ade299ba",
+      "ID": "43d1599ef430",
+      "MemPerc": "0.23%",
+      "MemUsage": "2.379MiB / 1GiB",
+      "Name": "aqua-proxy-check-3e06117d1db30fffa8e5d75b-client",
+      "NetIO": "0B / 0B",
+      "PIDs": "1"
+    }
+  ],
+  "remaining_ids": [],
+  "elapsed_seconds": 35.17
+}

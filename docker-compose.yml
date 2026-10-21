@@ -23,7 +23,10 @@ services:
   # Production: nginx serves the built site on 5173 and forwards /api to
   # the backend. For local frontend work run `npm run dev` in frontend/.
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      args:
+        AQUA_UI_SHELL: ${AQUA_UI_SHELL:-opal}
     network_mode: host
     restart: unless-stopped
     depends_on:

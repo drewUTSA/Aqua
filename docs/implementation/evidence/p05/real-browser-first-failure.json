@@ -1,0 +1,99 @@
+{
+  "status": "failed",
+  "failure": "condition_failed:login_ready",
+  "checked_utc": "2026-10-21T22:55:33.603Z",
+  "mode": "real_fastapi_disposable_postgres_browser",
+  "loadedAssets": [
+    {
+      "name": "/assets/DashboardPreview-BsoI507J.js",
+      "sha256": "0983660236243b69e5eb02f533bb2147d436293e9a0f37d7b03ddf6124e13062"
+    },
+    {
+      "name": "/assets/index-Btz76ta8.css",
+      "sha256": "7341cddddd44cebfd8cf99f8383f07cd883c5cd15d644eb66af993c8fc16642b"
+    },
+    {
+      "name": "/assets/index-Ca9ILvDQ.js",
+      "sha256": "18c87e75eeb23c0e6212c25c047ce71c0bddc4872a7dc5a04434211c8ef4a466"
+    },
+    {
+      "name": "/index.html",
+      "sha256": "f05086a8905bc5d771e827e54a0ef6888cad94ebd99773d59c04a5dde05cbb36"
+    }
+  ],
+  "results": [
+    {
+      "check": "actual email proof is consumed only into page memory",
+      "passed": true
+    },
+    {
+      "check": "real verification creates no automatic browser session",
+      "passed": true
+    },
+    {
+      "check": "new password account has personal UI without dataset access",
+      "passed": true
+    },
+    {
+      "check": "actual API rejects a query from a no-dataset account",
+      "passed": true
+    },
+    {
+      "check": "actual signed-in account can reach its own Settings",
+      "passed": true
+    },
+    {
+      "check": "actual logout removes the authenticated server session",
+      "passed": true
+    },
+    {
+      "check": "actual spent verification proof cannot be replayed",
+      "passed": true
+    },
+    {
+      "check": "actual reset bearer stays out of URL DOM and storage",
+      "passed": true
+    },
+    {
+      "check": "actual password reset revokes previously issued server sessions",
+      "passed": true
+    },
+    {
+      "check": "old password fails with safe generic feedback after reset",
+      "passed": true
+    }
+  ],
+  "screenshots": [
+    {
+      "name": "actual-password-account-settings",
+      "file": "retained_in_planning_workspace/actual-password-account-settings.png"
+    },
+    {
+      "name": "failure-current-view",
+      "file": "retained_in_planning_workspace/failure-current-view.png"
+    }
+  ],
+  "observations": {
+    "requests": 90,
+    "apiRequests": 47,
+    "external_attempts": 0,
+    "consoleLeaks": 0,
+    "browserErrors": [],
+    "protocolErrors": [],
+    "canceled": 0,
+    "explicit_fixture_admission_clock_steps": 1
+  },
+  "cleanup": {
+    "browser_stopped": true,
+    "temporary_profile_removed": true,
+    "loopback_closed": true,
+    "backend_status": "passed",
+    "backend_resources_removed": true
+  },
+  "elapsed_seconds": 26.42,
+  "limitations": [
+    "Real FastAPI/auth/database code against synthetic disposable fixtures; no deployed origin or production data validation.",
+    "Google verifier and email sender are synthetic test adapters; no Google or email provider contacted.",
+    "No analytical database or AI model is exercised."
+  ]
+}

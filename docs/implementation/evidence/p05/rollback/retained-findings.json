@@ -1,0 +1,99 @@
+[
+  {
+    "source": "run1/legacy/image-browser-evidence/report.json",
+    "failure": "browser_protocol_failed",
+    "expected_shell": "legacy",
+    "passed_checks": 17,
+    "cleanup": "browser_stopped_loopback_closed_temporary_profile_removed",
+    "observations": {
+      "requestCount": 28,
+      "staticRequests": 14,
+      "apiRequests": 12,
+      "external_attempts": 0,
+      "consoleLeaks": 0,
+      "runtimeErrors": 0,
+      "forbidden_api_calls": 0,
+      "protocolFailures": [],
+      "canceledInterceptions": 0
+    }
+  },
+  {
+    "source": "run1/opal/image-browser-evidence/report.json",
+    "failure": "browser_protocol_failed",
+    "expected_shell": "opal",
+    "passed_checks": 17,
+    "cleanup": "browser_stopped_loopback_closed_temporary_profile_removed",
+    "observations": {
+      "requestCount": 27,
+      "staticRequests": 13,
+      "apiRequests": 12,
+      "external_attempts": 0,
+      "consoleLeaks": 0,
+      "runtimeErrors": 0,
+      "forbidden_api_calls": 0,
+      "protocolFailures": [],
+      "canceledInterceptions": 0
+    }
+  },
+  {
+    "source": "run1/opal/image-browser-evidence-retry2/report.json",
+    "failure": "workspace styles reserve all four safe-area insets",
+    "expected_shell": "opal",
+    "passed_checks": 55,
+    "cleanup": "browser_stopped_loopback_closed_temporary_profile_removed",
+    "observations": {
+      "requestCount": 186,
+      "staticRequests": 91,
+      "apiRequests": 92,
+      "external_attempts": 0,
+      "consoleLeaks": 0,
+      "runtimeErrors": 0,
+      "forbidden_api_calls": 0,
+      "protocolFailures": [],
+      "canceledInterceptions": 0
+    }
+  },
+  {
+    "source": "run1/opal/image-browser-evidence-retry3/report.json",
+    "failure": "settings_scroll_preserved",
+    "expected_shell": "opal",
+    "passed_checks": 15,
+    "cleanup": "browser_stopped_loopback_closed_temporary_profile_removed",
+    "observations": {
+      "requestCount": 25,
+      "staticRequests": 13,
+      "apiRequests": 10,
+      "external_attempts": 0,
+      "consoleLeaks": 0,
+      "runtimeErrors": 0,
+      "forbidden_api_calls": 0,
+      "protocolFailures": [],
+      "canceledInterceptions": 0
+    }
+  },
+  {
+    "source": "run1/opal/image-browser-evidence-retry4/report.json",
+    "failure": "small mobile viewport keeps typed composer and send action unobscured",
+    "expected_shell": "opal",
+    "passed_checks": 58,
+    "cleanup": "browser_stopped_loopback_closed_temporary_profile_removed",
+    "observations": {
+      "requestCount": 185,
+      "staticRequests": 91,
+      "apiRequests": 92,
+      "external_attempts": 0,
+      "consoleLeaks": 0,
+      "runtimeErrors": 0,
+      "forbidden_api_calls": 0,
+      "protocolFailures": [],
+      "canceledInterceptions": 0,
+      "scrollObservations": [
+        {
+          "action": "settings_return",
+          "before": 80,
+          "after": 80
+        }
+      ]
+    }
+  }
+]

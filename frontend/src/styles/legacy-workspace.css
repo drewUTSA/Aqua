@@ -1,0 +1,113 @@
+/* Presentation rollback only: reuse the current auth fence, native dialog,
+   accessible composer and safe renderers. Never revive the old WebGL/login path. */
+.opal-workspace[data-ui-shell="legacy"] {
+  --color-bg: #071520;
+  --color-bg-raised: #153346;
+  --color-text: #edf8fc;
+  --color-muted: #c6e0eb;
+  --color-subtle: #c6e0eb;
+  --color-aqua: #b9e8f0;
+  --color-aqua-bright: #d4f5fb;
+  --color-blue: #b9e8f0;
+  gap: 20px;
+  background: radial-gradient(ellipse at 42% 15%, #103241 0, #0b2533 32%, #071520 78%);
+}
+.opal-workspace[data-ui-shell="legacy"] .desktop-sidebar { flex-basis: 302px; }
+.opal-workspace[data-ui-shell="legacy"] .opal-sidebar {
+  gap: 26px;
+  padding: 24px 20px 18px;
+  border-color: #52717e;
+  border-radius: 34px;
+  background: radial-gradient(ellipse at 16% 2%, #d4f9ff20, transparent 42%), linear-gradient(155deg, #2c5261e6, #183d50ed 50%, #0a2030f5);
+  box-shadow: 10px 20px 48px #00050f36, inset 0 1px 2px #f3ffff29, inset 2px 0 8px #c4f5f80e;
+}
+.opal-workspace[data-ui-shell="legacy"] .opal-brand > span { color: #edf8fc; }
+.opal-workspace[data-ui-shell="legacy"] .new-chat {
+  border-color: #729aa8;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #3c6576, #234b60);
+  box-shadow: inset 0 1px 1px #f2ffff29;
+  color: #edf8fc;
+}
+.opal-workspace[data-ui-shell="legacy"] .new-chat > img { filter: invert(1); }
+.opal-workspace[data-ui-shell="legacy"] .opal-sidebar section button { color: #edf8fc; }
+.opal-workspace[data-ui-shell="legacy"] .opal-sidebar h2,
+.opal-workspace[data-ui-shell="legacy"] .sidebar-search label,
+.opal-workspace[data-ui-shell="legacy"] .sidebar-search__status,
+.opal-workspace[data-ui-shell="legacy"] .sidebar-note,
+.opal-workspace[data-ui-shell="legacy"] .opal-account small,
+.opal-workspace[data-ui-shell="legacy"] .breadcrumb,
+.opal-workspace[data-ui-shell="legacy"] .opal-welcome p,
+.opal-workspace[data-ui-shell="legacy"] .opal-disclaimer,
+.opal-workspace[data-ui-shell="legacy"] .composer-hint { color: #c6e0eb; }
+.opal-workspace[data-ui-shell="legacy"] .opal-sidebar section button:hover,
+.opal-workspace[data-ui-shell="legacy"] .opal-sidebar section button[aria-current] { background: #bde8f01c; box-shadow: inset 1px 0 #b9e8f066; }
+.opal-workspace[data-ui-shell="legacy"] .opal-sidebar button:disabled { color: #c6e0eb; }
+.opal-workspace[data-ui-shell="legacy"] .opal-account { padding-top: 14px; border-top: 1px solid #b5dcea26; }
+.opal-workspace[data-ui-shell="legacy"] .account-initial { border-radius: 50%; background: #23485a; color: #d4f5fb; }
+.opal-workspace[data-ui-shell="legacy"] .icon-button:hover,
+.opal-workspace[data-ui-shell="legacy"] .mobile-new-chat { background: #26495b; }
+.opal-workspace[data-ui-shell="legacy"] .data-badge,
+.opal-workspace[data-ui-shell="legacy"] .header-model .model-selector__trigger { background: #153346; color: #d0e6f0; }
+.opal-workspace[data-ui-shell="legacy"] .account-menu__panel,
+.opal-workspace[data-ui-shell="legacy"] .header-model .model-selector__menu { background: #153346; border-color: #729aa8; }
+.opal-workspace[data-ui-shell="legacy"] .account-menu__panel p,
+.opal-workspace[data-ui-shell="legacy"] .header-model .model-selector__description { color: #c6e0eb; }
+.opal-workspace[data-ui-shell="legacy"] .account-menu__panel button { border-color: #729aa8; }
+.opal-workspace[data-ui-shell="legacy"] .account-menu__panel button:hover,
+.opal-workspace[data-ui-shell="legacy"] .header-model .model-selector__option:hover,
+.opal-workspace[data-ui-shell="legacy"] .header-model .model-selector__option[aria-checked="true"] { background: #284e61; }
+.opal-workspace[data-ui-shell="legacy"] .opal-chat { justify-content: flex-start; gap: 12px; padding: 16px 32px 0; }
+.opal-workspace[data-ui-shell="legacy"] .opal-chat:not(.opal-chat--active) .opal-welcome { flex: 1 0 auto; margin: 0; padding: 24px 0; }
+.opal-workspace[data-ui-shell="legacy"] .opal-welcome > img { width: min(280px, 70%); height: 160px; object-fit: contain; margin: 0 auto 12px; }
+.opal-workspace[data-ui-shell="legacy"] .opal-welcome h1 { margin: 0; font-size: 25px; line-height: 1.4; }
+.opal-workspace[data-ui-shell="legacy"] .opal-welcome p { margin-top: 12px; font-size: 14px; line-height: 1.6; }
+.opal-workspace[data-ui-shell="legacy"] .opal-composer-wrap { width: min(100%, 900px); margin-top: auto; }
+.opal-workspace[data-ui-shell="legacy"] .opal-composer {
+  padding: 16px 20px;
+  border-color: #729aa8;
+  border-radius: 24px;
+  background: linear-gradient(155deg, #1d485e, #12394f);
+  box-shadow: inset 0 2px 2px #effcff3d, 0 8px 24px #00050f33;
+}
+.opal-workspace[data-ui-shell="legacy"] .opal-composer:focus-within { border-color: #d4f5fb; }
+.opal-workspace[data-ui-shell="legacy"] .opal-composer textarea { color: #edf8fc; }
+.opal-workspace[data-ui-shell="legacy"] .opal-composer textarea::placeholder,
+.opal-workspace[data-ui-shell="legacy"] .opal-composer__toolbar > span { color: #c6e0eb; }
+.opal-workspace[data-ui-shell="legacy"] .opal-composer__toolbar { margin-top: 8px; }
+.opal-workspace[data-ui-shell="legacy"] .opal-send { border-color: #c6e0eb; background: #c6e0eb; }
+.opal-workspace[data-ui-shell="legacy"] .opal-send:disabled { border-color: #91acb9; background: #91acb9; }
+.opal-workspace[data-ui-shell="legacy"] .opal-disclaimer { margin: 0; padding: 0; }
+.opal-workspace[data-ui-shell="legacy"] .message__bubble { border-color: #52717e; border-radius: 26px; background: linear-gradient(145deg, #234557, #102d40); box-shadow: inset 0 1px 1px #f2ffff1a; }
+.opal-workspace[data-ui-shell="legacy"] .message__bubble--user { background: linear-gradient(145deg, #2a4d5e, #15384c); }
+.opal-workspace[data-ui-shell="legacy"] .status-mark,
+.opal-workspace[data-ui-shell="legacy"] .markdown-response code { color: #b9e8f0; }
+.opal-workspace[data-ui-shell="legacy"] .financial-table,
+.opal-workspace[data-ui-shell="legacy"] .financial-table th,
+.opal-workspace[data-ui-shell="legacy"] .sql-block { background: #081c2a; }
+.opal-workspace[data-ui-shell="legacy"] .settings-shell section { background: #102d40; border-color: #52717e; }
+.opal-workspace[data-ui-shell="legacy"] .settings-shell p { color: #c6e0eb; }
+.opal-workspace[data-ui-shell="legacy"] .settings-unavailable { border-color: #52717e; }
+.opal-workspace[data-ui-shell="legacy"] .opal-primary { background: #b9e8f0; border-color: #b9e8f0; }
+@media (max-width: 1100px) {
+  .opal-workspace[data-ui-shell="legacy"] { gap: 12px; }
+  .opal-workspace[data-ui-shell="legacy"] .desktop-sidebar { flex-basis: 252px; }
+  .opal-workspace[data-ui-shell="legacy"] .opal-chat { padding-right: 16px; padding-left: 16px; }
+}
+@media (max-width: 900px) {
+  .opal-workspace[data-ui-shell="legacy"] .opal-chat { padding: 16px 0 0; }
+  .opal-workspace[data-ui-shell="legacy"] .opal-welcome > img { height: 110px; }
+  .opal-workspace[data-ui-shell="legacy"] .opal-welcome h1 { font-size: 22px; }
+  .opal-workspace[data-ui-shell="legacy"] .opal-composer { padding: 16px; }
+  .opal-workspace[data-ui-shell="legacy"] .mobile-model select { background: #153346; color: #d4f5fb; }
+}
+@media (forced-colors: active) {
+  .opal-workspace[data-ui-shell="legacy"] .opal-sidebar,
+  .opal-workspace[data-ui-shell="legacy"] .opal-composer,
+  .opal-workspace[data-ui-shell="legacy"] .new-chat,
+  .opal-workspace[data-ui-shell="legacy"] .account-menu__panel,
+  .opal-workspace[data-ui-shell="legacy"] .account-menu__panel button,
+  .opal-workspace[data-ui-shell="legacy"] .settings-shell section,
+  .opal-workspace[data-ui-shell="legacy"] .message__bubble { border-color: CanvasText; }
+  .opal-workspace[data-ui-shell="legacy"] .new-chat > img { filter: none; }
+}

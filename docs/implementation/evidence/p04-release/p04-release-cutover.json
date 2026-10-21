@@ -1,0 +1,55 @@
+{
+  "purpose": "aqua_p04_cutover",
+  "status": "deployed_storage_ready_features_disabled",
+  "commit": "067fb5a0aacc90ce646138fedbb770ecea6f0c92",
+  "schema_version": 3,
+  "migration": {
+    "status": "migrated",
+    "schema_version": 3,
+    "public_signup_enabled": false
+  },
+  "repeat_migration": {
+    "status": "migrated",
+    "schema_version": 3,
+    "public_signup_enabled": false
+  },
+  "readiness": {
+    "status": "ready",
+    "application_storage": "ready",
+    "schema_version": 3
+  },
+  "services": {
+    "backend": {
+      "id": "6cd0b76e66aa3e53d634528ffb98bacc0e18217e845c8a867854393ac3237b97",
+      "image": "sha256:b253e68f307957d232819991057416910d86e407173dde876c3dee193602bedb",
+      "running": true,
+      "health": "healthy"
+    },
+    "frontend": {
+      "id": "07f1e7dca6f77c5135ad82f506ab6788b246d8e30993d3ff7915b8d61c9d7082",
+      "image": "sha256:99d5ee833dc643155e1df01fdf38d992215cebde5a0fc31da8ac77c5f3364cd9",
+      "running": true,
+      "health": "healthy"
+    }
+  },
+  "backup_snapshot": "78be69244e2127185de80acd0c9872453efe9d37b7be80b05dfcc6f3b3791d19",
+  "backup_tag": "pre-p04-067fb5a",
+  "disabled_runtime": {
+    "flags_disabled": {
+      "PASSWORD_AUTH_ENABLED": true,
+      "PASSWORD_REGISTRATION_ENABLED": true,
+      "PASSWORD_RECOVERY_ENABLED": true,
+      "ACCOUNT_MAIL_ENABLED": true,
+      "ACCOUNT_MAIL_WORKER_ENABLED": true
+    },
+    "provider_key_absent": true,
+    "outbox_key_absent": true,
+    "project_workers_absent": true,
+    "other_socket_containers_absent": true,
+    "mail_secret_mount_absent": true
+  },
+  "hosted_analytical_db_changed": false,
+  "public_password_signup_enabled": false,
+  "email_worker_started": false,
+  "production_restore_performed": false
+}

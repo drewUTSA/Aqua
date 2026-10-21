@@ -32,11 +32,11 @@ The server runs the app with docker-compose. Code changes are made locally, push
 | Concern | Choice |
 |---|---|
 | Backend language | Python 3.12 (not 3.14; the ML stack does not fully support 3.14 yet) |
-| API | FastAPI on 127.0.0.1:8000; both public hostnames now enter nginx on 127.0.0.1:5173. P03 PR #39 is merged/deployed at c25a333; both public hosts enter nginx. P04 source awaits schema-3 review/cutover |
-| Sign-in | Google Identity Services with canonical UUID accounts and revocable digest-only sessions is deployed; P04 password APIs are prepared with all new flags off, UI follows in P05 |
+| API | FastAPI on 127.0.0.1:8000; both public hostnames enter nginx on 127.0.0.1:5173. P04 PR #41 is deployed at 067fb5a with schema 3; P05 rollback/navigation follow-up passed both shell variants' local gates and awaits human PR, with copy/hash guards verifying checkout identity; not deployed |
+| Sign-in | Google Identity Services with canonical UUID accounts and revocable digest-only sessions is deployed; P04 password APIs are deployed with all five new password/mail flags off; P05 supplies the browser journeys before activation |
 | Frontend | React 19 with Vite. Production: a static build served by nginx on port 5173, which forwards `/api` to the backend and rate-limits questions. Development: `npm run dev` forwards API calls but is not the production rate-limit boundary |
 | Analytical database | PostgreSQL on Tiger Cloud free service (TimescaleDB, pgvector, pgvectorscale); unchanged in P02 |
-| Application database | Private PostgreSQL 17 is active at schema 2, socket only, separate roles. P04 code explicitly requires schema 3 |
+| Application database | Private PostgreSQL 17 is active at schema 3, socket only, network none and separate roles. Applied migrations 0001–0003 are immutable |
 | Sample data | Pagila (Postgres port of Sakila) |
 | LLM | Gemini API with the free `gemini-3.5-flash-lite` by default (`LLM_PROVIDER=gemini`). When it is out of quota or down: Ollama (`qwen3`) on Ben's server over Tailscale, then `gemma-4-26b-a4b-it`. Model names read from env |
 | Embeddings | `gemini-embedding-2` at 768 dimensions, stored in pgvector in the `retrieval` schema (Phase 4) |
@@ -274,7 +274,7 @@ Production sets `RETRIEVAL=on` once the index is built (see Commands). Read anal
 
 | Phase | Goal | Done when | Status |
 |---|---|---|---|
-| 0 | Repo scaffolding | Layout above exists, CI runs pytest and black | P03 merged/deployed at c25a333 with private schema-2 storage active; P04 source/checks await human review. See `docs/implementation/P04.md` |
+| 0 | Repo scaffolding | Layout above exists, CI runs pytest and black | P04 merged/deployed at 067fb5a with private schema-3 storage; password/mail disabled. P05 follow-up passed both presentation variants' local gates; copy/hash guards verify checkout identity and human review remains. See `docs/implementation/P04_RELEASE.md`, `P05.md` and `P05_ROLLBACK.md` |
 | 1 | Database | Pagila loaded, reader role works, write test fails as expected | Done |
 | 2 | Baseline pipeline | `/api/query` returns validated SQL and rows; full schema in prompt | Done |
 | 3 | Evaluation harness | Execution accuracy reported on a fixed question set | Done; results in `docs/decisions.md` |
@@ -292,7 +292,16 @@ Agreed but not started. Each needs its own change and a `docs/decisions.md` entr
 - Phase 7 logging: `db/06_logging.sql` with a `query_log` table and an insert-only `nl2sql_logger` role, `nl2sql/querylog.py`, and a way to promote checked pairs into `retrieval.example_query` as `query_log` rows.
 - Tableau: `db/07_tableau_role.sql`, a read-only `tableau_reader` without the 10-second timeout and with the same hidden staff columns.
 - A second, harder question set (`eval/datasets/pagila_v2.jsonl`), written before looking at model output, so the retrieval comparison rests on more than 50 questions.
-- P03 PR #39 merged at `c25a3332e67f644e94c6ab3b6e80155dacf7c56b` and is deployed/healthy with schema 2. P04 password/mail source is uncommitted on `codex/p04-password-access` for review and explicit schema-3 cutover. Signup/recovery/mail remain disabled. P05 supplies the approved shell and password browser journeys, P07 AI job admission, P10 linking/session-management UI. Hosted DB, `db/`, `nl2sql/db.py` and `nl2sql/config.py` are unchanged. See `docs/implementation/P04.md`.
+- P04 PR #41 merged at `067fb5a0aacc90ce646138fedbb770ecea6f0c92` and is deployed/healthy with schema 3 after the fresh encrypted schema-2 backup and repeat migration. Signup/recovery/mail remain disabled. P05 on `codex/p05-opal-shell` fixed the handoff audit's shell-rollback, legal-navigation, search and viewport/delivery gaps. Final results: 120 unit cases, 77 synthetic and 20 actual-backend browser checks per shell, 12 fixture cleanup cases, Black/Ruff/source/lock and unchanged protected files. All test resources were removed and absence confirmed; evidence is sealed in `docs/implementation/evidence/p05/rollback/`. Copy/hash guards verify actual-checkout identity; human review/commit/push/remote PR checks follow. P05 is not deployed. P07 supplies AI job admission and P10 linking/session-management UI. Hosted DB, `db/`, `nl2sql/db.py`, `nl2sql/config.py` and applied migrations are unchanged.
+
+P05 presentation rollback uses build-time `VITE_AQUA_UI_SHELL=opal|legacy`, exposed
+through Docker/Compose `AQUA_UI_SHELL` (default `opal`, invalid values rejected).
+Both variants must share current authentication, account ownership, routes,
+semantic composer and mobile dialog. Never restore obsolete auth components or
+change a backend/security flag to switch appearance. Rebuild only the frontend;
+retain the schema-3 backend/private-storage overlay. The legacy shell must retain
+password-only access. Existing account ownership survives legal/Back navigation
+while logout is unresolved; direct public policy visits need no auth bootstrap.
 
 - Modules over the size guideline: `schema.py`, `validate.py`, `retrieval/store.py`.
 - Fine-tuning an open model (after Phase 7, optional).

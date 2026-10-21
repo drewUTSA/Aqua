@@ -1,0 +1,32 @@
+{
+  "status": "passed",
+  "frontend_unit_cases": 120,
+  "black_python_files": 145,
+  "ruff": "passed",
+  "fixture_cleanup_tests": 12,
+  "protected_files": 16,
+  "backend_and_analytical_source": "unchanged",
+  "visual_review": {
+    "reviewed": [
+      "both_desktop_1440x980",
+      "both_mobile_390x420",
+      "both_active_mobile_200_percent_text",
+      "opal_intermediate_1024x768",
+      "legacy_mobile_320_reflow"
+    ],
+    "conclusion": "essential_controls_readable_and_contained_in_reviewed_views",
+    "full_accessibility_audit": false
+  },
+  "retained_findings": [
+    "missing_shell_rollback",
+    "legal_navigation_discarded_unresolved_logout_owner",
+    "missing_visit_title_search",
+    "hidden_conversation_zero_dimensions_changed_scroll_follow_state",
+    "keyboard_height_landing_composer_clipped",
+    "classic_muted_text_and_composer_border_contrast",
+    "test_DOM_serialization",
+    "test_CSS_rule_traversal"
+  ],
+  "required_failure_waivers": 0,
+  "remote_ci": "pending_human_push"
+}

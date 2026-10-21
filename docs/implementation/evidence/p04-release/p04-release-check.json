@@ -1,0 +1,126 @@
+{
+  "purpose": "aqua_p04_release",
+  "action": "check",
+  "status": "passed",
+  "commit": "067fb5a0aacc90ce646138fedbb770ecea6f0c92",
+  "results": {
+    "backend": {
+      "exit_code": 0,
+      "output": "........................................................................ [  6%]\n........................................................................ [ 13%]\n........................................................................ [ 20%]\n........................................................................ [ 27%]\n......................................ssssss...ssssssss................. [ 34%]\n........................................................................ [ 40%]\n........................................................................ [ 47%]\n.......................................s................................ [ 54%]\n........................................................................ [ 61%]\n.............................................................sss.s...... [ 68%]\n........................................................................ [ 75%]\n........................................................................ [ 81%]\n........................................................................ [ 88%]\n........................................................................ [ 95%]\n................................................                         [100%]\n=============================== warnings summary ===============================\n../../usr/local/lib/python3.12/site-packages/fastapi/testclient.py:1\n  /usr/local/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.\n    from starlette.testclient import TestClient as TestClient  # noqa\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n1037 passed, 19 skipped, 1 warning in 25.09s\n\n........................................................................ [  6%]\n........................................................................ [ 13%]\n........................................................................ [ 20%]\n........................................................................ [ 27%]\n................................ssssss......sss......................... [ 34%]\n........................................................................ [ 40%]\n........................................................................ [ 47%]\n........................................................................ [ 54%]\n........................................................................ [ 61%]\n..................................................................sss... [ 68%]\n........................................................................ [ 75%]\n........................................................................ [ 81%]\n........................................................................ [ 88%]\n........................................................................ [ 95%]\n................................................                         [100%]\n=============================== warnings summary ===============================\n../../usr/local/lib/python3.12/site-packages/fastapi/testclient.py:1\n  /usr/local/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.\n    from starlette.testclient import TestClient as TestClient  # noqa\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n1044 passed, 12 skipped, 1 warning in 25.88s\n\n{\"run\": \"aqua-check-eadd9dac32aa629672acf753\", \"results\": [{\"dataset\": \"bank\", \"exit_code\": 0}, {\"dataset\": \"pagila\", \"exit_code\": 0}], \"cleanup\": \"removed_and_absence_confirmed\", \"backend_image\": \"sha256:b253e68f307957d232819991057416910d86e407173dde876c3dee193602bedb\", \"postgres_image\": \"sha256:3645570cccdfa447589da9f57dd740faa29b30938e861289a5574b6ca6b03826\", \"coverage\": {\"unique_tests\": 1056, \"passed_in_at_least_one_fixture\": 1056}, \"app_restore\": {\"status\": \"passed\", \"dump_bytes\": 47328, \"dump_sha256\": \"f28c5576442ebffa6900ea6ab9c94b1a18be85c9e55d6ab589e342f1afdb023f\", \"rows_and_privileges\": \"preserved\", \"restored_session_fence\": \"applied\", \"restored_hash_and_mail_fence\": \"applied\", \"restored_recipient_budget\": \"preserved_with_runtime_backup_privileges\", \"dump_storage\": \"memory_only\"}, \"remaining_ids\": []}\n",
+      "stderr": ""
+    },
+    "proxy": {
+      "exit_code": 0,
+      "output": "{\"name\": \"aqua-proxy-check-3e06117d1db30fffa8e5d75b\", \"network\": \"none\", \"status\": \"passed\", \"cleanup\": \"removed_and_absence_confirmed\", \"config_sha256\": \"09d379dad3dcc705f0346b654f5d9598a31b5c1b115412424002653d4e84fa03\", \"nginx_image\": \"sha256:99d5ee833dc643155e1df01fdf38d992215cebde5a0fc31da8ac77c5f3364cd9\", \"tests_image\": \"sha256:b847dc793be6cc8aa48f081807043ebd0b1fd4d19a1032b7fdb9c3e99e94d34f\", \"exercise\": {\"mode\": \"blue_retest\", \"status\": \"passed\", \"requests\": 98, \"admitted_work\": 42, \"query_statuses\": [{\"status\": 200, \"retry_after\": null, \"cache_control\": \"no-store\"}, {\"status\": 200, \"retry_after\": null, \"cache_control\": \"no-store\"}, {\"status\": 200, \"retry_after\": null, \"cache_control\": \"no-store\"}, {\"status\": 200, \"retry_after\": null, \"cache_control\": \"no-store\"}, {\"status\": 200, \"retry_after\": null, \"cache_control\": \"no-store\"}, {\"status\": 200, \"retry_after\": null, \"cache_control\": \"no-store\"}, {\"status\": 429, \"retry_after\": \"12\", \"cache_control\": \"no-store\"}, {\"status\": 429, \"retry_after\": \"12\", \"cache_control\": \"no-store\"}, {\"status\": 429, \"retry_after\": \"12\", \"cache_control\": \"no-store\"}, {\"status\": 429, \"retry_after\": \"12\", \"cache_control\": \"no-store\"}, {\"status\": 429, \"retry_after\": \"12\", \"cache_control\": \"no-store\"}, {\"status\": 429, \"retry_after\": \"12\", \"cache_control\": \"no-store\"}], \"auth_statuses\": [{\"status\": 200, \"retry_after\": null, \"cache_control\": \"no-store\"}, {\"status\": 200, \"retry_after\": null, \"cache_control\": \"no-store\"}, {\"status\": 200, \"retry_after\": null, \"cache_control\": \"no-store\"}, {\"status\": 200, \"retry_after\": null, \"cache_control\": \"no-store\"}, {\"status\": 429, \"retry_after\": \"12\", \"cache_control\": \"no-store\"}, {\"status\": 429, \"retry_after\": \"12\", \"cache_control\": \"no-store\"}, {\"status\": 429, \"retry_after\": \"12\", \"cache_control\": \"no-store\"}], \"concurrent_wave\": [{\"status\": 200, \"retry_after\": null, \"cache_control\": \"no-store\"}, {\"status\": 200, \"retry_after\": null, \"cache_control\": \"no-store\"}, {\"status\": 429, \"retry_after\": \"12\", \"cache_control\": \"no-store\"}, {\"status\": 429, \"retry_after\": \"12\", \"cache_control\": \"no-store\"}], \"recovery\": \"passed\", \"private_readiness_boundary\": \"passed\", \"challenge_bootstrap_budget\": \"passed\", \"password_route_budgets\": \"passed\", \"password_waves\": {\"password-login\": [{\"status\": 200, \"retry_after\": null, \"cache_control\": \"no-store\"}, {\"status\": 200, \"retry_after\": null, \"cache_control\": \"no-store\"}, {\"status\": 200, \"retry_after\": null, \"cache_control\": \"no-store\"}, {\"status\": 200, \"retry_after\": null, \"cache_control\": \"no-store\"}, {\"status\": 429, \"retry_after\": \"12\", \"cache_control\": \"no-store\"}, {\"status\": 429, \"retry_after\": \"12\", \"cache_control\": \"no-store\"}], \"registrations\": [{\"status\": 200, \"retry_after\": null, \"cache_control\": \"no-store\"}, {\"status\": 200, \"retry_after\": null, \"cache_control\": \"no-store\"}, {\"status\": 200, \"retry_after\": null, \"cache_control\": \"no-store\"}, {\"status\": 429, \"retry_after\": \"12\", \"cache_control\": \"no-store\"}, {\"status\": 429, \"retry_after\": \"12\", \"cache_control\": \"no-store\"}, {\"status\": 429, \"retry_after\": \"12\", \"cache_control\": \"no-store\"}], \"password-reset-requests\": [{\"status\": 200, \"retry_after\": null, \"cache_control\": \"no-store\"}, {\"status\": 200, \"retry_after\": null, \"cache_control\": \"no-store\"}, {\"status\": 200, \"retry_after\": null, \"cache_control\": \"no-store\"}, {\"status\": 429, \"retry_after\": \"12\", \"cache_control\": \"no-store\"}, {\"status\": 429, \"retry_after\": \"12\", \"cache_control\": \"no-store\"}, {\"status\": 429, \"retry_after\": \"12\", \"cache_control\": \"no-store\"}], \"email-verifications\": [{\"status\": 200, \"retry_after\": null, \"cache_control\": \"no-store\"}, {\"status\": 200, \"retry_after\": null, \"cache_control\": \"no-store\"}, {\"status\": 200, \"retry_after\": null, \"cache_control\": \"no-store\"}, {\"status\": 200, \"retry_after\": null, \"cache_control\": \"no-store\"}, {\"status\": 429, \"retry_after\": \"12\", \"cache_control\": \"no-store\"}, {\"status\": 429, \"retry_after\": \"12\", \"cache_control\": \"no-store\"}]}, \"duration_seconds\": 32.19}, \"resource_snapshots\": [{\"BlockIO\": \"0B / 0B\", \"CPUPerc\": \"0.00%\", \"Container\": \"f20ebb49448786794fb308eea8470e08499ad50c3520929ff102fc851121a8a4\", \"ID\": \"f20ebb494487\", \"MemPerc\": \"0.64%\", \"MemUsage\": \"6.578MiB / 1GiB\", \"Name\": \"aqua-proxy-check-3e06117d1db30fffa8e5d75b-nginx\", \"NetIO\": \"0B / 0B\", \"PIDs\": \"4\"}, {\"BlockIO\": \"0B / 0B\", \"CPUPerc\": \"0.00%\", \"Container\": \"43d1599ef430d57f28ac0cf3810582e22419db187d29b1c54246fdd0ade299ba\", \"ID\": \"43d1599ef430\", \"MemPerc\": \"0.23%\", \"MemUsage\": \"2.379MiB / 1GiB\", \"Name\": \"aqua-proxy-check-3e06117d1db30fffa8e5d75b-client\", \"NetIO\": \"0B / 0B\", \"PIDs\": \"1\"}], \"remaining_ids\": [], \"elapsed_seconds\": 35.17}\n",
+      "stderr": ""
+    },
+    "installer": {
+      "exit_code": 0,
+      "output": "{\"run\": \"aqua-storage-check-7f440ac35ad93f8d1167e084\", \"status\": \"passed\", \"bootstrap\": {\"status\": \"bootstrapped\", \"database\": \"aqua_app\", \"public_database_port\": false, \"schema_migrated\": false}, \"backup_export\": {\"status\": \"passed\", \"bytes\": 46622, \"sha256\": \"23719e0926cf3378d22874d1ba2f10bc8786dec03d7df0a38783c6fda5061db5\", \"storage\": \"memory_only\"}, \"repeated_migration\": \"passed\", \"password_auth\": \"passed\", \"runtime_ddl_denial_and_recovery\": \"passed\", \"network_disabled\": true, \"no_tcp_port\": true, \"real_data_accessed\": false, \"cleanup\": \"removed_and_absence_confirmed\"}\n",
+      "stderr": ""
+    }
+  },
+  "images": {
+    "backend": "sha256:b253e68f307957d232819991057416910d86e407173dde876c3dee193602bedb",
+    "frontend": "sha256:99d5ee833dc643155e1df01fdf38d992215cebde5a0fc31da8ac77c5f3364cd9"
+  },
+  "packaged_files": 67,
+  "source_hashes": {
+    "auth/admission.py": "65191ace9a0fe84fbd1bce24d6649faec136a2fd445917d834e88c6e804be723",
+    "auth/password_records.py": "57b4094b9ae8e97622fac732d5aba56465932b2db0fa1897f1151c23c86de7c3",
+    "auth/mailworker.py": "495fa740fe9ba307a5d8ffb4eda67c99549cb39b222d3d543af76dad02134dba",
+    "auth/password_email.py": "fe3d3adb00f55890d2cffc59f7d0b1f663074a411bf3838724ca6aa5fd38e603",
+    "auth/password_limits.py": "5c3dffa44e944ee48c2a7a7241be3496b9ecac2fb852ebaa2384003565c517b2",
+    "auth/config.py": "c516055d3e0d7fd544cdd0fd143e8e4f9b629bb9a5483c98c136dff40554c765",
+    "auth/mailconfig.py": "52ddda32501fae0fe88cad4e0b5e40c8932c7ac378ed555994305158bdfc6a49",
+    "auth/password_errors.py": "8f8b0fb5b2eec82a5df64b142c4aa4da0ab74ae8a919a9a7773a5150da9fe53f",
+    "auth/router.py": "709ac2bd0216f1a01dcff7e30338756fc87f69e5e91ba7a08a3a2521f11cc41a",
+    "auth/accounts.py": "6b053b165f5e0844b4fa93f30741f5b71ce60a3c49e2962060154ba772089c9c",
+    "auth/password_blocklist_sha256.txt": "a5b8b74b66c0ed54d90098285cb0dbe02217ae41d7c91f0c57cf4a761e14521a",
+    "auth/security.py": "44680a9d30e09660ba9d7dc9aa1cbd6d361a6db25d653a6ac3a06596e0328fc8",
+    "auth/google.py": "a842ed1e30ea8405846d711950ad806ef2a26e24350b1c3a6aee81858e988975",
+    "auth/password_blocklist_provenance.json": "d700468ae6c98ecc256d8596cd113f9084e04b74abcc9782afcf41db5133ebd4",
+    "auth/sessions.py": "1af1a3b2c58d651ba65d14eb790245cb87948ce91af9c7f226defa901af848a6",
+    "auth/__init__.py": "6b04c7bc22cb311c88fcd9e769cc0648a63af9e6177d7b3b7483f2834d8b57dc",
+    "auth/mailtransport.py": "ad6770e594e87d6b0061a85898987bf3a3023317bf4f83622e89c33813fbb6f5",
+    "auth/password_router.py": "ee4e8b5d9a8c4f0c16a82fc8a06ee86939be0b4be70391f50482b9c5f739c955",
+    "auth/passwords.py": "e034fa19103ac71079c6314330e2bd1c8042516c2cf82857bc913401c7f38c3c",
+    "auth/password_blocklist_LICENSE.txt": "3dbdc93d5f8829de0941744841730a09c106d0732e5ae0e98ca1d77be7ded66c",
+    "auth/password_bootstrap.py": "10aeaaf4f0dca5739b3aa0b3802c26aec59b0a0b5712432e3d9ccaf278f3a7d0",
+    "auth/password_settings.py": "5e112c9b894096721576d926eea7b51af914375e1d5ed846c09b11c305c3868d",
+    "auth/store.py": "1c6a3cbf23c6302b3befbcfed1903145771e03a7f456a998d6ccf908cce86e42",
+    "auth/mailoutbox.py": "bfe60ce2c94f28a9774d4b97c9e1ae4c1eab28b2f66ae99304fbcdcb8b9ec55e",
+    "auth/password_sessions.py": "1b56ae442f9d7e2fdaf29e67ec63aaae1e4ab133e0209fe344b1967c597e63de",
+    "auth/password_blocklist.py": "9fbf61ab8c80b8737b89f136784dac7931ce8b80fc5220a580bb7fbec1258bbc",
+    "auth/mailtemplates.py": "0fec77ad8fed6e5a7eef84a85dfa350d81e38fcf908acb186da48a1f7f42c8ef",
+    "auth/mailproof.py": "388d20db5350cec466e00dab7e72f48a326980225bd5a275f69bd76f034bbafc",
+    "auth/mailqueue.py": "c92961328a05eb41fd6ece958020c52fb6baf0035524965d00534af13828987f",
+    "auth/mailrecipient.py": "59b0e0cd2aa2003ed0d5187073293f5e20a4d1c88440e9c47d9391b8c27f9be7",
+    "auth/password_hash.py": "c752de861151b39c77f406fd790559d9d4447d285b6bbbc82e53d95106b8fc3e",
+    "auth/password_policy.py": "495521e4a50f5bea7dedfb04195ac2438259f7c7ddbfe60d61f677a0a5440762",
+    "nl2sql/cache.py": "f84d18202ec49c74cf5b369d16930aad6a333025624e7d0910eda8273d3c9dc3",
+    "nl2sql/config.py": "0a73db703b6e5a0ca79c22e6e5f6ec6e956396d04d59d98d5129916426c63d72",
+    "nl2sql/summarize.py": "67600cab975a753455886803505d5acd20f29e17659a5d27c266903e5487ec58",
+    "nl2sql/validate.py": "7f25f44a24678e521547f1a7733cdd073f0af2a71ff4c543cc052044ee7465f5",
+    "nl2sql/metadata_policy.py": "1ce5b1bc56eb616c81fe96f5c2323745453228450db46e584efecf9633008905",
+    "nl2sql/cache_scope.py": "a9f0c4aacfc3ecf5e771bdfde1277a9e67ab3e4c1156b239edfb23986f62d075",
+    "nl2sql/relations.py": "9d9c2b77b69fd10ca29d277c4e8ffcc160c8f932b58ade70cbe17293cedd2815",
+    "nl2sql/__init__.py": "4f781130931c9ed80e1958ed3c364b463d80f339de2cb74da5f41d6e896f18c4",
+    "nl2sql/db.py": "105586d3d814728c636d8835ec92071c56aa18555bbe5b401dc43dd0cc7b2544",
+    "nl2sql/schema_loader.py": "c4871bb3547ab8d8b4302d376412b43f04029a8eff1481bce1d286d1140cc354",
+    "nl2sql/errors.py": "f89f0ade89097788337a1c8a7d73263f070a319276aaf655f01ca21cd4b2a58d",
+    "nl2sql/pipeline.py": "c3ce7f80fdfa17dc4c15cc848c4b03504bfa1cfde073b94da43b57b3cf6b1ac6",
+    "nl2sql/schema.py": "435b34756dcc9568ddd05d69883eaadd56b0a2b3cce869c8d5f8368c0b7c14c4",
+    "nl2sql/function_policy.py": "089e81255fa66be290e6a7f9cd6fde6fbad8beb6b5b74c135d48fdd1ca55de00",
+    "nl2sql/answer_size.py": "db6573125c67cee8b110de567dc9a0f90a44255343e4ea3cd230eb1e57b7bf79",
+    "nl2sql/visualize.py": "ecd97fdb22affe182897e83509ab8a2a16d268f4e7451abe4c163977d36b431d",
+    "nl2sql/execute.py": "0a07b45c684fe2d8ab63bef5f4dda9b04cca5dd8381df978b91b9ba5ab3c2b5a",
+    "nl2sql/display.py": "c9a1f3bf2bbd1aa069460288a2a204cd4eb30e1fde1b61f864e194322256a02f",
+    "nl2sql/generate.py": "8706437796504b033354a1f78bfb6006f24175cad71a2e9faec4f851c2e6876f",
+    "nl2sql/llm.py": "1e47f568a007f55b86a6ff0bea0f0c70e2c65af4c3368d2cdf3d00f07a571de4",
+    "nl2sql/auth_config.py": "e1fa79d22e8686363b7680ca744ec8462877ee51d10b6a2958f9366a88ef22c2",
+    "nl2sql/response.py": "ac1fd76d9cafbb7f4a898b316517d2b61b5b42195b623cd8de5fe80116dd5e61",
+    "nl2sql/retrieval/embed.py": "19238e61d75e767f1b5f119d62e95d0bca542821138cbf6a4980cd902cf0369f",
+    "nl2sql/retrieval/__init__.py": "460ff5d0ef355c76275f9e8fa0d03404901eb77e49a9ce1314bc4b31081e8128",
+    "nl2sql/retrieval/store.py": "3bb67d6e2e82fae95855a4206c40fb4cd81b46df523d7d88fab711c700674214",
+    "nl2sql/retrieval/select.py": "471d488d492fe21b8717e2774cf96c231f39c38a844470c04d68fdf65bc2bb22",
+    "storage/config.py": "f6313541967470ced378748bc1093f505f40751d0e57ea03c4544cb0d5931328",
+    "storage/pool.py": "ffe9061e0d12127278a0bd58062405c4f0a3137600da5db24f435e85e124b6fe",
+    "storage/__init__.py": "d1299d8af009abf3a281f673373b67cdfe0e4036d91ba3e91f5fcb5b55adb495",
+    "storage/readiness.py": "b40daec38bd44701faff4890eb90f797c6b924afda942f4274d7d5c45f914df5",
+    "storage/migrate.py": "606fae5f1df88dd89aaf315f0482290905642fcc9e540dc8afacce66b21a75ba",
+    "migrations/0001_identity.sql": "3255ad354362cd186577e49a7d47dea4c4b5127665a989d25ad15961d6a173bc",
+    "migrations/0003_password_auth.sql": "8d0b2b558f3fb94713f5a6e890cb71d2261a2825e05d6e234189b6eac2607210",
+    "migrations/0002_identity_policy.sql": "8b977d0188612df5f4cec37a8c78bc7a25af0d63c3f486dbffbd19b095f3b20b",
+    "main.py": "40f546bcad3dc5aceb2de64a834dca7c437460aee101aa8d95e9e4b13544d6b4"
+  },
+  "nginx_sha256": "09d379dad3dcc705f0346b654f5d9598a31b5c1b115412424002653d4e84fa03",
+  "pip_check": "passed",
+  "corpus_validation": "passed",
+  "hash_cost": {
+    "status": "passed",
+    "samples": 32,
+    "concurrency": 2,
+    "parameters": {
+      "memory_kib": 19456,
+      "iterations": 2,
+      "parallelism": 1
+    },
+    "timing": {
+      "hash": {
+        "p50_ms": 14.288,
+        "p95_ms": 22.757,
+        "max_ms": 25.916
+      },
+      "verify": {
+        "p50_ms": 14.189,
+        "p95_ms": 15.856,
+        "max_ms": 16.083
+      }
+    },
+    "elapsed_seconds": 0.49,
+    "max_rss_kib": 64052,
+    "limitations": "Synthetic microbenchmark in a two-CPU container; not full login latency, production capacity or a substitute for P12 mixed load. No account, password, encoded hash or provider traffic is emitted."
+  },
+  "temporary_context_removed": true
+}

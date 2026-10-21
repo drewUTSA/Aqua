@@ -1,0 +1,564 @@
+{
+  "status": "passed",
+  "failure": null,
+  "failureLayout": null,
+  "checked_utc": "2026-10-21T23:35:18.977Z",
+  "mode": "production_build_synthetic_api_browser",
+  "expected_shell": "legacy",
+  "loadedAssets": [
+    {
+      "name": "/assets/AQUA_V2_Final_static-cJJYBiOn.svg",
+      "sha256": "a610bf95498d5bbc765cf49879bc98ee9a33f385cdf88452622a6871ae825648"
+    },
+    {
+      "name": "/assets/DashboardPreview-Dlx3FTYJ.js",
+      "sha256": "31584138205ba2b3728285b1670de88ae019317585cf3ce5ac68b1c853992856"
+    },
+    {
+      "name": "/assets/index-BfmamgzU.css",
+      "sha256": "b15b71f2e3c990bb99d24122dda4eb2151ad1982e798b4925a501f85d490c853"
+    },
+    {
+      "name": "/assets/index-nNBMZ_B5.js",
+      "sha256": "94c2c86a0874080ffa175cc848a8cc966d2621fc499a4e0d9f87ae7a1ca5138a"
+    },
+    {
+      "name": "/index.html",
+      "sha256": "d9b78126fdc2ae6895c3a86d76934f9adb9e8e086fc8281c46d333a350c1c9f1"
+    }
+  ],
+  "results": [
+    {
+      "check": "login defers the chart chunk and bounds initial script delivery",
+      "passed": true
+    },
+    {
+      "check": "labeled autofill-friendly dual login",
+      "passed": true
+    },
+    {
+      "check": "password visibility toggle exposes state",
+      "passed": true
+    },
+    {
+      "check": "rejected credentials are generic and password clears",
+      "passed": true
+    },
+    {
+      "check": "operator-selected legacy shell is rendered",
+      "passed": true
+    },
+    {
+      "check": "password works during stalled Google configuration",
+      "passed": true
+    },
+    {
+      "check": "chat-only entry has complete composer and no empty visuals",
+      "passed": true
+    },
+    {
+      "check": "account menu Escape restores trigger focus",
+      "passed": true
+    },
+    {
+      "check": "IME Enter does not submit",
+      "passed": true
+    },
+    {
+      "check": "Shift+Enter preserves multiline input",
+      "passed": true
+    },
+    {
+      "check": "visit-local chat search has an accessible bounded input",
+      "passed": true
+    },
+    {
+      "check": "visit-local title search retains the matching conversation",
+      "passed": true
+    },
+    {
+      "check": "hostile search is literal and cannot select or submit a conversation",
+      "passed": true
+    },
+    {
+      "check": "clearing local search restores titles without losing the draft",
+      "passed": true
+    },
+    {
+      "check": "Settings return preserves draft without new conversation",
+      "passed": true
+    },
+    {
+      "check": "Settings return preserves conversation scroll",
+      "passed": true
+    },
+    {
+      "check": "failed query preserves recoverable draft",
+      "passed": true
+    },
+    {
+      "check": "pending logout retains hidden inert account draft",
+      "passed": true
+    },
+    {
+      "check": "pending logout keeps the same private workspace locked during Privacy",
+      "passed": true
+    },
+    {
+      "check": "pending logout survives Terms and Back without remounting or revealing a draft",
+      "passed": true
+    },
+    {
+      "check": "failed logout preserves locked draft",
+      "passed": true
+    },
+    {
+      "check": "failed logout keeps the same private workspace locked during Privacy",
+      "passed": true
+    },
+    {
+      "check": "failed logout survives Terms and Back without remounting or revealing a draft",
+      "passed": true
+    },
+    {
+      "check": "failed logout returns to an explicit retry after legal navigation",
+      "passed": true
+    },
+    {
+      "check": "confirmed logout and account switch discard old private state",
+      "passed": true
+    },
+    {
+      "check": "signed-in no-dataset account cannot submit a query",
+      "passed": true
+    },
+    {
+      "check": "no-dataset account can reach own Settings",
+      "passed": true
+    },
+    {
+      "check": "Google failure does not block password and duplicate submit makes one POST",
+      "passed": true
+    },
+    {
+      "check": "registration asks only for email before ownership proof",
+      "passed": true
+    },
+    {
+      "check": "403 requires manual email-only resubmit with a fresh challenge",
+      "passed": true
+    },
+    {
+      "check": "registration response stays generic",
+      "passed": true
+    },
+    {
+      "check": "throttling disables premature retry and hides diagnostic",
+      "passed": true
+    },
+    {
+      "check": "Retry-After is honored without automatic email replay",
+      "passed": true
+    },
+    {
+      "check": "verification proof is removed from URL DOM cookies and storage",
+      "passed": true
+    },
+    {
+      "check": "verification completion does not auto-login or show an invalid-link CTA",
+      "passed": true
+    },
+    {
+      "check": "same-document verification link is consumed without persistence",
+      "passed": true
+    },
+    {
+      "check": "used verification proof receives recovery state",
+      "passed": true
+    },
+    {
+      "check": "missing reset proof has no password submission",
+      "passed": true
+    },
+    {
+      "check": "reset proof is removed from URL DOM cookies and storage",
+      "passed": true
+    },
+    {
+      "check": "reset completion returns to sign-in without auto-login",
+      "passed": true
+    },
+    {
+      "check": "wrong-purpose proof fails with safe recovery state",
+      "passed": true
+    },
+    {
+      "check": "untrusted return destinations and fragments are discarded",
+      "passed": true
+    },
+    {
+      "check": "URL and storage cannot select a shell or bypass real sign-in",
+      "passed": true
+    },
+    {
+      "check": "operator-selected legacy shell is rendered",
+      "passed": true
+    },
+    {
+      "check": "supported Google callback reaches canonical workspace",
+      "passed": true
+    },
+    {
+      "check": "hostile output cannot execute or create external active elements",
+      "passed": true
+    },
+    {
+      "check": "confirmed logout clears private state in the other real tab",
+      "passed": true
+    },
+    {
+      "check": "other-tab account switch never reuses old account conversation",
+      "passed": true
+    },
+    {
+      "check": "held reset permits reproducing old-session foreground revalidation",
+      "passed": true
+    },
+    {
+      "check": "ambiguous reset response keeps this tab out of its workspace",
+      "passed": true
+    },
+    {
+      "check": "reset attempt clears other-tab private draft even on ambiguous response",
+      "passed": true
+    },
+    {
+      "check": "cross-tab notifications carry only bounded event metadata",
+      "passed": true
+    },
+    {
+      "check": "ambiguous reset has exactly one explicit POST across both tabs",
+      "passed": true
+    },
+    {
+      "check": "1024 pixel intermediate workspace keeps composer and account actions reachable",
+      "passed": true
+    },
+    {
+      "check": "768 pixel intermediate workspace keeps composer and account actions reachable",
+      "passed": true
+    },
+    {
+      "check": "workspace styles reserve all four safe-area insets",
+      "passed": true
+    },
+    {
+      "check": "mobile drawer contains keyboard focus",
+      "passed": true
+    },
+    {
+      "check": "mobile drawer Escape returns focus",
+      "passed": true
+    },
+    {
+      "check": "small mobile viewport keeps typed composer and send action unobscured",
+      "passed": true
+    },
+    {
+      "check": "200 percent workspace text keeps composer and account menu visible and operable",
+      "passed": true
+    },
+    {
+      "check": "200 percent workspace text preserves draft across reachable Settings",
+      "passed": true
+    },
+    {
+      "check": "200 percent active conversation keeps draft composer and send action reachable",
+      "passed": true
+    },
+    {
+      "check": "320 CSS pixel home has no page overflow",
+      "passed": true
+    },
+    {
+      "check": "forced colors and reduced motion preserve essential controls",
+      "passed": true
+    },
+    {
+      "check": "forced colors light uses a visible arrow mask",
+      "passed": true
+    },
+    {
+      "check": "forced colors light keeps header action glyphs visible",
+      "passed": true
+    },
+    {
+      "check": "forced colors light preserves disabled arrow contrast",
+      "passed": true
+    },
+    {
+      "check": "forced colors dark uses a visible arrow mask",
+      "passed": true
+    },
+    {
+      "check": "forced colors dark keeps header action glyphs visible",
+      "passed": true
+    },
+    {
+      "check": "forced colors dark preserves disabled arrow contrast",
+      "passed": true
+    },
+    {
+      "check": "login defers the chart chunk and bounds initial script delivery",
+      "passed": true
+    },
+    {
+      "check": "320 CSS pixel sign-in has no page overflow",
+      "passed": true
+    },
+    {
+      "check": "200 percent text preserves page reflow",
+      "passed": true
+    },
+    {
+      "check": "200 percent text keeps sign-in reachable",
+      "passed": true
+    },
+    {
+      "check": "unknown route has recovery navigation",
+      "passed": true
+    },
+    {
+      "check": "public policy remains readable signed out",
+      "passed": true
+    },
+    {
+      "check": "all traffic bounded and intercepted; no external calls or console bearer leak",
+      "passed": true
+    }
+  ],
+  "screenshots": [
+    {
+      "name": "signin-desktop-1440x900",
+      "file": "legacy-synthetic-signin-desktop-1440x900.png"
+    },
+    {
+      "name": "home-desktop-1440x980",
+      "file": "legacy-synthetic-home-desktop-1440x980.png"
+    },
+    {
+      "name": "home-intermediate-1024x768",
+      "file": "legacy-synthetic-home-intermediate-1024x768.png"
+    },
+    {
+      "name": "home-intermediate-768x1024",
+      "file": "legacy-synthetic-home-intermediate-768x1024.png"
+    },
+    {
+      "name": "home-mobile-390x844",
+      "file": "legacy-synthetic-home-mobile-390x844.png"
+    },
+    {
+      "name": "home-mobile-keyboard-height-390x420",
+      "file": "legacy-synthetic-home-mobile-keyboard-height-390x420.png"
+    },
+    {
+      "name": "home-mobile-text-200-percent",
+      "file": "legacy-synthetic-home-mobile-text-200-percent.png"
+    },
+    {
+      "name": "active-mobile-text-200-percent",
+      "file": "legacy-synthetic-active-mobile-text-200-percent.png"
+    },
+    {
+      "name": "home-mobile-320-reflow",
+      "file": "legacy-synthetic-home-mobile-320-reflow.png"
+    },
+    {
+      "name": "home-forced-colors-reduced-motion",
+      "file": "legacy-synthetic-home-forced-colors-reduced-motion.png"
+    },
+    {
+      "name": "home-forced-colors-light-enabled",
+      "file": "legacy-synthetic-home-forced-colors-light-enabled.png"
+    },
+    {
+      "name": "home-forced-colors-dark-enabled",
+      "file": "legacy-synthetic-home-forced-colors-dark-enabled.png"
+    },
+    {
+      "name": "signin-mobile-390x844",
+      "file": "legacy-synthetic-signin-mobile-390x844.png"
+    },
+    {
+      "name": "signin-mobile-320-reflow",
+      "file": "legacy-synthetic-signin-mobile-320-reflow.png"
+    },
+    {
+      "name": "signin-mobile-text-200-percent",
+      "file": "legacy-synthetic-signin-mobile-text-200-percent.png"
+    }
+  ],
+  "performanceSamples": [
+    {
+      "label": "desktop-signin",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "navigation_ms": 89,
+      "dom_content_loaded_ms": 88.8,
+      "first_paint_ms": null,
+      "first_contentful_paint_ms": null,
+      "static_resources": [
+        {
+          "path": "/assets/index-nNBMZ_B5.js",
+          "bytes": 440080,
+          "elapsed_ms": 41.2
+        },
+        {
+          "path": "/assets/index-BfmamgzU.css",
+          "bytes": 48503,
+          "elapsed_ms": 40
+        },
+        {
+          "path": "/favicon.ico",
+          "bytes": 0,
+          "elapsed_ms": 1.4
+        }
+      ]
+    },
+    {
+      "label": "desktop-workspace",
+      "viewport": {
+        "width": 1440,
+        "height": 980
+      },
+      "navigation_ms": 36.3,
+      "dom_content_loaded_ms": 36.3,
+      "first_paint_ms": 64,
+      "first_contentful_paint_ms": 64,
+      "static_resources": [
+        {
+          "path": "/assets/index-nNBMZ_B5.js",
+          "bytes": 440080,
+          "elapsed_ms": 9.1
+        },
+        {
+          "path": "/assets/index-BfmamgzU.css",
+          "bytes": 48503,
+          "elapsed_ms": 8.3
+        },
+        {
+          "path": "/favicon.ico",
+          "bytes": 0,
+          "elapsed_ms": 3.5
+        },
+        {
+          "path": "/assets/AQUA_V2_Final_static-cJJYBiOn.svg",
+          "bytes": 2111901,
+          "elapsed_ms": 19.6
+        },
+        {
+          "path": "/favicon.ico",
+          "bytes": 0,
+          "elapsed_ms": 2
+        }
+      ]
+    },
+    {
+      "label": "mobile-workspace",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "navigation_ms": 72.2,
+      "dom_content_loaded_ms": 71.8,
+      "first_paint_ms": 96,
+      "first_contentful_paint_ms": 96,
+      "static_resources": [
+        {
+          "path": "/assets/index-nNBMZ_B5.js",
+          "bytes": 440080,
+          "elapsed_ms": 8
+        },
+        {
+          "path": "/assets/index-BfmamgzU.css",
+          "bytes": 48503,
+          "elapsed_ms": 7.3
+        },
+        {
+          "path": "/favicon.ico",
+          "bytes": 0,
+          "elapsed_ms": 2.9
+        },
+        {
+          "path": "/assets/AQUA_V2_Final_static-cJJYBiOn.svg",
+          "bytes": 2111901,
+          "elapsed_ms": 3.3
+        }
+      ]
+    },
+    {
+      "label": "mobile-signin",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "navigation_ms": 29.3,
+      "dom_content_loaded_ms": 29.2,
+      "first_paint_ms": 48,
+      "first_contentful_paint_ms": 48,
+      "static_resources": [
+        {
+          "path": "/assets/index-nNBMZ_B5.js",
+          "bytes": 440080,
+          "elapsed_ms": 12.5
+        },
+        {
+          "path": "/assets/index-BfmamgzU.css",
+          "bytes": 48503,
+          "elapsed_ms": 12.9
+        },
+        {
+          "path": "/favicon.ico",
+          "bytes": 0,
+          "elapsed_ms": 4.6
+        }
+      ]
+    }
+  ],
+  "limits": {
+    "maximum_seconds": 240,
+    "maximum_requests": 900,
+    "maximum_api_requests": 180
+  },
+  "observations": {
+    "requestCount": 229,
+    "staticRequests": 124,
+    "apiRequests": 101,
+    "external_attempts": 0,
+    "consoleLeaks": 0,
+    "runtimeErrors": 0,
+    "forbidden_api_calls": 0,
+    "protocolFailures": [],
+    "canceledInterceptions": 1,
+    "scrollObservations": [
+      {
+        "action": "settings_return",
+        "before": 80,
+        "after": 80
+      }
+    ]
+  },
+  "cleanup": "browser_stopped_loopback_closed_temporary_profile_removed",
+  "elapsed_seconds": 12.23,
+  "limitations": [
+    "Synthetic intercepted API and GIS contracts; no actual backend, Google, email, database or production-origin validation.",
+    "400% reflow represented by a 320 CSS-pixel viewport; 200% text doubles computed text sizes.",
+    "Small viewport models keyboard-constrained space; it is not an actual mobile OS keyboard test.",
+    "Navigation timings are local observations, not production performance guarantees; initial delivery byte limits are deterministic.",
+    "Keyboard and semantic assertions are not a complete screen-reader or contrast audit.",
+    "Screenshots require human/agent visual review; saving them alone is not visual approval."
+  ]
+}
