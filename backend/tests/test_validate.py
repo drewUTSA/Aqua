@@ -113,6 +113,83 @@ def test_p01_unapproved_functions_cannot_read_outside_relations(sql):
         validate_sql(sql, allowed_tables={"film"})
 
 
+@pytest.mark.parametrize(
+    "sql",
+    [
+        "SELECT 1 OPERATOR(public.===) 2",
+        "SELECT 1 OPERATOR(public.+) 2",
+        "SELECT 1 OPERATOR(private.||) 2",
+        "SELECT 1 OPERATOR(===) 2",
+        "WITH x AS (SELECT 1 OPERATOR(public.+) 2) SELECT * FROM x",
+        "SELECT CAST('x' AS public.attacker_type)",
+        "SELECT 'x'::public.attacker_type",
+        "SELECT CAST('x' AS attacker_type)",
+        "SELECT 'x'::public.attacker_type[]",
+        "SELECT 'x'::pg_catalog.attacker_type",
+        "SELECT 'x'::\"PG_CATALOG\".text",
+        "SELECT CAST('x' AS pg_catalog.regprocedure)",
+    ],
+)
+def test_custom_operators_and_cast_types_cannot_bypass_function_policy(sql):
+    """Operators and type input functions execute code without exp.Func nodes."""
+    with pytest.raises(UnsafeQueryError, match="approved analytical policy"):
+        validate_sql(sql, allowed_tables={"film"})
+
+
+@pytest.mark.parametrize(
+    "sql",
+    [
+        "SELECT 1 + 2, 3 * 4, 5 >= 2, 'a' || 'b'",
+        "SELECT 1 OPERATOR(+) 2",
+        "SELECT 1 OPERATOR(pg_catalog.+) 2",
+        "SELECT 'a' OPERATOR(pg_catalog.||) 'b'",
+        "SELECT CAST('1' AS INTEGER), CAST('1.23' AS NUMERIC(10,2))",
+        "SELECT CAST('2026-01-01' AS timestamp with time zone)",
+        "SELECT CAST('{a,b}' AS text[])",
+        "SELECT 'x'::pg_catalog.text, '1'::pg_catalog.int4",
+        'SELECT \'x\'::"pg_catalog"."text"',
+        "SELECT CAST('x' AS pg_catalog.varchar(10))",
+    ],
+)
+def test_reviewed_builtin_operators_and_casts_remain_allowed(sql):
+    assert isinstance(validate_sql(sql, allowed_tables={"film"}), exp.Query)
+
+
+@pytest.mark.parametrize(
+    "typename",
+    [
+        "regclass",
+        "regproc",
+        "regprocedure",
+        "regtype",
+        "regnamespace",
+        "regrole",
+        "regoper",
+        "regoperator",
+        "regconfig",
+        "regdictionary",
+        "regcollation",
+    ],
+)
+@pytest.mark.parametrize("prefix", ["", "pg_catalog."])
+def test_object_identifier_casts_cannot_resolve_internal_metadata(typename, prefix):
+    """Object lookup casts read catalog identities outside the relation policy."""
+    with pytest.raises(UnsafeQueryError, match="approved analytical policy"):
+        validate_sql(f"SELECT CAST('x' AS {prefix}{typename})", allowed_tables={"film"})
+
+
+@pytest.mark.parametrize(
+    ("sql", "reason"),
+    [
+        ("SELECT 'pg_authid'::regclass", "approved analytical policy"),
+        ("SELECT '{}'::regclass[]", "could not be parsed"),
+    ],
+)
+def test_object_identifier_shorthand_and_arrays_are_rejected(sql, reason):
+    with pytest.raises(UnsafeQueryError, match=reason):
+        validate_sql(sql, allowed_tables={"film"})
+
+
 def test_p01_public_relations_are_qualified_before_execution():
     query = validate_sql(
         "WITH x AS (SELECT title FROM film) SELECT title FROM x",

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="9" skipped="0" tests="9" time="0.570" timestamp="2026-10-20T23:07:02.510117-05:00" hostname="AnikanSkywalker"><testcase classname="output.implementation.p04.mail-contract-unit.test_mail_envelope_contract" name="test_account_mail_rejects_raw_control_backslash_or_invalid_origin[https://aqua-ai.\nus]" time="0.001"><failure message="Failed: DID NOT RAISE MailUnavailable">output\implementation\p04\mail-contract-unit\test_mail_envelope_contract.py:30: in test_account_mail_rejects_raw_control_backslash_or_invalid_origin
+    with pytest.raises(MailUnavailable): MailPolicy(True,POLICY.key,origin)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE MailUnavailable</failure></testcase><testcase classname="output.implementation.p04.mail-contract-unit.test_mail_envelope_contract" name="test_account_mail_rejects_raw_control_backslash_or_invalid_origin[https://aqua-ai.\tus]" time="0.001"><failure message="Failed: DID NOT RAISE MailUnavailable">output\implementation\p04\mail-contract-unit\test_mail_envelope_contract.py:30: in test_account_mail_rejects_raw_control_backslash_or_invalid_origin
+    with pytest.raises(MailUnavailable): MailPolicy(True,POLICY.key,origin)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE MailUnavailable</failure></testcase><testcase classname="output.implementation.p04.mail-contract-unit.test_mail_envelope_contract" name="test_account_mail_rejects_raw_control_backslash_or_invalid_origin[https://aqua-ai.us\\evil.invalid]" time="0.000"><failure message="Failed: DID NOT RAISE MailUnavailable">output\implementation\p04\mail-contract-unit\test_mail_envelope_contract.py:30: in test_account_mail_rejects_raw_control_backslash_or_invalid_origin
+    with pytest.raises(MailUnavailable): MailPolicy(True,POLICY.key,origin)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE MailUnavailable</failure></testcase><testcase classname="output.implementation.p04.mail-contract-unit.test_mail_envelope_contract" name="test_account_mail_rejects_raw_control_backslash_or_invalid_origin[https://aqua-ai.us bad]" time="0.000"><failure message="Failed: DID NOT RAISE MailUnavailable">output\implementation\p04\mail-contract-unit\test_mail_envelope_contract.py:30: in test_account_mail_rejects_raw_control_backslash_or_invalid_origin
+    with pytest.raises(MailUnavailable): MailPolicy(True,POLICY.key,origin)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE MailUnavailable</failure></testcase><testcase classname="output.implementation.p04.mail-contract-unit.test_mail_envelope_contract" name="test_authenticated_envelope_cannot_change_template_link_or_recipient_syntax[wrong_subject]" time="0.001"><failure message="Failed: DID NOT RAISE MailUnavailable">output\implementation\p04\mail-contract-unit\test_mail_envelope_contract.py:41: in test_authenticated_envelope_cannot_change_template_link_or_recipient_syntax
+    with pytest.raises(MailUnavailable): open_job(_sealed(payload),POLICY)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE MailUnavailable</failure></testcase><testcase classname="output.implementation.p04.mail-contract-unit.test_mail_envelope_contract" name="test_authenticated_envelope_cannot_change_template_link_or_recipient_syntax[extra_link]" time="0.001"><failure message="Failed: DID NOT RAISE MailUnavailable">output\implementation\p04\mail-contract-unit\test_mail_envelope_contract.py:41: in test_authenticated_envelope_cannot_change_template_link_or_recipient_syntax
+    with pytest.raises(MailUnavailable): open_job(_sealed(payload),POLICY)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE MailUnavailable</failure></testcase><testcase classname="output.implementation.p04.mail-contract-unit.test_mail_envelope_contract" name="test_authenticated_envelope_cannot_change_template_link_or_recipient_syntax[wrong_origin]" time="0.001"><failure message="Failed: DID NOT RAISE MailUnavailable">output\implementation\p04\mail-contract-unit\test_mail_envelope_contract.py:41: in test_authenticated_envelope_cannot_change_template_link_or_recipient_syntax
+    with pytest.raises(MailUnavailable): open_job(_sealed(payload),POLICY)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE MailUnavailable</failure></testcase><testcase classname="output.implementation.p04.mail-contract-unit.test_mail_envelope_contract" name="test_authenticated_envelope_cannot_change_template_link_or_recipient_syntax[wrong_path]" time="0.001"><failure message="Failed: DID NOT RAISE MailUnavailable">output\implementation\p04\mail-contract-unit\test_mail_envelope_contract.py:41: in test_authenticated_envelope_cannot_change_template_link_or_recipient_syntax
+    with pytest.raises(MailUnavailable): open_job(_sealed(payload),POLICY)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE MailUnavailable</failure></testcase><testcase classname="output.implementation.p04.mail-contract-unit.test_mail_envelope_contract" name="test_authenticated_envelope_cannot_change_template_link_or_recipient_syntax[display_recipient]" time="0.000"><failure message="Failed: DID NOT RAISE MailUnavailable">output\implementation\p04\mail-contract-unit\test_mail_envelope_contract.py:41: in test_authenticated_envelope_cannot_change_template_link_or_recipient_syntax
+    with pytest.raises(MailUnavailable): open_job(_sealed(payload),POLICY)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE MailUnavailable</failure></testcase></testsuite></testsuites>

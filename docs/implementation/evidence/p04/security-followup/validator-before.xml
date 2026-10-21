@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="12" skipped="0" tests="22" time="0.528" timestamp="2026-10-20T23:06:39.460515-05:00" hostname="AnikanSkywalker"><testcase classname="tests.test_validate" name="test_custom_operators_and_cast_types_cannot_bypass_function_policy[SELECT 1 OPERATOR(public.===) 2]" time="0.012"><failure message="Failed: DID NOT RAISE UnsafeQueryError">sql = 'SELECT 1 OPERATOR(public.===) 2'
+
+    @pytest.mark.parametrize(
+        "sql",
+        [
+            "SELECT 1 OPERATOR(public.===) 2",
+            "SELECT 1 OPERATOR(public.+) 2",
+            "SELECT 1 OPERATOR(private.||) 2",
+            "SELECT 1 OPERATOR(===) 2",
+            "WITH x AS (SELECT 1 OPERATOR(public.+) 2) SELECT * FROM x",
+            "SELECT CAST('x' AS public.attacker_type)",
+            "SELECT 'x'::public.attacker_type",
+            "SELECT CAST('x' AS attacker_type)",
+            "SELECT 'x'::public.attacker_type[]",
+            "SELECT 'x'::pg_catalog.attacker_type",
+            'SELECT \'x\'::"PG_CATALOG".text',
+            "SELECT CAST('x' AS pg_catalog.regprocedure)",
+        ],
+    )
+    def test_custom_operators_and_cast_types_cannot_bypass_function_policy(sql):
+        """Operators and type input functions execute code without exp.Func nodes."""
+&gt;       with pytest.raises(UnsafeQueryError, match="approved analytical policy"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE UnsafeQueryError
+
+output\implementation\p04\src\backend\tests\test_validate.py:135: Failed</failure></testcase><testcase classname="tests.test_validate" name="test_custom_operators_and_cast_types_cannot_bypass_function_policy[SELECT 1 OPERATOR(public.+) 2]" time="0.001"><failure message="Failed: DID NOT RAISE UnsafeQueryError">sql = 'SELECT 1 OPERATOR(public.+) 2'
+
+    @pytest.mark.parametrize(
+        "sql",
+        [
+            "SELECT 1 OPERATOR(public.===) 2",
+            "SELECT 1 OPERATOR(public.+) 2",
+            "SELECT 1 OPERATOR(private.||) 2",
+            "SELECT 1 OPERATOR(===) 2",
+            "WITH x AS (SELECT 1 OPERATOR(public.+) 2) SELECT * FROM x",
+            "SELECT CAST('x' AS public.attacker_type)",
+            "SELECT 'x'::public.attacker_type",
+            "SELECT CAST('x' AS attacker_type)",
+            "SELECT 'x'::public.attacker_type[]",
+            "SELECT 'x'::pg_catalog.attacker_type",
+            'SELECT \'x\'::"PG_CATALOG".text',
+            "SELECT CAST('x' AS pg_catalog.regprocedure)",
+        ],
+    )
+    def test_custom_operators_and_cast_types_cannot_bypass_function_policy(sql):
+        """Operators and type input functions execute code without exp.Func nodes."""
+&gt;       with pytest.raises(UnsafeQueryError, match="approved analytical policy"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE UnsafeQueryError
+
+output\implementation\p04\src\backend\tests\test_validate.py:135: Failed</failure></testcase><testcase classname="tests.test_validate" name="test_custom_operators_and_cast_types_cannot_bypass_function_policy[SELECT 1 OPERATOR(private.||) 2]" time="0.001"><failure message="Failed: DID NOT RAISE UnsafeQueryError">sql = 'SELECT 1 OPERATOR(private.||) 2'
+
+    @pytest.mark.parametrize(
+        "sql",
+        [
+            "SELECT 1 OPERATOR(public.===) 2",
+            "SELECT 1 OPERATOR(public.+) 2",
+            "SELECT 1 OPERATOR(private.||) 2",
+            "SELECT 1 OPERATOR(===) 2",
+            "WITH x AS (SELECT 1 OPERATOR(public.+) 2) SELECT * FROM x",
+            "SELECT CAST('x' AS public.attacker_type)",
+            "SELECT 'x'::public.attacker_type",
+            "SELECT CAST('x' AS attacker_type)",
+            "SELECT 'x'::public.attacker_type[]",
+            "SELECT 'x'::pg_catalog.attacker_type",
+            'SELECT \'x\'::"PG_CATALOG".text',
+            "SELECT CAST('x' AS pg_catalog.regprocedure)",
+        ],
+    )
+    def test_custom_operators_and_cast_types_cannot_bypass_function_policy(sql):
+        """Operators and type input functions execute code without exp.Func nodes."""
+&gt;       with pytest.raises(UnsafeQueryError, match="approved analytical policy"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE UnsafeQueryError
+
+output\implementation\p04\src\backend\tests\test_validate.py:135: Failed</failure></testcase><testcase classname="tests.test_validate" name="test_custom_operators_and_cast_types_cannot_bypass_function_policy[SELECT 1 OPERATOR(===) 2]" time="0.001"><failure message="Failed: DID NOT RAISE UnsafeQueryError">sql = 'SELECT 1 OPERATOR(===) 2'
+
+    @pytest.mark.parametrize(
+        "sql",
+        [
+            "SELECT 1 OPERATOR(public.===) 2",
+            "SELECT 1 OPERATOR(public.+) 2",
+            "SELECT 1 OPERATOR(private.||) 2",
+            "SELECT 1 OPERATOR(===) 2",
+            "WITH x AS (SELECT 1 OPERATOR(public.+) 2) SELECT * FROM x",
+            "SELECT CAST('x' AS public.attacker_type)",
+            "SELECT 'x'::public.attacker_type",
+            "SELECT CAST('x' AS attacker_type)",
+            "SELECT 'x'::public.attacker_type[]",
+            "SELECT 'x'::pg_catalog.attacker_type",
+            'SELECT \'x\'::"PG_CATALOG".text',
+            "SELECT CAST('x' AS pg_catalog.regprocedure)",
+        ],
+    )
+    def test_custom_operators_and_cast_types_cannot_bypass_function_policy(sql):
+        """Operators and type input functions execute code without exp.Func nodes."""
+&gt;       with pytest.raises(UnsafeQueryError, match="approved analytical policy"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE UnsafeQueryError
+
+output\implementation\p04\src\backend\tests\test_validate.py:135: Failed</failure></testcase><testcase classname="tests.test_validate" name="test_custom_operators_and_cast_types_cannot_bypass_function_policy[WITH x AS (SELECT 1 OPERATOR(public.+) 2) SELECT * FROM x]" time="0.001"><failure message="Failed: DID NOT RAISE UnsafeQueryError">sql = 'WITH x AS (SELECT 1 OPERATOR(public.+) 2) SELECT * FROM x'
+
+    @pytest.mark.parametrize(
+        "sql",
+        [
+            "SELECT 1 OPERATOR(public.===) 2",
+            "SELECT 1 OPERATOR(public.+) 2",
+            "SELECT 1 OPERATOR(private.||) 2",
+            "SELECT 1 OPERATOR(===) 2",
+            "WITH x AS (SELECT 1 OPERATOR(public.+) 2) SELECT * FROM x",
+            "SELECT CAST('x' AS public.attacker_type)",
+            "SELECT 'x'::public.attacker_type",
+            "SELECT CAST('x' AS attacker_type)",
+            "SELECT 'x'::public.attacker_type[]",
+            "SELECT 'x'::pg_catalog.attacker_type",
+            'SELECT \'x\'::"PG_CATALOG".text',
+            "SELECT CAST('x' AS pg_catalog.regprocedure)",
+        ],
+    )
+    def test_custom_operators_and_cast_types_cannot_bypass_function_policy(sql):
+        """Operators and type input functions execute code without exp.Func nodes."""
+&gt;       with pytest.raises(UnsafeQueryError, match="approved analytical policy"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE UnsafeQueryError
+
+output\implementation\p04\src\backend\tests\test_validate.py:135: Failed</failure></testcase><testcase classname="tests.test_validate" name="test_custom_operators_and_cast_types_cannot_bypass_function_policy[SELECT CAST('x' AS public.attacker_type)]" time="0.001"><failure message="Failed: DID NOT RAISE UnsafeQueryError">sql = "SELECT CAST('x' AS public.attacker_type)"
+
+    @pytest.mark.parametrize(
+        "sql",
+        [
+            "SELECT 1 OPERATOR(public.===) 2",
+            "SELECT 1 OPERATOR(public.+) 2",
+            "SELECT 1 OPERATOR(private.||) 2",
+            "SELECT 1 OPERATOR(===) 2",
+            "WITH x AS (SELECT 1 OPERATOR(public.+) 2) SELECT * FROM x",
+            "SELECT CAST('x' AS public.attacker_type)",
+            "SELECT 'x'::public.attacker_type",
+            "SELECT CAST('x' AS attacker_type)",
+            "SELECT 'x'::public.attacker_type[]",
+            "SELECT 'x'::pg_catalog.attacker_type",
+            'SELECT \'x\'::"PG_CATALOG".text',
+            "SELECT CAST('x' AS pg_catalog.regprocedure)",
+        ],
+    )
+    def test_custom_operators_and_cast_types_cannot_bypass_function_policy(sql):
+        """Operators and type input functions execute code without exp.Func nodes."""
+&gt;       with pytest.raises(UnsafeQueryError, match="approved analytical policy"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE UnsafeQueryError
+
+output\implementation\p04\src\backend\tests\test_validate.py:135: Failed</failure></testcase><testcase classname="tests.test_validate" name="test_custom_operators_and_cast_types_cannot_bypass_function_policy[SELECT 'x'::public.attacker_type]" time="0.001"><failure message="Failed: DID NOT RAISE UnsafeQueryError">sql = "SELECT 'x'::public.attacker_type"
+
+    @pytest.mark.parametrize(
+        "sql",
+        [
+            "SELECT 1 OPERATOR(public.===) 2",
+            "SELECT 1 OPERATOR(public.+) 2",
+            "SELECT 1 OPERATOR(private.||) 2",
+            "SELECT 1 OPERATOR(===) 2",
+            "WITH x AS (SELECT 1 OPERATOR(public.+) 2) SELECT * FROM x",
+            "SELECT CAST('x' AS public.attacker_type)",
+            "SELECT 'x'::public.attacker_type",
+            "SELECT CAST('x' AS attacker_type)",
+            "SELECT 'x'::public.attacker_type[]",
+            "SELECT 'x'::pg_catalog.attacker_type",
+            'SELECT \'x\'::"PG_CATALOG".text',
+            "SELECT CAST('x' AS pg_catalog.regprocedure)",
+        ],
+    )
+    def test_custom_operators_and_cast_types_cannot_bypass_function_policy(sql):
+        """Operators and type input functions execute code without exp.Func nodes."""
+&gt;       with pytest.raises(UnsafeQueryError, match="approved analytical policy"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE UnsafeQueryError
+
+output\implementation\p04\src\backend\tests\test_validate.py:135: Failed</failure></testcase><testcase classname="tests.test_validate" name="test_custom_operators_and_cast_types_cannot_bypass_function_policy[SELECT CAST('x' AS attacker_type)]" time="0.001"><failure message="Failed: DID NOT RAISE UnsafeQueryError">sql = "SELECT CAST('x' AS attacker_type)"
+
+    @pytest.mark.parametrize(
+        "sql",
+        [
+            "SELECT 1 OPERATOR(public.===) 2",
+            "SELECT 1 OPERATOR(public.+) 2",
+            "SELECT 1 OPERATOR(private.||) 2",
+            "SELECT 1 OPERATOR(===) 2",
+            "WITH x AS (SELECT 1 OPERATOR(public.+) 2) SELECT * FROM x",
+            "SELECT CAST('x' AS public.attacker_type)",
+            "SELECT 'x'::public.attacker_type",
+            "SELECT CAST('x' AS attacker_type)",
+            "SELECT 'x'::public.attacker_type[]",
+            "SELECT 'x'::pg_catalog.attacker_type",
+            'SELECT \'x\'::"PG_CATALOG".text',
+            "SELECT CAST('x' AS pg_catalog.regprocedure)",
+        ],
+    )
+    def test_custom_operators_and_cast_types_cannot_bypass_function_policy(sql):
+        """Operators and type input functions execute code without exp.Func nodes."""
+&gt;       with pytest.raises(UnsafeQueryError, match="approved analytical policy"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE UnsafeQueryError
+
+output\implementation\p04\src\backend\tests\test_validate.py:135: Failed</failure></testcase><testcase classname="tests.test_validate" name="test_custom_operators_and_cast_types_cannot_bypass_function_policy[SELECT 'x'::public.attacker_type[]]" time="0.001"><failure message="Failed: DID NOT RAISE UnsafeQueryError">sql = "SELECT 'x'::public.attacker_type[]"
+
+    @pytest.mark.parametrize(
+        "sql",
+        [
+            "SELECT 1 OPERATOR(public.===) 2",
+            "SELECT 1 OPERATOR(public.+) 2",
+            "SELECT 1 OPERATOR(private.||) 2",
+            "SELECT 1 OPERATOR(===) 2",
+            "WITH x AS (SELECT 1 OPERATOR(public.+) 2) SELECT * FROM x",
+            "SELECT CAST('x' AS public.attacker_type)",
+            "SELECT 'x'::public.attacker_type",
+            "SELECT CAST('x' AS attacker_type)",
+            "SELECT 'x'::public.attacker_type[]",
+            "SELECT 'x'::pg_catalog.attacker_type",
+            'SELECT \'x\'::"PG_CATALOG".text',
+            "SELECT CAST('x' AS pg_catalog.regprocedure)",
+        ],
+    )
+    def test_custom_operators_and_cast_types_cannot_bypass_function_policy(sql):
+        """Operators and type input functions execute code without exp.Func nodes."""
+&gt;       with pytest.raises(UnsafeQueryError, match="approved analytical policy"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE UnsafeQueryError
+
+output\implementation\p04\src\backend\tests\test_validate.py:135: Failed</failure></testcase><testcase classname="tests.test_validate" name="test_custom_operators_and_cast_types_cannot_bypass_function_policy[SELECT 'x'::pg_catalog.attacker_type]" time="0.001"><failure message="Failed: DID NOT RAISE UnsafeQueryError">sql = "SELECT 'x'::pg_catalog.attacker_type"
+
+    @pytest.mark.parametrize(
+        "sql",
+        [
+            "SELECT 1 OPERATOR(public.===) 2",
+            "SELECT 1 OPERATOR(public.+) 2",
+            "SELECT 1 OPERATOR(private.||) 2",
+            "SELECT 1 OPERATOR(===) 2",
+            "WITH x AS (SELECT 1 OPERATOR(public.+) 2) SELECT * FROM x",
+            "SELECT CAST('x' AS public.attacker_type)",
+            "SELECT 'x'::public.attacker_type",
+            "SELECT CAST('x' AS attacker_type)",
+            "SELECT 'x'::public.attacker_type[]",
+            "SELECT 'x'::pg_catalog.attacker_type",
+            'SELECT \'x\'::"PG_CATALOG".text',
+            "SELECT CAST('x' AS pg_catalog.regprocedure)",
+        ],
+    )
+    def test_custom_operators_and_cast_types_cannot_bypass_function_policy(sql):
+        """Operators and type input functions execute code without exp.Func nodes."""
+&gt;       with pytest.raises(UnsafeQueryError, match="approved analytical policy"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE UnsafeQueryError
+
+output\implementation\p04\src\backend\tests\test_validate.py:135: Failed</failure></testcase><testcase classname="tests.test_validate" name="test_custom_operators_and_cast_types_cannot_bypass_function_policy[SELECT 'x'::&quot;PG_CATALOG&quot;.text]" time="0.001"><failure message="Failed: DID NOT RAISE UnsafeQueryError">sql = 'SELECT \'x\'::"PG_CATALOG".text'
+
+    @pytest.mark.parametrize(
+        "sql",
+        [
+            "SELECT 1 OPERATOR(public.===) 2",
+            "SELECT 1 OPERATOR(public.+) 2",
+            "SELECT 1 OPERATOR(private.||) 2",
+            "SELECT 1 OPERATOR(===) 2",
+            "WITH x AS (SELECT 1 OPERATOR(public.+) 2) SELECT * FROM x",
+            "SELECT CAST('x' AS public.attacker_type)",
+            "SELECT 'x'::public.attacker_type",
+            "SELECT CAST('x' AS attacker_type)",
+            "SELECT 'x'::public.attacker_type[]",
+            "SELECT 'x'::pg_catalog.attacker_type",
+            'SELECT \'x\'::"PG_CATALOG".text',
+            "SELECT CAST('x' AS pg_catalog.regprocedure)",
+        ],
+    )
+    def test_custom_operators_and_cast_types_cannot_bypass_function_policy(sql):
+        """Operators and type input functions execute code without exp.Func nodes."""
+&gt;       with pytest.raises(UnsafeQueryError, match="approved analytical policy"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE UnsafeQueryError
+
+output\implementation\p04\src\backend\tests\test_validate.py:135: Failed</failure></testcase><testcase classname="tests.test_validate" name="test_custom_operators_and_cast_types_cannot_bypass_function_policy[SELECT CAST('x' AS pg_catalog.regprocedure)]" time="0.001"><failure message="Failed: DID NOT RAISE UnsafeQueryError">sql = "SELECT CAST('x' AS pg_catalog.regprocedure)"
+
+    @pytest.mark.parametrize(
+        "sql",
+        [
+            "SELECT 1 OPERATOR(public.===) 2",
+            "SELECT 1 OPERATOR(public.+) 2",
+            "SELECT 1 OPERATOR(private.||) 2",
+            "SELECT 1 OPERATOR(===) 2",
+            "WITH x AS (SELECT 1 OPERATOR(public.+) 2) SELECT * FROM x",
+            "SELECT CAST('x' AS public.attacker_type)",
+            "SELECT 'x'::public.attacker_type",
+            "SELECT CAST('x' AS attacker_type)",
+            "SELECT 'x'::public.attacker_type[]",
+            "SELECT 'x'::pg_catalog.attacker_type",
+            'SELECT \'x\'::"PG_CATALOG".text',
+            "SELECT CAST('x' AS pg_catalog.regprocedure)",
+        ],
+    )
+    def test_custom_operators_and_cast_types_cannot_bypass_function_policy(sql):
+        """Operators and type input functions execute code without exp.Func nodes."""
+&gt;       with pytest.raises(UnsafeQueryError, match="approved analytical policy"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE UnsafeQueryError
+
+output\implementation\p04\src\backend\tests\test_validate.py:135: Failed</failure></testcase><testcase classname="tests.test_validate" name="test_reviewed_builtin_operators_and_casts_remain_allowed[SELECT 1 + 2, 3 * 4, 5 &gt;= 2, 'a' || 'b']" time="0.001" /><testcase classname="tests.test_validate" name="test_reviewed_builtin_operators_and_casts_remain_allowed[SELECT 1 OPERATOR(+) 2]" time="0.000" /><testcase classname="tests.test_validate" name="test_reviewed_builtin_operators_and_casts_remain_allowed[SELECT 1 OPERATOR(pg_catalog.+) 2]" time="0.000" /><testcase classname="tests.test_validate" name="test_reviewed_builtin_operators_and_casts_remain_allowed[SELECT 'a' OPERATOR(pg_catalog.||) 'b']" time="0.000" /><testcase classname="tests.test_validate" name="test_reviewed_builtin_operators_and_casts_remain_allowed[SELECT CAST('1' AS INTEGER), CAST('1.23' AS NUMERIC(10,2))]" time="0.001" /><testcase classname="tests.test_validate" name="test_reviewed_builtin_operators_and_casts_remain_allowed[SELECT CAST('2026-01-01' AS timestamp with time zone)]" time="0.000" /><testcase classname="tests.test_validate" name="test_reviewed_builtin_operators_and_casts_remain_allowed[SELECT CAST('{a,b}' AS text[])]" time="0.000" /><testcase classname="tests.test_validate" name="test_reviewed_builtin_operators_and_casts_remain_allowed[SELECT 'x'::pg_catalog.text, '1'::pg_catalog.int4]" time="0.001" /><testcase classname="tests.test_validate" name="test_reviewed_builtin_operators_and_casts_remain_allowed[SELECT 'x'::&quot;pg_catalog&quot;.&quot;text&quot;]" time="0.001" /><testcase classname="tests.test_validate" name="test_reviewed_builtin_operators_and_casts_remain_allowed[SELECT CAST('x' AS pg_catalog.varchar(10))]" time="0.001" /></testsuite></testsuites>

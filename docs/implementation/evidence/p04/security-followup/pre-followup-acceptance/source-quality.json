@@ -1,0 +1,67 @@
+{
+  "status": "passed",
+  "black_files": 132,
+  "protected_unchanged": [
+    "AQUA_CODEX_HANDOFF.md",
+    "backend/migrations/0001_identity.sql",
+    "backend/migrations/0002_identity_policy.sql",
+    "backend/nl2sql/config.py",
+    "backend/nl2sql/db.py",
+    "db/01_extensions.sql",
+    "db/02_load_pagila.sh",
+    "db/03_users.sql",
+    "db/04_retrieval.sql",
+    "db/05_hide_columns.sql",
+    "db/README.md",
+    "db/financial/01_export.sh",
+    "db/financial/02_load.sql",
+    "db/financial/README.md"
+  ],
+  "checks": [
+    {
+      "command": [
+        "-m",
+        "ruff",
+        "check",
+        "--no-cache",
+        "C:\\Users\\Benjamin\\OneDrive\\Documents\\ChatGPT\\Aqua\\output\\implementation\\p04\\src\\backend",
+        "C:\\Users\\Benjamin\\OneDrive\\Documents\\ChatGPT\\Aqua\\output\\implementation\\p04\\src\\eval",
+        "C:\\Users\\Benjamin\\OneDrive\\Documents\\ChatGPT\\Aqua\\output\\implementation\\p04\\src\\tools\\checks",
+        "C:\\Users\\Benjamin\\OneDrive\\Documents\\ChatGPT\\Aqua\\output\\implementation\\p04\\src\\ops"
+      ],
+      "exit_code": 0,
+      "output": "All checks passed!\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "C:\\Users\\Benjamin\\OneDrive\\Documents\\ChatGPT\\Aqua\\output\\implementation\\p04\\src\\tools\\checks\\check_lock.py"
+      ],
+      "exit_code": 0,
+      "output": "Runtime pins satisfy all direct requirement ranges.\r\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "C:\\Users\\Benjamin\\OneDrive\\Documents\\ChatGPT\\Aqua\\output\\implementation\\p04\\src\\tools\\checks\\check_source.py",
+        "--root",
+        "C:\\Users\\Benjamin\\OneDrive\\Documents\\ChatGPT\\Aqua\\output\\implementation\\p04\\src",
+        "--manifest",
+        "C:\\Users\\Benjamin\\OneDrive\\Documents\\ChatGPT\\Aqua\\output\\implementation\\p04\\scan-manifest.json"
+      ],
+      "exit_code": 0,
+      "output": "{\"status\": \"passed\", \"findings\": []}\r\n",
+      "stderr": ""
+    }
+  ],
+  "tested_image": "sha256:c142d23cb345943cc7bf68b464444966e24b2db237e77aecf0d331bcbbaade67",
+  "runtime_hashes_verified": 64,
+  "nginx_hash_verified": true,
+  "dependency_lock_changed": true,
+  "locked_package_additions": [
+    "argon2-cffi==25.1.0",
+    "argon2-cffi-bindings==26.1.0"
+  ],
+  "cryptography": "existing locked dependency now explicitly declared",
+  "limitations": "Source/advisory checks and isolated fixtures only; no production capacity or full live penetration test."
+}

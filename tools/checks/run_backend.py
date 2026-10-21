@@ -43,12 +43,21 @@ def source_archive() -> bytes:
             for path in sorted((ROOT / folder).rglob("*")):
                 if path.is_symlink():
                     raise RuntimeError("symlink in check source")
-                if not path.is_file() or path.suffix not in {
-                    ".py",
-                    ".sql",
-                    ".psql",
-                    ".ini",
-                }:
+                asset = path.parent == ROOT / "backend/auth" and path.name in {
+                    "password_blocklist_sha256.txt",
+                    "password_blocklist_LICENSE.txt",
+                    "password_blocklist_provenance.json",
+                }
+                if not path.is_file() or (
+                    not asset
+                    and path.suffix
+                    not in {
+                        ".py",
+                        ".sql",
+                        ".psql",
+                        ".ini",
+                    }
+                ):
                     continue
                 if any(
                     p.startswith(".") or p in {"__pycache__", "results"}

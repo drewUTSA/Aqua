@@ -1,0 +1,14 @@
+{
+  "purpose": "aqua_private_app_precutover_backup",
+  "status": "passed",
+  "created_at_utc": "2026-10-21T03:37:06.6999118Z",
+  "snapshot_id": "62737bad9e89c1e6c6836664ab5b725b2f01bd9a8b5b296b2b602fc837ee1f6c",
+  "tag": "pre-p03-c25a333",
+  "schema_version": 1,
+  "encrypted_off_server": true,
+  "read_data_integrity": "passed",
+  "plaintext_dump_saved": false,
+  "production_restore_tested": false,
+  "pruning": false,
+  "source": "operator_report_normal_windows_powershell"
+}

@@ -50,7 +50,7 @@ def test_wrong_binding_expired_and_wrong_purpose_challenges_fail(storage, change
             )
         elif change == "purpose":
             conn.execute(
-                "UPDATE app.auth_challenges SET purpose='password_reset' WHERE secret_digest=%s",
+                "UPDATE app.auth_challenges SET purpose='registration' WHERE secret_digest=%s",
                 (secret,),
             )
     with pytest.raises(AuthDenied):

@@ -21,11 +21,39 @@ export function formatCell(value, column, table = {}) {
   return String(value);
 }
 
-export function safeCsvCell(value) {
+function spreadsheetText(value) {
   const text = value == null ? "" : String(value);
-  // Preserve real negative numbers. Protect spreadsheet-sensitive text in any column.
-  const safe = typeof value === "string" && /^[\s]*[=+\-@]/.test(text) ? `'${text}` : text;
+  // Some spreadsheet importers ignore leading control/format characters. Test
+  // the significant prefix, then put the literal marker before the whole value.
+  const significant = text.replace(/^[\s\u0000-\u001f\u007f-\u009f\u200b-\u200f\u202a-\u202e\u2060-\u206f]*/u, "");
+  return typeof value !== "number" && /^[=+\-@]/.test(significant) ? `'${text}` : text;
+}
+
+export function safeCsvCell(value) {
+  // Preserve real negative numbers. Text cannot select a spreadsheet formula.
+  const safe = spreadsheetText(value);
   return `"${safe.replaceAll('"', '""')}"`;
+}
+
+/** One clipboard cell: delimiters inside data cannot create executable cells. */
+export function safeTsvCell(value) {
+  // Clipboard consumers differ in their quoting support. Flatten row/column
+  // controls first; CSV remains the lossless multiline export format.
+  const flattened = typeof value === "number" ? value
+    : (value == null ? "" : String(value)).replace(/[\u0000-\u001f\u007f-\u009f\u2028\u2029]/gu, " ");
+  const safe = spreadsheetText(flattened);
+  return safe.includes('"') ? `"${safe.replaceAll('"', '""')}"` : safe;
+}
+
+/** Copy numeric values as numbers; presentation formatting stays in the UI. */
+export function createTsv(table, rows = table.rows) {
+  return [
+    table.columns.map((column) => safeTsvCell(column.label)).join("\t"),
+    ...rows.map((row) => table.columns.map((column) => {
+      const value = row[column.key];
+      return safeTsvCell(typeof value === "number" ? value : formatCell(value, column, table));
+    }).join("\t"))
+  ].join("\n");
 }
 
 export function createCsv(table, rows = table.rows) {

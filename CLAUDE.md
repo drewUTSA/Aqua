@@ -32,11 +32,11 @@ The server runs the app with docker-compose. Code changes are made locally, push
 | Concern | Choice |
 |---|---|
 | Backend language | Python 3.12 (not 3.14; the ML stack does not fully support 3.14 yet) |
-| API | FastAPI on 127.0.0.1:8000; both public hostnames now enter nginx on 127.0.0.1:5173. P02 PR #38 is merged/deployed at 5ac90fc; both public hosts enter nginx. P03 source awaits review/cutover |
-| Sign-in | Google Identity Services verified server-side; P03 uses canonical UUID accounts and opaque digest-only, revocable database sessions (cutover pending) |
+| API | FastAPI on 127.0.0.1:8000; both public hostnames now enter nginx on 127.0.0.1:5173. P03 PR #39 is merged/deployed at c25a333; both public hosts enter nginx. P04 source awaits schema-3 review/cutover |
+| Sign-in | Google Identity Services with canonical UUID accounts and revocable digest-only sessions is deployed; P04 password APIs are prepared with all new flags off, UI follows in P05 |
 | Frontend | React 19 with Vite. Production: a static build served by nginx on port 5173, which forwards `/api` to the backend and rate-limits questions. Development: `npm run dev` forwards API calls but is not the production rate-limit boundary |
 | Analytical database | PostgreSQL on Tiger Cloud free service (TimescaleDB, pgvector, pgvectorscale); unchanged in P02 |
-| Application database | P02 private PostgreSQL 17 is installed/active at schema 1, socket only, separate roles. P03 code explicitly requires schema 2 |
+| Application database | Private PostgreSQL 17 is active at schema 2, socket only, separate roles. P04 code explicitly requires schema 3 |
 | Sample data | Pagila (Postgres port of Sakila) |
 | LLM | Gemini API with the free `gemini-3.5-flash-lite` by default (`LLM_PROVIDER=gemini`). When it is out of quota or down: Ollama (`qwen3`) on Ben's server over Tailscale, then `gemma-4-26b-a4b-it`. Model names read from env |
 | Embeddings | `gemini-embedding-2` at 768 dimensions, stored in pgvector in the `retrieval` schema (Phase 4) |
@@ -135,7 +135,7 @@ The frontend talks to the backend only through `/api`, which in production goes 
 | Route | Purpose |
 |---|---|
 | `GET /api/health` | Liveness for the Docker healthcheck: `status`, `database_configured`, `model`, `retrieval`. Never touches the database or model |
-| `GET /api/ready` | Internal loopback readiness; reports storage disabled or required schema version 2, fixed 503 on failure. Public nginx denies this route and normalized aliases |
+| `GET /api/ready` | Internal loopback readiness; reports storage disabled or required schema version 3, fixed 503 on failure. Public nginx denies this route and normalized aliases |
 | `GET /api/auth/config` | Returns `client_id`, `nonce`, `csrf_token`, boolean `capabilities`; persists a single-use challenge and sets its opaque cookie |
 | `POST /api/auth/google` | Body `{"credential": str}` plus `X-CSRF-Token` from config and matching `Origin`. Verifies Google's token and nonce, sets the Aqua session, returns canonical `user.id`, safe profile, `csrf_token`, `can_query`, and `capabilities` |
 | `GET /api/auth/me` | Requires an Aqua session; returns canonical `user.id`, safe profile, `csrf_token`, `can_query`, and `capabilities` |
@@ -145,11 +145,59 @@ The frontend talks to the backend only through `/api`, which in production goes 
 
 The shape matches what the React app renders, plus `sql` so every answer shows its query. Each table is `{"id", "title", "columns": [{"key", "label", "type"}], "rows": [{key: value}]}`, where `type` is `string`, `number`, `currency`, `percentage` or `date`; dates are ISO strings. A rejected or failed query returns HTTP 200 with `status` "error", the SQL the model wrote, and the reason, so the UI can show what was blocked. An unreachable model or database returns 503 with `retryable` true; a blank or over-long question returns 422. An unknown `model` is also a 422. Choosing `gemini` on a server with no key returns 400 with code `model_not_configured` and `retryable` false. `message` is a rule-based summary from `summarize.py`. `visualizations` and `kpis` come from `visualize.py`: a single number gives one KPI (`{"id", "label", "value", "type"}`) plus a `{"type": "kpi"}` visualization; labels with a measure give a `bar`, a date with a measure a `line`, each `{"id", "type", "title", "tableId": "result", "xKey", "yKey"}`; anything else leaves both empty. The frontend draws one x column, so a chart labelled by first and last name uses the first.
 
-Health and the model list remain public. Authentication requires the enabled private app DB at schema 2 and a valid session secret. Only new Google config/callbacks require the Google client ID; valid durable sessions can be checked and logged out during provider configuration failure. Invalid/expired sessions return 401, CSRF or dataset denial 403, bounded admission 429 with Retry-After, and unavailable storage/config/provider 503. Validation 422 responses contain a fixed detail string without reflecting submitted credentials/prompts. All `/api` responses use no-store.
+Health and the model list remain public. Authentication requires the enabled private app DB at schema 3 and a valid session secret. Only new Google config/callbacks require the Google client ID; valid durable sessions can be checked and logged out during provider configuration failure. Invalid/expired sessions return 401, CSRF or dataset denial 403, bounded admission 429 with Retry-After, and unavailable storage/config/provider 503. Validation 422 responses contain a fixed detail string without reflecting submitted credentials/prompts. All `/api` responses use no-store.
 
-The auth response user is `{id,email,name,picture}`, where `id` is the canonical UUID; never fabricate a Google subject. Capabilities are explicit booleans (`google_login`, `password_login=false`, `durable_sessions=true`). The browser facade validates that contract and keys workspace state by canonical ID. Confirmed logout/401/account switch clears private state and aborts old requests. Pending/failed logout retains a hidden, inert workspace with retry; it never reports completion before server confirmation.
+The auth response user is `{id,email,name,picture}`, where `id` is the canonical UUID; never fabricate a Google subject. Capabilities are explicit booleans (`google_login`, `password_login` (feature flag, default false), `durable_sessions=true`). The browser facade validates that contract and keys workspace state by canonical ID. Confirmed logout/401/account switch clears private state and aborts old requests. Pending/failed logout retains a hidden, inert workspace with retry; it never reports completion before server confirmation.
 
 Google identity is keyed by verified issuer/subject, never automatic email linking. Fresh approved Gmail/Workspace email or explicit subject evidence may seed an absent durable grant for the server-configured dataset. Revoked grants stay revoked on re-login. Every authenticated operation checks account status/epoch/session expiry/revocation and current grant state; current config approval also gates legacy-derived grants. General login grants no analytical permission. Routes remain same-origin, preserve HTTPS Secure/HttpOnly/host-only cookies, Origin/CSRF and nginx SPA routing. See `docs/google-signin.md` and `docs/ops/P03_IDENTITY_CUTOVER.md`.
+
+### P04 password API (disabled until reviewed activation)
+
+All new routes use `/api/v1/auth`, server-controlled flags and enabled schema-3
+storage. They never require Google configuration. `GET /bootstrap?action=...`
+returns action-bound CSRF and an opaque `__Host-aqua_password` cookie; accepted
+actions are registration, verification, login, reset-request and reset. Each
+unsafe action consumes that challenge once after exact Origin/CSRF checks.
+
+| Route | Body / successful response |
+| --- | --- |
+| `POST /api/v1/auth/registrations` | `{email}` only, generic 202; never store a pending password/account |
+| `POST /api/v1/auth/email-verifications` | `{token,password}`, establish fresh password with mailbox proof, 204/no automatic login |
+| `POST /api/v1/auth/password-login` | `{email,password}`, canonical session response; rotate opaque token |
+| `POST /api/v1/auth/password-reset-requests` | `{email}`, same generic 202 for known/unknown/Google-only addresses |
+| `POST /api/v1/auth/password-resets` | `{token,password}`, existing verified password identity only; epoch/session/link revocation and notice in one transaction; 204/no automatic login |
+
+New accounts get no dataset grant. No email auto-link or unauthenticated first
+password for Google-only users. Password email syntax is ASCII/case-insensitive,
+with dots/plus suffixes preserved. Passwords normalize NFC, require 15..128 code
+points and <=512 UTF-8 bytes, accept spaces/managers, and compare against a pinned
+local common-password corpus. No password leaves for a third-party lookup.
+Argon2id uses 19456KiB/t2/p1, two global request-hash slots and no leased DB
+connection during hashing. Corrupt/absent credential rows do real dummy work.
+Hash slots fail closed after a crash; stop all hash workers before operator
+recovery. Settings cannot change these limits.
+
+`PASSWORD_AUTH_ENABLED`, `PASSWORD_REGISTRATION_ENABLED` and
+`PASSWORD_RECOVERY_ENABLED` all default false and are independent controls.
+Verification/reset TTLs default 86400/1800 seconds. `ACCOUNT_MAIL_ENABLED`, a
+separate 32-byte `ACCOUNT_MAIL_OUTBOX_KEY` and `ACCOUNT_PUBLIC_ORIGIN` configure
+encrypted temporary mail. Only the explicit worker receives `RESEND_API_KEY`;
+never supply it to the web process or frontend. Default worker flag is disabled.
+P04 does not install a scheduler, send real messages or implement P05 forms.
+See `docs/ops/P04_PASSWORD_CUTOVER.md` and `docs/ops/P04_ACCOUNT_MAIL.md`.
+
+The pre-merge follow-up adds recipient/purpose five-minute cooldown, three new
+logical messages per rolling 24h and pending-job coalescing, backed by bounded
+independent history. Mail templates and proof bindings are fixed. Keep these
+server controls outside Settings. Answer Markdown allows formatting only: no
+images, active generated links or raw HTML; clipboard/CSV text neutralizes
+spreadsheet formulas. SQL operator/type/catalog resolution follows the central
+approved-call policy. See `docs/implementation/P04_SECURITY_REVIEW.md`.
+
+Bootstrap budgets are shared anonymous aggregates behind the tunnel, so abuse
+can temporarily return 429 to other visitors' bootstrap attempts. Independent POST zones
+and mail allocations prevent registration from spending those specific recovery
+budgets; they are not end-to-end availability or measured capacity guarantees.
 
 Charts use the existing `visualizations` and `kpis` fields described above; there is no separate `chart` field. Ben owns `visualize.py` and decides any change to how charts are chosen or shaped.
 
@@ -226,7 +274,7 @@ Production sets `RETRIEVAL=on` once the index is built (see Commands). Read anal
 
 | Phase | Goal | Done when | Status |
 |---|---|---|---|
-| 0 | Repo scaffolding | Layout above exists, CI runs pytest and black | P02 merged/deployed at 5ac90fc with private schema-1 storage active; P03 source/checks await human review. See `docs/implementation/P03.md` |
+| 0 | Repo scaffolding | Layout above exists, CI runs pytest and black | P03 merged/deployed at c25a333 with private schema-2 storage active; P04 source/checks await human review. See `docs/implementation/P04.md` |
 | 1 | Database | Pagila loaded, reader role works, write test fails as expected | Done |
 | 2 | Baseline pipeline | `/api/query` returns validated SQL and rows; full schema in prompt | Done |
 | 3 | Evaluation harness | Execution accuracy reported on a fixed question set | Done; results in `docs/decisions.md` |
@@ -244,7 +292,8 @@ Agreed but not started. Each needs its own change and a `docs/decisions.md` entr
 - Phase 7 logging: `db/06_logging.sql` with a `query_log` table and an insert-only `nl2sql_logger` role, `nl2sql/querylog.py`, and a way to promote checked pairs into `retrieval.example_query` as `query_log` rows.
 - Tableau: `db/07_tableau_role.sql`, a read-only `tableau_reader` without the 10-second timeout and with the same hidden staff columns.
 - A second, harder question set (`eval/datasets/pagila_v2.jsonl`), written before looking at model output, so the retrieval comparison rests on more than 50 questions.
-- P02 PR #38 merged at `5ac90fcca45a6a74bab5d6f792388c05804d87a2` and is deployed/healthy, with separate private storage active at schema 1. P03 durable users/sessions/grants are uncommitted on `codex/p03-identity-sessions` for review and explicit schema-2 cutover. Public signup remains unchanged. P07 adds AI operation/global admission. Hosted DB, `db/`, `nl2sql/db.py` and `nl2sql/config.py` remain unchanged. See `docs/implementation/P03.md`.
+- P03 PR #39 merged at `c25a3332e67f644e94c6ab3b6e80155dacf7c56b` and is deployed/healthy with schema 2. P04 password/mail source is uncommitted on `codex/p04-password-access` for review and explicit schema-3 cutover. Signup/recovery/mail remain disabled. P05 supplies the approved shell and password browser journeys, P07 AI job admission, P10 linking/session-management UI. Hosted DB, `db/`, `nl2sql/db.py` and `nl2sql/config.py` are unchanged. See `docs/implementation/P04.md`.
+
 - Modules over the size guideline: `schema.py`, `validate.py`, `retrieval/store.py`.
 - Fine-tuning an open model (after Phase 7, optional).
 
@@ -292,7 +341,7 @@ npm run dev
 npm test
 ```
 
-Server: follow `docs/ops/P03_IDENTITY_CUTOVER.md` for the reviewed migration and image checks. Routine updates after cutover must retain the storage overlay; startup never migrates:
+Server: follow `docs/ops/P04_PASSWORD_CUTOVER.md` for the reviewed migration and image checks. Routine updates after cutover must retain the storage overlay; startup never migrates:
 
 ```bash
 git pull --ff-only origin main
@@ -303,6 +352,22 @@ curl --fail --silent localhost:8000/api/ready
 ```
 
 ## Rules for agents
+
+### Security gate for every new user action
+
+For every new or changed button, form, menu action, renderer or API operation,
+map the action to the server-side permission and data/resource boundary before
+calling it complete. Test direct API calls with forged/extra fields and foreign
+IDs, missing/expired/revoked sessions and CSRF, malicious text/HTML/URLs/SQL or
+spreadsheet content as applicable, replay/concurrent submissions and relevant
+rate/queue/provider limits. Assert that rejected requests perform no unauthorized
+database, file, model, email or network work. Pair the attack cases with normal
+authorized behavior and cooldown/failure recovery. A hidden/disabled UI control
+never substitutes for backend enforcement. Use isolated fixtures/fake providers,
+retain findings and passing regressions, and fix sensitive-boundary failures
+before the human PR checkpoint. No unrestricted production attacks are implied.
+Keep future charts, Settings imports and AI tools data-only and allowlisted.
+
 
 - Never commit, push, or open pull requests. Make code changes only and leave them uncommitted for a human to review.
 - Do not create, modify, or delete Tiger Cloud services. Use database tools in read-only mode.

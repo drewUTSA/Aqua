@@ -50,6 +50,10 @@ jobs:
         run: python tools/checks/storage_deployment.py --image aqua-runtime:check
       - name: Rate-limit bypass, denial and recovery checks in an isolated proxy
         run: python tools/checks/run_proxy.py
+      # The offline SSR tests import React from this locked dependency tree.
+      - name: Install locked frontend dependencies
+        working-directory: frontend
+        run: npm ci --ignore-scripts --no-fund
       - name: Frontend tests without network access
         run: >-
           docker run --rm --network none --read-only --cap-drop ALL
@@ -61,6 +65,5 @@ jobs:
       - name: Frontend dependency audit and production build
         working-directory: frontend
         run: |
-          npm ci --ignore-scripts --no-fund
           npm audit --audit-level=low
           npm run build

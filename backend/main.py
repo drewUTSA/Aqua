@@ -13,6 +13,7 @@ from fastapi.exceptions import RequestValidationError
 from pydantic import BaseModel, ConfigDict, Field
 
 from auth.router import router as auth_router
+from auth.password_router import router as password_router
 from auth.security import UserSession, get_settings, require_database_access
 from nl2sql.cache import AnswerCache, scoped_cache_key
 from nl2sql.cache_scope import request_scope
@@ -45,6 +46,7 @@ log = logging.getLogger("aqua")
 SETTINGS = load_settings()
 app.state.settings = SETTINGS
 app.include_router(auth_router)
+app.include_router(password_router)
 app.include_router(readiness_router)
 app.state.storage = Storage(load_storage_settings())
 

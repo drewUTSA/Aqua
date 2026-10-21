@@ -63,7 +63,7 @@ def test_pool_replaces_a_disconnected_database_connection(storage):
 def test_readiness_rejects_a_newer_schema_version(app_database):
     apply(app_database)
     app_database.execute("SET ROLE aqua_app_owner")
-    app_database.execute("UPDATE app.schema_migrations SET version=3 WHERE version=2")
+    app_database.execute("UPDATE app.schema_migrations SET version=4 WHERE version=3")
     app_database.execute("RESET ROLE")
     service = Storage(SETTINGS)
     try:

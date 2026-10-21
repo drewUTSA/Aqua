@@ -1,0 +1,18 @@
+{
+  "run": "aqua-check-f8c535546873c61bf85f6ab8",
+  "results": [
+    {
+      "dataset": "bank",
+      "exit_code": 1
+    },
+    {
+      "dataset": "pagila",
+      "exit_code": 1
+    }
+  ],
+  "cleanup": "removed_and_absence_confirmed",
+  "backend_image": "sha256:c142d23cb345943cc7bf68b464444966e24b2db237e77aecf0d331bcbbaade67",
+  "postgres_image": "sha256:3645570cccdfa447589da9f57dd740faa29b30938e861289a5574b6ca6b03826",
+  "error": "fixture matrix left tests unverified: ['tests.test_mail_recipient_abuse::test_repeated_public_mail_requests_queue_one_job_before_cooldown']",
+  "remaining_ids": []
+}

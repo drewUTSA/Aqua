@@ -1,0 +1,250 @@
+{
+  "name": "aqua-proxy-check-b7f0f550d63d7a187c365192",
+  "network": "none",
+  "status": "passed",
+  "cleanup": "removed_and_absence_confirmed",
+  "config_sha256": "f3fee284bd2afbb06d4dfed7d7b5cd04f8e804f6c0bd5728db87087ca17b0d43",
+  "nginx_image": "sha256:970364228b1e4f932abc22d321932816782cca8a20b85a77552a7cfe9acfb3b5",
+  "tests_image": "sha256:b847dc793be6cc8aa48f081807043ebd0b1fd4d19a1032b7fdb9c3e99e94d34f",
+  "exercise": {
+    "mode": "blue_retest",
+    "status": "passed",
+    "requests": 94,
+    "admitted_work": 42,
+    "query_statuses": [
+      {
+        "status": 200,
+        "retry_after": null
+      },
+      {
+        "status": 200,
+        "retry_after": null
+      },
+      {
+        "status": 200,
+        "retry_after": null
+      },
+      {
+        "status": 200,
+        "retry_after": null
+      },
+      {
+        "status": 200,
+        "retry_after": null
+      },
+      {
+        "status": 200,
+        "retry_after": null
+      },
+      {
+        "status": 429,
+        "retry_after": "12"
+      },
+      {
+        "status": 429,
+        "retry_after": "12"
+      },
+      {
+        "status": 429,
+        "retry_after": "12"
+      },
+      {
+        "status": 429,
+        "retry_after": "12"
+      },
+      {
+        "status": 429,
+        "retry_after": "12"
+      },
+      {
+        "status": 429,
+        "retry_after": "12"
+      }
+    ],
+    "auth_statuses": [
+      {
+        "status": 200,
+        "retry_after": null
+      },
+      {
+        "status": 200,
+        "retry_after": null
+      },
+      {
+        "status": 200,
+        "retry_after": null
+      },
+      {
+        "status": 200,
+        "retry_after": null
+      },
+      {
+        "status": 429,
+        "retry_after": "12"
+      },
+      {
+        "status": 429,
+        "retry_after": "12"
+      },
+      {
+        "status": 429,
+        "retry_after": "12"
+      }
+    ],
+    "concurrent_wave": [
+      {
+        "status": 200,
+        "retry_after": null
+      },
+      {
+        "status": 200,
+        "retry_after": null
+      },
+      {
+        "status": 429,
+        "retry_after": "12"
+      },
+      {
+        "status": 429,
+        "retry_after": "12"
+      }
+    ],
+    "recovery": "passed",
+    "private_readiness_boundary": "passed",
+    "challenge_bootstrap_budget": "passed",
+    "password_route_budgets": "passed",
+    "password_waves": {
+      "password-login": [
+        {
+          "status": 200,
+          "retry_after": null
+        },
+        {
+          "status": 200,
+          "retry_after": null
+        },
+        {
+          "status": 200,
+          "retry_after": null
+        },
+        {
+          "status": 200,
+          "retry_after": null
+        },
+        {
+          "status": 429,
+          "retry_after": "12"
+        },
+        {
+          "status": 429,
+          "retry_after": "12"
+        }
+      ],
+      "registrations": [
+        {
+          "status": 200,
+          "retry_after": null
+        },
+        {
+          "status": 200,
+          "retry_after": null
+        },
+        {
+          "status": 200,
+          "retry_after": null
+        },
+        {
+          "status": 429,
+          "retry_after": "12"
+        },
+        {
+          "status": 429,
+          "retry_after": "12"
+        },
+        {
+          "status": 429,
+          "retry_after": "12"
+        }
+      ],
+      "password-reset-requests": [
+        {
+          "status": 200,
+          "retry_after": null
+        },
+        {
+          "status": 200,
+          "retry_after": null
+        },
+        {
+          "status": 200,
+          "retry_after": null
+        },
+        {
+          "status": 429,
+          "retry_after": "12"
+        },
+        {
+          "status": 429,
+          "retry_after": "12"
+        },
+        {
+          "status": 429,
+          "retry_after": "12"
+        }
+      ],
+      "email-verifications": [
+        {
+          "status": 200,
+          "retry_after": null
+        },
+        {
+          "status": 200,
+          "retry_after": null
+        },
+        {
+          "status": 200,
+          "retry_after": null
+        },
+        {
+          "status": 200,
+          "retry_after": null
+        },
+        {
+          "status": 429,
+          "retry_after": "12"
+        },
+        {
+          "status": 429,
+          "retry_after": "12"
+        }
+      ]
+    },
+    "duration_seconds": 31.34
+  },
+  "resource_snapshots": [
+    {
+      "BlockIO": "0B / 0B",
+      "CPUPerc": "0.00%",
+      "Container": "71dfad15dab69b6befcc1fc16411efd40f1462ea7f20e5eec5cddd0b15b61917",
+      "ID": "71dfad15dab6",
+      "MemPerc": "0.65%",
+      "MemUsage": "6.703MiB / 1GiB",
+      "Name": "aqua-proxy-check-b7f0f550d63d7a187c365192-nginx",
+      "NetIO": "0B / 0B",
+      "PIDs": "4"
+    },
+    {
+      "BlockIO": "0B / 0B",
+      "CPUPerc": "0.00%",
+      "Container": "1b4b3d5fed10f6e668877954d90d13d2c4d8aa4a617443ea8ecaae82ef6d0576",
+      "ID": "1b4b3d5fed10",
+      "MemPerc": "0.27%",
+      "MemUsage": "2.73MiB / 1GiB",
+      "Name": "aqua-proxy-check-b7f0f550d63d7a187c365192-client",
+      "NetIO": "0B / 0B",
+      "PIDs": "1"
+    }
+  ],
+  "remaining_ids": [],
+  "elapsed_seconds": 34.29
+}

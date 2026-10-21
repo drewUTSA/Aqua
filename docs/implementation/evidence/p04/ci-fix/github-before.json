@@ -1,0 +1,10 @@
+{
+  "pull_request": "https://github.com/drewUTSA/Aqua/pull/40",
+  "head": "ea71192b1b00d48961e96bffc56241b01ddc86b5",
+  "run_id": 39543915989,
+  "job_id": 119037667465,
+  "backend_installer_proxy_and_source_gates": "passed",
+  "frontend_without_network": "failed_missing_react_before_install",
+  "frontend_audit_build": "skipped_after_failure",
+  "source": "GitHub connector workflow run/job steps plus supplied screenshot"
+}

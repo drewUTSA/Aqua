@@ -29,7 +29,7 @@ from sqlglot import exp
 from sqlglot.errors import SqlglotError
 from sqlglot.optimizer.normalize_identifiers import normalize_identifiers
 from nl2sql.relations import identifier_name, physical_tables
-from nl2sql.function_policy import approved_call
+from nl2sql.function_policy import approved_call, approved_indirect_call
 
 
 class UnsafeQueryError(ValueError):
@@ -329,6 +329,10 @@ def validate_sql(
     for index, node in enumerate(statement.walk()):
         if index > 4096:
             raise UnsafeQueryError("SQL exceeds the allowed query complexity.")
+        if not approved_indirect_call(node, dialect):
+            raise UnsafeQueryError(
+                "Query uses an operator or type outside the approved analytical policy."
+            )
         if isinstance(node, FORBIDDEN_NODES):
             raise UnsafeQueryError(
                 f"Query contains a forbidden operation: {node.key.upper()}."

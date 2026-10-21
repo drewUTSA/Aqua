@@ -161,3 +161,9 @@ features. Use `AQUA_CODEX_HANDOFF.md` for the full phase sequence.
 - [nginx trusted real-IP configuration](https://nginx.org/en/docs/http/ngx_http_realip_module.html)
 - [nginx request limiting](https://nginx.org/en/docs/http/ngx_http_limit_req_module.html)
 - [OWASP error handling](https://cheatsheetseries.owasp.org/cheatsheets/Error_Handling_Cheat_Sheet.html)
+
+## P04 follow-up: indirect SQL and rendered data
+
+The later pre-merge review closes explicit SQL operator/custom type-cast and object-identifier metadata paths that are not represented as ordinary function calls in the parser. `function_policy.py` now checks these nodes against reviewed catalog primitives; the validator applies it at every node before execution. Both the allowlist and restricted role remain mandatory. Tests were added before fixes and retain paired red/blue evidence; no hosted DB objects were created or invoked.
+
+Current answers also use a formatting-only Markdown renderer, with no active generated images/links/raw HTML or caller-selected renderers. Clipboard and CSV text receive spreadsheet-formula and delimiter protection. These are present exposed-boundary fixes, not a claim that future Plotly/import/tool capabilities or global AI capacity controls are finished. See [the detailed security review](../implementation/P04_SECURITY_REVIEW.md).

@@ -1,0 +1,15 @@
+{
+  "purpose": "Paired P04 local review retest; no network, account, database or secret access",
+  "scenario": "Repeat the exact correct-cost invalid-base64 stored-hash canary after strict PHC/base64 validation",
+  "observed_after_fix": {
+    "malformed_supported": false,
+    "accepted": false,
+    "malformed_ms": 16.175,
+    "dummy_ms": 16.820
+  },
+  "fix": "Canonical PHC format, explicit reviewed costs, base64 decoding and canonical roundtrip choose dummy work for malformed encodings",
+  "regression": "backend/tests/test_password_hash_encoding.py",
+  "local_pytest": "not run: conftest import requires psycopg_pool absent from local Python; full isolated production-image matrix remains required",
+  "scope": "Two fixed 19 MiB verifier operations in local development Python; elapsed samples are not a timing/capacity guarantee",
+  "status": "manual canary fixed; final regression matrix pending"
+}

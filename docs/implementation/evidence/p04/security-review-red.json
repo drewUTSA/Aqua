@@ -1,0 +1,14 @@
+{
+  "purpose": "P04 local review canary; no network, account, database or secret access",
+  "scenario": "Corrupted stored Argon2 value has approved cost parameters and correct-length invalid base64 fields",
+  "expected": "Unsupported encoded value chooses reviewed dummy verifier work",
+  "observed_before_fix": {
+    "malformed_supported": true,
+    "accepted": false,
+    "malformed_ms": 0.060,
+    "dummy_ms": 14.749
+  },
+  "scope": "One malformed verification and one dummy verification in local development Python; no timing or capacity guarantee",
+  "impact": "Fast generic denial for a corrupted stored hash differed from absent-account timing; no successful authentication or remote supplied hash surface",
+  "status": "Regression and fix requested from password-core owner"
+}

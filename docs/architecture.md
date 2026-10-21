@@ -182,3 +182,19 @@ latency/capacity claim follows from synthetic execution plans.
 See [P03 evidence and scope](implementation/P03.md) and
 [the identity cutover](ops/P03_IDENTITY_CUTOVER.md). Passwords, owned chat history,
 Opal/Plotly/Settings and session-management UI remain their planned later phases.
+
+## P04 password/mail checkpoint
+
+P03 is now deployed at c25a333 with schema 2; [release evidence](implementation/P03_RELEASE.md)
+includes an actual encrypted pre-cutover snapshot and bounded live checks. P04
+source requires schema 3 and remains disabled/uncommitted for review. Its backend
+provides email-first/fresh-password registration, detached Argon2id login, atomic
+reset/epoch revocation, shared two-slot hashing and encrypted bounded outbox work.
+The mail worker receives only private app storage and mail settings, not company
+DB/model/Google credentials. Fixed worker leases/quotas/retries and reserved
+purpose capacity constrain mail abuse; no automatic mail thread runs in web.
+
+P05 still supplies password forms and the approved Opal shell. Separate API/mail
+budgets do not guarantee availability through the shared anonymous bootstrap or
+tunnel peer under flood. See [P04 scope/evidence](implementation/P04.md), the
+[cutover](ops/P04_PASSWORD_CUTOVER.md) and [mail runbook](ops/P04_ACCOUNT_MAIL.md).

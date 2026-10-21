@@ -1,5 +1,5 @@
 import React, { lazy, Suspense, useEffect, useRef, useState } from "react";
-import ReactMarkdown from "react-markdown";
+import SafeMarkdown from "./SafeMarkdown.js";
 import FinancialTable from "../data/FinancialTable.jsx";
 
 const DashboardPreview = lazy(() => import("../data/DashboardPreview.jsx"));
@@ -82,7 +82,7 @@ export default function AquaMessage({ message, hidden = false, onRetry }) {
       <div className="message__bubble message__bubble--aqua">
         <span className="status-mark" aria-label="AQUA response">AQUA</span>
         <div className="markdown-response">
-          <ReactMarkdown>{response.message || ""}</ReactMarkdown>
+          <SafeMarkdown>{response.message || ""}</SafeMarkdown>
           {response.status === "stopped" && <p role="status">Response stopped.</p>}
         </div>
         <SqlBlock sql={response.sql} />

@@ -1,0 +1,58 @@
+FFFFFFFFF                                                                [100%]
+================================== FAILURES ===================================
+_ test_account_mail_rejects_raw_control_backslash_or_invalid_origin[https://aqua-ai.\nus] _
+output\implementation\p04\mail-contract-unit\test_mail_envelope_contract.py:30: in test_account_mail_rejects_raw_control_backslash_or_invalid_origin
+    with pytest.raises(MailUnavailable): MailPolicy(True,POLICY.key,origin)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE MailUnavailable
+_ test_account_mail_rejects_raw_control_backslash_or_invalid_origin[https://aqua-ai.\tus] _
+output\implementation\p04\mail-contract-unit\test_mail_envelope_contract.py:30: in test_account_mail_rejects_raw_control_backslash_or_invalid_origin
+    with pytest.raises(MailUnavailable): MailPolicy(True,POLICY.key,origin)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE MailUnavailable
+_ test_account_mail_rejects_raw_control_backslash_or_invalid_origin[https://aqua-ai.us\\evil.invalid] _
+output\implementation\p04\mail-contract-unit\test_mail_envelope_contract.py:30: in test_account_mail_rejects_raw_control_backslash_or_invalid_origin
+    with pytest.raises(MailUnavailable): MailPolicy(True,POLICY.key,origin)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE MailUnavailable
+_ test_account_mail_rejects_raw_control_backslash_or_invalid_origin[https://aqua-ai.us bad] _
+output\implementation\p04\mail-contract-unit\test_mail_envelope_contract.py:30: in test_account_mail_rejects_raw_control_backslash_or_invalid_origin
+    with pytest.raises(MailUnavailable): MailPolicy(True,POLICY.key,origin)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE MailUnavailable
+_ test_authenticated_envelope_cannot_change_template_link_or_recipient_syntax[wrong_subject] _
+output\implementation\p04\mail-contract-unit\test_mail_envelope_contract.py:41: in test_authenticated_envelope_cannot_change_template_link_or_recipient_syntax
+    with pytest.raises(MailUnavailable): open_job(_sealed(payload),POLICY)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE MailUnavailable
+_ test_authenticated_envelope_cannot_change_template_link_or_recipient_syntax[extra_link] _
+output\implementation\p04\mail-contract-unit\test_mail_envelope_contract.py:41: in test_authenticated_envelope_cannot_change_template_link_or_recipient_syntax
+    with pytest.raises(MailUnavailable): open_job(_sealed(payload),POLICY)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE MailUnavailable
+_ test_authenticated_envelope_cannot_change_template_link_or_recipient_syntax[wrong_origin] _
+output\implementation\p04\mail-contract-unit\test_mail_envelope_contract.py:41: in test_authenticated_envelope_cannot_change_template_link_or_recipient_syntax
+    with pytest.raises(MailUnavailable): open_job(_sealed(payload),POLICY)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE MailUnavailable
+_ test_authenticated_envelope_cannot_change_template_link_or_recipient_syntax[wrong_path] _
+output\implementation\p04\mail-contract-unit\test_mail_envelope_contract.py:41: in test_authenticated_envelope_cannot_change_template_link_or_recipient_syntax
+    with pytest.raises(MailUnavailable): open_job(_sealed(payload),POLICY)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE MailUnavailable
+_ test_authenticated_envelope_cannot_change_template_link_or_recipient_syntax[display_recipient] _
+output\implementation\p04\mail-contract-unit\test_mail_envelope_contract.py:41: in test_authenticated_envelope_cannot_change_template_link_or_recipient_syntax
+    with pytest.raises(MailUnavailable): open_job(_sealed(payload),POLICY)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE MailUnavailable
+=========================== short test summary info ===========================
+FAILED output/implementation/p04/mail-contract-unit/test_mail_envelope_contract.py::test_account_mail_rejects_raw_control_backslash_or_invalid_origin[https://aqua-ai.\nus]
+FAILED output/implementation/p04/mail-contract-unit/test_mail_envelope_contract.py::test_account_mail_rejects_raw_control_backslash_or_invalid_origin[https://aqua-ai.\tus]
+FAILED output/implementation/p04/mail-contract-unit/test_mail_envelope_contract.py::test_account_mail_rejects_raw_control_backslash_or_invalid_origin[https://aqua-ai.us\\evil.invalid]
+FAILED output/implementation/p04/mail-contract-unit/test_mail_envelope_contract.py::test_account_mail_rejects_raw_control_backslash_or_invalid_origin[https://aqua-ai.us bad]
+FAILED output/implementation/p04/mail-contract-unit/test_mail_envelope_contract.py::test_authenticated_envelope_cannot_change_template_link_or_recipient_syntax[wrong_subject]
+FAILED output/implementation/p04/mail-contract-unit/test_mail_envelope_contract.py::test_authenticated_envelope_cannot_change_template_link_or_recipient_syntax[extra_link]
+FAILED output/implementation/p04/mail-contract-unit/test_mail_envelope_contract.py::test_authenticated_envelope_cannot_change_template_link_or_recipient_syntax[wrong_origin]
+FAILED output/implementation/p04/mail-contract-unit/test_mail_envelope_contract.py::test_authenticated_envelope_cannot_change_template_link_or_recipient_syntax[wrong_path]
+FAILED output/implementation/p04/mail-contract-unit/test_mail_envelope_contract.py::test_authenticated_envelope_cannot_change_template_link_or_recipient_syntax[display_recipient]
+9 failed in 0.81s

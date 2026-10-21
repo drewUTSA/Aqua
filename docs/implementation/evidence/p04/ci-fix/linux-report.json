@@ -1,0 +1,42 @@
+{
+  "purpose": "p04_exact_frontend_ci_dependency_order",
+  "source_commit": "ea71192b1b00d48961e96bffc56241b01ddc86b5",
+  "real_service_access": false,
+  "live_services_changed": false,
+  "image_pull_needed": false,
+  "image_id": "sha256:a9f5f7c91a432850b2a8a7797adf5eadb6c733ceed61167806cee7ea7fbc29df",
+  "before": {
+    "exit_code": 1,
+    "expected_failure": "missing_react_before_dependency_install",
+    "test_network": "none"
+  },
+  "after": {
+    "exit_code": 0,
+    "tests": 71,
+    "passed": 71,
+    "failed": 0,
+    "test_network": "none",
+    "root_read_only": true,
+    "source_read_only": true,
+    "user": "1000:1000",
+    "memory_bytes": 1073741824,
+    "cpus": 2,
+    "pids_limit": 128,
+    "all_capabilities_dropped": true,
+    "no_new_privileges": true
+  },
+  "audit": {
+    "status": "passed",
+    "known_vulnerabilities": 0
+  },
+  "build": {
+    "status": "passed",
+    "network": "none",
+    "index_created": true
+  },
+  "lock_sha256": "2496fba9a6ba27dc8bb1932ab323ef300f3abb000ae08a5f79325688be8f4009",
+  "lock_unchanged": true,
+  "status": "passed",
+  "remaining_ids": [],
+  "cleanup": "removed_and_absence_confirmed"
+}

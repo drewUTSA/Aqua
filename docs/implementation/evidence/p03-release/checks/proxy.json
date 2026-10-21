@@ -1,0 +1,143 @@
+{
+  "name": "aqua-proxy-check-1501cadb83ed9439a8e04830",
+  "network": "none",
+  "status": "passed",
+  "cleanup": "removed_and_absence_confirmed",
+  "config_sha256": "eaec5e370f8961316dded4e5adfd153c32b897a2a6ed2f70cf7592b9ff681001",
+  "nginx_image": "sha256:cafe40e786635bd833e228e7aaf81359e239413311dd6cd0d288aeac912b5fae",
+  "tests_image": "sha256:b847dc793be6cc8aa48f081807043ebd0b1fd4d19a1032b7fdb9c3e99e94d34f",
+  "exercise": {
+    "mode": "blue_retest",
+    "status": "passed",
+    "requests": 48,
+    "admitted_work": 21,
+    "query_statuses": [
+      {
+        "status": 200,
+        "retry_after": null
+      },
+      {
+        "status": 200,
+        "retry_after": null
+      },
+      {
+        "status": 200,
+        "retry_after": null
+      },
+      {
+        "status": 200,
+        "retry_after": null
+      },
+      {
+        "status": 200,
+        "retry_after": null
+      },
+      {
+        "status": 200,
+        "retry_after": null
+      },
+      {
+        "status": 429,
+        "retry_after": "12"
+      },
+      {
+        "status": 429,
+        "retry_after": "12"
+      },
+      {
+        "status": 429,
+        "retry_after": "12"
+      },
+      {
+        "status": 429,
+        "retry_after": "12"
+      },
+      {
+        "status": 429,
+        "retry_after": "12"
+      },
+      {
+        "status": 429,
+        "retry_after": "12"
+      }
+    ],
+    "auth_statuses": [
+      {
+        "status": 200,
+        "retry_after": null
+      },
+      {
+        "status": 200,
+        "retry_after": null
+      },
+      {
+        "status": 200,
+        "retry_after": null
+      },
+      {
+        "status": 200,
+        "retry_after": null
+      },
+      {
+        "status": 429,
+        "retry_after": "12"
+      },
+      {
+        "status": 429,
+        "retry_after": "12"
+      },
+      {
+        "status": 429,
+        "retry_after": "12"
+      }
+    ],
+    "concurrent_wave": [
+      {
+        "status": 200,
+        "retry_after": null
+      },
+      {
+        "status": 429,
+        "retry_after": "12"
+      },
+      {
+        "status": 429,
+        "retry_after": "12"
+      },
+      {
+        "status": 429,
+        "retry_after": "12"
+      }
+    ],
+    "recovery": "passed",
+    "private_readiness_boundary": "passed",
+    "challenge_bootstrap_budget": "passed",
+    "duration_seconds": 21.67
+  },
+  "resource_snapshots": [
+    {
+      "BlockIO": "0B / 0B",
+      "CPUPerc": "0.00%",
+      "Container": "bde41e1f2b9647a83c7fa26ea07c46f958e8951c5daf2312d92f8f5331f88adc",
+      "ID": "bde41e1f2b96",
+      "MemPerc": "0.58%",
+      "MemUsage": "5.934MiB / 1GiB",
+      "Name": "aqua-proxy-check-1501cadb83ed9439a8e04830-nginx",
+      "NetIO": "0B / 0B",
+      "PIDs": "4"
+    },
+    {
+      "BlockIO": "0B / 0B",
+      "CPUPerc": "0.00%",
+      "Container": "09a5b8ac8d1254dc3a63e4c79f82fdf4134d6da90f43f3c75e66c1b8c4068103",
+      "ID": "09a5b8ac8d12",
+      "MemPerc": "0.20%",
+      "MemUsage": "2.016MiB / 1GiB",
+      "Name": "aqua-proxy-check-1501cadb83ed9439a8e04830-client",
+      "NetIO": "0B / 0B",
+      "PIDs": "1"
+    }
+  ],
+  "remaining_ids": [],
+  "elapsed_seconds": 24.89
+}

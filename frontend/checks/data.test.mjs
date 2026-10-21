@@ -1,6 +1,38 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { createCsv, safeCsvCell, formatCell, formatMetric } from "../src/components/data/financialValues.js";
+import { createCsv, createTsv, safeCsvCell, safeTsvCell, formatCell, formatMetric } from "../src/components/data/financialValues.js";
+
+test("clipboard TSV treats text and headers as literals while keeping negative numbers numeric", () => {
+  const table = {
+    columns: [{ key: "label", label: "=HYPERLINK(\"https://attacker.invalid\")" }, { key: "amount", label: "Amount" }],
+    rows: [{ label: "=1+1", amount: -42.5 }, { label: "@SUM(1)", amount: 1500 }]
+  };
+  assert.equal(createTsv(table), '\"\'=HYPERLINK(\"\"https://attacker.invalid\"\")\"\tAmount\n\'=1+1\t-42.5\n\'@SUM(1)\t1500');
+});
+
+test("clipboard cell controls cannot manufacture new rows or columns", () => {
+  const table = {
+    columns: [{ key: "label", label: "Safe\t=1+1\n@SUM(1)" }],
+    rows: [{ label: "ordinary\t=1+1\r\n@SUM(1)" }, { label: "\u0000=1+1" }]
+  };
+  const text = createTsv(table);
+  assert.equal(text.split("\n").length, 3);
+  assert.equal(text.includes("\t"), false);
+  assert.equal(text.includes("\r"), false);
+  assert.equal(text.includes("\u0000"), false);
+  assert.equal(text.split("\n")[2], "' =1+1");
+});
+
+test("CSV and clipboard protect formula prefixes behind ignored control characters", () => {
+  for (const prefix of ["", " ", "\t", "\n", "\u0000", "\u0001", "\u007f", "\u0085", "\u200b", "\u202e", "\u2066", "\ufeff"]) {
+    for (const formula of ["=1+1", "+SUM(1)", "-42", "@SUM(1)"]) {
+      assert.equal(safeCsvCell(prefix + formula).startsWith('"\''), true);
+      assert.equal(safeTsvCell(prefix + formula).startsWith("'"), true);
+    }
+  }
+  assert.equal(safeTsvCell(-42.5), "-42.5");
+  assert.equal(safeTsvCell('"=1+1"'), '"""=1+1"""');
+});
 
 test("CSV preserves delimiters/newlines, protects formulas, and retains negative numbers", () => {
   assert.equal(safeCsvCell('line, "quote"\nnext'), '"line, ""quote""\nnext"');

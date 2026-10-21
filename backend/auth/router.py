@@ -2,6 +2,7 @@
 
 from typing import Any
 import logging
+import os
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from google.auth.exceptions import GoogleAuthError, TransportError
 from pydantic import BaseModel, Field
@@ -43,7 +44,7 @@ class GoogleCredential(BaseModel):
 def _capabilities(settings: Settings) -> dict[str, bool]:
     return {
         "google_login": bool(settings.google_client_id),
-        "password_login": False,
+        "password_login": os.environ.get("PASSWORD_AUTH_ENABLED", "false") == "true",
         "durable_sessions": True,
     }
 

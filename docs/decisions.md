@@ -320,3 +320,30 @@ validation uses a fixed 422 detail to prevent reflected credentials. Safe auth
 events contain only fixed action/reason categories. See implementation/P03.md
 for paired red findings/fixes/retests and the explicit maintenance/forward-fix
 cutover; never restore unrevocable authentication as a fallback.
+
+### P04: email-first password enrollment and bounded separate mail
+
+Request a mailbox token before choosing a password. Only the verified recipient's
+fresh password creates an account/credential, so an unrelated registration click
+cannot activate an attacker's pending secret. Keep ASCII email normalization
+compatible with existing exact lowercase keys; do not infer alias linking or
+add a password to Google-only accounts through recovery. Passwords use consistent
+NFC15..128/512bytes, Argon2id19MiB/t2/p1 and a pinned MIT SecLists digest subset,
+with integrity/packaging/LF guards. Rehash compatibility is explicit, not arbitrary
+encoded cost acceptance. Malformed rows execute real bounded dummy work.
+
+Perform hashing without DB leases after durable peer/address/global admission.
+Two durable slots enforce the cap across processes; never assume a paused worker
+stopped hashing when a timer expires. Crash recovery is deliberately fail-closed
+until all hash-capable workers stop and proven retired slots are cleared. This
+spends bounded memory for password security; P12 must still measure mixed load.
+
+Commit reset/epoch/session/link invalidation with an encrypted security notice.
+Persist mail as separately keyed AES-GCM ciphertext and use stable idempotency,
+bounded leases/retries/expiry in an explicit one-job worker. Reserve recovery and
+notice queue/attempt budgets instead of allowing registration to exhaust a FIFO.
+Symmetric encryption protects a DB-only leak, not an application/key compromise.
+Pausing new registration/recovery leaves existing password login available.
+Shared anonymous bootstrap budgets remain an aggregate availability tradeoff.
+P05 forms and reviewed real delivery/worker integration must precede activation;
+this source does not open signup, start a scheduler or send actual messages.
