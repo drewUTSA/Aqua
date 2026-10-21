@@ -101,7 +101,9 @@ def build_prompt(
     parts = [f"Schema:\n{schema}"]
     if examples:
         shown = "\n\n".join(f"Question: {e.question}\nSQL: {e.sql}" for e in examples)
-        parts.append(f"Examples of questions about this database and their SQL:\n{shown}")
+        parts.append(
+            f"Examples of questions about this database and their SQL:\n{shown}"
+        )
     parts.append(f"Question: {question}")
     if size:
         parts.append(size)

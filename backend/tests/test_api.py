@@ -132,6 +132,7 @@ def test_question_whitespace_is_trimmed(monkeypatch: pytest.MonkeyPatch) -> None
 def test_schema_outage_is_a_503(monkeypatch: pytest.MonkeyPatch) -> None:
     """The schema is read on the first question; a database outage there
     is reported like any other, without the connection details."""
+
     def broken_schema(settings):
         raise DatabaseError("Could not read the schema: host db.internal")
 
@@ -169,7 +170,9 @@ def capture_settings(monkeypatch: pytest.MonkeyPatch) -> list:
     return seen
 
 
-def test_chosen_model_is_used_for_that_question(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_chosen_model_is_used_for_that_question(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     monkeypatch.setattr(main, "SETTINGS", Settings(gemini_api_key="k"))
     seen = capture_settings(monkeypatch)
 
@@ -180,7 +183,9 @@ def test_chosen_model_is_used_for_that_question(monkeypatch: pytest.MonkeyPatch)
     assert main.SETTINGS.llm_provider == "ollama"  # one request never changes another
 
 
-def test_gemini_without_a_key_is_400_and_not_retryable(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_gemini_without_a_key_is_400_and_not_retryable(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     monkeypatch.setattr(main, "SETTINGS", Settings())
     seen = capture_settings(monkeypatch)
     response = client.post("/api/query", json={"question": "q", "model": "gemini"})
@@ -205,7 +210,9 @@ def test_models_lists_gemini_only_with_a_key(monkeypatch: pytest.MonkeyPatch) ->
     monkeypatch.setattr(main, "SETTINGS", Settings())
     assert [m["id"] for m in client.get("/api/models").json()["models"]] == ["ollama"]
 
-    monkeypatch.setattr(main, "SETTINGS", Settings(gemini_api_key="k", gemini_model="gemini-x"))
+    monkeypatch.setattr(
+        main, "SETTINGS", Settings(gemini_api_key="k", gemini_model="gemini-x")
+    )
     models = client.get("/api/models").json()["models"]
     assert [m["id"] for m in models] == ["ollama", "gemini"]
     assert models[1]["name"] == "gemini-x"
@@ -213,5 +220,10 @@ def test_models_lists_gemini_only_with_a_key(monkeypatch: pytest.MonkeyPatch) ->
 
 
 def test_models_puts_the_server_default_first(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr(main, "SETTINGS", Settings(gemini_api_key="k", llm_provider="gemini"))
-    assert [m["id"] for m in client.get("/api/models").json()["models"]] == ["gemini", "ollama"]
+    monkeypatch.setattr(
+        main, "SETTINGS", Settings(gemini_api_key="k", llm_provider="gemini")
+    )
+    assert [m["id"] for m in client.get("/api/models").json()["models"]] == [
+        "gemini",
+        "ollama",
+    ]

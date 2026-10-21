@@ -190,3 +190,34 @@ Flash-Lite's two wrong answers: t29 returned staff ids instead of names, and t50
 **Alternatives.** Gemma 4 26B as the default (most accurate, about 16 times slower); `gemini-3.8-flash` (the newest Flash, about 20 free requests a day); Gemma 4 with its thinking turned to minimal (2 to 3 seconds but 3 of 5 right in a probe).
 
 **Reasoning.** Gemma 4 thinks before answering: 600 to 4,500 hidden reasoning tokens per question, which is the 15 to 90 seconds users waited. Flash-Lite does not, takes the rules as a system instruction and replies in the JSON schema, and answered in under a second with near-Gemma accuracy. Ollama comes second because it has no quota and is the team's own model; any Ollama failure moves on, since Ben's machine may be off. Gemma 26B comes last: free with its own quota and the most accurate, but slow, and its free tier allows 16,000 input tokens a minute (about 8 questions). The answer size rules fixed every plural and tie error the 31B model made without them (7 wrong to 0). `gemini-3.8-flash` can be set as `GEMINI_MODEL` with a paid key; its free tier is too small for a site.
+
+## October 20, 2026: Isolated P00 verification before feature expansion
+
+**Decision.** Use Linux disposable containers for canonical backend verification.
+Discard normal service configuration before test collection, disable dotenv,
+and select only fixed synthetic bank/Pagila fixture DSNs. Run both datasets and
+require every collected test to pass in at least one. Docker removes external
+routes; Python socket/libpq tripwires catch mistakes earlier. Preserve the
+hosted database connection modules and all business data.
+
+**Alternatives.** Continue testing against a shared service with transaction
+rollback; run unit tests alone and skip database permissions; run the network
+tripwire natively on Windows. Shared DDL probes are not safe merely because they
+usually roll back, and skipped integration checks are not evidence. Windows
+asyncio uses loopback for internal coordination; Linux containers avoid weakening
+the no-network test policy to accommodate that implementation detail.
+
+**Dependencies and quality.** Hash-lock the observed Linux test runtime, patch
+certifi to 2026.10.19 and Vite to 7.3.7 after advisory findings, and validate both
+fixtures and frontend build. Production dependency ranges retain the existing
+policy plus the certificate security floor; exact deployed lock/image adoption
+is still release work. Pin Black/Ruff/pip-audit check-tool versions and GitHub
+action commits. Start Ruff with its default correctness rules; Black owns
+formatting. Keep test isolation changes separate from AST-equivalent mechanical
+formatting. No connection-module or production behavior refactor is hidden in
+this baseline cleanup.
+
+**Evidence and next step.** See [P00](implementation/P00.md), its evidence folder
+and [the runner guide](../tools/checks/README.md). Human review/commit/push/PR
+precedes P01. Tests use synthetic data and mocked providers; they neither enable
+public signup nor certify production readiness.

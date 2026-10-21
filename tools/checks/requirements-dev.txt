@@ -1,0 +1,4 @@
+# P00 check tools only. Production requirements and images are unchanged.
+black==26.10.1
+ruff==0.17.1
+pip-audit==2.10.1

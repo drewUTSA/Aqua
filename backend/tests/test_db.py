@@ -37,7 +37,7 @@ def test_connection_is_marked_read_only(monkeypatch: pytest.MonkeyPatch) -> None
     conn = connect(Settings(database_url=URL))
 
     assert conn.read_only is True
-    (url, kwargs), = calls
+    ((url, kwargs),) = calls
     assert url == URL
     assert kwargs["connect_timeout"] == db.CONNECT_TIMEOUT_SECONDS
 
@@ -59,7 +59,10 @@ def test_connection_failure_hides_the_password(monkeypatch: pytest.MonkeyPatch) 
     [
         ("postgresql://u:pw@host/db", "postgresql://u:***@host/db"),
         ("postgres://u:pw@host/db", "postgres://u:***@host/db"),
-        ("failed for postgresql://u:p@ss@host/db", "failed for postgresql://u:***@host/db"),
+        (
+            "failed for postgresql://u:p@ss@host/db",
+            "failed for postgresql://u:***@host/db",
+        ),
         ("no url here", "no url here"),
         ("postgresql://host/db", "postgresql://host/db"),  # no password to hide
     ],
@@ -68,7 +71,9 @@ def test_redact(text: str, expected: str) -> None:
     assert _redact(text) == expected
 
 
-def test_smoke_test_refuses_the_admin_account(monkeypatch: pytest.MonkeyPatch, capsys) -> None:
+def test_smoke_test_refuses_the_admin_account(
+    monkeypatch: pytest.MonkeyPatch, capsys
+) -> None:
     class FakeCtx:
         def __enter__(self):
             return object()
@@ -78,13 +83,17 @@ def test_smoke_test_refuses_the_admin_account(monkeypatch: pytest.MonkeyPatch, c
 
     monkeypatch.setattr(db, "connect", lambda settings: FakeCtx())
     monkeypatch.setattr(
-        db, "describe_connection", lambda conn: {"user": "tsdbadmin", "read_only": "on", "server_version": "18"}
+        db,
+        "describe_connection",
+        lambda conn: {"user": "tsdbadmin", "read_only": "on", "server_version": "18"},
     )
     assert db.main() == 1
     assert "admin account" in capsys.readouterr().out
 
 
-def test_smoke_test_reports_connection_errors(monkeypatch: pytest.MonkeyPatch, capsys) -> None:
+def test_smoke_test_reports_connection_errors(
+    monkeypatch: pytest.MonkeyPatch, capsys
+) -> None:
     def failing_connect(settings):
         raise DatabaseError("DATABASE_URL is not set.")
 

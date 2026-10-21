@@ -1,0 +1,28 @@
+-- Minimal synthetic schema exercising catalog visibility and restricted columns.
+CREATE TYPE mpaa_rating AS ENUM ('G','PG','PG-13','R','NC-17');
+CREATE DOMAIN year AS integer;
+CREATE TABLE country (country_id int PRIMARY KEY);
+CREATE TABLE city (city_id int PRIMARY KEY, country_id int REFERENCES country);
+CREATE TABLE address (address_id int PRIMARY KEY, city_id int REFERENCES city ON UPDATE CASCADE, address text, phone text);
+CREATE TABLE actor (actor_id int PRIMARY KEY, first_name text, last_name text);
+CREATE TABLE language (language_id int PRIMARY KEY);
+CREATE TABLE film (film_id int PRIMARY KEY, title text, rating mpaa_rating, release_year year, special_features text[]);
+CREATE TABLE category (category_id int PRIMARY KEY, name text NOT NULL);
+CREATE TABLE film_actor (film_id int REFERENCES film, actor_id int REFERENCES actor);
+CREATE TABLE film_category (film_id int REFERENCES film, category_id int REFERENCES category);
+CREATE TABLE store (store_id int PRIMARY KEY);
+CREATE TABLE customer (customer_id int PRIMARY KEY, first_name text, email text);
+CREATE TABLE staff (staff_id int PRIMARY KEY, first_name text, last_name text, password text, picture bytea);
+CREATE TABLE inventory (inventory_id int PRIMARY KEY, film_id int REFERENCES film);
+CREATE TABLE rental (rental_id int PRIMARY KEY, customer_id int REFERENCES customer);
+CREATE TABLE payment (payment_id int PRIMARY KEY, customer_id int, rental_id int, staff_id int);
+INSERT INTO film SELECT n,'Synthetic film '||n,'G',2000,ARRAY['Synthetic'] FROM generate_series(1,1000) n;
+INSERT INTO category VALUES (1,'Horror');
+INSERT INTO staff VALUES (1,'Synthetic','Staff','not-a-password',NULL);
+CREATE SCHEMA retrieval;
+CREATE TABLE retrieval.schema_doc (id int PRIMARY KEY);
+CREATE TABLE retrieval.example_query (id int PRIMARY KEY);
+GRANT USAGE ON SCHEMA public,retrieval TO nl2sql_reader;
+GRANT SELECT ON ALL TABLES IN SCHEMA public,retrieval TO nl2sql_reader;
+REVOKE SELECT ON staff FROM nl2sql_reader;
+GRANT SELECT (staff_id,first_name,last_name) ON staff TO nl2sql_reader;

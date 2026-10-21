@@ -1,27 +1,26 @@
-"""Shared fixtures for the tests that use the real database.
+"""Offline tests and explicitly selected disposable PostgreSQL fixtures."""
 
-DATABASE_URL decides which Tiger service those tests run against: the
-bank (Berka) or Pagila. Tests written for the other one skip instead of
-failing, so the suite passes against either, including while teammates
-move their .env to the bank.
-"""
+# Settings are loaded during collection. Install before any application import.
+from safety import install
 
-import pytest
+install()
 
-from nl2sql.config import load_settings
-from nl2sql.db import connect
+import pytest  # noqa: E402 - safety guard must precede application imports
+
+from nl2sql.config import load_settings  # noqa: E402
+from nl2sql.db import connect  # noqa: E402
 
 
 @pytest.fixture(scope="session")
 def live_database() -> str:
-    """'bank' or 'pagila'. Skips when DATABASE_URL is not set.
+    """'bank' or 'pagila'. Skips without an explicit synthetic dataset.
 
     An unreachable database is an error, not a skip, so an outage is
     never mistaken for a pass.
     """
     settings = load_settings()
     if not settings.database_url:
-        pytest.skip("DATABASE_URL is not set; this test needs the real database")
+        pytest.skip("disposable database not selected; use tools/checks/run_backend.py")
     with connect(settings) as conn:
         bank, pagila = conn.execute(
             "SELECT to_regclass('public.trans') IS NOT NULL,"
@@ -31,7 +30,7 @@ def live_database() -> str:
         return "bank"
     if pagila:
         return "pagila"
-    pytest.fail("DATABASE_URL points at a database with neither the bank nor the Pagila tables")
+    pytest.fail("synthetic fixture has neither bank nor Pagila tables")
 
 
 @pytest.fixture

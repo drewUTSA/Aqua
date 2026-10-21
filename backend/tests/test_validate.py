@@ -40,7 +40,10 @@ UNSAFE = [
     ("SHOW TABLES", "Only SELECT queries are allowed"),
     ("EXPLAIN SELECT 1", "Only SELECT queries are allowed"),
     ("GRANT ALL ON *.* TO someone", "got COMMAND"),
-    ("REPLACE INTO film (film_id) VALUES (1)", "could not be parsed"),  # MySQL-only syntax
+    (
+        "REPLACE INTO film (film_id) VALUES (1)",
+        "could not be parsed",
+    ),  # MySQL-only syntax
     ("SELECT * FROM film FOR UPDATE", "forbidden operation: LOCK"),
     ("SELECT * FROM film LOCK IN SHARE MODE", "forbidden operation: LOCK"),
     ("SELECT * INTO OUTFILE '/tmp/x' FROM film", "could not be parsed"),
@@ -96,9 +99,17 @@ FORBIDDEN_FUNCTION_CASES = [
     ("postgres", "SELECT pg_sleep(5)", "PG_SLEEP"),
     ("postgres", "SELECT pg_catalog.pg_sleep(5)", "PG_SLEEP"),  # schema prefix
     ("postgres", 'SELECT "pg_sleep"(5)', "PG_SLEEP"),  # quoted name
-    ("postgres", "SELECT * FROM (SELECT pg_read_file('/etc/passwd')) t", "PG_READ_FILE"),
+    (
+        "postgres",
+        "SELECT * FROM (SELECT pg_read_file('/etc/passwd')) t",
+        "PG_READ_FILE",
+    ),
     # Runs the SQL inside the string, which the parser only sees as text.
-    ("postgres", "SELECT query_to_xml('DELETE FROM film RETURNING *', true, false, '')", "QUERY_TO_XML"),
+    (
+        "postgres",
+        "SELECT query_to_xml('DELETE FROM film RETURNING *', true, false, '')",
+        "QUERY_TO_XML",
+    ),
 ]
 
 
@@ -119,8 +130,14 @@ def test_every_listed_function_is_actually_blocked(name: str) -> None:
 @pytest.mark.parametrize(
     ("dialect", "sql"),
     [
-        ("mysql", "SELECT UPPER(title), COUNT(*), AVG(length) FROM film GROUP BY title"),
-        ("mysql", "SELECT COUNT(*) FROM rental WHERE DATEDIFF(return_date, rental_date) > 7"),
+        (
+            "mysql",
+            "SELECT UPPER(title), COUNT(*), AVG(length) FROM film GROUP BY title",
+        ),
+        (
+            "mysql",
+            "SELECT COUNT(*) FROM rental WHERE DATEDIFF(return_date, rental_date) > 7",
+        ),
         ("mysql", "SELECT COUNT(*) FROM rental WHERE MONTH(rental_date) = 7"),
         ("postgres", "SELECT LOWER(title), NOW(), COALESCE(description, '') FROM film"),
         # The word only appears as text in a string, not as a call.
@@ -159,20 +176,28 @@ def test_system_catalogs_are_always_blocked(dialect: str, sql: str) -> None:
         ("mysql", "SELECT * FROM film"),
         ("mysql", "SELECT * FROM sakila.FILM"),  # schema prefix and case ignored
         ("postgres", "SELECT * FROM public.film"),
-        ("mysql", "SELECT a.first_name FROM actor a JOIN film_actor fa ON a.actor_id = fa.actor_id"),
+        (
+            "mysql",
+            "SELECT a.first_name FROM actor a JOIN film_actor fa ON a.actor_id = fa.actor_id",
+        ),
         # A CTE name is not a table, so it does not need to be on the list.
         ("mysql", "WITH top AS (SELECT * FROM film) SELECT * FROM top"),
     ],
 )
 def test_allowed_tables_pass(dialect: str, sql: str) -> None:
-    assert isinstance(validate_sql(sql, dialect=dialect, allowed_tables=ALLOWED), exp.Query)
+    assert isinstance(
+        validate_sql(sql, dialect=dialect, allowed_tables=ALLOWED), exp.Query
+    )
 
 
 @pytest.mark.parametrize(
     ("sql", "table"),
     [
         ("SELECT * FROM customer", "customer"),
-        ("SELECT * FROM film WHERE film_id IN (SELECT film_id FROM payment)", "payment"),
+        (
+            "SELECT * FROM film WHERE film_id IN (SELECT film_id FROM payment)",
+            "payment",
+        ),
         ("SELECT * FROM film JOIN rental ON 1 = 1", "rental"),
         # Naming a CTE after an allowed table does not hide what it reads.
         ("WITH film AS (SELECT * FROM customer) SELECT * FROM film", "customer"),
@@ -195,7 +220,11 @@ def test_empty_allowlist_allows_nothing() -> None:
 
 def test_table_functions_are_not_treated_as_tables() -> None:
     assert isinstance(
-        validate_sql("SELECT * FROM generate_series(1, 3)", dialect="postgres", allowed_tables=ALLOWED),
+        validate_sql(
+            "SELECT * FROM generate_series(1, 3)",
+            dialect="postgres",
+            allowed_tables=ALLOWED,
+        ),
         exp.Query,
     )
 
@@ -223,8 +252,14 @@ POSTGRES_NON_SELECT = [
     ("SAVEPOINT s1", NOT_SELECT),
     ("BEGIN; SELECT 1", "exactly one statement"),
     # Writes hidden inside a WITH clause (data-modifying CTEs).
-    ("WITH d AS (DELETE FROM film WHERE film_id = 1 RETURNING *) SELECT * FROM d", "forbidden operation: DELETE"),
-    ("WITH u AS (UPDATE film SET title = 'x' RETURNING *) SELECT * FROM u", "forbidden operation: UPDATE"),
+    (
+        "WITH d AS (DELETE FROM film WHERE film_id = 1 RETURNING *) SELECT * FROM d",
+        "forbidden operation: DELETE",
+    ),
+    (
+        "WITH u AS (UPDATE film SET title = 'x' RETURNING *) SELECT * FROM u",
+        "forbidden operation: UPDATE",
+    ),
     (
         "WITH i AS (INSERT INTO actor (first_name, last_name) VALUES ('a', 'b') RETURNING *) SELECT * FROM i",
         "forbidden operation: INSERT",
@@ -269,7 +304,9 @@ def test_default_dialect_is_postgres() -> None:
     validator is reading MySQL. With no dialect given it must not."""
     with pytest.raises(UnsafeQueryError, match="could not be parsed"):
         validate_sql("SELECT `title` FROM film")
-    assert isinstance(validate_sql("SELECT `title` FROM film", dialect="mysql"), exp.Query)
+    assert isinstance(
+        validate_sql("SELECT `title` FROM film", dialect="mysql"), exp.Query
+    )
 
 
 # Extension schemas on our Tiger Cloud database (TimescaleDB and its
@@ -311,8 +348,14 @@ HIDDEN_COLUMN_ATTACKS = [
     ("SELECT * FROM staff", "named columns from staff"),
     ("SELECT s.* FROM staff s", "named columns from staff"),
     ("SELECT * FROM (SELECT * FROM staff) t", "named columns from staff"),
-    ("SELECT t.* FROM rental r JOIN staff t ON r.staff_id = t.staff_id", "named columns from staff"),
-    ("WITH x AS (SELECT * FROM staff) SELECT first_name FROM x", "named columns from staff"),
+    (
+        "SELECT t.* FROM rental r JOIN staff t ON r.staff_id = t.staff_id",
+        "named columns from staff",
+    ),
+    (
+        "WITH x AS (SELECT * FROM staff) SELECT first_name FROM x",
+        "named columns from staff",
+    ),
     # The whole row as one value also includes them.
     ("SELECT row_to_json(s) FROM staff s", "whole staff row"),
     ("SELECT to_jsonb(staff) FROM staff", "whole staff row"),

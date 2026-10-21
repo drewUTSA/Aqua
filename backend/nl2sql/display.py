@@ -111,7 +111,9 @@ def display_for(schema: Schema) -> Display:
                 by_column.setdefault(name, {}).update(meanings)
                 for code, meaning in meanings.items():
                     meanings_of.setdefault(code, set()).add(meaning)
-            headers.setdefault(name, set()).add(header(column.comment) if column.comment else None)
+            headers.setdefault(name, set()).add(
+                header(column.comment) if column.comment else None
+            )
 
     return Display(
         values_by_column=by_column,

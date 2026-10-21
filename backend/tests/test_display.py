@@ -5,7 +5,9 @@ comment parses."""
 from nl2sql.display import Display, code_meanings, display_for, header
 from nl2sql.schema import Column, Schema, Table
 
-TRANS_TYPE = "PRIJEM = credit (money in), VYDAJ = debit (money out), VYBER = cash withdrawal."
+TRANS_TYPE = (
+    "PRIJEM = credit (money in), VYDAJ = debit (money out), VYBER = cash withdrawal."
+)
 OPERATION = (
     "VYBER KARTOU = card withdrawal, VKLAD = cash deposit, PREVOD Z UCTU = transfer in from"
     " another bank, VYBER = cash withdrawal, PREVOD NA UCET = transfer out to another bank."
@@ -29,24 +31,44 @@ def table(name: str, columns: list[Column], comment: str = "") -> Table:
     return Table(name, tuple(columns), (), frozenset(), comment)
 
 
-BANK = Schema(tables={
-    "trans": table("trans", [
-        Column("type", "text", True, comment=TRANS_TYPE),
-        Column("operation", "text", False, comment=OPERATION),
-        Column("k_symbol", "text", False, comment=K_SYMBOL),
-        Column("balance", "integer", True, comment="Account balance after the transaction."),
-        Column("date", "date", True),
-    ], comment="Account transactions, 1993 to 1998. Amounts in Czech crowns (CZK)."),
-    "loan": table("loan", [
-        Column("status", "text", True, comment=LOAN_STATUS),
-        Column("date", "date", True),
-    ], comment="Loans granted to accounts. Amounts in Czech crowns (CZK)."),
-    "account": table("account", [
-        Column("frequency", "text", True, comment=FREQUENCY),
-        Column("date", "date", True, comment="Date the account was opened."),
-    ]),
-    "district": table("district", [Column("a11", "integer", True, comment="Average salary.")]),
-})
+BANK = Schema(
+    tables={
+        "trans": table(
+            "trans",
+            [
+                Column("type", "text", True, comment=TRANS_TYPE),
+                Column("operation", "text", False, comment=OPERATION),
+                Column("k_symbol", "text", False, comment=K_SYMBOL),
+                Column(
+                    "balance",
+                    "integer",
+                    True,
+                    comment="Account balance after the transaction.",
+                ),
+                Column("date", "date", True),
+            ],
+            comment="Account transactions, 1993 to 1998. Amounts in Czech crowns (CZK).",
+        ),
+        "loan": table(
+            "loan",
+            [
+                Column("status", "text", True, comment=LOAN_STATUS),
+                Column("date", "date", True),
+            ],
+            comment="Loans granted to accounts. Amounts in Czech crowns (CZK).",
+        ),
+        "account": table(
+            "account",
+            [
+                Column("frequency", "text", True, comment=FREQUENCY),
+                Column("date", "date", True, comment="Date the account was opened."),
+            ],
+        ),
+        "district": table(
+            "district", [Column("a11", "integer", True, comment="Average salary.")]
+        ),
+    }
+)
 
 
 def test_codes_with_commas_in_their_meanings_parse() -> None:
@@ -98,10 +120,12 @@ def test_headers_come_from_short_comments_only() -> None:
 
 def test_currency_comes_from_table_comments() -> None:
     assert display_for(BANK).currency == "CZK"
-    mixed = Schema(tables={
-        "a": table("a", [], comment="Amounts in Czech crowns (CZK)."),
-        "b": table("b", [], comment="Amounts in euros (EUR)."),
-    })
+    mixed = Schema(
+        tables={
+            "a": table("a", [], comment="Amounts in Czech crowns (CZK)."),
+            "b": table("b", [], comment="Amounts in euros (EUR)."),
+        }
+    )
     assert display_for(mixed).currency is None
 
 

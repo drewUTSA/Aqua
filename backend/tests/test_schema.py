@@ -1,8 +1,7 @@
 """Tests for nl2sql/schema.py.
 
 The first group builds a Schema by hand, so it needs no database. The
-last group reads the real database through DATABASE_URL and is skipped
-when that is not set.
+last group reads disposable synthetic fixtures selected by the test runner.
 """
 
 import pytest
@@ -143,7 +142,9 @@ def real_schema(live_database: str) -> Schema:
         return load_schema(conn)
 
 
-def test_real_schema_has_the_pagila_tables_without_partitions(on_pagila: None, real_schema: Schema) -> None:
+def test_real_schema_has_the_pagila_tables_without_partitions(
+    on_pagila: None, real_schema: Schema
+) -> None:
     assert len(real_schema.tables) == 15
     assert {"film", "payment", "rental", "staff"} <= real_schema.allowed_tables
     assert not any(name.startswith("payment_p") for name in real_schema.tables)
@@ -156,7 +157,9 @@ def test_real_schema_hides_staff_secrets(on_pagila: None, real_schema: Schema) -
     assert "password" not in real_schema.to_prompt()
 
 
-def test_real_schema_has_types_keys_and_values(on_pagila: None, real_schema: Schema) -> None:
+def test_real_schema_has_types_keys_and_values(
+    on_pagila: None, real_schema: Schema
+) -> None:
     prompt = real_schema.to_prompt()
     assert (
         "CREATE TYPE mpaa_rating AS ENUM ('G', 'PG', 'PG-13', 'R', 'NC-17');" in prompt
@@ -170,7 +173,9 @@ def test_real_schema_has_types_keys_and_values(on_pagila: None, real_schema: Sch
     assert film["title"].values == () and film["special_features"].values == ()
 
 
-def test_real_schema_never_lists_personal_values(live_database: str, real_schema: Schema) -> None:
+def test_real_schema_never_lists_personal_values(
+    live_database: str, real_schema: Schema
+) -> None:
     for table in real_schema.tables.values():
         for column in table.columns:
             if any(
@@ -179,17 +184,30 @@ def test_real_schema_never_lists_personal_values(live_database: str, real_schema
                 assert column.values == ()
 
 
-def test_real_payment_joins_by_column_names(on_pagila: None, real_schema: Schema) -> None:
+def test_real_payment_joins_by_column_names(
+    on_pagila: None, real_schema: Schema
+) -> None:
     assert real_schema.related(["payment"]) >= {"customer", "rental", "staff"}
 
 
-def test_real_bank_schema_has_its_eight_tables(on_bank: None, real_schema: Schema) -> None:
+def test_real_bank_schema_has_its_eight_tables(
+    on_bank: None, real_schema: Schema
+) -> None:
     assert real_schema.allowed_tables == {
-        "account", "card", "client", "disp", "district", "loan", "order", "trans"
+        "account",
+        "card",
+        "client",
+        "disp",
+        "district",
+        "loan",
+        "order",
+        "trans",
     }
 
 
-def test_real_bank_prompt_explains_codes_and_quotes_order(on_bank: None, real_schema: Schema) -> None:
+def test_real_bank_prompt_explains_codes_and_quotes_order(
+    on_bank: None, real_schema: Schema
+) -> None:
     prompt = real_schema.to_prompt()
     assert 'CREATE TABLE "order" (' in prompt
     assert "PRIJEM = credit" in prompt
@@ -197,7 +215,9 @@ def test_real_bank_prompt_explains_codes_and_quotes_order(on_bank: None, real_sc
     assert "FOREIGN KEY (account_id) REFERENCES account(account_id)" in prompt
 
 
-def test_real_bank_blank_purposes_are_shown_quoted(on_bank: None, real_schema: Schema) -> None:
+def test_real_bank_blank_purposes_are_shown_quoted(
+    on_bank: None, real_schema: Schema
+) -> None:
     trans = {c.name: c for c in real_schema.tables["trans"].columns}
     order = {c.name: c for c in real_schema.tables["order"].columns}
     assert "' '" in trans["k_symbol"].values
@@ -214,7 +234,13 @@ def test_prompt_shows_table_and_column_comments() -> None:
         name="loan",
         columns=(
             Column("duration", "integer", True, comment="Loan length in months."),
-            Column("status", "text", True, values=("A", "B"), comment="A = paid off; B = not paid."),
+            Column(
+                "status",
+                "text",
+                True,
+                values=("A", "B"),
+                comment="A = paid off; B = not paid.",
+            ),
             Column("amount", "integer", True),
         ),
         constraints=("PRIMARY KEY (loan_id)",),
@@ -225,7 +251,9 @@ def test_prompt_shows_table_and_column_comments() -> None:
 
     assert prompt.startswith("-- Loans granted to accounts.\nCREATE TABLE loan (")
     assert "  duration integer NOT NULL,  -- Loan length in months." in prompt
-    assert "  status text NOT NULL,  -- A = paid off; B = not paid. Values: A, B" in prompt
+    assert (
+        "  status text NOT NULL,  -- A = paid off; B = not paid. Values: A, B" in prompt
+    )
     assert "  amount integer NOT NULL,\n" in prompt  # no comment, no marker
 
 

@@ -86,33 +86,68 @@ FORBIDDEN_NODES: tuple[type[exp.Expression], ...] = (
 FORBIDDEN_FUNCTIONS: frozenset[str] = frozenset(
     {
         # Stall the database on purpose (denial of service).
-        "sleep", "benchmark", "pg_sleep", "pg_sleep_for", "pg_sleep_until",
+        "sleep",
+        "benchmark",
+        "pg_sleep",
+        "pg_sleep_for",
+        "pg_sleep_until",
         # Read files on the database server.
-        "load_file", "pg_read_file", "pg_read_binary_file", "pg_ls_dir",
-        "pg_stat_file", "lo_import", "lo_export",
+        "load_file",
+        "pg_read_file",
+        "pg_read_binary_file",
+        "pg_ls_dir",
+        "pg_stat_file",
+        "lo_import",
+        "lo_export",
         # Reach other databases or run SQL passed in as a string, which
         # could hide a write the parser never sees.
-        "dblink", "dblink_exec", "query_to_xml", "query_to_xml_and_xmlschema",
+        "dblink",
+        "dblink_exec",
+        "query_to_xml",
+        "query_to_xml_and_xmlschema",
         # Change server settings or end other people's sessions.
-        "set_config", "pg_reload_conf", "pg_terminate_backend",
+        "set_config",
+        "pg_reload_conf",
+        "pg_terminate_backend",
         "pg_cancel_backend",
         # Hold locks that can block other users.
-        "get_lock", "pg_advisory_lock", "pg_advisory_xact_lock",
-        "pg_advisory_lock_shared", "pg_advisory_xact_lock_shared",
-        "pg_try_advisory_lock", "pg_try_advisory_xact_lock",
-        "pg_try_advisory_lock_shared", "pg_try_advisory_xact_lock_shared",
+        "get_lock",
+        "pg_advisory_lock",
+        "pg_advisory_xact_lock",
+        "pg_advisory_lock_shared",
+        "pg_advisory_xact_lock_shared",
+        "pg_try_advisory_lock",
+        "pg_try_advisory_xact_lock",
+        "pg_try_advisory_lock_shared",
+        "pg_try_advisory_xact_lock_shared",
         # Side effects a read-only role should never cause: messages to
         # other sessions, sequence changes, large objects, log and WAL
         # files. Most also fail for lack of permission; this says why
         # before the database is asked.
-        "pg_notify", "pg_logical_emit_message", "nextval", "setval",
-        "lo_get", "lo_open", "lo_put", "lo_unlink", "lo_from_bytea",
-        "pg_ls_logdir", "pg_ls_waldir", "pg_ls_tmpdir", "pg_ls_archive_statusdir",
-        "pg_rotate_logfile", "pg_switch_wal", "pg_create_restore_point",
+        "pg_notify",
+        "pg_logical_emit_message",
+        "nextval",
+        "setval",
+        "lo_get",
+        "lo_open",
+        "lo_put",
+        "lo_unlink",
+        "lo_from_bytea",
+        "pg_ls_logdir",
+        "pg_ls_waldir",
+        "pg_ls_tmpdir",
+        "pg_ls_archive_statusdir",
+        "pg_rotate_logfile",
+        "pg_switch_wal",
+        "pg_create_restore_point",
         # The other reach-another-database paths: postgres_fdw is
         # installed on Tiger Cloud, and dblink has more entry points.
-        "dblink_connect", "dblink_connect_u", "dblink_send_query", "dblink_open",
-        "postgres_fdw_get_connections", "postgres_fdw_disconnect",
+        "dblink_connect",
+        "dblink_connect_u",
+        "dblink_send_query",
+        "dblink_open",
+        "postgres_fdw_get_connections",
+        "postgres_fdw_disconnect",
         "postgres_fdw_disconnect_all",
     }
 )
@@ -129,19 +164,30 @@ def _function_name(node: exp.Func) -> str:
         return node.name.lower()
     return node.sql_name().lower()
 
+
 # Built-in schemas that describe the database itself: every table, every
 # column, and in places the database's users. The model gets the schema
 # in its prompt and never needs these, so they are always blocked.
 SYSTEM_SCHEMAS: frozenset[str] = frozenset(
     {
         # Postgres and MySQL catalogs.
-        "information_schema", "pg_catalog", "pg_toast",
-        "mysql", "performance_schema", "sys",
+        "information_schema",
+        "pg_catalog",
+        "pg_toast",
+        "mysql",
+        "performance_schema",
+        "sys",
         # TimescaleDB and its toolkit, installed on our Tiger Cloud
         # database. Internal bookkeeping, never Pagila data.
-        "_timescaledb_cache", "_timescaledb_catalog", "_timescaledb_config",
-        "_timescaledb_functions", "_timescaledb_internal", "timescale_functions",
-        "timescaledb_experimental", "timescaledb_information", "toolkit_experimental",
+        "_timescaledb_cache",
+        "_timescaledb_catalog",
+        "_timescaledb_config",
+        "_timescaledb_functions",
+        "_timescaledb_internal",
+        "timescale_functions",
+        "timescaledb_experimental",
+        "timescaledb_information",
+        "toolkit_experimental",
     }
 )
 
@@ -178,7 +224,9 @@ def _check_tables(statement: exp.Query, allowed: frozenset[str] | None) -> None:
             # the prefix, so unprefixed pg_ names are system tables too.
             raise UnsafeQueryError(f"Query reads a system catalog: {table.sql()}.")
         if schemas & APP_SCHEMAS:
-            raise UnsafeQueryError(f"Query reads the app's internal tables: {table.sql()}.")
+            raise UnsafeQueryError(
+                f"Query reads the app's internal tables: {table.sql()}."
+            )
         if not schemas and name in cte_names:
             continue
         if allowed is not None and name not in allowed:
@@ -209,19 +257,26 @@ def _check_hidden_columns(statement: exp.Query) -> None:
     shown = ", ".join(sorted(hidden_tables))
     for column in statement.find_all(exp.Column):
         if isinstance(column.this, exp.Star):
-            raise UnsafeQueryError(f"Select named columns from {shown}, not *.", fixable=True)
+            raise UnsafeQueryError(
+                f"Select named columns from {shown}, not *.", fixable=True
+            )
         name = column.name.lower()
         if name in hidden_names:
-            raise UnsafeQueryError(f"Query reads a hidden column: {name}.", fixable=True)
+            raise UnsafeQueryError(
+                f"Query reads a hidden column: {name}.", fixable=True
+            )
         if not column.table and name in row_names:
             raise UnsafeQueryError(
-                f"Query uses the whole {shown} row; select named columns instead.", fixable=True
+                f"Query uses the whole {shown} row; select named columns instead.",
+                fixable=True,
             )
     for star in statement.find_all(exp.Star):
         # A star in a column list. COUNT(*) has its star inside the
         # function, which reads no columns, so it is fine.
         if isinstance(star.parent, exp.Select):
-            raise UnsafeQueryError(f"Select named columns from {shown}, not *.", fixable=True)
+            raise UnsafeQueryError(
+                f"Select named columns from {shown}, not *.", fixable=True
+            )
 
 
 def validate_sql(
@@ -279,7 +334,9 @@ def validate_sql(
                 f"Query uses a forbidden function: {_function_name(node).upper()}."
             )
 
-    allowed = None if allowed_tables is None else frozenset(t.lower() for t in allowed_tables)
+    allowed = (
+        None if allowed_tables is None else frozenset(t.lower() for t in allowed_tables)
+    )
     _check_tables(statement, allowed)
     _check_hidden_columns(statement)
 

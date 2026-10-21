@@ -126,4 +126,18 @@ React and Vite. `src/services/aquaClient.js` is the only module components call:
 
 ## Not built yet
 
-Query logging and the learning loop (Phase 7), a Tableau role, a second question set, CI, and fine-tuning. See "Open items" in `CLAUDE.md`.
+Query logging and the learning loop (Phase 7), a Tableau role, a second question set,
+and fine-tuning. See "Open items" in `CLAUDE.md`. The newer P00–P13 handoff uses a
+separate implementation numbering scheme; see the checkpoint below.
+
+## October 20, 2026: P00 verification boundary
+
+The [P00 checkpoint](implementation/P00.md) records the current route, auth,
+configuration and deployment baseline. CI source is now prepared for tests,
+build, Black/Ruff and dependency/source checks; its first GitHub run awaits the
+human PR. Test collection discards live service settings and dotenv, and the
+canonical integration runner uses two disposable synthetic PostgreSQL fixtures
+with no external network. Its local trust authentication is test-only. The
+hosted analytical DB and connection modules are unchanged. The account DB,
+durable auth, Opal shell, settings, jobs and Plotly remain future phases in the
+[consolidated plan](planning/AQUA_CODEX_HANDOFF.md).

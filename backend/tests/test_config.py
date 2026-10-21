@@ -118,7 +118,12 @@ def test_unclear_retrieval_value_is_rejected() -> None:
 
 
 def test_secrets_never_appear_when_printed() -> None:
-    settings = settings_from({"GEMINI_API_KEY": "sk-secret", "INDEXER_DATABASE_URL": "postgresql://i:pw2@h/db"})
+    settings = settings_from(
+        {
+            "GEMINI_API_KEY": "sk-secret",
+            "INDEXER_DATABASE_URL": "postgresql://i:pw2@h/db",
+        }
+    )
     assert "sk-secret" not in repr(settings)
     assert "pw2" not in repr(settings)
 
@@ -144,6 +149,10 @@ def test_answer_size_and_cache_settings() -> None:
 
 def test_gemini_fallback_models() -> None:
     assert settings_from({}).gemini_fallback_models == ("gemma-4-26b-a4b-it",)
-    listed = settings_from({"GEMINI_FALLBACK_MODELS": " gemma-4-26b-a4b-it, gemma-4-31b-it "})
+    listed = settings_from(
+        {"GEMINI_FALLBACK_MODELS": " gemma-4-26b-a4b-it, gemma-4-31b-it "}
+    )
     assert listed.gemini_fallback_models == ("gemma-4-26b-a4b-it", "gemma-4-31b-it")
-    assert settings_from({"GEMINI_FALLBACK_MODELS": "none"}).gemini_fallback_models == ()
+    assert (
+        settings_from({"GEMINI_FALLBACK_MODELS": "none"}).gemini_fallback_models == ()
+    )
