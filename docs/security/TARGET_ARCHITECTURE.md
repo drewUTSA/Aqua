@@ -108,3 +108,14 @@ budgets. A signed cookie, a request counter or a 429 alone is insufficient evide
 - [OWASP REST API security](https://cheatsheetseries.owasp.org/cheatsheets/REST_Security_Cheat_Sheet.html)
 - [OWASP database security](https://cheatsheetseries.owasp.org/cheatsheets/Database_Security_Cheat_Sheet.html)
 - [Cloudflare ingress validation and routing](https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-tunnel/do-more-with-tunnels/local-management/configuration-file/)
+
+
+## P02 networking implementation checkpoint
+
+The private app storage implementation is prepared for human migration/PR review.
+Its DB container has network `none`, PostgreSQL `listen_addresses` empty and no
+published ports. A socket volume is attached read-only only to approved runtime
+and migration containers; SCRAM/role privileges still apply. Installer tests
+prove this topology with synthetic resources. P02 does not install the persistent
+DB, enable signup or replace current stateless cookies. See
+`../implementation/P02.md` and `../../ops/appdb/README.md`.

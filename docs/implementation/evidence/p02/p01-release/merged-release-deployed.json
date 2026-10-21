@@ -1,0 +1,16 @@
+{
+  "status": "deployed_and_healthy",
+  "commit": "07055eb4579f2bfb002d252942805b8d853fbdb8",
+  "images": {
+    "backend": "sha256:9069a33c2bb0588308d49371e38f872fb9d95a540208622c3f127203d28e4d1d",
+    "frontend": "sha256:982f1b5b43cd24026b01a92532548fde025d68dc3a59e423342ac7811b003292"
+  },
+  "rollback_images": {
+    "backend": "sha256:110881615c3d042f3a852a9bc2ccf1b59f85ae68249a10b6d421532023532a17",
+    "frontend": "sha256:a3b6f4886181904a095d18c2bcd6e6e77c5cfa305b51b88fdec7054e8f2b8c42"
+  },
+  "containers": {
+    "backend": "315f22efab99c969150adf89afa83ef3ef070f9e5eeaf29c5a59ca3f647a7da3",
+    "frontend": "2b7eec51cf15babc09088780ab7b2eb6e8d7a8a565bc4bdb9125797f3eb1f0a0"
+  }
+}

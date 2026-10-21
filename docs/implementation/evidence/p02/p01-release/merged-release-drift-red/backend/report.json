@@ -1,0 +1,18 @@
+{
+  "run": "aqua-check-51d157fcb5822b5206cc93c1",
+  "results": [
+    {
+      "dataset": "bank",
+      "exit_code": 1
+    },
+    {
+      "dataset": "pagila",
+      "exit_code": 1
+    }
+  ],
+  "cleanup": "removed_and_absence_confirmed",
+  "backend_image": "sha256:576fe60175199a5a15a306f9cab9a10adedf349e8350b4b12cb3991a6f3b384d",
+  "postgres_image": "sha256:3645570cccdfa447589da9f57dd740faa29b30938e861289a5574b6ca6b03826",
+  "error": "fixture matrix left tests unverified: ['tests.test_execute::test_row_limit[postgres-SELECT title FROM film LIMIT ALL-SELECT title FROM film LIMIT 1000]']",
+  "remaining_ids": []
+}

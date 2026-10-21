@@ -1,0 +1,31 @@
+........................................................................ [  9%]
+........................................................................ [ 19%]
+..................................................................ssssss [ 29%]
+...ssssssss.................................F........................... [ 39%]
+........................................................................ [ 49%]
+...s.................................................................... [ 59%]
+.........................sss.s.......................................... [ 69%]
+........................................................................ [ 79%]
+........................................................................ [ 89%]
+........................................................................ [ 99%]
+.......                                                                  [100%]
+=================================== FAILURES ===================================
+_ test_row_limit[postgres-SELECT title FROM film LIMIT ALL-SELECT title FROM film LIMIT 1000] _
+tests/test_execute.py:79: in test_row_limit
+    assert limited(sql, dialect=dialect) == expected
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_execute.py:21: in limited
+    return limit_rows(validate_sql(sql, dialect=dialect), max_rows).sql(dialect=dialect)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+nl2sql/execute.py:82: in limit_rows
+    raise UnsafeQueryError("LIMIT must be a whole number.")
+E   nl2sql.validate.UnsafeQueryError: LIMIT must be a whole number.
+=============================== warnings summary ===============================
+../../usr/local/lib/python3.12/site-packages/fastapi/testclient.py:1
+  /usr/local/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_execute.py::test_row_limit[postgres-SELECT title FROM film LIMIT ALL-SELECT title FROM film LIMIT 1000]
+1 failed, 707 passed, 19 skipped, 1 warning in 2.00s

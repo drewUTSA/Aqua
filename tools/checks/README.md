@@ -67,9 +67,9 @@ PyPI SHA-256 hash. `pip --require-hashes --no-deps` verifies artifacts and
 `pip check` verifies the installed graph. `check_lock.py` detects direct
 requirement drift. Regenerate/review the Linux snapshot and hashes when changing
 requirements; repeat both fixtures and the advisory check. Do not reuse this
-Linux-specific lock blindly on Windows. Production `requirements.txt` retains
-its existing ranges with a patched certifi floor; deployment lock adoption and
-exact deployed-image validation remain part of the release work. Direct check
+Linux-specific lock blindly on Windows. P02 makes this same lock canonical for the production backend Dockerfile;
+`requirements.txt` declares compatible direct ranges and the consistency check
+prevents drift. Validate the actual deployment image, not only the test image. Direct check
 tool versions are pinned separately; their transitive packages are not claimed
 to be a reproducible application runtime.
 
@@ -126,3 +126,29 @@ image ID; it does not contact live ingress. The October 20 hotfix tested the liv
 frontend base this way before deployment. Keep CI's default pinned nginx image.
 See `docs/implementation/P01_INGRESS.md` for the separate four-request public
 smoke scope and the server's uncommitted configuration patch.
+
+
+## P02 private storage checks
+
+The backend runner bootstraps only synthetic app roles/schema in its isolated PG
+fixture and permits only fixed fixture DSNs. It adds a dump/restore drill that
+preserves row counts/privileges and fences restored sessions/challenges. No real
+backup dump is written to disk or included in these reports. See
+`docs/implementation/P02.md` for test counts and scope.
+
+After building the production backend as `aqua-runtime:check`, run:
+
+```bash
+python tools/checks/run_backend.py --image aqua-runtime:check
+python tools/checks/storage_deployment.py --image aqua-runtime:check
+python tools/checks/run_proxy.py
+```
+
+The second command uses the actual installer with random container/data/socket
+volume names, generated synthetic credentials, no TCP port and network `none`.
+It tests repeat migrations, valid/invalid SCRAM passwords, nonlogin owner denial,
+runtime DDL denial/recovery and restricted backup export. It removes only its
+owned resources; an ownership mismatch blocks cleanup and reports the run ID.
+Run only trusted code with Docker access. The proxy additionally checks that
+public readiness aliases produce no backend work. This is a bounded isolated
+exercise, not a production flood or a full penetration-test certification.

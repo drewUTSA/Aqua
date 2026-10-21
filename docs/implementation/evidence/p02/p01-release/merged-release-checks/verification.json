@@ -1,0 +1,10 @@
+{
+  "status": "passed",
+  "backend_exit_code": 0,
+  "proxy_exit_code": 0,
+  "backend_image": "sha256:9069a33c2bb0588308d49371e38f872fb9d95a540208622c3f127203d28e4d1d",
+  "frontend_image": "sha256:982f1b5b43cd24026b01a92532548fde025d68dc3a59e423342ac7811b003292",
+  "source_files_verified": 32,
+  "pip_check": "passed",
+  "temporary_source_removed": true
+}

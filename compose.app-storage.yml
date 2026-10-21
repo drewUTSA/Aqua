@@ -1,0 +1,12 @@
+# Opt-in backend socket attachment; apply only after schema/role review.
+services:
+  backend:
+    env_file:
+      - path: ${AQUA_PRIVATE_STORAGE_DIR:?Set the reviewed private directory}/runtime.env
+        required: true
+    volumes:
+      - aqua_app_sockets:/run/aqua-app-db:ro
+volumes:
+  aqua_app_sockets:
+    external: true
+    name: aqua_app_sockets

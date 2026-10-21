@@ -32,15 +32,16 @@ The server runs the app with docker-compose. Code changes are made locally, push
 | Concern | Choice |
 |---|---|
 | Backend language | Python 3.12 (not 3.14; the ML stack does not fully support 3.14 yet) |
-| API | FastAPI on 127.0.0.1:8000; both public hostnames now enter nginx on 127.0.0.1:5173. The October 20 ingress hotfix is verified; full P01 backend deployment remains pending |
+| API | FastAPI on 127.0.0.1:8000; both public hostnames now enter nginx on 127.0.0.1:5173. P01 PR #37 is merged and deployed at 07055eb; both public hosts were verified through nginx |
 | Sign-in | Google Identity Services, verified server-side; signed expiring cookies, no account database |
 | Frontend | React 19 with Vite. Production: a static build served by nginx on port 5173, which forwards `/api` to the backend and rate-limits questions. Development: `npm run dev` forwards API calls but is not the production rate-limit boundary |
-| Database | PostgreSQL on Tiger Cloud free service (TimescaleDB, pgvector, pgvectorscale) |
+| Analytical database | PostgreSQL on Tiger Cloud free service (TimescaleDB, pgvector, pgvectorscale); unchanged in P02 |
+| Application database | P02 prepares private PostgreSQL 17, socket only, separate credentials/roles; installation and activation await human review |
 | Sample data | Pagila (Postgres port of Sakila) |
 | LLM | Gemini API with the free `gemini-3.5-flash-lite` by default (`LLM_PROVIDER=gemini`). When it is out of quota or down: Ollama (`qwen3`) on Ben's server over Tailscale, then `gemma-4-26b-a4b-it`. Model names read from env |
 | Embeddings | `gemini-embedding-2` at 768 dimensions, stored in pgvector in the `retrieval` schema (Phase 4) |
 | SQL parsing and validation | `sqlglot`, Postgres dialect |
-| DB driver | `psycopg` 3 |
+| DB driver | `psycopg` 3; separate bounded `psycopg_pool` for opt-in application storage |
 | Dashboards | Tableau, connected to Tiger Cloud with a read-only role |
 | Tests | pytest |
 | Formatting | black, default settings (ruff for linting) |
@@ -125,7 +126,7 @@ aqua/                         (checked out at /srv/bank-ai on the server)
     └── decisions.md          Every significant choice and why
 ```
 
-Directories that only hold a `.gitkeep` are placeholders. `backend/Dockerfile` copies `main.py`, `auth/` (Google verification, sessions and access checks), and the whole `nl2sql/` package; `eval/` and `db/` stay out of the image.
+Directories that only hold a `.gitkeep` are placeholders. `backend/Dockerfile` copies `main.py`, `auth/` (Google verification, sessions and access checks), the whole `nl2sql/` package, `storage/` and versioned migrations; `eval/` and `db/` stay out of the image. Production and CI use the same hashed dependency lock with a repository-root build context.
 
 ## API contract
 
@@ -134,6 +135,7 @@ The frontend talks to the backend only through `/api`, which in production goes 
 | Route | Purpose |
 |---|---|
 | `GET /api/health` | Liveness for the Docker healthcheck: `status`, `database_configured`, `model`, `retrieval`. Never touches the database or model |
+| `GET /api/ready` | Internal loopback readiness; reports storage disabled or schema version 1, fixed 503 on failure. Public nginx denies this route and normalized aliases |
 | `GET /api/auth/config` | Returns `client_id`, `nonce`, and `csrf_token`; sets the signed login challenge cookie |
 | `POST /api/auth/google` | Body `{"credential": str}` plus `X-CSRF-Token` from config and matching `Origin`. Verifies Google's token and nonce, sets the Aqua session, returns `user`, `csrf_token`, and `can_query` |
 | `GET /api/auth/me` | Requires an Aqua session; returns `user`, `csrf_token`, and `can_query` |
@@ -210,15 +212,15 @@ AUTH_ALLOWED_EMAILS=
 AUTH_ALLOWED_GOOGLE_SUBS=
 ```
 
-Production sets `RETRIEVAL=on` once the index is built (see Commands). Read them only through `backend/nl2sql/config.py`. docker-compose passes `.env` to the backend container. Gemini rate limits are per Google Cloud project, so each developer uses an AI Studio key from their own project and the server at `/srv/bank-ai` uses a separate one.
+Production sets `RETRIEVAL=on` once the index is built (see Commands). Read analytical/model settings only through `backend/nl2sql/config.py`; new `APP_STORAGE_ENABLED`, `APP_DATABASE_URL` and bounded pool settings are separately validated by `backend/storage/config.py`. Never use the analytical URL as a storage fallback. docker-compose passes `.env` to the backend container. Gemini rate limits are per Google Cloud project, so each developer uses an AI Studio key from their own project and the server at `/srv/bank-ai` uses a separate one.
 
-`SESSION_SECRET` must contain at least 32 characters and be randomly generated; never expose it to the frontend. Session lifetime is 300 through 86400 seconds. `APP_ORIGIN` is the browser's exact HTTPS origin; loopback HTTP is supported for local development. Account allowlists are comma-separated and are checked before any schema, database, or model work. They govern the single configured database, not customer database selection. No database stores Aqua accounts or sessions.
+`SESSION_SECRET` must contain at least 32 characters and be randomly generated; never expose it to the frontend. Session lifetime is 300 through 86400 seconds. `APP_ORIGIN` is the browser's exact HTTPS origin; loopback HTTP is supported for local development. Account allowlists are comma-separated and are checked before any schema, database, or model work. They govern the single configured database, not customer database selection. The current Google cookie flow still does not store accounts/sessions. P02 prepares opt-in identity tables but does not connect authentication to them; durable ownership, revocation and atomic session caps are P03. See `ops/appdb/README.md` for the reviewed installation/backup/restore procedure.
 
 ## Phases
 
 | Phase | Goal | Done when | Status |
 |---|---|---|---|
-| 0 | Repo scaffolding | Layout above exists, CI runs pytest and black | P00 merged in PR #36; GitHub checks passed. P01 isolated checks passed; review/deployment pending. See `docs/implementation/P01.md` |
+| 0 | Repo scaffolding | Layout above exists, CI runs pytest and black | P00/P01 merged; P01 deployed and verified at 07055eb. P02 storage source/checks are prepared for migration/PR review; see `docs/implementation/P02.md` |
 | 1 | Database | Pagila loaded, reader role works, write test fails as expected | Done |
 | 2 | Baseline pipeline | `/api/query` returns validated SQL and rows; full schema in prompt | Done |
 | 3 | Evaluation harness | Execution accuracy reported on a fixed question set | Done; results in `docs/decisions.md` |
@@ -236,7 +238,7 @@ Agreed but not started. Each needs its own change and a `docs/decisions.md` entr
 - Phase 7 logging: `db/06_logging.sql` with a `query_log` table and an insert-only `nl2sql_logger` role, `nl2sql/querylog.py`, and a way to promote checked pairs into `retrieval.example_query` as `query_log` rows.
 - Tableau: `db/07_tableau_role.sql`, a read-only `tableau_reader` without the 10-second timeout and with the same hidden staff columns.
 - A second, harder question set (`eval/datasets/pagila_v2.jsonl`), written before looking at model output, so the retrieval comparison rests on more than 50 questions.
-- P00 merged in PR #36 at `271aa90a3d2a4175be4311f2d9ffcc230fad233d`; both local and server source were synchronized. P01 source changes and isolated evidence are ready for human review on `codex/p01-data-boundaries`; see `docs/implementation/P01.md`. The October 20 ingress-only hotfix closed the direct API tunnel bypass; full P01 backend deployment and later session/global admission gates remain. See `docs/implementation/P01_INGRESS.md` and `docs/security/TARGET_ARCHITECTURE.md`. The hosted DB, `db/`, `nl2sql/db.py` and `nl2sql/config.py` remain unchanged.
+- P01 PR #37 merged at `07055eb4579f2bfb002d252942805b8d853fbdb8` and is deployed/healthy on the server. P02 private storage is prepared on `codex/p02-private-storage`, uncommitted for human migration/PR review. No persistent app DB or public signup was activated. P03 will implement users, revocable sessions and grants; P07 adds shared operation/global admission. Hosted DB, `db/`, `nl2sql/db.py` and `nl2sql/config.py` remain unchanged. See `docs/implementation/P02.md`.
 - Modules over the size guideline: `schema.py`, `validate.py`, `retrieval/store.py`.
 - Fine-tuning an open model (after Phase 7, optional).
 

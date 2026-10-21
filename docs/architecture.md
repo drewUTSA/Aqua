@@ -141,3 +141,23 @@ with no external network. Its local trust authentication is test-only. The
 hosted analytical DB and connection modules are unchanged. The account DB,
 durable auth, Opal shell, settings, jobs and Plotly remain future phases in the
 [consolidated plan](planning/AQUA_CODEX_HANDOFF.md).
+
+
+## P02 private storage foundation
+
+P01 is deployed at 07055eb after PR #37. P02 prepares a separate application DB
+whose PostgreSQL process has no TCP listener and no container network. A named
+socket volume connects only the approved runtime and explicit migration jobs;
+SCRAM credentials and SQL privileges remain separate per role. Company analytical
+connections and data are unchanged. Typed app configuration has no analytical
+fallback. Every lease has SQL/lock deadlines, a bounded pool/queue and a full
+session-state reset. A version/checksum ledger and serialized transaction protect
+explicit migrations; web startup never runs them.
+
+The internal `/api/ready` route diagnoses enabled storage/schema health; public
+nginx denies normalized aliases so it cannot become a public DB probe. Liveness
+stays dependency-free. See [the operator procedure](../ops/appdb/README.md) and
+[the P02 checkpoint](implementation/P02.md) for deployment, recovery and limits.
+Schema tables alone do not implement tenant/session authorization: P03 must enforce
+ownership, durable revocation, grants and atomic per-user session caps. P07 must
+share operation budgets across all sessions and impose global admission limits.

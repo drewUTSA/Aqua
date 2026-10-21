@@ -11,3 +11,6 @@ google-auth[requests]>=2,<3
 itsdangerous>=2.2,<3
 # Remove the compromised certificate chain identified in PYSEC-2026-4320.
 certifi>=2026.10.19
+
+# Maintained bounded connection pool for private application storage.
+psycopg-pool>=3.3,<4
