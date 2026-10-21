@@ -1,0 +1,21 @@
+{
+  "run": "aqua-check-4d77b029d3085bcf2589c0fa",
+  "results": [
+    {
+      "dataset": "bank",
+      "exit_code": 0
+    },
+    {
+      "dataset": "pagila",
+      "exit_code": 0
+    }
+  ],
+  "cleanup": "removed_and_absence_confirmed",
+  "backend_image": "sha256:b847dc793be6cc8aa48f081807043ebd0b1fd4d19a1032b7fdb9c3e99e94d34f",
+  "postgres_image": "sha256:3645570cccdfa447589da9f57dd740faa29b30938e861289a5574b6ca6b03826",
+  "coverage": {
+    "unique_tests": 727,
+    "passed_in_at_least_one_fixture": 727
+  },
+  "remaining_ids": []
+}

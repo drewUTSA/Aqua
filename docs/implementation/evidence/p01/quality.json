@@ -1,0 +1,70 @@
+{
+  "status": "passed",
+  "black": "passed",
+  "checks": {
+    "ruff": {
+      "exit_code": 0,
+      "output": "All checks passed!",
+      "stderr": ""
+    },
+    "source": {
+      "exit_code": 0,
+      "output": "{\"status\": \"passed\", \"findings\": []}",
+      "stderr": ""
+    },
+    "lock": {
+      "exit_code": 0,
+      "output": "Runtime pins satisfy all direct requirement ranges.",
+      "stderr": ""
+    }
+  },
+  "protected_files": [
+    {
+      "path": "backend/nl2sql/config.py",
+      "sha256": "083c4f5e3a0f66760bfdbf6f27bb1556a378934c3dbae0a22efea092c7a5fd6d"
+    },
+    {
+      "path": "backend/nl2sql/db.py",
+      "sha256": "59cfedbd75f765a24a325a3a73533b5bfd61a27cb0662b6c5afa0da11f3804f6"
+    },
+    {
+      "path": "db/01_extensions.sql",
+      "sha256": "78cad69a9712a950077f63c423b0c55baa6900fc86a063863bc120947ff9e630"
+    },
+    {
+      "path": "db/02_load_pagila.sh",
+      "sha256": "52f6c76e870ac96a8b54c6b93917c1c8838667eee2bc2c7f34d771a51772aa0f"
+    },
+    {
+      "path": "db/03_users.sql",
+      "sha256": "85111251d2d083f450460551c622490e78c658c0836c7a25f689d52f798ff1b3"
+    },
+    {
+      "path": "db/04_retrieval.sql",
+      "sha256": "768aa5b7390fbee601ce612ab6b098a9642c40670bd226dff40b3935eda75371"
+    },
+    {
+      "path": "db/05_hide_columns.sql",
+      "sha256": "f727dd6bbf860e83cfb6ab90f6a0827f5f3c3aac1cd057ee84843d317b5af661"
+    },
+    {
+      "path": "db/README.md",
+      "sha256": "1d656b0d3bd96123730cadab532a283823fae5c05306efcecca9c6ee1d52e8c4"
+    },
+    {
+      "path": "db/financial/01_export.sh",
+      "sha256": "a77feacc5392b24547a816996f36a1cfd2c7c9a5ae2d66b6d226c125d58f9f0a"
+    },
+    {
+      "path": "db/financial/02_load.sql",
+      "sha256": "4e131534d2e0baa83044d0624fde25335e0644cfe786afe5c46f330ef0406254"
+    },
+    {
+      "path": "db/financial/README.md",
+      "sha256": "8408d3d1e48f471cac7c31ef56004fde8fa3bac45c649561a7a399372e656d44"
+    }
+  ],
+  "source_files_scanned": 226,
+  "python": "3.12.14 (main, Aug 25 2026, 14:01:42) [MSC v.1944 64 bit (AMD64)]",
+  "black_version": "26.10.1"
+}

@@ -6,8 +6,8 @@ safety rule live here: SQL the validator rejects is never executed.
 Problems with the question's SQL (rejected by the validator, or refused
 by the database) come back inside the Answer as an error, so the user
 can see the SQL and the reason. When the problem is one the model could
-fix (a typo, a wrong column), it gets one more try with the error in
-front of it. Problems with the service itself (model or database
+fix (a typo, a wrong column), it gets one more try with a fixed diagnostic.
+Raw exception text never becomes a repair hint. Service failures (model or database
 unreachable) raise LLMError or DatabaseError for the API to report as a
 server error.
 """
@@ -20,6 +20,7 @@ from typing import Any, Protocol
 
 from nl2sql.answer_size import AnswerSize, answer_size
 from nl2sql.config import Settings
+from nl2sql.errors import ContextDenied, RetrievalUnavailable, diagnostic
 from nl2sql.execute import DEFAULT_MAX_ROWS, QueryError, execute
 from nl2sql.generate import Attempt, Example, generate_sql
 from nl2sql.schema import Schema
@@ -30,10 +31,6 @@ log = logging.getLogger(__name__)
 # One first try plus one correction. More rarely helps and doubles the
 # wait each time with reasoning on.
 MAX_ATTEMPTS = 2
-
-# A query cancelled by statement_timeout is too slow, not wrong; asking
-# again would just run another slow query.
-_TIMEOUT_MARKER = "statement timeout"
 
 
 @dataclass(frozen=True)
@@ -85,21 +82,37 @@ def full_context(schema: Schema) -> Context:
 def build_context(
     question: str, schema: Schema, retriever: Retriever | None
 ) -> tuple[Context, bool]:
-    """Pick the context, falling back to the full schema if retrieval fails.
-
-    Retrieval only narrows what the model sees, so when it is down (no
-    embedding quota, network) the question is still answered, just
-    without examples. Returns the context and whether retrieval was used.
-    """
+    """Fallback is only for classified outages, within the same authorized schema."""
     if retriever is None:
         return full_context(schema), False
     try:
-        return retriever.select(question, schema), True
-    except (
-        Exception
-    ) as exc:  # noqa: BLE001 - any retrieval failure has the same fallback
-        log.warning("retrieval failed, using the full schema: %s", exc)
+        context = retriever.select(question, schema)
+    except RetrievalUnavailable:
+        log.warning("retrieval_unavailable action=authorized_schema_fallback")
         return full_context(schema), False
+    except Exception:
+        # Unknown failures are not evidence of safe availability-only failure.
+        # Do not log provider/DB exceptions, which can contain data or credentials.
+        log.warning("retrieval_denied action=stop")
+        raise ContextDenied("Authorized retrieval context is unavailable.") from None
+    if not context.tables or not set(context.tables) <= schema.allowed_tables:
+        raise ContextDenied("Retrieval selected an unauthorized relation.")
+    if len(context.examples) > 3:
+        raise ContextDenied("Retrieval exceeds the approved example budget.")
+    for example in context.examples:
+        if len(example.question) > 2000 or len(example.sql) > 32768:
+            raise ContextDenied("Retrieval example exceeds the input budget.")
+        try:
+            validate_sql(example.sql, allowed_tables=context.tables)
+        except UnsafeQueryError:
+            raise ContextDenied(
+                "Retrieval example violates the dataset policy."
+            ) from None
+    # Never trust schema text from an index or retriever. Render approved metadata.
+    return (
+        Context(schema.to_prompt(context.tables), context.examples, context.tables),
+        True,
+    )
 
 
 def answer_question(
@@ -142,10 +155,16 @@ def answer_question(
             query = validate_sql(generation.sql, allowed_tables=schema.allowed_tables)
             result = execute(query, settings, max_rows=max_rows)
         except UnsafeQueryError as exc:
-            error, code, fixable = str(exc), "rejected", exc.fixable
+            error, code, fixable = (
+                diagnostic("rejected").message,
+                "rejected",
+                exc.fixable,
+            )
+            repair_code = "repair_query"
         except QueryError as exc:
             error, code = str(exc), "query_failed"
-            fixable = _TIMEOUT_MARKER not in error
+            fixable = exc.fixable
+            repair_code = exc.code
         else:
             return Answer(
                 sql=result.sql,
@@ -155,8 +174,11 @@ def answer_question(
                 **base,
             )
 
+        log.warning(
+            "query_denied category=%s repair=%s attempt=%d", code, repair_code, attempt
+        )
         if not fixable or attempt == MAX_ATTEMPTS:
             return Answer(sql=generation.sql, error=error, error_code=code, **base)
-        previous = Attempt(generation.sql, error)
+        previous = Attempt(generation.sql, repair_code)
 
     raise AssertionError("unreachable: the loop always returns")

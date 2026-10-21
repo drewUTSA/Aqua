@@ -27,7 +27,11 @@ BATCH_SIZE = 20
 
 
 class EmbeddingError(RuntimeError):
-    """Raised when the embedding API cannot produce usable vectors."""
+    """Authorization and malformed responses never authorize wider fallback."""
+
+    def __init__(self, message: str, transient: bool = False) -> None:
+        super().__init__(message)
+        self.transient = transient
 
 
 def query_text(question: str) -> str:
@@ -68,8 +72,15 @@ def embed(
             result = client.models.embed_content(
                 model=settings.gemini_embed_model, contents=contents, config=config
             )
-        except (errors.APIError, httpx.HTTPError) as exc:
-            raise EmbeddingError(f"Embedding request failed: {exc}") from exc
+        except errors.APIError as exc:
+            raise EmbeddingError(
+                "Embedding request failed.",
+                transient=exc.code in {429, 500, 502, 503, 504},
+            ) from None
+        except httpx.TransportError:
+            raise EmbeddingError(
+                "Embedding service unavailable.", transient=True
+            ) from None
         embeddings = result.embeddings or []
         if len(embeddings) != len(batch):
             raise EmbeddingError(

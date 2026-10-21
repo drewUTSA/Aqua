@@ -9,35 +9,35 @@ Browser (aqua-ai.us)
    |  HTTPS, terminated in front of the server
    v
 nginx  :5173  (frontend container)
-   |  static site; /api/* forwarded; 10 questions a minute per visitor
+   |  static site; /api/* forwarded; 10 questions a minute per socket peer (aggregate behind tunnel)
    v
 FastAPI  127.0.0.1:8000  (backend container, main.py)
    |
    v
 pipeline.answer_question
-   |-- context:  schema.py (every table)  or  retrieval/select.py (nearest tables + examples)
-   |-- generate.py + llm.py  ->  Gemini API (Gemma 4, default)  or  Ollama (backup)
+   |-- context:  schema.py (reviewed authorized manifest)  or  retrieval/select.py (nearest tables + examples)
+   |-- generate.py + llm.py  ->  Gemini API (configured default)  or  Ollama (backup)
    |-- validate.py           ->  refuse anything unsafe; never executed
    |-- execute.py            ->  Tiger Cloud Postgres as nl2sql_reader, read-only, row limit
-   |-- one retry with the error, if the failure is fixable
+   |-- one retry with a fixed diagnostic, if the failure is fixable
    v
 response.py  ->  summarize.py (text)  +  visualize.py (chart or KPI)  ->  JSON
 ```
 
-Both containers use the host's network. Only nginx listens on an outside-facing port; the backend binds to 127.0.0.1, so every public request passes nginx's rate limit and size limit first.
+Both containers use the host network. The October 20 ingress hotfix binds nginx and the backend to loopback and routes both public hostnames through nginx at `127.0.0.1:5173`. Installed hashes, exact runtime image, isolated rate checks and four public smoke requests are recorded in [the ingress report](implementation/P01_INGRESS.md). The broader P01 backend changes still await review/deployment. The [target architecture](security/TARGET_ARCHITECTURE.md) records the separate databases and mandatory session-abuse controls.
 
 ## Pipeline, step by step
 
 | Step | Module | What it does |
 |---|---|---|
-| Receive | `main.py`, `cache.py` | Returns a cached answer if the same question was answered with the same model and settings in the last 10 minutes (successes only). Otherwise Validates the request body (1 to 2,000 characters, known model id) and picks the provider: the request's `model`, or `LLM_PROVIDER` |
-| Schema | `schema.py` | Reads tables, columns, keys, enum and domain types from the database once per process, as the read-only role. Hides `staff.password` and `staff.picture`. Lists real values for short text columns (category names, languages) |
-| Context | `pipeline.py`, `retrieval/select.py` | Without retrieval: every table. With `RETRIEVAL=on`: embeds the question, takes the four nearest table descriptions, the tables the three nearest worked examples used, and any table that links two chosen ones. Falls back to every table if retrieval fails |
+| Receive | `main.py`, `cache.py` | Validates input, session, CSRF and current dataset permission before an identity/version-scoped cache lookup. Exact question text and provider settings partition successes; TTL and byte/entry caps bound retention |
+| Schema | `schema.py` | Three catalog queries expose authorized bank/Pagila identifiers, types and keys; static reviewed comments/code dictionaries replace row sampling. Hidden staff columns and unrelated relations are excluded; unsupported/ambiguous manifests stop |
+| Context | `pipeline.py`, `retrieval/select.py` | Without retrieval: every table. With `RETRIEVAL=on`: embeds the question, takes the four nearest table descriptions, the tables the three nearest worked examples used, and any table that links two chosen ones. Only classified availability failures fall back within the same authorized manifest; authorization/integrity failures stop |
 | Answer size | `answer_size.py` | Reads the question with plain rules: a number gives that many rows, a plural with no number the top 10, a singular first place plus every tie, "in each" the same per group, "all" no limit. Adds one line to the prompt; nothing for questions without a ranking |
-| Generate | `generate.py`, `llm.py` | Builds the prompt (schema, examples, question, answer size, and on a retry the failed SQL and error) and asks the model for one SELECT |
+| Generate | `generate.py`, `llm.py` | Builds the prompt (schema, examples, question, answer size, and on a retry the failed SQL and a fixed diagnostic) and asks the model for one SELECT |
 | Validate | `validate.py` | Parses with sqlglot and walks the syntax tree. Rejects anything but one read-only SELECT on allowed tables. Marks each rejection fixable or not |
 | Execute | `execute.py`, `db.py` | Runs the parsed query with a row limit (1,000) in a read-only transaction as `nl2sql_reader` |
-| Retry | `pipeline.py` | If validation or execution failed for a fixable reason, asks the model once more with the error. Writes, dangerous functions, catalog access and timeouts are never retried |
+| Retry | `pipeline.py` | If validation or execution failed for a fixable reason, asks the model once more with a fixed diagnostic. Writes, dangerous functions, catalog access, permission failures, unknown errors and timeouts are never retried |
 | Respond | `response.py`, `summarize.py`, `visualize.py` | Converts values to JSON, writes a rule-based summary, picks a bar chart, line chart or KPI, and includes the SQL |
 
 ## Models
@@ -95,7 +95,7 @@ React and Vite. `src/services/aquaClient.js` is the only module components call:
 | Server | Ubuntu, checkout at `/srv/bank-ai`, `docker compose up -d --build` |
 | Frontend container | Multi-stage build: `npm ci` and `vite build`, then `nginx:alpine` serving `dist/` on 5173 |
 | Backend container | `python:3.12-slim`, uvicorn on 127.0.0.1:8000, settings from `.env` |
-| HTTPS and the domain | Handled in front of nginx; nginx keys its rate limit on Cloudflare's `CF-Connecting-IP` when present |
+| HTTPS and the domain | Handled by Cloudflare; nginx budgets the socket peer and ignores untrusted claimed IP headers. Both public hostnames were verified through nginx in the October 20 ingress hotfix |
 | Health | `GET /api/health` never touches the database or model, so a slow dependency cannot mark the container unhealthy |
 | Updates | Change code locally, merge a pull request, then `git pull` and rebuild on the server. The server's GitHub key can only pull |
 
@@ -105,7 +105,7 @@ React and Vite. `src/services/aquaClient.js` is the only module components call:
 |---|---|---|
 | Question length | 2,000 characters | `main.py` |
 | Request body | 16 KB | `nginx.conf` |
-| Questions per visitor | 10 a minute, burst of 5 | `nginx.conf` |
+| Questions per socket peer (aggregate) | 10 a minute, burst of 5 | `nginx.conf` |
 | Wait for an answer | 300 seconds | `nginx.conf` |
 | Model call | 180 seconds; Gemini gets 3 attempts on server errors, then Ollama | `llm.py` |
 | SQL statement | 10 seconds | `nl2sql_reader` role |
@@ -118,7 +118,7 @@ React and Vite. `src/services/aquaClient.js` is the only module components call:
 | Failure | HTTP | User sees | Retry offered |
 |---|---|---|---|
 | Model wrote unsafe SQL | 200 | Why it was refused, and the SQL that was not run | No |
-| Database refused the SQL twice | 200 | The database's reason and the SQL | No |
+| Database refused SQL | 200 | A fixed safe diagnostic and the attempted SQL; at most one eligible repair | No |
 | Gemini down, Ollama up | 200 | A normal answer, marked "Answered by" the Ollama model | Not needed |
 | Model or database unreachable | 503 | "Not reachable right now" | Yes |
 | Too many questions | 429 | "Wait a moment" | Yes |
@@ -134,8 +134,8 @@ separate implementation numbering scheme; see the checkpoint below.
 
 The [P00 checkpoint](implementation/P00.md) records the current route, auth,
 configuration and deployment baseline. CI source is now prepared for tests,
-build, Black/Ruff and dependency/source checks; its first GitHub run awaits the
-human PR. Test collection discards live service settings and dotenv, and the
+build, Black/Ruff and dependency/source checks. PR #36 merged with successful
+GitHub checks; P01 adds isolated rate-limit regression checks to the same workflow. Test collection discards live service settings and dotenv, and the
 canonical integration runner uses two disposable synthetic PostgreSQL fixtures
 with no external network. Its local trust authentication is test-only. The
 hosted analytical DB and connection modules are unchanged. The account DB,

@@ -130,7 +130,7 @@ def complete(
                 raise
             if index + 1 < len(chain):
                 log.warning(
-                    "%s unavailable, trying the next model: %s", model or provider, exc
+                    "provider_unavailable provider=%s action=fallback", provider
                 )
     assert last_error is not None
     raise last_error
@@ -192,15 +192,12 @@ def _complete_ollama(
         response.raise_for_status()
         data = response.json()
     except httpx.TimeoutException as exc:
-        raise LLMError(f"Ollama took too long to respond ({url}).") from exc
+        raise LLMError("Ollama took too long to respond.") from exc
     except httpx.HTTPStatusError as exc:
         # Ollama explains errors in the body, e.g. a model that isn't pulled.
-        detail = exc.response.text.strip()[:200]
-        raise LLMError(
-            f"Ollama returned HTTP {exc.response.status_code}: {detail}"
-        ) from exc
-    except httpx.RequestError as exc:
-        raise LLMError(f"Cannot connect to Ollama at {url}: {exc}") from exc
+        raise LLMError(f"Ollama returned HTTP {exc.response.status_code}.") from None
+    except httpx.RequestError:
+        raise LLMError("Cannot connect to Ollama.") from None
     except ValueError as exc:
         raise LLMError("Ollama returned a reply that is not JSON.") from exc
     finally:
@@ -210,8 +207,7 @@ def _complete_ollama(
     message = data.get("message") or {}
     text = (message.get("content") or "").strip()
     if not text:
-        reason = data.get("done_reason", "unknown")
-        raise LLMError(f"Ollama returned no answer (stop reason: {reason}).")
+        raise LLMError("Ollama returned no answer.")
     return Completion(
         text=text,
         thinking=(message.get("thinking") or "").strip(),
@@ -281,23 +277,20 @@ def _complete_gemini(
         )
     except errors.APIError as exc:
         raise LLMError(
-            f"Gemini returned HTTP {exc.code}: {exc.message}",
+            f"Gemini returned HTTP {exc.code}.",
             transient=exc.code in FALLBACK_CODES,
         ) from exc
     except httpx.TimeoutException as exc:
         raise LLMError("Gemini took too long to respond.", transient=True) from exc
-    except httpx.HTTPError as exc:
-        raise LLMError(f"Cannot reach the Gemini API: {exc}", transient=True) from exc
+    except httpx.HTTPError:
+        raise LLMError("Cannot reach the Gemini API.", transient=True) from None
 
     text = (response.text or "").strip()
     if not text:
-        candidates = getattr(response, "candidates", None) or []
-        reason = candidates[0].finish_reason if candidates else "blocked or empty"
+        # Provider finish text may echo submitted/private content; use a fixed hint.
         # An empty reply (a safety or recitation stop) may not repeat on
         # another model, so let the chain move on.
-        raise LLMError(
-            f"Gemini returned no answer (stop reason: {reason}).", transient=True
-        )
+        raise LLMError("Gemini returned no answer.", transient=True)
     return Completion(
         text=text,
         thinking="",

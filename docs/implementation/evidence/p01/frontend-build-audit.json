@@ -1,0 +1,31 @@
+{
+  "status": "passed",
+  "source_base": "271aa90a3d2a4175be4311f2d9ffcc230fad233d",
+  "observed_date": "2026-10-20",
+  "npm_ci": "passed with --ignore-scripts after sandbox network retry",
+  "build": {
+    "command": "npm run build",
+    "exit_code": 0,
+    "vite": "7.3.7",
+    "node": "24.14.1",
+    "modules_transformed": 880,
+    "note": "Summary of observed command output; raw build output was not persisted.",
+    "warnings": [
+      "Existing approximately 917 kB model-support chunk",
+      "Existing large 3D assets"
+    ]
+  },
+  "audit": {
+    "command": "npm audit --audit-level=low",
+    "exit_code": 0,
+    "vulnerabilities": {
+      "info": 0,
+      "low": 0,
+      "moderate": 0,
+      "high": 0,
+      "critical": 0,
+      "total": 0
+    },
+    "note": "Known-advisory snapshot, not proof of absence of vulnerabilities."
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "purpose": "aqua_ingress_metadata_only",
+  "containers": [
+    {
+      "id": "2e067cf111f5",
+      "service": "frontend",
+      "image": "sha256:a3b6f4886181904a095d18c2bcd6e6e77c5cfa305b51b88fdec7054e8f2b8c42",
+      "status": "running",
+      "network": "host",
+      "mounts": [],
+      "health": "healthy"
+    },
+    {
+      "id": "0b698b7cad70",
+      "service": "backend",
+      "image": "sha256:110881615c3d042f3a852a9bc2ccf1b59f85ae68249a10b6d421532023532a17",
+      "status": "running",
+      "network": "host",
+      "mounts": [],
+      "health": "healthy"
+    }
+  ],
+  "cloudflared_service": {
+    "ActiveState": "active",
+    "FragmentPath": "/etc/systemd/system/cloudflared.service",
+    "CanReload": "no",
+    "MainPID": "2756622",
+    "User": "",
+    "Group": ""
+  },
+  "config_path": "/etc/cloudflared/config.yml",
+  "config_access": {
+    "readable": true,
+    "writable": false,
+    "is_symlink": false,
+    "owner_uid": 0,
+    "mode": "0o644"
+  },
+  "config_sha256": "7b6b05537424aed6939df2b9bb086e5cd004c4d08b0734dc3e7b2eecd18e99d9",
+  "routing_lines": [
+    "ingress:",
+    "- hostname: aqua-ai.us",
+    "service: http://127.0.0.1:5173",
+    "- hostname: api.aqua-ai.us",
+    "service: http://127.0.0.1:5173",
+    "- service: http_status:404"
+  ],
+  "application_listeners": [
+    "127.0.0.1:5173",
+    "127.0.0.1:8000"
+  ]
+}

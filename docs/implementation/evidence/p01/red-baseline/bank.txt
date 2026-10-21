@@ -1,0 +1,107 @@
+........................................................................ [ 10%]
+........................................................................ [ 20%]
+................................................................ssssss.. [ 31%]
+.ssssssss............................................................... [ 41%]
+..................................................................FFFFFF [ 52%]
+Fs.....................................................................s [ 62%]
+ss.s..................................................................FF [ 73%]
+FFFF.................................................................... [ 83%]
+........................................................................ [ 94%]
+.........................................                                [100%]
+=================================== FAILURES ===================================
+_ test_cache_does_not_merge_different_literal_meanings[Find code "AbC"-Find code "abc"] _
+tests/test_p01_boundaries.py:24: in test_cache_does_not_merge_different_literal_meanings
+    assert cache_key(left, "model") != cache_key(right, "model")
+E   assert 'find code "abc"\x1fmodel' != 'find code "abc"\x1fmodel'
+E    +  where 'find code "abc"\x1fmodel' = cache_key('Find code "AbC"', 'model')
+E    +  and   'find code "abc"\x1fmodel' = cache_key('Find code "abc"', 'model')
+_ test_cache_does_not_merge_different_literal_meanings[Find name "A  B"-Find name "A B"] _
+tests/test_p01_boundaries.py:24: in test_cache_does_not_merge_different_literal_meanings
+    assert cache_key(left, "model") != cache_key(right, "model")
+E   assert 'find name "a b"\x1fmodel' != 'find name "a b"\x1fmodel'
+E    +  where 'find name "a b"\x1fmodel' = cache_key('Find name "A  B"', 'model')
+E    +  and   'find name "a b"\x1fmodel' = cache_key('Find name "A B"', 'model')
+_ test_cache_does_not_merge_different_literal_meanings[Find suffix abc!-Find suffix abc] _
+tests/test_p01_boundaries.py:24: in test_cache_does_not_merge_different_literal_meanings
+    assert cache_key(left, "model") != cache_key(right, "model")
+E   AssertionError: assert 'find suffix abc\x1fmodel' != 'find suffix abc\x1fmodel'
+E    +  where 'find suffix abc\x1fmodel' = cache_key('Find suffix abc!', 'model')
+E    +  and   'find suffix abc\x1fmodel' = cache_key('Find suffix abc', 'model')
+_________________ test_cache_parts_cannot_collide_at_separator _________________
+tests/test_p01_boundaries.py:28: in test_cache_parts_cannot_collide_at_separator
+    assert cache_key("q", "a\x1fb", "c") != cache_key("q", "a", "b\x1fc")
+E   AssertionError: assert 'q\x1fa\x1fb\x1fc' != 'q\x1fa\x1fb\x1fc'
+E    +  where 'q\x1fa\x1fb\x1fc' = cache_key('q', 'a\x1fb', 'c')
+E    +  and   'q\x1fa\x1fb\x1fc' = cache_key('q', 'a', 'b\x1fc')
+________________ test_query_error_never_echoes_database_values _________________
+tests/test_p01_boundaries.py:39: in test_query_error_never_echoes_database_values
+    assert CANARY not in str(caught.value)
+E   AssertionError: assert 'PRIVATE_SYN...C_CANARY_927' not in 'PRIVATE_SYN...C_CANARY_927'
+E     
+E     'PRIVATE_SYNTHETIC_CANARY_927' is contained here:
+E       PRIVATE_SYNTHETIC_CANARY_927
+___________ test_retrieval_authorization_failure_does_not_fall_back ____________
+tests/test_p01_boundaries.py:45: in test_retrieval_authorization_failure_does_not_fall_back
+    with pytest.raises(RuntimeError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE RuntimeError
+------------------------------ Captured log call -------------------------------
+WARNING  nl2sql.pipeline:pipeline.py:101 retrieval failed, using the full schema: PRIVATE_SYNTHETIC_CANARY_927
+____________ test_retriever_cannot_supply_arbitrary_provider_schema ____________
+tests/test_p01_boundaries.py:54: in test_retriever_cannot_supply_arbitrary_provider_schema
+    assert CANARY not in context.schema_text
+E   AssertionError: assert 'PRIVATE_SYN...C_CANARY_927' not in 'PRIVATE_SYN...C_CANARY_927'
+E     
+E     'PRIVATE_SYNTHETIC_CANARY_927' is contained here:
+E       PRIVATE_SYNTHETIC_CANARY_927
+_ test_p01_relation_identity_and_cte_scope_cannot_bypass_allowlist[SELECT title FROM private.film] _
+tests/test_validate.py:92: in test_p01_relation_identity_and_cte_scope_cannot_bypass_allowlist
+    with pytest.raises(UnsafeQueryError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE UnsafeQueryError
+_ test_p01_relation_identity_and_cte_scope_cannot_bypass_allowlist[SELECT title FROM another_database.public.film] _
+tests/test_validate.py:92: in test_p01_relation_identity_and_cte_scope_cannot_bypass_allowlist
+    with pytest.raises(UnsafeQueryError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE UnsafeQueryError
+_ test_p01_relation_identity_and_cte_scope_cannot_bypass_allowlist[SELECT title FROM "PUBLIC".film] _
+tests/test_validate.py:92: in test_p01_relation_identity_and_cte_scope_cannot_bypass_allowlist
+    with pytest.raises(UnsafeQueryError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE UnsafeQueryError
+_ test_p01_relation_identity_and_cte_scope_cannot_bypass_allowlist[SELECT title FROM public."FILM"] _
+tests/test_validate.py:92: in test_p01_relation_identity_and_cte_scope_cannot_bypass_allowlist
+    with pytest.raises(UnsafeQueryError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE UnsafeQueryError
+_ test_p01_relation_identity_and_cte_scope_cannot_bypass_allowlist[SELECT * FROM secret UNION ALL SELECT * FROM (WITH secret AS (SELECT 1) SELECT * FROM secret) t] _
+tests/test_validate.py:92: in test_p01_relation_identity_and_cte_scope_cannot_bypass_allowlist
+    with pytest.raises(UnsafeQueryError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE UnsafeQueryError
+_ test_p01_relation_identity_and_cte_scope_cannot_bypass_allowlist[WITH safe AS (WITH secret AS (SELECT 1) SELECT * FROM secret) SELECT * FROM secret] _
+tests/test_validate.py:92: in test_p01_relation_identity_and_cte_scope_cannot_bypass_allowlist
+    with pytest.raises(UnsafeQueryError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE UnsafeQueryError
+=============================== warnings summary ===============================
+../../usr/local/lib/python3.12/site-packages/fastapi/testclient.py:1
+  /usr/local/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_p01_boundaries.py::test_cache_does_not_merge_different_literal_meanings[Find code "AbC"-Find code "abc"]
+FAILED tests/test_p01_boundaries.py::test_cache_does_not_merge_different_literal_meanings[Find name "A  B"-Find name "A B"]
+FAILED tests/test_p01_boundaries.py::test_cache_does_not_merge_different_literal_meanings[Find suffix abc!-Find suffix abc]
+FAILED tests/test_p01_boundaries.py::test_cache_parts_cannot_collide_at_separator
+FAILED tests/test_p01_boundaries.py::test_query_error_never_echoes_database_values
+FAILED tests/test_p01_boundaries.py::test_retrieval_authorization_failure_does_not_fall_back
+FAILED tests/test_p01_boundaries.py::test_retriever_cannot_supply_arbitrary_provider_schema
+FAILED tests/test_validate.py::test_p01_relation_identity_and_cte_scope_cannot_bypass_allowlist[SELECT title FROM private.film]
+FAILED tests/test_validate.py::test_p01_relation_identity_and_cte_scope_cannot_bypass_allowlist[SELECT title FROM another_database.public.film]
+FAILED tests/test_validate.py::test_p01_relation_identity_and_cte_scope_cannot_bypass_allowlist[SELECT title FROM "PUBLIC".film]
+FAILED tests/test_validate.py::test_p01_relation_identity_and_cte_scope_cannot_bypass_allowlist[SELECT title FROM public."FILM"]
+FAILED tests/test_validate.py::test_p01_relation_identity_and_cte_scope_cannot_bypass_allowlist[SELECT * FROM secret UNION ALL SELECT * FROM (WITH secret AS (SELECT 1) SELECT * FROM secret) t]
+FAILED tests/test_validate.py::test_p01_relation_identity_and_cte_scope_cannot_bypass_allowlist[WITH safe AS (WITH secret AS (SELECT 1) SELECT * FROM secret) SELECT * FROM secret]
+13 failed, 657 passed, 19 skipped, 1 warning in 1.87s

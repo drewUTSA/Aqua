@@ -1,0 +1,66 @@
+{
+  "phase": "P01",
+  "source_base": "271aa90a3d2a4175be4311f2d9ffcc230fad233d",
+  "branch": "codex/p01-data-boundaries",
+  "recorded_utc": "2026-10-21T01:18:37.971024+00:00",
+  "operator": "Codex under Benjamin's authorized P01 scope",
+  "target_host_transport": "SSH to the authorized AQUA server; temporary files under /srv/bank-ai",
+  "target_application_network": "network-none disposable container namespace only",
+  "target_origins": [
+    "http://127.0.0.1:5173",
+    "http://127.0.0.1:8000"
+  ],
+  "database_target": "Disposable PostgreSQL Unix socket; bank and Pagila synthetic fixtures",
+  "allowed_proxy_paths": [
+    "/api/query",
+    "/api/query/",
+    "/api/%71uery",
+    "/api//query",
+    "/api/auth/google",
+    "/api/auth/google/",
+    "/api/auth/logout",
+    "/api/health",
+    "/api/oversize"
+  ],
+  "identities": "Synthetic Google-sub A/B namespace values, mocked existing authentication, no real provider calls",
+  "seed": "Deterministic payload/order; cryptographic random resource names only",
+  "budgets": {
+    "proxy_requests": 100,
+    "requests_per_second_max": 5,
+    "callers_max": 4,
+    "probe_seconds": 55,
+    "request_timeout_seconds": 2,
+    "container_memory_bytes": 1073741824,
+    "container_cpus": 2,
+    "container_pids": 256,
+    "backend_suite_seconds": 120,
+    "postgres_tmpfs_bytes": 536870912
+  },
+  "stop_conditions": [
+    "Exceeded harness budget or timeout",
+    "Failed boundary assertion",
+    "Unexpected egress/fixture violation",
+    "Cleanup cannot be confirmed"
+  ],
+  "containment": "Dropped capabilities, read-only roots, bounded tmpfs/logs; no host ports, mounts or Docker socket inside test containers",
+  "cleanup": "Remove only exact created container IDs and unique temporary source directory; no broad prune",
+  "observed": {
+    "backend_unique_tests": 727,
+    "frontend_tests": 47,
+    "proxy_requests": 31,
+    "proxy_duration_seconds": 18.1,
+    "proxy_admitted_work": 14
+  },
+  "remaining_gates": [
+    "Human phase review and P01 GitHub run",
+    "Full P01 backend deployment; narrow ingress hotfix independently verified separately",
+    "Durable account/global quotas and failure/restart/fairness tests in later phases",
+    "Production authentication, provider evaluation and capacity tests"
+  ],
+  "limitations": [
+    "No live pentest/load test",
+    "Post-run resource snapshots are not peak measurements",
+    "No application DB, mail or hosted business DB changes",
+    "No ASVS level certification"
+  ]
+}

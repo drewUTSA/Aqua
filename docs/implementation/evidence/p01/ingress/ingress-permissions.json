@@ -1,0 +1,8 @@
+{
+  "restart_aqua_tunnel": {
+    "noninteractive_permission_check_passed": false
+  },
+  "install_aqua_tunnel_config": {
+    "noninteractive_permission_check_passed": false
+  }
+}

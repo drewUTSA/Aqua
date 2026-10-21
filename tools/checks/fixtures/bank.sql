@@ -16,3 +16,14 @@ INSERT INTO "order" VALUES (1,1,'');
 INSERT INTO trans SELECT n,1,n,'PRIJEM',' ' FROM generate_series(1,1000) n;
 GRANT USAGE ON SCHEMA public TO nl2sql_reader;
 GRANT SELECT ON ALL TABLES IN SCHEMA public TO nl2sql_reader;
+
+CREATE SCHEMA aqua_private;
+CREATE TABLE aqua_private.accounts (id int);
+INSERT INTO aqua_private.accounts VALUES (1);
+CREATE SCHEMA shadow;
+CREATE TABLE shadow.trans (id int);
+INSERT INTO shadow.trans VALUES (1);
+GRANT USAGE ON SCHEMA shadow TO nl2sql_reader;
+GRANT SELECT ON shadow.trans TO nl2sql_reader;
+CREATE FUNCTION public.lower(integer) RETURNS text LANGUAGE sql IMMUTABLE
+AS $$ SELECT 'PRIVATE_SYNTHETIC_CANARY_927'::text $$;

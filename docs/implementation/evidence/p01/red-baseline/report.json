@@ -1,0 +1,18 @@
+{
+  "run": "aqua-check-983bce73b7bc67b5aad41893",
+  "results": [
+    {
+      "dataset": "bank",
+      "exit_code": 1
+    },
+    {
+      "dataset": "pagila",
+      "exit_code": 1
+    }
+  ],
+  "cleanup": "removed_and_absence_confirmed",
+  "backend_image": "sha256:b847dc793be6cc8aa48f081807043ebd0b1fd4d19a1032b7fdb9c3e99e94d34f",
+  "postgres_image": "sha256:3645570cccdfa447589da9f57dd740faa29b30938e861289a5574b6ca6b03826",
+  "error": "fixture matrix left tests unverified: ['tests.test_p01_boundaries::test_cache_does_not_merge_different_literal_meanings[Find code \"AbC\"-Find code \"abc\"]', 'tests.test_p01_boundaries::test_cache_does_not_merge_different_literal_meanings[Find name \"A  B\"-Find name \"A B\"]', 'tests.test_p01_boundaries::test_cache_does_not_merge_different_literal_meanings[Find suffix abc!-Find suffix abc]', 'tests.test_p01_boundaries::test_cache_parts_cannot_collide_at_separator', 'tests.test_p01_boundaries::test_query_error_never_echoes_database_values', 'tests.test_p01_boundaries::test_retrieval_authorization_failure_does_not_fall_back', 'tests.test_p01_boundaries::test_retriever_cannot_supply_arbitrary_provider_schema', 'tests.test_p01_boundaries::test_schema_has_no_row_samples_or_live_comments', 'tests.test_validate::test_p01_relation_identity_and_cte_scope_cannot_bypass_allowlist[SELECT * FROM secret UNION ALL SELECT * FROM (WITH secret AS (SELECT 1) SELECT * FROM secret) t]', 'tests.test_validate::test_p01_relation_identity_and_cte_scope_cannot_bypass_allowlist[SELECT title FROM \"PUBLIC\".film]', 'tests.test_validate::test_p01_relation_identity_and_cte_scope_cannot_bypass_allowlist[SELECT title FROM another_database.public.film]', 'tests.test_validate::test_p01_relation_identity_and_cte_scope_cannot_bypass_allowlist[SELECT title FROM private.film]', 'tests.test_validate::test_p01_relation_identity_and_cte_scope_cannot_bypass_allowlist[SELECT title FROM public.\"FILM\"]', 'tests.test_validate::test_p01_relation_identity_and_cte_scope_cannot_bypass_allowlist[WITH safe AS (WITH secret AS (SELECT 1) SELECT * FROM secret) SELECT * FROM secret]']",
+  "remaining_ids": []
+}

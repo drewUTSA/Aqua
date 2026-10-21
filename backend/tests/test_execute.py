@@ -151,11 +151,14 @@ def test_asks_for_one_extra_row_and_reports_columns(
 
     result = execute(validate_sql("SELECT title FROM film"), SETTINGS, max_rows=10)
 
-    assert conn.executed == ["SELECT title FROM film LIMIT 11"]
+    assert conn.executed == [
+        "SET LOCAL search_path = pg_catalog",
+        "SELECT title FROM public.film LIMIT 11",
+    ]
     assert result.columns == ["title"]
     assert result.rows == [("A",), ("B",)]
     assert result.truncated is False
-    assert result.sql == "SELECT title FROM film LIMIT 10"  # what the user sees
+    assert result.sql == "SELECT title FROM public.film LIMIT 10"  # what the user sees
 
 
 def test_extra_row_means_truncated(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -178,7 +181,7 @@ def test_database_rejection_becomes_query_error(
     )
     use_fake(monkeypatch, FakeConnection(error=error))
 
-    with pytest.raises(QueryError, match='column "nope" does not exist') as info:
+    with pytest.raises(QueryError, match="column does not exist") as info:
         execute(validate_sql("SELECT nope FROM film"), SETTINGS)
     assert "LINE 1" not in str(info.value)  # first line only
 

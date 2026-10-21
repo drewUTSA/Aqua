@@ -221,3 +221,45 @@ this baseline cleanup.
 and [the runner guide](../tools/checks/README.md). Human review/commit/push/PR
 precedes P01. Tests use synthetic data and mocked providers; they neither enable
 public signup nor certify production readiness.
+
+## October 20, 2026: P01 explicit data boundaries and aggregate ingress limits
+
+**Decision.** Recognize one reviewed bank/Pagila table manifest, use static
+metadata dictionaries, qualify physical public relations by lexical SQL scope,
+allow only reviewed functions and resolve unqualified functions in pg_catalog.
+Map errors to fixed diagnostics; authorization/unknown retrieval failures stop.
+Key cached successes by exact question plus server-owned identity and revisions.
+Bound LRU encoded bytes and entries. Preserve the analytical connection modules
+and hosted data. The private application database is P02.
+
+**Evidence.** Synthetic red tests reproduced metadata/error leaks, cache
+collisions and namespace/fallback failures. A two-worker proxy admitted all 12
+forged-IP requests before the fix. The final matrix passes all 727 distinct
+backend tests, 47 frontend tests and the 31-request proxy prevention/recovery
+exercise. See [P01](implementation/P01.md) for evidence and limits.
+
+**Tradeoffs.** Static dictionaries require review when datasets change; unknown
+functions are refused until reviewed. Exact cache keys reduce hits intentionally.
+The socket-peer limiter is aggregate behind the tunnel, so it does not claim
+per-account fairness or durable quotas. Trusted original-IP propagation and the
+direct API tunnel bypass require a coordinated deployment review. Later phases
+add durable account/operation/global admission and capacity testing. No current
+live service, account database, hosted DB, public signup or tunnel was changed.
+
+### P01 follow-up: live ingress correction and user architecture clarification
+
+The user requested closure of the direct API tunnel bypass before committing.
+Apply only the tested nginx configuration over the current frontend image and
+assets, retain its source fix on the server, route both hostnames to loopback
+nginx, and verify locally/publicly. The operator authenticated the root-only
+tunnel change; no broad sudo permission was installed. Backend and databases
+were unchanged. See `implementation/P01_INGRESS.md` for evidence and safe merge
+handling of the server's single tracked hotfix.
+
+Adopt the user's browser -> Cloudflare -> gateway -> backend -> separate
+application/analytical databases architecture, with backend-owned grants and
+private authenticated caches. The user also explicitly requires session creation
+to provide no extra capacity. Canonical session ownership, durable revocation,
+atomic active-session limits and budgets shared across sessions are mandatory
+P03/P07 gates; they are not implemented by P01's stateless cookie or peer quota.
+See `security/TARGET_ARCHITECTURE.md` for boundaries and adversarial acceptance.

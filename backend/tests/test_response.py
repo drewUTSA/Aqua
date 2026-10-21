@@ -209,7 +209,7 @@ def test_rejected_answer() -> None:
     assert body["tables"] == []
     assert body["error"] == {
         "code": "rejected",
-        "message": "Only SELECT queries are allowed, got DELETE.",
+        "message": "The query was rejected by the read-only data policy.",
         "retryable": False,
     }
 

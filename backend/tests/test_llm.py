@@ -138,7 +138,7 @@ def test_empty_answer_is_an_error(reply: dict) -> None:
 
 def test_http_error_includes_ollamas_explanation() -> None:
     client, _ = mock_client({"error": "model 'nope' not found"}, status=404)
-    with pytest.raises(LLMError, match="404.*not found"):
+    with pytest.raises(LLMError, match="HTTP 404"):
         complete("q", SETTINGS, client=client)
 
 

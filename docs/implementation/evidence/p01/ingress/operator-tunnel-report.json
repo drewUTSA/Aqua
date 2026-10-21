@@ -1,0 +1,11 @@
+{
+  "provenance": "User returned the operator helper result; agent independently verified installed hash, routes, process and public behavior afterward.",
+  "purpose": "aqua_tunnel_route_fix",
+  "status": "applied",
+  "config_sha256": "7b6b05537424aed6939df2b9bb086e5cd004c4d08b0734dc3e7b2eecd18e99d9",
+  "service": "active",
+  "pid": 2756622,
+  "backup": "/etc/cloudflared/config.yml.aqua-p01-fa517093359c53be.bak",
+  "root_permission_expanded": false,
+  "independent_verification": "ingress-after.json and public-ingress.json"
+}

@@ -164,10 +164,10 @@ def test_real_schema_has_types_keys_and_values(
     assert (
         "CREATE TYPE mpaa_rating AS ENUM ('G', 'PG', 'PG-13', 'R', 'NC-17');" in prompt
     )
-    assert "FOREIGN KEY (city_id) REFERENCES city(city_id)" in prompt
+    assert 'FOREIGN KEY ("city_id") REFERENCES "city"("city_id")' in prompt
     assert "ON UPDATE" not in prompt  # write-only detail, trimmed
     names = {c.name: c for c in real_schema.tables["category"].columns}["name"].values
-    assert "Horror" in names
+    assert names == ()  # No customer-controlled category values are sampled.
     # Too many distinct titles to list, and arrays are never listed.
     film = {c.name: c for c in real_schema.tables["film"].columns}
     assert film["title"].values == () and film["special_features"].values == ()
@@ -211,8 +211,8 @@ def test_real_bank_prompt_explains_codes_and_quotes_order(
     prompt = real_schema.to_prompt()
     assert 'CREATE TABLE "order" (' in prompt
     assert "PRIJEM = credit" in prompt
-    assert "-- Loans granted to accounts." in prompt
-    assert "FOREIGN KEY (account_id) REFERENCES account(account_id)" in prompt
+    assert "-- Loans granted to accounts. Amounts in Czech crowns (CZK)." in prompt
+    assert 'FOREIGN KEY ("account_id") REFERENCES "account"("account_id")' in prompt
 
 
 def test_real_bank_blank_purposes_are_shown_quoted(

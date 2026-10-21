@@ -21,8 +21,8 @@ class Clock:
         return self.now
 
 
-def test_key_ignores_case_spacing_and_trailing_punctuation() -> None:
-    assert cache_key("What are the  top films?", "gemini") == cache_key(
+def test_key_preserves_case_spacing_and_trailing_punctuation() -> None:
+    assert cache_key("What are the  top films?", "gemini") != cache_key(
         "what are the top films", "gemini"
     )
     assert cache_key("top films", "gemini") != cache_key("top films", "ollama")
@@ -80,7 +80,7 @@ def api(monkeypatch: pytest.MonkeyPatch):
 def test_the_same_question_is_answered_once(api) -> None:
     client, asked = api
     first = client.post("/api/query", json={"question": "Top films?"})
-    second = client.post("/api/query", json={"question": "top films"})
+    second = client.post("/api/query", json={"question": "Top films?"})
     assert first.json() == second.json()
     assert len(asked) == 1
 
@@ -95,3 +95,27 @@ def test_a_different_model_is_asked_separately(
     client.post("/api/query", json={"question": "top films", "model": "ollama"})
     client.post("/api/query", json={"question": "top films", "model": "gemini"})
     assert [provider for _, provider in asked] == ["ollama", "gemini"]
+
+
+def test_two_users_do_not_share_a_cached_answer(api):
+    client, asked = api
+    client.post("/api/query", json={"question": "same question"})
+    main.app.dependency_overrides[require_database_access] = lambda: UserSession(
+        {"sub": "different-fixture-user", "email": "fixture-b@gmail.com"}, "csrf"
+    )
+    client.post("/api/query", json={"question": "same question"})
+    assert len(asked) == 2
+
+
+def test_cached_answer_does_not_skip_current_authorization(api):
+    from fastapi import HTTPException
+
+    client, asked = api
+    assert client.post("/api/query", json={"question": "q"}).status_code == 200
+
+    def denied():
+        raise HTTPException(403, "No dataset grant.")
+
+    main.app.dependency_overrides[require_database_access] = denied
+    assert client.post("/api/query", json={"question": "q"}).status_code == 403
+    assert len(asked) == 1
