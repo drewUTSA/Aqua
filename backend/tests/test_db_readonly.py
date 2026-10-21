@@ -1,13 +1,8 @@
-"""Integration tests: confirm writes fail as nl2sql_reader.
+"""Permission probes against disposable synthetic databases only.
 
-These connect to the real database using DATABASE_URL from .env, and are
-skipped when it is not set (teammates without a .env, or CI). They run
-against whichever service DATABASE_URL points at, the bank or Pagila;
-tests that only apply to one of them skip on the other.
-
-Every write attempt runs inside a transaction that is rolled back, and
-none of them would change a row even if it were allowed, so these tests
-cannot damage the shared database even if the role were misconfigured.
+The runner owns both fixtures and removes them after the checks. These tests
+include DDL and must never target shared services; rollback is not isolation.
+The collection guard discards normal DATABASE_URL and .env configuration.
 """
 
 import psycopg
@@ -88,9 +83,15 @@ def test_writes_fail_even_with_read_only_switched_off(
 
 @pytest.mark.parametrize(
     "sql",
-    ["SELECT password FROM staff", "SELECT * FROM staff", "SELECT row_to_json(s) FROM staff s"],
+    [
+        "SELECT password FROM staff",
+        "SELECT * FROM staff",
+        "SELECT row_to_json(s) FROM staff s",
+    ],
 )
-def test_hidden_staff_columns_are_refused_by_the_database(on_pagila: None, sql: str) -> None:
+def test_hidden_staff_columns_are_refused_by_the_database(
+    on_pagila: None, sql: str
+) -> None:
     """Layer 2 for staff.password and staff.picture. Fails until
     db/05_hide_columns.sql has been run on this database."""
     with connect(SETTINGS) as conn:

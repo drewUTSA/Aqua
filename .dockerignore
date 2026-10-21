@@ -1,0 +1,7 @@
+# Root build context is only for the P00 dependency image. Production Compose
+# continues using its existing backend/ and frontend/ build contexts.
+**
+!tools
+!tools/checks
+!tools/checks/Dockerfile
+!tools/checks/requirements-runtime.lock

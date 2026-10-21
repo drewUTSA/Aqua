@@ -1,0 +1,60 @@
+name: AQUA checks
+
+on:
+  pull_request:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: checks-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12.14'
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24.19.0'
+      - name: Install check tools
+        run: python -m pip install -r tools/checks/requirements-dev.txt
+      - name: Source, formatting and correctness checks
+        run: |
+          python tools/checks/check_source.py
+          python tools/checks/check_lock.py
+          python -m black --check backend eval tools/checks
+          python -m ruff check backend eval tools/checks
+      - name: Audit pinned runtime dependencies
+        run: python -m pip_audit --no-deps --disable-pip -r tools/checks/requirements-runtime.lock
+      - name: Prepare isolated test images
+        run: |
+          docker build --pull -t aqua-checks:p00 -f tools/checks/Dockerfile .
+          docker pull postgres@sha256:3645570cccdfa447589da9f57dd740faa29b30938e861289a5574b6ca6b03826
+          docker pull node:24.19.0-bookworm-slim@sha256:a9f5f7c91a432850b2a8a7797adf5eadb6c733ceed61167806cee7ea7fbc29df
+      - name: Backend contracts and both disposable database fixtures
+        run: python tools/checks/run_backend.py
+      - name: Frontend tests without network access
+        run: >-
+          docker run --rm --network none --read-only --cap-drop ALL
+          --security-opt no-new-privileges --memory 1g --cpus 2 --pids-limit 128
+          --user 1000:1000 --tmpfs /tmp:rw,nosuid,nodev,size=64m
+          -v "$PWD/frontend:/work:ro" -w /work
+          node:24.19.0-bookworm-slim@sha256:a9f5f7c91a432850b2a8a7797adf5eadb6c733ceed61167806cee7ea7fbc29df
+          node --test "checks/*.test.mjs"
+      - name: Frontend dependency audit and production build
+        working-directory: frontend
+        run: |
+          npm ci --ignore-scripts --no-fund
+          npm audit --audit-level=low
+          npm run build

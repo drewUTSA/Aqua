@@ -1,0 +1,12 @@
+[tool.black]
+target-version = ["py312"]
+# These two connection modules are explicitly outside this implementation scope.
+force-exclude = '/backend/nl2sql/(config|db)\.py$'
+
+[tool.ruff]
+target-version = "py312"
+line-length = 88
+
+[tool.ruff.lint]
+# Start with Ruff's default correctness rules. Black owns layout.
+select = ["E4", "E7", "E9", "F"]

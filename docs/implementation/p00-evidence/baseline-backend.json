@@ -1,0 +1,12 @@
+{
+  "name": "aqua-p00-ba10f1961cbfff6533302c34",
+  "network": "none",
+  "memory_bytes": 1073741824,
+  "cpus": 2,
+  "pids": 256,
+  "image_id": "sha256:110881615c3d042f3a852a9bc2ccf1b59f85ae68249a10b6d421532023532a17",
+  "archive_sha256": "1fa864788157916f2d995af9279a62412e8189ada53d004e326aed70854e6458",
+  "exit_code": 0,
+  "output": "........................................................................ [ 10%]\n........................................................................ [ 21%]\n....................................................ssssssssssssssssssss [ 32%]\nsssss............................................sssss.................. [ 43%]\n........................................................................ [ 54%]\n...........................................................ssssssss..... [ 65%]\n........................................................................ [ 76%]\n........................................................................ [ 87%]\n........................................................................ [ 98%]\n............                                                             [100%]\n=============================== warnings summary ===============================\n../../../usr/local/lib/python3.12/site-packages/fastapi/testclient.py:1\n  /usr/local/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.\n    from starlette.testclient import TestClient as TestClient  # noqa\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n622 passed, 38 skipped, 1 warning in 1.53s\n",
+  "cleanup": "removed_and_absence_confirmed"
+}

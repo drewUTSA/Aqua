@@ -218,7 +218,7 @@ Production sets `RETRIEVAL=on` once the index is built (see Commands). Read them
 
 | Phase | Goal | Done when | Status |
 |---|---|---|---|
-| 0 | Repo scaffolding | Layout above exists, CI runs pytest and black | Open: no CI yet, and most older backend files are not black-formatted |
+| 0 | Repo scaffolding | Layout above exists, CI runs pytest and black | P00 check implementation prepared; first GitHub run and human review pending. See `docs/implementation/P00.md` |
 | 1 | Database | Pagila loaded, reader role works, write test fails as expected | Done |
 | 2 | Baseline pipeline | `/api/query` returns validated SQL and rows; full schema in prompt | Done |
 | 3 | Evaluation harness | Execution accuracy reported on a fixed question set | Done; results in `docs/decisions.md` |
@@ -236,7 +236,7 @@ Agreed but not started. Each needs its own change and a `docs/decisions.md` entr
 - Phase 7 logging: `db/06_logging.sql` with a `query_log` table and an insert-only `nl2sql_logger` role, `nl2sql/querylog.py`, and a way to promote checked pairs into `retrieval.example_query` as `query_log` rows.
 - Tableau: `db/07_tableau_role.sql`, a read-only `tableau_reader` without the 10-second timeout and with the same hidden staff columns.
 - A second, harder question set (`eval/datasets/pagila_v2.jsonl`), written before looking at model output, so the retrieval comparison rests on more than 50 questions.
-- Phase 0: one commit that black-formats the backend, then a GitHub Actions workflow running pytest, black and `npm test` on every pull request.
+- Phase 0: formatting and GitHub checks are prepared in P00, with a separate mechanical-change manifest. Human commit/push/PR remains pending; see `docs/implementation/P00.md` and `tools/checks/README.md`. Connection modules excluded by user scope remain unchanged.
 - Modules over the size guideline: `schema.py`, `validate.py`, `retrieval/store.py`.
 - Fine-tuning an open model (after Phase 7, optional).
 

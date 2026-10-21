@@ -1,8 +1,7 @@
 """Tests for nl2sql/execute.py.
 
-The row-limit and unit tests need no database. The test_real_* tests
-run against the real database (bank or Pagila) as nl2sql_reader and are
-skipped when DATABASE_URL is not set.
+The row-limit and unit tests need no database. The test_real_* tests run
+against disposable fixtures as nl2sql_reader; ordinary DATABASE_URL is ignored.
 """
 
 import psycopg
@@ -26,8 +25,16 @@ def limited(sql: str, dialect: str = "postgres", max_rows: int = 1000) -> str:
     ("dialect", "sql", "expected"),
     [
         ("postgres", "SELECT title FROM film", "SELECT title FROM film LIMIT 1000"),
-        ("postgres", "SELECT title FROM film LIMIT 5", "SELECT title FROM film LIMIT 5"),
-        ("postgres", "SELECT title FROM film LIMIT 5000", "SELECT title FROM film LIMIT 1000"),
+        (
+            "postgres",
+            "SELECT title FROM film LIMIT 5",
+            "SELECT title FROM film LIMIT 5",
+        ),
+        (
+            "postgres",
+            "SELECT title FROM film LIMIT 5000",
+            "SELECT title FROM film LIMIT 1000",
+        ),
         (
             "postgres",
             "SELECT title FROM film ORDER BY title LIMIT 5000",
@@ -50,10 +57,22 @@ def limited(sql: str, dialect: str = "postgres", max_rows: int = 1000) -> str:
             "SELECT title FROM film FETCH FIRST 5000 ROWS ONLY",
             "SELECT title FROM film LIMIT 1000",
         ),
-        ("postgres", "SELECT title FROM film FETCH FIRST 3 ROWS ONLY", "SELECT title FROM film LIMIT 3"),
-        ("postgres", "SELECT title FROM film LIMIT ALL", "SELECT title FROM film LIMIT 1000"),
+        (
+            "postgres",
+            "SELECT title FROM film FETCH FIRST 3 ROWS ONLY",
+            "SELECT title FROM film LIMIT 3",
+        ),
+        (
+            "postgres",
+            "SELECT title FROM film LIMIT ALL",
+            "SELECT title FROM film LIMIT 1000",
+        ),
         # MySQL's "LIMIT offset, count" keeps its meaning.
-        ("mysql", "SELECT title FROM film LIMIT 10, 5", "SELECT title FROM film LIMIT 5 OFFSET 10"),
+        (
+            "mysql",
+            "SELECT title FROM film LIMIT 10, 5",
+            "SELECT title FROM film LIMIT 5 OFFSET 10",
+        ),
     ],
 )
 def test_row_limit(dialect: str, sql: str, expected: str) -> None:
@@ -61,7 +80,10 @@ def test_row_limit(dialect: str, sql: str, expected: str) -> None:
 
 
 def test_custom_max_rows() -> None:
-    assert limited("SELECT title FROM film", max_rows=50) == "SELECT title FROM film LIMIT 50"
+    assert (
+        limited("SELECT title FROM film", max_rows=50)
+        == "SELECT title FROM film LIMIT 50"
+    )
 
 
 def test_default_max_rows_is_used() -> None:
@@ -121,7 +143,9 @@ def use_fake(monkeypatch: pytest.MonkeyPatch, conn: FakeConnection) -> None:
 SETTINGS = Settings(database_url="postgresql://u:p@db.example.test/tsdb")
 
 
-def test_asks_for_one_extra_row_and_reports_columns(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_asks_for_one_extra_row_and_reports_columns(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     conn = FakeConnection(columns=["title"], rows=[("A",), ("B",)])
     use_fake(monkeypatch, conn)
 
@@ -138,14 +162,20 @@ def test_extra_row_means_truncated(monkeypatch: pytest.MonkeyPatch) -> None:
     conn = FakeConnection(columns=["n"], rows=[(i,) for i in range(4)])
     use_fake(monkeypatch, conn)
 
-    result = execute(validate_sql("SELECT film_id AS n FROM film"), SETTINGS, max_rows=3)
+    result = execute(
+        validate_sql("SELECT film_id AS n FROM film"), SETTINGS, max_rows=3
+    )
 
     assert result.rows == [(0,), (1,), (2,)]
     assert result.truncated is True
 
 
-def test_database_rejection_becomes_query_error(monkeypatch: pytest.MonkeyPatch) -> None:
-    error = psycopg.errors.UndefinedColumn('column "nope" does not exist\nLINE 1: SELECT nope ...')
+def test_database_rejection_becomes_query_error(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    error = psycopg.errors.UndefinedColumn(
+        'column "nope" does not exist\nLINE 1: SELECT nope ...'
+    )
     use_fake(monkeypatch, FakeConnection(error=error))
 
     with pytest.raises(QueryError, match='column "nope" does not exist') as info:
@@ -186,14 +216,18 @@ def test_real_query_returns_rows(live_database: str) -> None:
 
 def test_real_truncation(live_database: str) -> None:
     table, key = TABLE[live_database]
-    result = execute(validate_sql(f"SELECT {key} FROM {table} ORDER BY {key}"), REAL, max_rows=10)
+    result = execute(
+        validate_sql(f"SELECT {key} FROM {table} ORDER BY {key}"), REAL, max_rows=10
+    )
     assert len(result.rows) == 10
     assert result.truncated is True
 
 
 def test_real_smaller_limit_is_kept(live_database: str) -> None:
     table, key = TABLE[live_database]
-    result = execute(validate_sql(f"SELECT {key} FROM {table} LIMIT 5"), REAL, max_rows=10)
+    result = execute(
+        validate_sql(f"SELECT {key} FROM {table} LIMIT 5"), REAL, max_rows=10
+    )
     assert len(result.rows) == 5
     assert result.truncated is False
 
@@ -205,8 +239,10 @@ def test_real_unknown_column_is_a_query_error(live_database: str) -> None:
 
 
 def test_real_statement_timeout_is_a_query_error(live_database: str) -> None:
-    """A query that runs past the role's 10 second limit is cancelled.
-    Takes about 10 seconds."""
+    """The fixture role cancels an expensive query after 100 ms.
+
+    This checks error propagation without spending the production 10 seconds.
+    """
     table, _ = TABLE[live_database]
     joined = " CROSS JOIN ".join(f"{table} {alias}" for alias in "abcd")
     with pytest.raises(QueryError, match="statement timeout"):
