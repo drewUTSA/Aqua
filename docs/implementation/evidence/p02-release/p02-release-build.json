@@ -1,0 +1,24 @@
+{
+  "purpose": "aqua_p02_release",
+  "action": "build",
+  "status": "built_not_deployed",
+  "images": {
+    "backend": "sha256:71ff1e332cca32e441bc4f6f4f1b2b44a25b73d4be5cc5c653697aba35e3d6f3",
+    "frontend": "sha256:ac73aed548459eab3fb278926d46200311d829b0be6ebccd4da44deba79b2ed5"
+  },
+  "rollback": {
+    "backend": {
+      "id": "315f22efab99c969150adf89afa83ef3ef070f9e5eeaf29c5a59ca3f647a7da3",
+      "image": "sha256:9069a33c2bb0588308d49371e38f872fb9d95a540208622c3f127203d28e4d1d",
+      "running": true,
+      "health": "healthy"
+    },
+    "frontend": {
+      "id": "2b7eec51cf15babc09088780ab7b2eb6e8d7a8a565bc4bdb9125797f3eb1f0a0",
+      "image": "sha256:982f1b5b43cd24026b01a92532548fde025d68dc3a59e423342ac7811b003292",
+      "running": true,
+      "health": "healthy"
+    }
+  },
+  "temporary_context_removed": true
+}

@@ -1,10 +1,7 @@
 """Verify browser-bound login challenges and rejected Google identities."""
 
-from time import time
-
 import pytest
 from google.auth.exceptions import GoogleAuthError, TransportError
-from itsdangerous import TimestampSigner
 
 from auth import router
 from _auth_test_helpers import CLIENT_ID, challenge, headers
@@ -113,11 +110,13 @@ def test_login_challenge_cannot_be_reused(browser) -> None:
         assert response.status_code == expected
 
 
-def test_expired_login_challenge_never_verifies_google(browser, monkeypatch) -> None:
+def test_expired_login_challenge_never_verifies_google(browser, storage) -> None:
     client, _, verified = browser
     data = challenge(browser)
-    expired_at = int(time()) + 602
-    monkeypatch.setattr(TimestampSigner, "get_timestamp", lambda self: expired_at)
+    with storage.transaction() as conn:
+        conn.execute(
+            "UPDATE app.auth_challenges SET created_at=now()-interval '20 minutes', expires_at=now()-interval '1 second'"
+        )
     response = client.post(
         "/api/auth/google",
         json={"credential": "token"},

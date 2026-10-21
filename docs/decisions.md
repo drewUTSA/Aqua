@@ -292,3 +292,31 @@ and CI. Dependency upgrades need explicit lock refresh and regression checks.
 Keep readiness internal because it acquires a DB lease. Backups use the restricted
 role and preserve ACLs; recovery fences restored sessions/challenges. Synthetic
 recovery does not establish production RPO/RTO or complete future auth behavior.
+
+### P03: durable identity, revocation and bounded authentication work
+
+Resolve verified Google issuer/subject to a canonical UUID; never infer account
+linking from an email match. Keep only opaque token/challenge digests in storage,
+reject legacy signed cookies, and check current account status/epoch/session and
+dataset grant on protected operations. Fresh verifier evidence may seed only an
+absent explicit legacy approval, with provenance. Revoked grants are tombstones;
+re-login cannot silently restore them. Atomic default preferences are empty,
+versioned account-owned defaults, not an implemented Settings API.
+
+Commit one-use challenge consumption and peer/global callback admission before
+external verification; never hold a database lease while waiting on Google.
+Commit canonical-account admission separately from session-cap rejection so
+failures/cookie churn cannot reset budgets. Serialize small auth bookkeeping,
+bound key cardinality and cleanup, and refuse admission on storage failure. A
+covering owner/epoch/idle-expiry index avoids scanning expired history at the
+session cap; a 5000-row EXPLAIN/buffer regression verifies the intended range.
+These are bounded algorithms, not demonstrated production capacity; P07/P12
+remain responsible for AI job ceilings and mixed-load measurements.
+
+The frontend adopts canonical user.id and explicit capabilities while preserving
+its facade. Logout clears cookies/state only after durable revocation commits;
+failed/logout-pending state stays hidden/inert with retry. Malformed request
+validation uses a fixed 422 detail to prevent reflected credentials. Safe auth
+events contain only fixed action/reason categories. See implementation/P03.md
+for paired red findings/fixes/retests and the explicit maintenance/forward-fix
+cutover; never restore unrevocable authentication as a fallback.

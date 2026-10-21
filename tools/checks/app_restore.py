@@ -50,7 +50,7 @@ INSERT INTO app.sessions(user_id,token_digest,csrf_digest,auth_epoch,method,idle
     )
     # Earlier fixture tests may leave synthetic rows. Compare the full counts
     # rather than assuming their order left the database empty.
-    count_sql = b"SELECT count(*) FROM app.users; SELECT count(*) FROM app.sessions; SELECT version FROM app.schema_migrations; SELECT has_table_privilege('aqua_app_runtime','app.users','INSERT'),has_table_privilege('aqua_app_runtime','app.schema_migrations','UPDATE');"
+    count_sql = b"SELECT count(*) FROM app.users; SELECT count(*) FROM app.sessions; SELECT version FROM app.schema_migrations ORDER BY version; SELECT has_table_privilege('aqua_app_runtime','app.users','INSERT'),has_table_privilege('aqua_app_runtime','app.schema_migrations','UPDATE');"
     expected = sql("aqua_app", count_sql).decode().splitlines()
     sql(
         "postgres",
@@ -78,7 +78,7 @@ INSERT INTO app.sessions(user_id,token_digest,csrf_digest,auth_epoch,method,idle
         .decode()
         .splitlines()
     )
-    assert observed == expected and observed[2:] == ["1", "t|f"], observed
+    assert observed == expected and observed[2:] == ["1", "2", "t|f"], observed
     denied = False
     try:
         sql("aqua_restore", b"SET ROLE aqua_app_backup; DELETE FROM app.users;")

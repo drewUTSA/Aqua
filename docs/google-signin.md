@@ -1,79 +1,168 @@
-# Google sign-in for Aqua
+# Google sign-in and durable AQUA sessions
 
-The frontend uses Google's supported sign-in button, restores Aqua sessions on reload, and sends approved users' questions to the backend. The backend verifies the Google Identity Services (GIS) ID token and creates an Aqua session in a signed cookie. It does not store accounts or sessions in a database.
+P03 replaces signed profile cookies with opaque, revocable application sessions
+in the private application database. Google establishes an external identity;
+AQUA assigns a canonical internal UUID and checks current account, session and
+dataset authorization on protected requests. Email equality never links accounts.
 
-## Server configuration
+**Deployment state:** P02 is live at `5ac90fcca45a6a74bab5d6f792388c05804d87a2`
+with storage enabled and schema 1. This P03 source requires schema **2**; its
+migration and authentication cutover remain separate reviewed release actions.
+Follow [P03 identity cutover](ops/P03_IDENTITY_CUTOVER.md) before starting P03
+images. Password login, registration and account-linking UI are later phases.
 
-Set these values in the server's private environment using `.env.example` as the reference:
+## Configuration
 
-Keep the actual `/srv/bank-ai/.env` on the server. Commit and pull application code and the blank `.env.example` template only; do not copy the template over an existing server `.env`.
+Keep the actual `/srv/bank-ai/.env` and private storage credentials on the server.
+Pull reviewed source and the blank template; never replace an existing private
+environment with `.env.example`.
 
-| Variable | Value |
+| Variable | Purpose |
 |---|---|
-| `GOOGLE_CLIENT_ID` | The Google OAuth **Web application** client ID |
-| `SESSION_SECRET` | A randomly generated secret of at least 32 characters, shared by all backend instances |
-| `APP_ORIGIN` | `https://aqua-ai.us`, or the exact origin users actually visit |
-| `SESSION_MAX_AGE_SECONDS` | Default `3600`; allowed range `300` to `86400` |
-| `AUTH_ALLOWED_EMAILS` | Comma-separated approved emails; verified Gmail or Google Workspace accounts only |
-| `AUTH_ALLOWED_GOOGLE_SUBS` | Comma-separated approved Google account `sub` identifiers |
+| `GOOGLE_CLIENT_ID` | Google OAuth Web application client ID; public, not a secret |
+| `SESSION_SECRET` | At least 32 random characters, shared by backend instances; binds nonce/CSRF values |
+| `APP_ORIGIN` | Exact browser origin, normally `https://aqua-ai.us` |
+| `SESSION_MAX_AGE_SECONDS` | Absolute session lifetime: default 3600, supported 300–86400 |
+| `AUTH_IDLE_SECONDS` | Idle lifetime: default 1800, supported 60–3600, capped by absolute expiry |
+| `AUTH_MAX_SESSIONS` | Active sessions per account: default 5, supported 1–20 |
+| `AUTH_ALLOWED_EMAILS` | Explicit approved verified Gmail/Google Workspace emails |
+| `AUTH_ALLOWED_GOOGLE_SUBS` | Explicit approved Google subject identifiers |
+| `APP_STORAGE_ENABLED` | Must be true for P03 authentication |
+| `APP_DATABASE_URL` | Dedicated runtime-role socket DSN, supplied by the private storage overlay |
 
-Generate a secret locally with `python -c "import secrets; print(secrets.token_urlsafe(48))"`, then store it privately on the server. It must never appear in frontend variables, source control, or chat. The client ID is public; it is not the session secret. Blank allowlists let people sign in but deny all queries. A Google account using a third-party email address without a verified Google Workspace identity must be approved by `sub`, not email.
+See [private storage operations](../ops/appdb/README.md) for credentials, pool
+budgets and socket attachment. Do not use analytical `DATABASE_URL` as an
+application-storage fallback. It continues to select the existing read-only
+analytical dataset; P03 does not onboard customer databases or change its roles.
 
-Missing Google client ID or session secret makes auth and queries return 503; `/api/health` remains available. `DATABASE_URL` still supplies the existing read-only database connection. Approval grants access to that single configured database; it does not select or onboard a customer's database.
+Storage/signing failures make protected authentication fail closed with fixed
+503 responses. Missing Google configuration prevents a new Google login but
+does not disable an existing valid durable session's `/me` or logout operations.
+Liveness remains independent of these dependencies.
 
-For development, set `APP_ORIGIN=http://localhost:5173` and use that exact address in the browser. HTTP is accepted only for loopback origins. Production sessions use `Secure`, `HttpOnly`, `SameSite=Lax`, host-only cookies with an expiry; local HTTP omits `Secure`. Cookies are signed, not encrypted. No database credentials or Google ID tokens are stored in them.
+For local browser work, use `APP_ORIGIN=http://localhost:5173` and that exact
+origin. HTTP is accepted only for supported loopback origins. Production cookies
+are host-bound `__Host-` cookies with Secure, HttpOnly, Path=/ and SameSite=Lax;
+development HTTP omits Secure. Cookie values contain random `v2.` tokens, not
+profile claims, database credentials or Google JWTs. The database stores token
+digests, not reusable plaintext session/challenge tokens.
 
-## Google Cloud setup
+## Google Cloud and production routing
 
-Select the OAuth **Web application** client. Add `https://aqua-ai.us` to **Authorized JavaScript origins**. If using localhost, add `http://localhost` and `http://localhost:5173`. Configure Aqua branding, support email, homepage, privacy policy, and authorized domain. Sign-in uses basic identity information; no Google data API permissions are needed. This JavaScript callback flow needs neither an authorized redirect URI nor a Google client secret. See [Google's setup guide](https://developers.google.com/identity/gsi/web/guides/get-google-api-clientid).
+Use an OAuth Web application client. Add `https://aqua-ai.us` to Authorized
+JavaScript origins; add the actual localhost origins only for development.
+Configure branding, support contact, homepage, privacy/terms URLs and the
+authorized domain. The GIS JavaScript callback uses basic identity scopes,
+without a Google client secret or redirect/form-post endpoint.
+See [Google's GIS setup reference](https://developers.google.com/identity/gsi/web/guides/get-google-api-clientid).
 
-Use one canonical production origin. If `www.aqua-ai.us` redirects to `aqua-ai.us`, the login page and API should both use the latter. The backend accepts only the configured `APP_ORIGIN`; adding another Google JavaScript origin does not change Aqua's origin checks.
+Use one canonical browser origin. Adding another Google origin does not change
+AQUA's exact Origin/CSRF checks. Keep the public policy pages consistent with
+the application's actual behavior.
 
-The frontend now includes public policy pages, linked from sign-in. After deploying and reviewing the text, enter `https://aqua-ai.us/privacy` and `https://aqua-ai.us/terms` in Google Auth Platform branding. They use AQUA as the service name and Benjamin / `Spear.g.benjamin@gmail.com` as the owner-supplied contact. These are starting documents based on the current code, not a legal compliance certification. Before publishing, confirm the privacy text matches the actual model server, Cloudflare and provider settings, and any operational retention practices. Update the documents when those practices change.
+Production serves a built React site through nginx on `127.0.0.1:5173`.
+Both public hostnames enter that nginx origin through Cloudflare Tunnel; nginx
+forwards `/api/*` to the backend on `127.0.0.1:8000`. Vite is for development.
+Preserve cookies, Set-Cookie, Origin and X-CSRF-Token, and bypass shared caching
+for private APIs. Do not route the API hostname directly around nginx.
+Only public static assets may use the CDN cache.
 
-## Frontend integration
+Nginx keeps readiness private and applies separate socket-peer budgets to
+questions, Google callbacks and challenge bootstrap. Forwarding headers cannot
+create fresh quotas. Behind the current local tunnel these are conservative
+aggregate budgets, not verified per-visitor IP limits. P03 also uses durable
+peer/global/account auth counters shared across workers; P07 adds the wider
+analysis/global admission lifecycle.
 
-The integration lives in `frontend/src/hooks/useGoogleAuth.js`, `frontend/src/services/authClient.js`, and `frontend/src/services/googleIdentity.js`. `frontend/src/pages/SignInPage.jsx` provides the dedicated `/signin` page with Aqua's existing background, sparkles, centered logo, and official Google button. Approved users enter the workspace at `/`; unapproved users stay on the sign-in page with account details and sign-out/access-check actions. Session loss or logout returns to `/signin` and clears private workspace state. Live API requests are the default; `VITE_AQUA_DEMO_MODE=true` explicitly enables fictional sample data and bypasses live auth and queries for local demonstrations. Do not enable demo mode for the production build.
+## Browser contract
 
-Use relative `/api/...` URLs on the same origin. Set `credentials: "same-origin"` and `cache: "no-store"` for auth requests. Keep tokens in memory, not local storage.
+The integration is in `useGoogleAuth.js`, `authClient.js` and
+`googleIdentity.js`. Use relative same-origin API URLs, credentials
+`same-origin` and cache `no-store`. Keep returned CSRF/profile state in memory;
+never persist Google credentials or session tokens in browser storage.
 
-1. Fetch `GET /api/auth/config`. It returns `{client_id, nonce, csrf_token}` and sets a signed HttpOnly login challenge cookie valid for ten minutes.
-2. Load Google's supported script, `https://accounts.google.com/gsi/client`. Initialize `google.accounts.id` with the returned `client_id`, returned `nonce`, and a JavaScript `callback`; render the Google sign-in button. Do not use GIS's redirect/form-post mode for this endpoint. See [Google's JavaScript reference](https://developers.google.com/identity/gsi/web/reference/js-reference).
-3. In the callback, send the returned `credential` to `POST /api/auth/google`. Use `Content-Type: application/json`, `X-CSRF-Token` from config, and body `{"credential": credential}`. The browser supplies `Origin`; JavaScript should not try to set it. The backend checks the challenge, CSRF token, origin, Google signature, audience, issuer, expiry, and nonce before creating the session.
-4. Store `{user: {sub, email, name, picture}, csrf_token, can_query}` from the successful response in memory. The session cookie stays HttpOnly. `can_query: false` means the user has signed in but has not been approved to access the configured database.
-5. On reload, fetch `GET /api/auth/me`. A valid session returns the same identity/access/CSRF fields; 401 means show sign-in again. Fetch a new config challenge before a new login attempt.
-6. For `POST /api/query`, send the session `X-CSRF-Token` and JSON `{"question": prompt}`. `frontend/src/services/aquaClient.js` maps the composer's prompt to this API field. Session, origin, CSRF, and account approval are checked before database/model work.
-7. For logout, send `POST /api/auth/logout` with the session `X-CSRF-Token`. On 204, clear frontend user state and any private in-memory results. Google `disableAutoSelect()` can prevent immediately signing the same user back in. Logout does not revoke the user's Google account permissions.
+1. Fetch `GET /api/auth/config`. It returns `client_id`, `nonce`,
+   `csrf_token` and boolean `capabilities`, and sets an opaque HttpOnly login
+   challenge cookie. The durable challenge expires after 600 seconds.
+2. Initialize GIS using that client ID and nonce, render its official button,
+   and receive the ID token through the JavaScript callback.
+3. POST `{"credential": credential}` to `/api/auth/google` with JSON content
+   type and the config X-CSRF-Token. The browser supplies Origin. AQUA checks
+   the browser binding, atomically consumes the challenge and commits callback
+   admission before contacting Google. No DB transaction remains open during
+   token verification.
+4. Verification checks signature, audience, issuer, lifetime and nonce. A new
+   opaque session and session-bound CSRF value are issued only after canonical
+   identity, current account state, account budget and atomic session-cap checks.
+   Every failed callback needs a fresh config/challenge/nonce before retry.
+5. Success and `GET /api/auth/me` return
+   `{user: {id, email, name, picture}, csrf_token, can_query, capabilities}`.
+   `user.id` is the internal UUID used for frontend account state; Google
+   issuer/subject is an external mapping. Capabilities currently report
+   `durable_sessions: true`, Google availability and `password_login: false`.
+6. For `POST /api/query`, send the session X-CSRF-Token and
+   `{"question": prompt}`. Current session/account/epoch/grant checks precede
+   schema, cache and model work. Query execution, retrieval and cache identity
+   use the same server-configured dataset and provider context.
+7. POST `/api/auth/logout` with the session X-CSRF-Token. AQUA commits durable
+   revocation before returning 204 and deleting cookies. Then clear frontend
+   private state and disable Google auto-selection. A copied cookie now fails.
+   This does not revoke the user's Google account authorization.
 
-Handle 401 for invalid login credentials or sessions by returning to sign-in, 403 by showing access or CSRF failure, and 503 by showing a configuration or Google verification availability error. Avoid retrying a query automatically after a session failure. Auth responses use `Cache-Control: no-store`.
+If logout returns 503, revocation was not confirmed: keep account state/drafts,
+lock the workspace and offer an explicit retry. Do not report successful logout
+or silently resume queries. After confirmed logout or an invalid session, clear
+the prior account's visible private state. Delayed responses from an older
+account/logout attempt must not restore it.
 
-Google `sub` is the stable account identifier. Email-based approval follows Google's distinction between Gmail/Workspace and third-party email accounts; see [Google's token verification guide](https://developers.google.com/identity/gsi/web/guides/verify-google-id-token). Token verification uses Google's public signing keys, so the backend needs outbound HTTPS access to fetch them.
+| Status | Browser meaning |
+|---|---|
+| 401 | Invalid login proof/session; obtain a fresh sign-in attempt |
+| 403 | Origin/CSRF/challenge or dataset-access denial; show the appropriate action |
+| 422 | Invalid request; fixed diagnostic without reflected credential/prompt input |
+| 429 | Auth budget/session cap reached; respect Retry-After |
+| 503 | Storage/configuration/provider/revocation unavailable; preserve accurate state |
 
-## Cloudflare and deployment
+Auth/private API responses use Cache-Control: no-store. Do not automatically
+replay a private query after an authentication failure. Explicit local
+`VITE_AQUA_DEMO_MODE=true` uses fictional data without live auth/query calls;
+leave it disabled in production.
 
-The repository describes an Ubuntu Docker backend on port 8000 and a Vite proxy on port 5173. The user confirmed Cloudflare Tunnel hosting; tunnel routing configuration is managed separately and is not present in this checkout.
+## Authorization, expiry and limits
 
-The site uses a Cloudflare Tunnel to the server. Route the public origin's `/api/*` requests to this Python backend, including auth and query routes. Preserve cookies, `Set-Cookie`, `Origin`, and `X-CSRF-Token`; bypass caching for `/api/*`. Keep public HTTPS enabled and trust forwarded headers only from the known reverse proxy. Use `APP_ORIGIN` as the canonical public browser origin regardless of internal HTTP transport. Serve the frontend's `index.html` for direct `/signin`, `/privacy`, and `/terms` visits. A production static frontend must have an equivalent `/api` route; Vite's development proxy is not part of a static build. All backend instances need the same session secret and access configuration.
+An authenticated account without a dataset grant receives `can_query: false`;
+it is not an authentication failure. Fresh verified identities may preserve an
+existing explicit subject approval, or authoritative Gmail/Workspace email
+approval, with recorded provenance. Third-party Google emails require explicit
+subject approval. There is no grant for arbitrary registration, no account
+creation from allowlist strings and no linking by matching email. A revoked grant
+is never recreated by logging in again. Current allowlists and durable grant
+state/version are checked on protected operations.
 
-If the frontend has a Content Security Policy or popup restrictions, apply [Google's GIS setup requirements](https://developers.google.com/identity/gsi/web/guides/get-google-api-clientid). The frontend container currently starts Vite's dev server; the project guide calls for a production build before public deployment.
+Defaults allow five active sessions per account, 1800 seconds idle and 3600
+seconds absolute lifetime. Accepted state-changing activity can extend idle
+expiry within absolute expiry; `/me` polling does not. Concurrent logins share
+one atomic account cap. Logout, revocation, disablement and auth-epoch changes
+invalidate subsequent use of copied cookies. Changing the signing secret
+invalidates existing browser bindings; treat rotation as an explicit
+reauthentication event.
 
-Verify a real login, reload, approved query, denied query, and logout through the final HTTPS origin after deployment configuration. Automated tests mock Google verification and the model; they do not prove the Google client registration or Cloudflare routing works.
+P03 stores only owned default preferences; customization remains P09. Password
+recovery, linking and session-management screens remain later implementations.
+These controls do not claim that session counts alone prevent all server
+overload.
 
-### Deployment checks
+## Release verification
 
-After a human commits these changes and merges them into the server's branch, run on Ubuntu:
+Use [the cutover procedure](ops/P03_IDENTITY_CUTOVER.md) for the reviewed merge,
+exact images, explicit schema-2 migration, storage overlay, internal readiness
+and safe failure handling. Web startup never migrates. Public readiness probes
+must stay denied. A healthy `/api/health` alone does not prove authentication
+readiness.
 
-```bash
-cd /srv/bank-ai
-git pull --ff-only
-test -f backend/auth/router.py
-docker compose up -d --build --force-recreate backend frontend
-curl -s -o /dev/null -w '%{http_code}\n' https://aqua-ai.us/api/auth/config
-curl -s -o /dev/null -w '%{http_code}\n' https://aqua-ai.us/api/auth/me
-```
-
-With the private environment configured, expect `200` for config and `401` for an unauthenticated session check. `404` means the new backend route has not reached the public site; `503` means missing auth settings or an unavailable service. A healthy `/api/health` alone does not establish auth readiness. Confirm the running deployment's frontend image/proxy before rebuilding: the reported server uses Nginx, while this checkout's frontend Dockerfile still starts Vite. Preserve the production static-serving setup and `/api` proxy when reconciling branches.
-
-## Session limits
-
-Sessions have a fixed expiry after the configured lifetime; reading the session or sending queries does not extend it. Logout clears this browser's cookie; a copied cookie remains valid until expiry. Rotating `SESSION_SECRET` invalidates all existing sessions. Access approval is checked against current server configuration on each query; updating environment allowlists requires restarting the affected instances. Signed cookies do not provide durable per-session revocation or multi-customer database isolation.
+Automated fixtures use fake Google verification/models and isolated PostgreSQL;
+replay, rate/concurrency and failure exercises stay there. A real Google login
+or authenticated analytical query requires its separately scoped operator
+check. Do not infer live provider registration, email delivery or off-server
+restore success from synthetic tests. Never restore legacy signed-cookie
+acceptance as a P03 rollback.

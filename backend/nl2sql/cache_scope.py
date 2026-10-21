@@ -32,13 +32,22 @@ def digest(value: object) -> str:
     return hashlib.sha256(raw.encode("utf-8")).hexdigest()
 
 
-def request_scope(subject: str, settings: Settings, schema_text: str) -> CacheScope:
-    """Legacy single-dataset scope; canonical account/grant revisions arrive P03."""
+def request_scope(
+    user_id: str,
+    settings: Settings,
+    schema_text: str,
+    *,
+    grant_version: int = 0,
+    auth_epoch: int = 0,
+) -> CacheScope:
+    """Current canonical identity and durable grant revisions partition results."""
     return CacheScope(
-        principal="google:" + subject,
+        principal="account:" + user_id,
         dataset=digest(settings.database_url),
         authorization_revision=digest(
             [
+                grant_version,
+                auth_epoch,
                 sorted(settings.auth_allowed_google_subs),
                 sorted(settings.auth_allowed_emails),
             ]

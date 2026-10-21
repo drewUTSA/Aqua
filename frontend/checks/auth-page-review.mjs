@@ -25,7 +25,7 @@ function installFixtures() {
   window.__reviewDocumentId = crypto.randomUUID();
   const nativeFetch = window.fetch.bind(window);
   const state = window.__authReview = { calls: [], access: true, challengeCount: 0, failure: document.cookie.match(/review_failure=([^;]*)/)?.[1] || "" };
-  const user = { sub: "review-user", email: "review@gmail.com", name: "Review Reader", picture: "" };
+  const user = state.user = { id: "7506fb3d-1119-4b29-8c57-5ea696a739a1", sub: "review-user", email: "review@gmail.com", name: "Review Reader", picture: "" };
   const signedIn = () => document.cookie.includes("review_session=1");
   const session = () => ({ user, csrf_token: "review-session-csrf", can_query: state.access });
   const json = (body, status = 200) => new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
@@ -46,6 +46,7 @@ function installFixtures() {
     if (state.failure === "api503") return json({ detail: "Private review diagnostic" }, 503);
     if (url.pathname === "/api/auth/me") return signedIn() ? json(session()) : json({}, 401);
     if (url.pathname === "/api/auth/config") {
+      if (state.failConfig) return json({ detail: "Private config diagnostic" }, 503);
       state.nonce = `review-nonce-${++state.challengeCount}`;
       state.loginCsrf = `review-login-csrf-${state.challengeCount}`;
       return json({ client_id: "review.apps.googleusercontent.com", csrf_token: state.loginCsrf, ...(state.failure === "missing-config" ? {} : { nonce: state.nonce }) });
@@ -56,9 +57,16 @@ function installFixtures() {
       const finish = () => { document.cookie = "review_session=1;path=/"; return json(session()); };
       return state.pauseLogin ? deferred(options, "Login", finish) : finish();
     }
-    if (url.pathname === "/api/auth/logout") { clearSession(); return new Response(null, { status: 204 }); }
+    if (url.pathname === "/api/auth/logout") {
+      const finish = () => {
+        if (state.logoutStatus && state.logoutStatus !== 204) return json({ detail: "Private logout diagnostic" }, state.logoutStatus);
+        clearSession(); return new Response(null, { status: 204 });
+      };
+      return state.pauseLogout ? deferred(options, "Logout", finish) : finish();
+    }
     if (url.pathname === "/api/query") {
       if (state.queryStatus === 401) { clearSession(); return json({}, 401); }
+      if (state.queryStatus === 403) return json({}, 403);
       if (!signedIn() || !state.access) return json({}, 403);
       const finish = () => json({ status: "success", sql: "SELECT 1 LIMIT 1000", message: "Private review result", tables: [], visualizations: [], kpis: [], error: null });
       return state.pauseQuery ? deferred(options, "Query", finish) : finish();
@@ -225,9 +233,29 @@ try {
   await evaluate("__authReview.pauseQuery = true");
   await send("Pending private query");
   await waitFor("Boolean(__authReview.releaseQuery)");
+  await evaluate(`(() => {
+    const input = document.querySelector('textarea');
+    Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value').set.call(input, 'Keep my private draft until sign-out is confirmed');
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    window.__retainedWorkspace = document.querySelector('.app-shell');
+    __authReview.pauseLogout = true; __authReview.logoutStatus = 503;
+  })()`);
   await click("Sign out");
+  await waitFor("document.querySelector('[data-auth-state=signingout]') && __authReview.releaseLogout");
+  check("pending logout keeps the same private workspace and draft locked without aborting its query", await evaluate("__retainedWorkspace.isConnected && __retainedWorkspace.inert && __retainedWorkspace.hidden && __retainedWorkspace.querySelector('textarea').value.includes('Keep my private draft') && !__authReview.queryAborted"));
+  await evaluate("__authReview.releaseLogout()");
+  await waitFor("document.querySelector('[data-auth-state=logoutfailed]') && document.querySelector('[data-testid=signout-retry]')");
+  check("failed logout retains locked draft and results and offers an explicit retry", await evaluate("__retainedWorkspace.isConnected && __retainedWorkspace.querySelector('textarea').disabled && __retainedWorkspace.querySelector('textarea').value.includes('Keep my private draft') && __retainedWorkspace.textContent.includes('Private review result') && !document.body.innerText.includes('Private logout diagnostic')"));
+  const queryCount = await evaluate("__authReview.calls.filter((call) => call.path === '/api/query').length");
+  await evaluate("__retainedWorkspace.querySelector('textarea').form.requestSubmit()");
+  await sleep(100);
+  check("a programmatic submit cannot query through failed-logout lock", await evaluate(`__authReview.calls.filter((call) => call.path === '/api/query').length === ${queryCount}`));
+  await evaluate("__authReview.logoutStatus = 204");
+  await click("Try signing out again");
+  await waitFor("document.querySelector('[data-auth-state=signingout]')");
+  await evaluate("__authReview.releaseLogout(); __authReview.pauseLogout = false");
   await signedOut();
-  check("logout aborts private queries and clears results", await evaluate("__authReview.queryAborted && !document.body.innerText.includes('Private review result') && !document.body.innerText.includes('Pending private query') && __authReview.autoSelectDisabled"));
+  check("confirmed logout aborts private queries and clears results and drafts", await evaluate("!__retainedWorkspace.isConnected && __authReview.queryAborted && !document.body.innerText.includes('Private review result') && !document.body.innerText.includes('Pending private query') && __authReview.autoSelectDisabled"));
   await evaluate("__authReview.releaseQuery(); __authReview.pauseQuery = false; __authReview.access = false");
   await click("Continue with Google");
   await waitFor("document.querySelector('[data-auth-state=pending-access]')");
@@ -241,10 +269,28 @@ try {
   await evaluate("__authReview.access = true");
   await click("Check access again");
   await workspace();
+  await send("Private state for canonical account A");
+  await waitFor("document.body.innerText.includes('Private review result')");
+  await evaluate("window.__accountAWorkspace = document.querySelector('.app-shell'); __authReview.pauseQuery = true; __authReview.queryAborted = false");
+  await send("Pending canonical account A query");
+  await waitFor("Boolean(__authReview.releaseQuery) && document.querySelector('.send-stop-icon')");
+  await evaluate("window.__accountAQuery = __authReview.releaseQuery");
+  await click("Ask a Question");
+  await evaluate("__authReview.user.id = '4e64dbca-c1f2-41d4-9467-42e66de0e6e2'; __authReview.queryStatus = 403");
+  await send("Check new canonical identity");
+  await waitFor("!__accountAWorkspace.isConnected && document.querySelector('.app-shell textarea:not(:disabled)')");
+  check("canonical account changes clear and abort private state even when Google subject stays the same", await evaluate("__authReview.user.sub === 'review-user' && __authReview.queryAborted && !document.body.innerText.includes('Private state for canonical account A') && !document.body.innerText.includes('Pending canonical account A query')"));
+  await evaluate("__accountAQuery(); __authReview.queryStatus = 0; __authReview.pauseQuery = false");
+  await sleep(100);
+  check("late old-account results never enter the replacement workspace", await evaluate("!document.body.innerText.includes('Private review result')"));
   await send("Private state before expiry");
   await waitFor("document.body.innerText.includes('Private review result')");
-  await evaluate("__authReview.queryStatus = 401");
+  await evaluate("__authReview.queryStatus = 401; __authReview.failConfig = true");
   await send("Expired session query");
+  await waitFor("document.querySelector('[data-auth-state=unavailable]') && !document.querySelector('.app-shell')");
+  check("confirmed session 401 clears private state even if the next login challenge is unavailable", await evaluate("!document.querySelector('textarea') && !document.body.innerText.includes('Private review result') && !document.body.innerText.includes('Private config diagnostic')"));
+  await evaluate("__authReview.failConfig = false");
+  await click("Try again");
   await signedOut();
   check("query 401 removes all private workspace state", await evaluate("!document.body.innerText.includes('Private review result') && !document.body.innerText.includes('Expired session query')"));
   for (const failure of ["missing-config", "api503"]) {

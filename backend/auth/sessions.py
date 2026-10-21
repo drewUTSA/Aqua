@@ -1,9 +1,12 @@
-"""Sign short-lived cookies without keeping a server-side account database."""
+"""Opaque v2 cookies; database digests and server-bound CSRF replace signed claims."""
 
-from typing import Any
+import base64
+import hashlib
+import hmac
+import re
+import secrets
 
 from fastapi import Response
-from itsdangerous import BadData, URLSafeTimedSerializer
 
 from nl2sql.config import Settings
 
@@ -25,26 +28,30 @@ def _cookie_name(settings: Settings, kind: str) -> str:
     return f"{prefix}aqua_{kind}"
 
 
-def sign_payload(settings: Settings, payload: dict[str, Any], purpose: str) -> str:
-    """Separate challenge and session signatures so neither replaces the other."""
-    return URLSafeTimedSerializer(
-        settings.session_secret, salt=f"aqua-{purpose}-v1"
-    ).dumps(payload)
+def new_token() -> str:
+    return "v2." + secrets.token_urlsafe(32)
 
 
-def read_payload(
-    settings: Settings, value: str | None, purpose: str, max_age: int
-) -> dict[str, Any] | None:
-    """Treat missing, modified and expired cookies as unauthenticated."""
-    if not value or len(value) > 8192:
-        return None
-    try:
-        payload = URLSafeTimedSerializer(
-            settings.session_secret, salt=f"aqua-{purpose}-v1"
-        ).loads(value, max_age=max_age)
-    except BadData:
-        return None
-    return payload if isinstance(payload, dict) else None
+def read_token(value: str | None) -> str | None:
+    """Legacy signed cookies deliberately have no fallback acceptance path."""
+    return (
+        value
+        if isinstance(value, str) and re.fullmatch(r"v2\.[A-Za-z0-9_-]{43}", value)
+        else None
+    )
+
+
+def token_digest(value: str) -> bytes:
+    return hashlib.sha256(value.encode("utf-8")).digest()
+
+
+def bound_value(settings: Settings, token: str, purpose: str) -> str:
+    """Recover nonce/CSRF without persisting plaintext reusable browser secrets."""
+    message = ("aqua-v2:" + purpose + ":" + token).encode("utf-8")
+    value = hmac.new(
+        settings.session_secret.encode("utf-8"), message, hashlib.sha256
+    ).digest()
+    return base64.urlsafe_b64encode(value).decode("ascii").rstrip("=")
 
 
 def set_auth_cookie(

@@ -24,7 +24,7 @@ pipeline.answer_question
 response.py  ->  summarize.py (text)  +  visualize.py (chart or KPI)  ->  JSON
 ```
 
-Both containers use the host network. The October 20 ingress hotfix binds nginx and the backend to loopback and routes both public hostnames through nginx at `127.0.0.1:5173`. Installed hashes, exact runtime image, isolated rate checks and four public smoke requests are recorded in [the ingress report](implementation/P01_INGRESS.md). The broader P01 backend changes still await review/deployment. The [target architecture](security/TARGET_ARCHITECTURE.md) records the separate databases and mandatory session-abuse controls.
+Both containers use the host network. The October 20 ingress hotfix binds nginx and the backend to loopback and routes both public hostnames through nginx at `127.0.0.1:5173`. Installed hashes, exact runtime image, isolated rate checks and four public smoke requests are recorded in [the ingress report](implementation/P01_INGRESS.md). P01/P02 backend changes are merged and deployed; P03 remains at its review checkpoint. The [target architecture](security/TARGET_ARCHITECTURE.md) records the separate databases and mandatory session-abuse controls.
 
 ## Pipeline, step by step
 
@@ -86,7 +86,7 @@ Validation parses; it never searches the text for keywords, so `WHERE title = 'D
 
 ## Frontend
 
-React and Vite. `src/services/aquaClient.js` is the only module components call: it sends questions to `POST /api/query`, loads the model menu from `GET /api/models`, and turns HTTP errors, rate limits and network failures into the one response shape the components render. `VITE_AQUA_USE_MOCK=true` swaps in the offline mock for UI work. Every answer shows its SQL in a collapsible panel; a refused query shows the SQL that was not run.
+React and Vite. `src/services/aquaClient.js` is the only module components call: it sends questions to `POST /api/query`, loads the model menu from `GET /api/models`, and turns HTTP errors, rate limits and network failures into the one response shape the components render. `VITE_AQUA_DEMO_MODE=true` swaps in the offline mock for UI work. Every answer shows its SQL in a collapsible panel; a refused query shows the SQL that was not run.
 
 ## Deployment
 
@@ -161,3 +161,24 @@ stays dependency-free. See [the operator procedure](../ops/appdb/README.md) and
 Schema tables alone do not implement tenant/session authorization: P03 must enforce
 ownership, durable revocation, grants and atomic per-user session caps. P07 must
 share operation budgets across all sessions and impose global admission limits.
+
+## P03 durable identity checkpoint
+
+P02 is deployed at `5ac90fc`, with its private schema-1 database active; see
+[the release report](implementation/P02_RELEASE.md). P03 source requires an
+explicit additive migration to schema 2, then a reviewed image cutover. It uses
+canonical UUID accounts, digest-only opaque sessions, durable one-use challenges,
+current account/epoch/grant checks and server-confirmed logout. Existing signed
+cookies will require a fresh sign-in. Canonical identity also partitions private
+cache/workspace state; failed logout locks retained drafts until confirmation.
+
+Per-account session issuance is atomic and capped (default five); durable peer,
+global and account login budgets survive cookies and worker replacement. These
+limits do not implement P07's AI job/concurrency budget. Account-cap reads use a
+covering owner/epoch/idle-expiry index and inspect at most the cap; generic auth
+bookkeeping is bounded by a hard key cap and cleanup batch. No production-scale
+latency/capacity claim follows from synthetic execution plans.
+
+See [P03 evidence and scope](implementation/P03.md) and
+[the identity cutover](ops/P03_IDENTITY_CUTOVER.md). Passwords, owned chat history,
+Opal/Plotly/Settings and session-management UI remain their planned later phases.

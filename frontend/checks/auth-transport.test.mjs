@@ -4,7 +4,7 @@ import { AuthError, fetchAuthConfig, fetchSession, signInWithGoogle, signOut } f
 
 const CONFIG = { client_id: "123-test.apps.googleusercontent.com", nonce: "browser-nonce", csrf_token: "login-csrf" };
 const SESSION = {
-  user: { sub: "109876543210987654321", email: "reader@gmail.com", name: "Aqua Reader", picture: "https://example.com/avatar.png" },
+  user: { id: "7506fb3d-1119-4b29-8c57-5ea696a739a1", sub: "109876543210987654321", email: "reader@gmail.com", name: "Aqua Reader", picture: "https://example.com/avatar.png" },
   csrf_token: "session-csrf",
   can_query: true
 };
@@ -70,7 +70,12 @@ for (const status of [401, 403, 503]) {
 
 for (const [label, invalidSession] of [
   ["missing CSRF", { ...SESSION, csrf_token: "" }],
-  ["missing Google subject", { ...SESSION, user: { ...SESSION.user, sub: "" } }],
+  ["empty optional Google subject", { ...SESSION, user: { ...SESSION.user, sub: "" } }],
+  ["missing canonical account id", { ...SESSION, user: { ...SESSION.user, id: undefined } }],
+  ["Google subject substituted for account id", { ...SESSION, user: { ...SESSION.user, id: SESSION.user.sub } }],
+  ["malformed canonical account id", { ...SESSION, user: { ...SESSION.user, id: "7506fb3d-1119-4b29-8c57-5ea696a739a1/other" } }],
+  ["nil canonical account id", { ...SESSION, user: { ...SESSION.user, id: "00000000-0000-0000-0000-000000000000" } }],
+  ["invalid capabilities", { ...SESSION, capabilities: { password: "enabled" } }],
   ["invalid permission flag", { ...SESSION, can_query: "yes" }],
   ["missing identity", { detail: "private malformed payload" }]
 ]) {
@@ -84,6 +89,23 @@ for (const [label, invalidSession] of [
     });
   });
 }
+
+test("canonical account identity is normalized without inventing a provider subject", async (t) => {
+  const { sub, ...identity } = SESSION.user;
+  t.mock.method(globalThis, "fetch", async () => jsonResponse({ ...SESSION, user: { ...identity, id: identity.id.toUpperCase() } }));
+  const session = await fetchSession();
+  assert.equal(session.user.id, identity.id);
+  assert.equal(Object.hasOwn(session.user, "sub"), false);
+  assert.equal(Object.hasOwn(session, "capabilities"), false);
+});
+
+test("capabilities preserve only explicit server booleans and do not grant query permission", async (t) => {
+  const capabilities = { google_login: true, password_login: false, durable_sessions: true };
+  t.mock.method(globalThis, "fetch", async () => jsonResponse({ ...SESSION, can_query: false, capabilities }));
+  const session = await fetchSession();
+  assert.deepEqual(session.capabilities, capabilities);
+  assert.equal(session.can_query, false);
+});
 
 test("login configuration must contain a browser nonce", async (t) => {
   t.mock.method(globalThis, "fetch", async () => jsonResponse({ client_id: CONFIG.client_id, csrf_token: CONFIG.csrf_token }));

@@ -1,15 +1,10 @@
 """Verify session identity, expiration, cookie boundaries, and logout."""
 
-from time import time
-
 import pytest
-from itsdangerous import TimestampSigner
 
-import main
 from _auth_test_helpers import (
     CLIENT_ID,
     EMAIL,
-    SUBJECT,
     challenge,
     forbid_pipeline,
     headers,
@@ -22,10 +17,10 @@ def test_login_and_me_return_identity_and_secure_session(browser) -> None:
     response = login(browser)
     body = response.json()
     assert body["user"] == {
-        "sub": SUBJECT,
+        "id": body["user"]["id"],
         "email": EMAIL,
         "name": "Aqua Reader",
-        "picture": "https://example.com/avatar.png",
+        "picture": "https://lh3.googleusercontent.com/avatar.png",
     }
     assert body["can_query"] is True and body["csrf_token"]
     assert verified == [("google-id-token", CLIENT_ID)]
@@ -56,12 +51,14 @@ def test_missing_or_forged_session_cannot_query(browser, monkeypatch, cookie) ->
     assert response.status_code == 401 and called == []
 
 
-def test_expired_session_cannot_query(browser, monkeypatch) -> None:
+def test_expired_session_cannot_query(browser, monkeypatch, storage) -> None:
     client, _, _ = browser
     body = login(browser).json()
     called = forbid_pipeline(monkeypatch)
-    expired_at = int(time()) + main.app.state.settings.session_max_age_seconds + 2
-    monkeypatch.setattr(TimestampSigner, "get_timestamp", lambda self: expired_at)
+    with storage.transaction() as conn:
+        conn.execute(
+            "UPDATE app.sessions SET created_at=now()-interval '2 hours', idle_expires_at=now()-interval '1 second', absolute_expires_at=now()-interval '1 second'"
+        )
     assert client.get("/api/auth/me").status_code == 401
     response = client.post(
         "/api/query", json={"question": "q"}, headers=headers(body["csrf_token"])

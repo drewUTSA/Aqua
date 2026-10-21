@@ -71,7 +71,8 @@ def api(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setattr(main, "answer_question", fake_answer_question)
     monkeypatch.setattr(main, "get_schema", lambda settings: Schema(tables={}))
     main.app.dependency_overrides[require_database_access] = lambda: UserSession(
-        {"sub": "cache-test", "email": "cache-test@gmail.com"}, "csrf"
+        {"id": "00000000-0000-4000-8000-000000000001", "email": "cache-test@gmail.com"},
+        "csrf",
     )
     yield TestClient(main.app), asked
     main.app.dependency_overrides.pop(require_database_access, None)
@@ -91,6 +92,7 @@ def test_a_different_model_is_asked_separately(
     from nl2sql.config import Settings
 
     monkeypatch.setattr(main, "SETTINGS", Settings(gemini_api_key="k"))
+    monkeypatch.setattr(main.app.state, "settings", main.SETTINGS)
     client, asked = api
     client.post("/api/query", json={"question": "top films", "model": "ollama"})
     client.post("/api/query", json={"question": "top films", "model": "gemini"})
@@ -101,7 +103,8 @@ def test_two_users_do_not_share_a_cached_answer(api):
     client, asked = api
     client.post("/api/query", json={"question": "same question"})
     main.app.dependency_overrides[require_database_access] = lambda: UserSession(
-        {"sub": "different-fixture-user", "email": "fixture-b@gmail.com"}, "csrf"
+        {"id": "00000000-0000-4000-8000-000000000002", "email": "fixture-b@gmail.com"},
+        "csrf",
     )
     client.post("/api/query", json={"question": "same question"})
     assert len(asked) == 2

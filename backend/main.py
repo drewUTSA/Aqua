@@ -9,14 +9,15 @@ from typing import Any, Literal
 
 from fastapi import Depends, FastAPI, Request
 from fastapi.responses import JSONResponse, Response
+from fastapi.exceptions import RequestValidationError
 from pydantic import BaseModel, ConfigDict, Field
 
 from auth.router import router as auth_router
-from auth.security import UserSession, require_database_access
+from auth.security import UserSession, get_settings, require_database_access
 from nl2sql.cache import AnswerCache, scoped_cache_key
 from nl2sql.cache_scope import request_scope
 from nl2sql.errors import ContextDenied
-from nl2sql.config import load_settings
+from nl2sql.config import Settings, load_settings
 from nl2sql.db import DatabaseError
 from nl2sql.display import display_for
 from nl2sql.llm import LLMError
@@ -48,6 +49,16 @@ app.include_router(readiness_router)
 app.state.storage = Storage(load_storage_settings())
 
 
+@app.exception_handler(RequestValidationError)
+async def safe_request_validation(
+    request: Request, error: RequestValidationError
+) -> JSONResponse:
+    """Validation errors must not reflect credentials or private prompts."""
+    return JSONResponse(
+        status_code=422, content={"detail": "Request could not be validated."}
+    )
+
+
 @app.middleware("http")
 async def private_api_responses(
     request: Request, call_next: Callable[[Request], Awaitable[Response]]
@@ -62,18 +73,19 @@ async def private_api_responses(
     return response
 
 
-def _retriever() -> Retriever | None:
+def _retriever(settings: Settings | None = None) -> Retriever | None:
     """The vector retriever when RETRIEVAL is on, otherwise None.
 
     Imported only when on, so the app starts without the embedding SDK
     configured. If retrieval fails at question time, the pipeline falls
     back to the full schema.
     """
-    if not SETTINGS.retrieval:
+    settings = SETTINGS if settings is None else settings
+    if not settings.retrieval:
         return None
     from nl2sql.retrieval.select import VectorRetriever
 
-    return VectorRetriever(SETTINGS)
+    return VectorRetriever(settings)
 
 
 RETRIEVER = _retriever()
@@ -83,8 +95,9 @@ RETRIEVER = _retriever()
 ANSWER_CACHE = AnswerCache(SETTINGS.answer_cache_seconds)
 
 
-def _model_name(provider: str) -> str:
-    return SETTINGS.gemini_model if provider == "gemini" else SETTINGS.ollama_model
+def _model_name(provider: str, settings: Settings | None = None) -> str:
+    settings = SETTINGS if settings is None else settings
+    return settings.gemini_model if provider == "gemini" else settings.ollama_model
 
 
 def available_models() -> list[dict[str, str]]:
@@ -144,6 +157,7 @@ class QueryRequest(BaseModel):
 def query(
     request: QueryRequest,
     session: UserSession = Depends(require_database_access),
+    configured: Settings = Depends(get_settings),
 ) -> dict[str, Any] | JSONResponse:
     """Answer a question with SQL, rows and the SQL that produced them.
 
@@ -153,23 +167,32 @@ def query(
     a safe diagnostic; an unreachable model or database returns 503.
     Logs contain failure categories, never raw provider/database exceptions.
     """
-    provider = request.model or SETTINGS.llm_provider
-    if provider == "gemini" and not SETTINGS.gemini_api_key:
+    provider = request.model or configured.llm_provider
+    if provider == "gemini" and not configured.gemini_api_key:
         body = outage_response(
             "model_not_configured", "Gemini is not set up on this server."
         )
         body["error"]["retryable"] = False  # asking again will not help
         return JSONResponse(status_code=400, content=body)
-    settings = replace(SETTINGS, llm_provider=provider)
+    settings = replace(configured, llm_provider=provider)
     try:
+        # Authorization, retrieval, execution and cache identity use the same
+        # server settings even if an operator replaces app state during runtime.
+        retriever = RETRIEVER if configured == SETTINGS else _retriever(settings)
         schema = get_schema(settings)
-        scope = request_scope(session.user["sub"], settings, schema.to_prompt())
+        scope = request_scope(
+            session.user["id"],
+            settings,
+            schema.to_prompt(),
+            grant_version=session.grant_version,
+            auth_epoch=session.auth_epoch,
+        )
         key = scoped_cache_key(
             request.question,
             scope,
             provider,
-            _model_name(provider),
-            RETRIEVER is not None,
+            _model_name(provider, settings),
+            retriever is not None,
             settings.answer_size_rules,
             settings.llm_fallback,
             settings.gemini_fallback_models,
@@ -180,7 +203,7 @@ def query(
         answer = ANSWER_CACHE.get(key)
         if answer is None:
             answer = answer_question(
-                request.question, settings, schema, retriever=RETRIEVER
+                request.question, settings, schema, retriever=retriever
             )
             ANSWER_CACHE.put(key, answer)
         else:

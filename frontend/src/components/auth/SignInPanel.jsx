@@ -70,6 +70,15 @@ export default function SignInPanel({ auth, dedicated = false }) {
       </section>
     );
   }
+  if (auth.status === "logoutfailed") {
+    return (
+      <section className={panelClass} aria-labelledby={titleId} data-auth-state="logoutfailed">
+        <Heading id={titleId} tabIndex={dedicated ? -1 : undefined}>Sign-out could not be confirmed</Heading>
+        <p className="signin-panel__error" role="alert" data-testid="auth-error">{auth.error}</p>
+        <button className="text-action auth-retry" type="button" onClick={() => void auth.logout()} data-testid="signout-retry">Try signing out again</button>
+      </section>
+    );
+  }
   const busy = ["loading", "signingin", "signingout"].includes(auth.status);
   const unavailable = auth.status === "unavailable" || googleStatus === "unavailable";
   return (

@@ -21,11 +21,17 @@ client = TestClient(main.app)
 SCHEMA = Schema(tables={})
 
 
+def set_settings(monkeypatch, settings):
+    monkeypatch.setattr(main, "SETTINGS", settings)
+    monkeypatch.setattr(main.app.state, "settings", settings)
+
+
 @pytest.fixture(autouse=True)
 def authenticated_query_contract():
     """Keep query-contract tests focused; test_auth checks the real auth gate."""
     main.app.dependency_overrides[require_database_access] = lambda: UserSession(
-        {"sub": "query-test-user", "email": "query-test@gmail.com"}, "test-csrf"
+        {"id": "00000000-0000-4000-8000-000000000001", "email": "query-test@gmail.com"},
+        "test-csrf",
     )
     yield
     main.app.dependency_overrides.pop(require_database_access, None)
@@ -173,7 +179,7 @@ def capture_settings(monkeypatch: pytest.MonkeyPatch) -> list:
 def test_chosen_model_is_used_for_that_question(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    monkeypatch.setattr(main, "SETTINGS", Settings(gemini_api_key="k"))
+    set_settings(monkeypatch, Settings(gemini_api_key="k"))
     seen = capture_settings(monkeypatch)
 
     client.post("/api/query", json={"question": "q", "model": "gemini"})
@@ -186,7 +192,7 @@ def test_chosen_model_is_used_for_that_question(
 def test_gemini_without_a_key_is_400_and_not_retryable(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    monkeypatch.setattr(main, "SETTINGS", Settings())
+    set_settings(monkeypatch, Settings())
     seen = capture_settings(monkeypatch)
     response = client.post("/api/query", json={"question": "q", "model": "gemini"})
 
@@ -207,12 +213,10 @@ def test_unknown_model_is_422(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 def test_models_lists_gemini_only_with_a_key(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr(main, "SETTINGS", Settings())
+    set_settings(monkeypatch, Settings())
     assert [m["id"] for m in client.get("/api/models").json()["models"]] == ["ollama"]
 
-    monkeypatch.setattr(
-        main, "SETTINGS", Settings(gemini_api_key="k", gemini_model="gemini-x")
-    )
+    set_settings(monkeypatch, Settings(gemini_api_key="k", gemini_model="gemini-x"))
     models = client.get("/api/models").json()["models"]
     assert [m["id"] for m in models] == ["ollama", "gemini"]
     assert models[1]["name"] == "gemini-x"
@@ -220,9 +224,7 @@ def test_models_lists_gemini_only_with_a_key(monkeypatch: pytest.MonkeyPatch) ->
 
 
 def test_models_puts_the_server_default_first(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr(
-        main, "SETTINGS", Settings(gemini_api_key="k", llm_provider="gemini")
-    )
+    set_settings(monkeypatch, Settings(gemini_api_key="k", llm_provider="gemini"))
     assert [m["id"] for m in client.get("/api/models").json()["models"]] == [
         "gemini",
         "ollama",

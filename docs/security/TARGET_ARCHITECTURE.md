@@ -48,7 +48,7 @@ The user explicitly requires that one person cannot acquire extra server capacit
 by creating many sessions, and cannot read or mutate another person's session.
 Treat this as a mandatory P03/P07 security gate before public signup.
 
-Current P01 baseline: verified Google identity, signed expiring stateless cookies,
+Historical P01 baseline: verified Google identity, signed expiring stateless cookies,
 host-bound Secure/HttpOnly cookies, CSRF and dataset allowlists. Logout clears the
 browser cookie but cannot revoke a copied cookie before expiry. There is no
 durable account/session table, active-session ceiling or durable account quota
@@ -119,3 +119,26 @@ and migration containers; SCRAM/role privileges still apply. Installer tests
 prove this topology with synthetic resources. P02 does not install the persistent
 DB, enable signup or replace current stateless cookies. See
 `../implementation/P02.md` and `../../ops/appdb/README.md`.
+
+## Current implementation checkpoint: P02 deployed, P03 prepared
+
+P02 PR #38 is merged/deployed at `5ac90fc` and its private schema-1 storage is
+active. Network-none, empty listen_addresses, no port bindings, runtime DDL and
+ledger-write denials, and post-denial readiness are verified. This supersedes
+the prepared-only P02 status above; the analytical database is unchanged.
+
+P03 code/checks implement durable canonical identity, one-use challenges,
+revocable opaque sessions, current status/epoch/grants, a five-session atomic
+cap and shared durable authentication budgets. Re-login never restores a revoked
+grant. Default idle/absolute bounds are 1800/3600 seconds; background GET polling
+does not renew them. Cookie/header churn creates no new trusted capacity.
+The frontend keys private state by canonical UUID and locks rather than discards
+an unresolved logout. P03 remains uncommitted for PR and schema-2 cutover review;
+see `../implementation/P03.md` for evidence and scoped limitations.
+
+P07 must still implement AI operation/global admission and revalidation of
+in-flight jobs/streams; P04/P10 provide password-reset/revoke-all and owned session
+management. The P03 core checks epoch/status changes, but those future endpoints
+are not advertised as working. These boundaries remain mandatory before public
+launch; isolated red/blue checks are not a claim of zero breaches or a full live
+penetration assessment.

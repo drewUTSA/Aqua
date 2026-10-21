@@ -1,0 +1,23 @@
+{
+  "purpose": "aqua_p02_release",
+  "action": "sync",
+  "status": "synchronized",
+  "commit": "5ac90fcca45a6a74bab5d6f792388c05804d87a2",
+  "git_status": [
+    "?? .env.bak"
+  ],
+  "services": {
+    "backend": {
+      "id": "315f22efab99c969150adf89afa83ef3ef070f9e5eeaf29c5a59ca3f647a7da3",
+      "image": "sha256:9069a33c2bb0588308d49371e38f872fb9d95a540208622c3f127203d28e4d1d",
+      "running": true,
+      "health": "healthy"
+    },
+    "frontend": {
+      "id": "2b7eec51cf15babc09088780ab7b2eb6e8d7a8a565bc4bdb9125797f3eb1f0a0",
+      "image": "sha256:982f1b5b43cd24026b01a92532548fde025d68dc3a59e423342ac7811b003292",
+      "running": true,
+      "health": "healthy"
+    }
+  }
+}

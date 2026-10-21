@@ -1,135 +1,178 @@
-# Private application storage — P02 operator procedure
+# Private application storage — P03 operations
 
-P02 prepares the persistence foundation. Accounts still use the existing Google
-cookie flow until P03's reviewed identity/session cutover. No password login,
-public registration, customer data grant, or session-count limit is enabled here.
-The application database is separate from the hosted analytical database.
+P02 is deployed at `5ac90fcca45a6a74bab5d6f792388c05804d87a2`: the private
+`aqua_app` database is installed, enabled and verified at schema **1**. That
+release still uses legacy Google profile cookies.
 
-## Review and scope
+This P03 source requires schema **2** and enabled storage for durable
+authentication. Its migration/cutover is a separate reviewed release action;
+it has not been applied merely by preparing these files.
+Use [P03 identity cutover](../../docs/ops/P03_IDENTITY_CUTOVER.md) for the existing
+server. **Do not run prepare or bootstrap over that installed database.**
+Password login/public registration are later phases.
 
-Apply this procedure only after reviewing/merging P02. Run as `ben2004`, without
-sudo, from `/srv/bank-ai`. Docker access already carries host privileges; these
-helpers are project-specific procedures, not a sandbox for untrusted operators.
-Read the scripts before running them. The installer never repairs or resets
-existing database roles/volumes; an unexpected existing resource stops it.
+## Scope and private topology
 
-The dedicated database has **no TCP listener, published port or container network**.
-`aqua_app_data` holds PostgreSQL data; `aqua_app_sockets` holds only its Unix socket.
-Only the DB and explicitly attached backend/migrator receive these volumes.
-The backend mounts the socket read-only at `/run/aqua-app-db`; SCRAM passwords
-are required in addition to filesystem access. `postgres` is peer-only inside
-the DB container. There is no database path through nginx or Cloudflare.
+Run reviewed operator commands as `ben2004`, without sudo, from
+`/srv/bank-ai`. These helpers use the existing Docker operator's privileges;
+they are project procedures, not a server-access sandbox. They never migrate
+the hosted analytical database or change its credentials/connection code.
 
-The owner cannot log in. The migrator can assume the owner for explicit DDL;
-the runtime has bounded table DML and cannot write the version ledger; backup
-has SELECT only. Runtime row ownership must be enforced by P03 and later
-repositories: these service credentials themselves are not a tenant boundary.
+The dedicated PostgreSQL service has **no TCP listener, published port or
+container network**. `aqua_app_data` holds data; `aqua_app_sockets` holds its Unix
+socket. The explicitly attached backend/migration jobs mount the socket
+read-only at `/run/aqua-app-db` and must also pass SCRAM authentication.
+Only postgres inside its DB container has the local peer administrative path.
+There is no database route through nginx or Cloudflare.
 
-Credentials are generated at `/home/ben2004/.aqua-runtime/app-storage`, outside
-the shared checkout. The directory is 0700; credential/env files are 0600.
-Only the bootstrap password mount is 0444 inside that private parent, so the
-unprivileged PostgreSQL container can read its single mounted file. Preserve
-`audi`'s existing project write access; never loosen private-directory permissions.
-Do not print these files, place them in Git, or attach their contents to a report.
+The owner cannot log in. The migrator may assume that owner for explicit DDL.
+Runtime has bounded table DML and cannot alter the schema/version ledger;
+backup has SELECT only. Runtime service credentials are not a tenant boundary:
+the application derives account ownership from authenticated canonical UUIDs.
 
-## Fresh installation after human migration review
+Credentials remain under `/home/ben2004/.aqua-runtime/app-storage`, outside the
+shared checkout. Directories are 0700; credential/env files are 0600. The single
+bootstrap-password mount is 0444 inside that private parent so the unprivileged
+PostgreSQL UID can read it. Keep audi's existing project access; never loosen
+private paths. Do not print private env files, resolved Compose configuration
+or container environment arrays.
 
-First confirm the reviewed source, Docker/Compose availability, disk space,
-and absence of `aqua-app-db`, `aqua_app_data`, `aqua_app_sockets`. Name snapshots
-are not reservations. Image and volume metadata use Docker's normal directories.
-The dedicated DB budget is 1 GiB RAM, 2 CPUs, 128 PIDs, 32 server connections,
-24 application-DB connections, with role caps 12 runtime / 2 migrator / 2 backup.
-Each web worker defaults to a four-connection pool and eight waiting callers.
-Do not multiply worker counts without reconciling these budgets.
+Budgets remain 1 GiB RAM, 2 CPUs, 128 PIDs, 32 cluster connections and 24 app-DB
+connections, with role caps 12 runtime / 2 migrator / 2 backup. Each backend
+process defaults to four pooled connections, eight waiters and a two-second
+acquisition deadline. Reconcile aggregate budgets before adding workers.
+P03 additionally enforces durable auth budgets and a default five-session cap;
+these do not replace P07/P12's wider work/capacity controls.
+
+## Existing P02 server: reviewed P03 migration
+
+Confirm the merged P03 commit and final check evidence, retain previous image
+IDs, review a pre-cutover encrypted snapshot and plan an authentication/API
+outage. Preserve both volumes, runtime credentials and immutable migration
+history. The known untracked `.env.bak` is not an input and must not be read.
+
+The complete sequence and failure handling are in the
+[cutover runbook](../../docs/ops/P03_IDENTITY_CUTOVER.md). Its core steps are:
 
 ```bash
 cd /srv/bank-ai
+git status --short
 git pull --ff-only origin main
-docker compose build backend frontend
-docker pull postgres@sha256:3645570cccdfa447589da9f57dd740faa29b30938e861289a5574b6ca6b03826
-python3 ops/appdb/manage.py prepare
-python3 ops/appdb/manage.py bootstrap --apply-reviewed
-python3 ops/appdb/manage.py migrate --apply-reviewed
-```
-
-Bootstrap is deliberately not repeatable over existing roles or volumes. A failed
-attempt preserves data and private credentials; inspect its exact resources before
-any recovery. Do not run `down -v`, prune volumes, recursively chown data, change
-another account's access, or automatically reinitialize. The versioned migration
-is repeatable and transactional; changed checksums or unknown history stop it.
-Web startup never runs migrations. Keep bootstrap/migrator credentials out of
-the web container, and never supply analytical, Google or email secrets to it.
-
-The production Dockerfile uses the same pinned, hashed dependency graph as CI.
-The root build context allows only runtime Python, migrations and lock files.
-Dependency upgrades must refresh the lock and pass the same release checks.
-
-## Attachment and activation
-
-The generated `runtime.env` starts with `APP_STORAGE_ENABLED=false`. Storage is
-opt-in; ordinary Compose does not create the private DB or attach its socket.
-After the installation is reviewed, use the overlay when deploying the backend:
-
-```bash
 export AQUA_PRIVATE_STORAGE_DIR=/home/ben2004/.aqua-runtime/app-storage
-docker compose -f docker-compose.yml -f compose.app-storage.yml up -d backend frontend
+docker compose -f docker-compose.yml -f compose.app-storage.yml build backend frontend
+# Verify the reviewed source and exact candidate images before stopping traffic.
+docker compose -f docker-compose.yml -f compose.app-storage.yml stop backend
+python3 ops/appdb/manage.py migrate --apply-reviewed
+# Require status=migrated and schema_version=2 before starting P03.
+docker compose -f docker-compose.yml -f compose.app-storage.yml up -d --no-build backend frontend
 curl --fail --silent http://127.0.0.1:8000/api/health
 curl --fail --silent http://127.0.0.1:8000/api/ready
 ```
 
-With the flag false, readiness truthfully reports storage disabled. Enabling it
-requires changing only that flag in the private runtime file, recreating the
-backend with the overlay, and confirming readiness reports schema version 1.
-Do this as part of the reviewed activation/cutover, not as an implicit side effect
-of preparing credentials. Existing Google authentication is unchanged by P02.
-Public nginx denies `/api/ready` and normalized variants; use the loopback backend
-port for operator diagnostics. `/api/health` stays independent of DB/model outages.
+Require healthy services and internal readiness reporting storage ready/schema
+**2**. Keep `APP_STORAGE_ENABLED=true` in the existing private runtime file.
+Ordinary Compose omits the socket/runtime attachment; use the overlay on every
+start/recreate/rebuild sequence. Never make a disabled flag, schema mismatch or
+503 appear successful by enabling legacy authentication.
+
+Migration runs only through the reviewed one-off tool. It receives migrator
+credentials and the private socket, no analytical/Google/mail environment and
+no container network. Checksums, transactional DDL and an advisory lock protect
+history and interruption/concurrency. Startup does not migrate. Never edit
+`0001_identity.sql` or other applied migrations to repair a failure.
+
+## Fresh installation on an empty host only
+
+This section is for a genuinely new installation, not the current server.
+Confirm absence of `aqua-app-db`, `aqua_app_data` and `aqua_app_sockets`, approved
+host capacity and the reviewed source/images. Snapshots are not reservations.
+An unexpected resource/role stops bootstrap rather than resetting it.
+
+```bash
+cd /srv/bank-ai
+python3 ops/appdb/manage.py prepare
+export AQUA_PRIVATE_STORAGE_DIR=/home/ben2004/.aqua-runtime/app-storage
+docker compose -f docker-compose.yml -f compose.app-storage.yml build backend frontend
+docker pull postgres@sha256:3645570cccdfa447589da9f57dd740faa29b30938e861289a5574b6ca6b03826
+python3 ops/appdb/manage.py bootstrap --apply-reviewed
+python3 ops/appdb/manage.py migrate --apply-reviewed
+```
+
+The P03 image applies both versioned migrations and must report schema 2.
+Generated runtime settings start with storage disabled. Before attaching P03,
+the operator deliberately enables only `APP_STORAGE_ENABLED` in that private
+file, preserving the generated DSN and permissions, then uses the overlay
+start/readiness checks above. P03 authentication stays unavailable while storage
+is disabled.
+
+Preparation is write-once: rerunning it after deliberate runtime activation
+refuses the changed default file. Do not overwrite activation or rotate
+credentials to force it through. Bootstrap is not repeatable over existing
+roles/volumes. Partial failure preserves data/credentials for inspection.
+Never run `down -v`, prune volumes, recursively chown data or automatically
+reinitialize. Docker images/metadata remain in Docker's normal directories.
+
+Production Python uses the pinned base and hashed dependency graph tested in CI.
+Its root context/COPY allowlists exclude secrets and operator credentials.
+Dependency changes require refreshed locks and the same release checks.
+
+## Authentication behavior after P03 cutover
+
+All old signed profile cookies are rejected; users sign in again. Sessions and
+one-use challenges store token digests. Protected operations check account
+status, epoch, expiry and current grant/version; logout commits revocation before
+cookie deletion. A failed logout preserves frontend account state and locks the
+workspace for an explicit retry. Google configuration is needed for new Google
+login, independently of existing-session checks/logout.
+
+Fresh verified Google identities resolve by issuer/subject, never by merging
+matching emails. Explicit legacy approvals can seed an absent dataset grant
+with provenance; relogin never resurrects a revoked grant. New accounts receive
+only owned empty preference defaults, not arbitrary financial-data access.
+See [Google/session contract](../../docs/google-signin.md).
 
 ## Encrypted off-server collection
 
 The existing Windows Restic foundation and independent recovery-password copy
-are operator-confirmed. P02 does not repeat their setup or collect that password.
-Use the ordinary Windows account outside Codex's redirected package storage.
+are operator-confirmed. Do not repeat setup or collect that password. Use the
+ordinary Windows account outside Codex's redirected package storage.
 The repository is `C:\Users\Benjamin\AppData\Local\Aqua\Backups\repository`.
-Run its existing Restic binary in a private console; let Restic request its
-password interactively, or use the previously reviewed private credential helper.
+Let the existing Restic binary request its password privately, or use the
+previously reviewed credential helper.
 
-After the DB installation and real-data export are reviewed, this PowerShell
-command streams the dump directly into encrypted Restic storage, without a
-plaintext dump file. `--stdin-from-command` cancels the backup on SSH/export
-failure, unlike a pipeline that might save truncated input as a successful backup:
+When a real-data collection is reviewed, stream the dump directly to encrypted
+Restic storage. `--stdin-from-command` fails the backup if SSH/export fails,
+instead of saving truncated pipeline input as a successful snapshot:
 
 ```powershell
 & 'C:\Users\Benjamin\AppData\Local\Aqua\Backups\bin\restic.exe' -r 'C:\Users\Benjamin\AppData\Local\Aqua\Backups\repository' backup --stdin-from-command --stdin-filename aqua-app.pgdump --tag aqua-app -- 'C:\Windows\System32\OpenSSH\ssh.exe' -F NUL -T -i 'C:\Users\Benjamin\.ssh\aqua-work-20261016\id_ed25519' -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=yes -o ForwardAgent=no -o ClearAllForwardings=yes -o PermitLocalCommand=no ben2004@192.168.1.200 '/usr/bin/python3 -E -s -B /srv/bank-ai/ops/appdb/export.py'
 ```
 
-Require exit code zero. Record the snapshot ID, source/schema version and time;
-then run `restic check --read-data` against that repository. The export has a
-120-second / 512-MiB initial budget, uses only the backup role and preserves table
-ACLs. A budget failure stops collection; review capacity instead of removing caps.
-Do not run the export directly into chat/terminal capture. The output contains
-account data, password hashes and session digests and must remain encrypted.
+Require exit code zero, record snapshot ID/source/schema/time and run
+`restic check --read-data`. Export is backup-role-only, preserves table ACLs and
+has an initial 120-second / 512-MiB budget. Review capacity when it fails; do not
+remove caps. Account records, password hashes and session digests must remain
+encrypted, never sent to chat/terminal capture.
 
-No real database snapshot, schedule, retention pruning or measured production
-RPO/RTO is claimed by P02's synthetic checks. Suggested initial planning targets
-are daily collection, 24-hour RPO and four-hour RTO, subject to an actual restore
-measurement and PC availability. Before launch, agree targets, monitor missed
-backups, preserve independent recovery access, and address loss of the entire site.
-Do not prune any existing snapshots during this phase.
+Synthetic checks do not establish a real snapshot, schedule, retention policy,
+production restore or measured RPO/RTO. Initial planning targets remain daily
+collection, 24-hour RPO and four-hour RTO, subject to a real restore measurement
+and this PC being available. Before public launch, agree targets, monitor missed
+backups and preserve recovery access independent of the PC/site.
+Do not prune existing snapshots as part of this phase.
 
 ## Non-destructive recovery drill
 
-Use a trusted snapshot matching the reviewed schema/software version. Verify the
-encrypted repository before restoring its dump into an owner-only operator folder,
-then transfer it over SSH/SFTP to a private recovery folder under
-`/home/ben2004/.aqua-runtime/app-storage`. Treat the restored dump as a secret.
-Never pass it through Codex output. Confirm file ownership, mode 0600, no links,
-size budget, and the selected snapshot ID before running the commands below.
+Use a trusted snapshot matching the reviewed software/schema. Verify the
+encrypted repository, restore its dump into an owner-only operator folder and
+transfer it privately to
+`/home/ben2004/.aqua-runtime/app-storage/recovery/aqua-app.pgdump`.
+Check owner, mode 0600, no links, size budget and snapshot selection without
+printing data.
 
-These commands create **a new database**, `aqua_app_restore`, in the dedicated
-app cluster. They fail if it already exists, never overwrite `aqua_app`, and never
-contact the hosted company DB. Leave public traffic connected only to `aqua_app`.
-The file name below is fixed for a separately reviewed transferred dump.
+These commands create a **new** `aqua_app_restore` database in the dedicated
+cluster. They fail if it exists, never overwrite `aqua_app` and never contact
+the hosted analytical DB. Do not attach the drill database to public traffic.
 
 ```bash
 cd /srv/bank-ai
@@ -137,34 +180,37 @@ docker exec aqua-app-db psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c 'C
 docker exec aqua-app-db psql -X -v ON_ERROR_STOP=1 -U postgres -d postgres -c 'REVOKE ALL ON DATABASE aqua_app_restore FROM PUBLIC'
 docker exec -i aqua-app-db pg_restore --exit-on-error --no-owner --role=aqua_app_owner -U postgres -d aqua_app_restore < /home/ben2004/.aqua-runtime/app-storage/recovery/aqua-app.pgdump
 docker exec -i aqua-app-db psql -X -v ON_ERROR_STOP=1 -U postgres -d aqua_app_restore < ops/appdb/restore_session_fence.sql
-docker exec aqua-app-db psql -X -v ON_ERROR_STOP=1 -U postgres -d aqua_app_restore -c "SELECT version FROM app.schema_migrations; SELECT has_table_privilege('aqua_app_runtime','app.users','INSERT'),has_table_privilege('aqua_app_runtime','app.schema_migrations','UPDATE'); SELECT count(*) FROM app.sessions WHERE revoked_at IS NULL;"
+docker exec aqua-app-db psql -X -v ON_ERROR_STOP=1 -U postgres -d aqua_app_restore -c "SELECT max(version) FROM app.schema_migrations; SELECT has_table_privilege('aqua_app_runtime','app.users','INSERT'),has_table_privilege('aqua_app_runtime','app.schema_migrations','UPDATE'); SELECT count(*) FROM app.sessions WHERE revoked_at IS NULL;"
 ```
 
-Require schema 1, privileges `true/false`, zero unrevoked sessions, preserved
-record counts and expected application invariants. `restore_session_fence.sql`
-increments account epochs and consumes outstanding challenges before a recovered
-DB may be attached. P03 must check these fields on every authenticated operation;
-the P02 drill proves their stored fencing, not acceptance/rejection by future auth.
-Do not attach the drill DB to the web app or reuse it for production automatically.
-A production recovery/cutover needs its own reviewed host, credentials, traffic
-isolation, current app image, validation and rollback plan. Preserve the original
-DB and encrypted backup until recovery is independently verified.
+For a P03 snapshot require latest schema **2**, privileges true/false, zero
+unrevoked sessions, matching record counts and account ownership invariants.
+The fence increments account epochs and consumes outstanding challenges before
+any recovered instance can reopen. P03 authentication checks those stored fields.
+Reconcile post-snapshot grant revocations/deletions before restoring access;
+session fencing alone cannot recover changes absent from an older backup.
+
+Historical P02 snapshots contain schema 1; they are not ready for P03 code.
+Any schema upgrade or production recovery from such a snapshot needs its own
+reviewed recovery procedure, not the fixed live-database migration command
+pointed at an arbitrary restore target. Preserve the original database and
+encrypted snapshot until recovery is independently verified.
 
 ## Rollback and isolated verification
 
-Before P03, disable application storage/remove the socket overlay and restore the
-previous reviewed application images if needed. Preserve both DB volumes and all
-private credentials. Never reverse a migration by dropping data. A migration
-failure rolls its schema transaction back; bootstrap failures retain their new
-volume for inspection. After P03, rollback must also preserve durable session
-revocation; never re-enable the legacy cookie path as an auth fallback.
+A failed migration transaction leaves no partial schema. After schema 2 commits,
+the P02 image (which expects schema 1) is not a compatible rollback target.
+Use maintenance/forward repair as the cutover runbook describes. Once durable
+sessions are issued, only use releases that retain their revocation/epoch/grant
+checks. Never restore the old signed-cookie path or drop account data to undo
+code changes. Preserve both volumes and private credentials.
 
-CI runs both fixture datasets, transactional interruption/concurrency checks,
-role separation, bounded pool/queue abuse and recovery, and a synthetic dump/restore
-with privilege and epoch checks. `tools/checks/storage_deployment.py` additionally
-exercises this installer with random resource names, synthetic credentials,
-no network/host ports, real SCRAM authentication and cleanup by resource ownership.
-All Docker checks require trusted source on an isolated runner; do not run
-untrusted PR code with Docker access on the production host.
+CI covers both fixture datasets, immutable/interrupted/concurrent migrations,
+effective role separation, bounded pool/admission abuse, copied challenge/session
+replay, epoch/grant revocation and recovery. Synthetic dump/restore checks preserve
+rows/ACLs and fence restored sessions. The installer rehearsal uses random names,
+fake credentials, socket-only SCRAM and exact owned-resource cleanup.
+Run trusted code on isolated runners; do not execute untrusted PR code with
+Docker privileges on the production server.
 
-Reference: [Restic streaming command backups](https://restic.readthedocs.io/en/stable/040_backup.html#reading-data-from-stdin).
+Reference: [Restic command-stream backups](https://restic.readthedocs.io/en/stable/040_backup.html#reading-data-from-stdin).
