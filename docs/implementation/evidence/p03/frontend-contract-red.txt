@@ -1,0 +1,186 @@
+✖ login configuration and restored identity use the relative private API (15.0371ms)
+✔ a missing browser session returns null without exposing server detail (0.4349ms)
+✖ Google credential and CSRF stay in the POST body/header, and logout handles 204 (0.6147ms)
+✔ auth HTTP 401 produces a typed safe error (0.4713ms)
+✔ auth HTTP 403 produces a typed safe error (0.2475ms)
+✔ auth HTTP 503 produces a typed safe error (0.1832ms)
+✔ invalid session envelope is rejected: missing CSRF (0.2563ms)
+✔ invalid session envelope is rejected: empty optional Google subject (0.1765ms)
+✖ invalid session envelope is rejected: missing canonical account id (0.2364ms)
+✖ invalid session envelope is rejected: Google subject substituted for account id (0.2634ms)
+✖ invalid session envelope is rejected: malformed canonical account id (0.6218ms)
+✖ invalid session envelope is rejected: nil canonical account id (0.2001ms)
+✖ invalid session envelope is rejected: invalid capabilities (0.1706ms)
+✔ invalid session envelope is rejected: invalid permission flag (0.1636ms)
+✔ invalid session envelope is rejected: missing identity (0.1026ms)
+✖ canonical account identity is normalized without inventing a provider subject (0.1705ms)
+✖ capabilities preserve only explicit server booleans and do not grant query permission (0.2572ms)
+✔ login configuration must contain a browser nonce (0.1771ms)
+✔ missing login credentials or logout CSRF never call the network (0.1694ms)
+✔ auth malformed JSON and network failures produce safe typed errors (0.2416ms)
+✔ cancelled auth requests propagate AbortError unchanged (0.1209ms)
+ℹ tests 21
+ℹ suites 0
+ℹ pass 12
+ℹ fail 9
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 85.0724
+
+✖ failing tests:
+
+test at checks\auth-transport.test.mjs:23:1
+✖ login configuration and restored identity use the relative private API (15.0371ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+      can_query: true,
+      csrf_token: 'session-csrf',
+      user: {
+        email: 'reader@gmail.com',
+  -     id: '7506fb3d-1119-4b29-8c57-5ea696a739a1',
+        name: 'Aqua Reader',
+        picture: 'https://example.com/avatar.png',
+        sub: '109876543210987654321'
+      }
+    }
+  
+      at TestContext.<anonymous> (file:///C:/Users/Benjamin/OneDrive/Documents/ChatGPT/Aqua/output/implementation/p03/frontend-contract-red/checks/auth-transport.test.mjs:31:10)
+      at async Test.run (node:internal/test_runner/test:1125:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:358:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { user: { sub: '109876543210987654321', email: 'reader@gmail.com', name: 'Aqua Reader', picture: 'https://example.com/avatar.png' }, csrf_token: 'session-csrf', can_query: true },
+    expected: { user: { id: '7506fb3d-1119-4b29-8c57-5ea696a739a1', sub: '109876543210987654321', email: 'reader@gmail.com', name: 'Aqua Reader', picture: 'https://example.com/avatar.png' }, csrf_token: 'session-csrf', can_query: true },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at checks\auth-transport.test.mjs:41:1
+✖ Google credential and CSRF stay in the POST body/header, and logout handles 204 (0.6147ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+      can_query: true,
+      csrf_token: 'session-csrf',
+      user: {
+        email: 'reader@gmail.com',
+  -     id: '7506fb3d-1119-4b29-8c57-5ea696a739a1',
+        name: 'Aqua Reader',
+        picture: 'https://example.com/avatar.png',
+        sub: '109876543210987654321'
+      }
+    }
+  
+      at TestContext.<anonymous> (file:///C:/Users/Benjamin/OneDrive/Documents/ChatGPT/Aqua/output/implementation/p03/frontend-contract-red/checks/auth-transport.test.mjs:48:10)
+      at async Test.run (node:internal/test_runner/test:1125:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { user: { sub: '109876543210987654321', email: 'reader@gmail.com', name: 'Aqua Reader', picture: 'https://example.com/avatar.png' }, csrf_token: 'session-csrf', can_query: true },
+    expected: { user: { id: '7506fb3d-1119-4b29-8c57-5ea696a739a1', sub: '109876543210987654321', email: 'reader@gmail.com', name: 'Aqua Reader', picture: 'https://example.com/avatar.png' }, csrf_token: 'session-csrf', can_query: true },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at checks\auth-transport.test.mjs:82:3
+✖ invalid session envelope is rejected: missing canonical account id (0.2364ms)
+  AssertionError [ERR_ASSERTION]: Missing expected rejection.
+      at async TestContext.<anonymous> (file:///C:/Users/Benjamin/OneDrive/Documents/ChatGPT/Aqua/output/implementation/p03/frontend-contract-red/checks/auth-transport.test.mjs:84:5)
+      at async Test.run (node:internal/test_runner/test:1125:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    operator: 'rejects',
+    diff: 'simple'
+  }
+
+test at checks\auth-transport.test.mjs:82:3
+✖ invalid session envelope is rejected: Google subject substituted for account id (0.2634ms)
+  AssertionError [ERR_ASSERTION]: Missing expected rejection.
+      at async TestContext.<anonymous> (file:///C:/Users/Benjamin/OneDrive/Documents/ChatGPT/Aqua/output/implementation/p03/frontend-contract-red/checks/auth-transport.test.mjs:84:5)
+      at async Test.run (node:internal/test_runner/test:1125:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    operator: 'rejects',
+    diff: 'simple'
+  }
+
+test at checks\auth-transport.test.mjs:82:3
+✖ invalid session envelope is rejected: malformed canonical account id (0.6218ms)
+  AssertionError [ERR_ASSERTION]: Missing expected rejection.
+      at async TestContext.<anonymous> (file:///C:/Users/Benjamin/OneDrive/Documents/ChatGPT/Aqua/output/implementation/p03/frontend-contract-red/checks/auth-transport.test.mjs:84:5)
+      at async Test.run (node:internal/test_runner/test:1125:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    operator: 'rejects',
+    diff: 'simple'
+  }
+
+test at checks\auth-transport.test.mjs:82:3
+✖ invalid session envelope is rejected: nil canonical account id (0.2001ms)
+  AssertionError [ERR_ASSERTION]: Missing expected rejection.
+      at async TestContext.<anonymous> (file:///C:/Users/Benjamin/OneDrive/Documents/ChatGPT/Aqua/output/implementation/p03/frontend-contract-red/checks/auth-transport.test.mjs:84:5)
+      at async Test.run (node:internal/test_runner/test:1125:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    operator: 'rejects',
+    diff: 'simple'
+  }
+
+test at checks\auth-transport.test.mjs:82:3
+✖ invalid session envelope is rejected: invalid capabilities (0.1706ms)
+  AssertionError [ERR_ASSERTION]: Missing expected rejection.
+      at async TestContext.<anonymous> (file:///C:/Users/Benjamin/OneDrive/Documents/ChatGPT/Aqua/output/implementation/p03/frontend-contract-red/checks/auth-transport.test.mjs:84:5)
+      at async Test.run (node:internal/test_runner/test:1125:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    operator: 'rejects',
+    diff: 'simple'
+  }
+
+test at checks\auth-transport.test.mjs:93:1
+✖ canonical account identity is normalized without inventing a provider subject (0.1705ms)
+  Error [AuthError]: AQUA sign-in is temporarily unavailable. Please try again.
+      at sessionResponse (file:///C:/Users/Benjamin/OneDrive/Documents/ChatGPT/Aqua/output/implementation/p03/frontend-contract-red/src/services/authClient.js:40:11)
+      at fetchSession (file:///C:/Users/Benjamin/OneDrive/Documents/ChatGPT/Aqua/output/implementation/p03/frontend-contract-red/src/services/authClient.js:55:12)
+      at async TestContext.<anonymous> (file:///C:/Users/Benjamin/OneDrive/Documents/ChatGPT/Aqua/output/implementation/p03/frontend-contract-red/checks/auth-transport.test.mjs:96:19)
+      at async Test.run (node:internal/test_runner/test:1125:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    status: 502
+  }
+
+test at checks\auth-transport.test.mjs:102:1
+✖ capabilities preserve only explicit server booleans and do not grant query permission (0.2572ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+  + undefined
+  - {
+  -   durable_sessions: true,
+  -   google_login: true,
+  -   password_login: false
+  - }
+  
+      at TestContext.<anonymous> (file:///C:/Users/Benjamin/OneDrive/Documents/ChatGPT/Aqua/output/implementation/p03/frontend-contract-red/checks/auth-transport.test.mjs:106:10)
+      at async Test.run (node:internal/test_runner/test:1125:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: { google_login: true, password_login: false, durable_sessions: true },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

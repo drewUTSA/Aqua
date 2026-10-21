@@ -1,0 +1,34 @@
+{
+  "purpose": "aqua_p02_release",
+  "action": "install",
+  "status": "installed_migrated",
+  "results": [
+    {
+      "status": "private_files_prepared",
+      "directory": "/home/ben2004/.aqua-runtime/app-storage",
+      "secrets_displayed": false
+    },
+    {
+      "status": "bootstrapped",
+      "database": "aqua_app",
+      "public_database_port": false,
+      "schema_migrated": false
+    },
+    {
+      "status": "migrated",
+      "schema_version": 1,
+      "public_signup_enabled": false
+    },
+    {
+      "status": "migrated",
+      "schema_version": 1,
+      "public_signup_enabled": false
+    }
+  ],
+  "database": {
+    "network": "none",
+    "tcp_port": false,
+    "health": "healthy"
+  },
+  "runtime_activated": false
+}

@@ -1,0 +1,181 @@
+{
+  "checks": [
+    {
+      "name": "signed out has only the dedicated sign-in page",
+      "pass": true
+    },
+    {
+      "name": "Google receives the current server nonce",
+      "pass": true
+    },
+    {
+      "name": "sign-in heading has route-entry focus",
+      "pass": true
+    },
+    {
+      "name": "1440x900: sign-in layout fits and has one centered logo with water background ({\"fits\":true,\"centered\":true,\"background\":true,\"oneLogo\":true})",
+      "pass": true
+    },
+    {
+      "name": "1024x768: sign-in layout fits and has one centered logo with water background ({\"fits\":true,\"centered\":true,\"background\":true,\"oneLogo\":true})",
+      "pass": true
+    },
+    {
+      "name": "390x844: sign-in layout fits and has one centered logo with water background ({\"fits\":true,\"centered\":true,\"background\":true,\"oneLogo\":true})",
+      "pass": true
+    },
+    {
+      "name": "844x390: sign-in layout fits and has one centered logo with water background ({\"fits\":true,\"centered\":true,\"background\":true,\"oneLogo\":true})",
+      "pass": true
+    },
+    {
+      "name": "320x568: sign-in layout fits and has one centered logo with water background ({\"fits\":true,\"centered\":true,\"background\":true,\"oneLogo\":true})",
+      "pass": true
+    },
+    {
+      "name": "failed login refreshes the Google nonce",
+      "pass": true
+    },
+    {
+      "name": "signing in cannot expose or query the workspace",
+      "pass": true
+    },
+    {
+      "name": "login sends credential and login CSRF",
+      "pass": true
+    },
+    {
+      "name": "queries carry question and session CSRF",
+      "pass": true
+    },
+    {
+      "name": "reload restores the session through the backend",
+      "pass": true
+    },
+    {
+      "name": "main-page logo has no visible tagline",
+      "pass": true
+    },
+    {
+      "name": "1440: Enter replaces send with an enabled stop button",
+      "pass": true
+    },
+    {
+      "name": "1440: stop aborts the request and restores the composer",
+      "pass": true
+    },
+    {
+      "name": "1440: late stopped response cannot complete the new request",
+      "pass": true
+    },
+    {
+      "name": "390: Enter replaces send with an enabled stop button",
+      "pass": true
+    },
+    {
+      "name": "390: stop aborts the request and restores the composer",
+      "pass": true
+    },
+    {
+      "name": "390: late stopped response cannot complete the new request",
+      "pass": true
+    },
+    {
+      "name": "pending logout keeps the same private workspace and draft locked without aborting its query",
+      "pass": true
+    },
+    {
+      "name": "failed logout retains locked draft and results and offers an explicit retry",
+      "pass": true
+    },
+    {
+      "name": "a programmatic submit cannot query through failed-logout lock",
+      "pass": true
+    },
+    {
+      "name": "signed out has only the dedicated sign-in page",
+      "pass": true
+    },
+    {
+      "name": "confirmed logout aborts private queries and clears results and drafts",
+      "pass": true
+    },
+    {
+      "name": "unapproved accounts stay on sign-in with account actions",
+      "pass": true
+    },
+    {
+      "name": "signed out has only the dedicated sign-in page",
+      "pass": true
+    },
+    {
+      "name": "unapproved accounts can sign out from their dedicated page",
+      "pass": true
+    },
+    {
+      "name": "canonical account changes clear and abort private state even when Google subject stays the same",
+      "pass": true
+    },
+    {
+      "name": "late old-account results never enter the replacement workspace",
+      "pass": true
+    },
+    {
+      "name": "confirmed session 401 clears private state even if the next login challenge is unavailable",
+      "pass": true
+    },
+    {
+      "name": "signed out has only the dedicated sign-in page",
+      "pass": true
+    },
+    {
+      "name": "query 401 removes all private workspace state",
+      "pass": true
+    },
+    {
+      "name": "missing-config: retry page contains no workspace",
+      "pass": true
+    },
+    {
+      "name": "signed out has only the dedicated sign-in page",
+      "pass": true
+    },
+    {
+      "name": "api503: retry page contains no workspace",
+      "pass": true
+    },
+    {
+      "name": "signed out has only the dedicated sign-in page",
+      "pass": true
+    },
+    {
+      "name": "sign-in links to both public policies",
+      "pass": true
+    },
+    {
+      "name": "privacy: directly accessible without auth even during an outage",
+      "pass": true
+    },
+    {
+      "name": "privacy: readable on narrow mobile after reload",
+      "pass": true
+    },
+    {
+      "name": "terms: directly accessible without auth even during an outage",
+      "pass": true
+    },
+    {
+      "name": "terms: readable on narrow mobile after reload",
+      "pass": true
+    },
+    {
+      "name": "signed out has only the dedicated sign-in page",
+      "pass": true
+    },
+    {
+      "name": "no uncaught browser exceptions",
+      "pass": true
+    }
+  ],
+  "errors": []
+}

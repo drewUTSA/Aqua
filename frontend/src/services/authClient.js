@@ -32,14 +32,28 @@ async function request(path, options = {}) {
   }
 }
 
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 function sessionResponse(body) {
   const user = body?.user;
-  if (!user || typeof user.sub !== "string" || !user.sub || typeof user.email !== "string"
+  if (!user || typeof user.id !== "string" || !UUID.test(user.id) || /^0{8}-0{4}-0{4}-0{4}-0{12}$/.test(user.id)
+    || (user.sub !== undefined && (typeof user.sub !== "string" || !user.sub)) || typeof user.email !== "string"
     || typeof user.name !== "string" || typeof user.picture !== "string"
     || typeof body.csrf_token !== "string" || !body.csrf_token || typeof body.can_query !== "boolean") {
     throw new AuthError(502);
   }
-  return { user: { sub: user.sub, email: user.email, name: user.name, picture: user.picture }, csrf_token: body.csrf_token, can_query: body.can_query };
+  const identity = { id: user.id.toLowerCase(), email: user.email, name: user.name, picture: user.picture };
+  if (user.sub !== undefined) identity.sub = user.sub;
+  const session = { user: identity, csrf_token: body.csrf_token, can_query: body.can_query };
+  if (body.capabilities !== undefined) {
+    if (!body.capabilities || typeof body.capabilities !== "object" || Array.isArray(body.capabilities)
+      || Object.keys(body.capabilities).length > 16
+      || Object.entries(body.capabilities).some(([key, value]) => !/^[a-z][a-z0-9_]{0,47}$/.test(key) || typeof value !== "boolean")) {
+      throw new AuthError(502);
+    }
+    session.capabilities = { ...body.capabilities };
+  }
+  return session;
 }
 
 export async function fetchAuthConfig({ signal } = {}) {

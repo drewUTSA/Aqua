@@ -23,6 +23,13 @@ export default function App() {
 function AuthenticatedApp() {
   const auth = useGoogleAuth();
   const showWorkspace = auth.demoMode || (auth.status === "authenticated" && auth.canQuery);
+  const accountId = auth.demoMode ? "demo" : auth.user?.id ?? null;
+  const workspaceOwner = useRef(null);
+  // Keep this account's mounted drafts/results while logout is unresolved.
+  // Canonical account changes or a confirmed missing session discard them.
+  if (workspaceOwner.current !== accountId) workspaceOwner.current = null;
+  if (showWorkspace) workspaceOwner.current = accountId;
+  const retainWorkspace = accountId !== null && workspaceOwner.current === accountId;
 
   useLayoutEffect(() => {
     const path = showWorkspace ? "/" : "/signin";
@@ -39,13 +46,15 @@ function AuthenticatedApp() {
     return () => window.removeEventListener("popstate", syncPath);
   }, [showWorkspace]);
 
-  // A session/account transition remounts only private workspace state. Cleanup
-  // aborts every outstanding query before another identity can receive results.
-  const sessionKey = auth.demoMode ? "demo" : auth.status === "authenticated" ? auth.user.sub : "signedout";
-  return showWorkspace ? <Workspace key={sessionKey} auth={auth} /> : <SignInPage auth={auth} />;
+  // A confirmed logout, 401 or account switch unmounts the private workspace;
+  // its cleanup aborts requests before another account can receive results.
+  return <>
+    {retainWorkspace && <Workspace key={accountId} auth={auth} hidden={!showWorkspace} />}
+    {!showWorkspace && <SignInPage auth={auth} />}
+  </>;
 }
 
-function Workspace({ auth }) {
+function Workspace({ auth, hidden = false }) {
   const chat = useChat({ demoMode: auth.demoMode, canQuery: auth.canQuery, csrfToken: auth.csrfToken, onAuthFailure: auth.refresh });
   const reducedMotion = useReducedMotion();
   const [births, setBirths] = useState([]);
@@ -87,7 +96,7 @@ function Workspace({ auth }) {
   const selectFAQ = (prompt) => { chat.setDraft(prompt); focusComposer(); };
 
   return (
-    <div className="app-shell">
+    <div className="app-shell" hidden={hidden} inert={hidden ? true : undefined} style={hidden ? { display: "none" } : undefined}>
       <div className="ambient-light" aria-hidden="true" />
       <WaterSparkles />
       <Sidebar conversations={chat.conversations} activeConversationId={chat.activeConversationId}

@@ -1,0 +1,120 @@
+{
+  "purpose": "aqua_public_ingress_smoke",
+  "date_utc": "2026-10-21T03:04:13.255640+00:00",
+  "scope": {
+    "hosts": [
+      "aqua-ai.us",
+      "api.aqua-ai.us"
+    ],
+    "requests_max": 6,
+    "requests_per_second_max": 2,
+    "per_request_timeout_seconds": 6,
+    "paths": [
+      "/api/health",
+      "/api/ready",
+      "/api/__aqua_ingress_probe__"
+    ],
+    "body_bytes": 17000
+  },
+  "results": [
+    {
+      "host": "aqua-ai.us",
+      "resolved_addresses": [
+        "104.21.96.134",
+        "172.67.181.70",
+        "2606:4700:3033::ac43:b546",
+        "2606:4700:3035::6815:6086"
+      ],
+      "path": "/api/health",
+      "method": "GET",
+      "status": 200,
+      "expected": 200,
+      "cache_control": "no-store",
+      "cloudflare_response": true,
+      "passed": true,
+      "liveness_ok": true
+    },
+    {
+      "host": "aqua-ai.us",
+      "resolved_addresses": [
+        "104.21.96.134",
+        "172.67.181.70",
+        "2606:4700:3033::ac43:b546",
+        "2606:4700:3035::6815:6086"
+      ],
+      "path": "/api/ready",
+      "method": "GET",
+      "status": 404,
+      "expected": 404,
+      "cache_control": "no-store",
+      "cloudflare_response": true,
+      "passed": true
+    },
+    {
+      "host": "aqua-ai.us",
+      "resolved_addresses": [
+        "104.21.96.134",
+        "172.67.181.70",
+        "2606:4700:3033::ac43:b546",
+        "2606:4700:3035::6815:6086"
+      ],
+      "path": "/api/__aqua_ingress_probe__",
+      "method": "POST",
+      "status": 413,
+      "expected": 413,
+      "cache_control": null,
+      "cloudflare_response": true,
+      "passed": true
+    },
+    {
+      "host": "api.aqua-ai.us",
+      "resolved_addresses": [
+        "104.21.96.134",
+        "172.67.181.70",
+        "2606:4700:3033::ac43:b546",
+        "2606:4700:3035::6815:6086"
+      ],
+      "path": "/api/health",
+      "method": "GET",
+      "status": 200,
+      "expected": 200,
+      "cache_control": "no-store",
+      "cloudflare_response": true,
+      "passed": true,
+      "liveness_ok": true
+    },
+    {
+      "host": "api.aqua-ai.us",
+      "resolved_addresses": [
+        "104.21.96.134",
+        "172.67.181.70",
+        "2606:4700:3033::ac43:b546",
+        "2606:4700:3035::6815:6086"
+      ],
+      "path": "/api/ready",
+      "method": "GET",
+      "status": 404,
+      "expected": 404,
+      "cache_control": "no-store",
+      "cloudflare_response": true,
+      "passed": true
+    },
+    {
+      "host": "api.aqua-ai.us",
+      "resolved_addresses": [
+        "104.21.96.134",
+        "172.67.181.70",
+        "2606:4700:3033::ac43:b546",
+        "2606:4700:3035::6815:6086"
+      ],
+      "path": "/api/__aqua_ingress_probe__",
+      "method": "POST",
+      "status": 413,
+      "expected": 413,
+      "cache_control": null,
+      "cloudflare_response": true,
+      "passed": true
+    }
+  ],
+  "status": "passed"
+}

@@ -40,7 +40,7 @@ def probe(baseline: bool = False) -> dict:
     pace = threading.Lock()
     results = []
 
-    def request(path="/api/query", headers=None, body=b"{}"):
+    def request(path="/api/query", headers=None, body=b"{}", method="POST"):
         nonlocal last, sent
         with pace:
             time.sleep(max(0, 0.21 - (time.monotonic() - last)))
@@ -50,7 +50,7 @@ def probe(baseline: bool = False) -> dict:
             last = time.monotonic()
         conn = HTTPConnection("127.0.0.1", 5173, timeout=2)
         try:
-            conn.request("POST", path, body=body, headers=headers or {})
+            conn.request(method, path, body=body, headers=headers or {})
             reply = conn.getresponse()
             result = {
                 "status": reply.status,
@@ -107,8 +107,30 @@ def probe(baseline: bool = False) -> dict:
             before = sum(calls.values())
             assert request(path)["status"] == 404
             assert sum(calls.values()) == before
+        before = sum(calls.values())
+        bootstrap = [
+            request(
+                "/api/auth/config",
+                method="GET",
+                headers={
+                    "X-Forwarded-For": f"198.51.100.{n+1}",
+                    "CF-Connecting-IP": f"192.0.2.{n+1}",
+                    "Cookie": f"churn={n}",
+                },
+            )
+            for n in range(9)
+        ]
+        assert any(r["status"] == 429 for r in bootstrap)
+        assert sum(calls.values()) - before == sum(
+            r["status"] == 200 for r in bootstrap
+        )
+        for path in ("/api/auth/config/", "/api/auth/%63onfig", "/api//auth/config"):
+            before = sum(calls.values())
+            assert request(path, method="GET")["status"] == 429
+            assert sum(calls.values()) == before
         time.sleep(12)
         assert request()["status"] == 200
+        assert request("/api/auth/config", method="GET")["status"] == 200
         before = sum(calls.values())
         with ThreadPoolExecutor(max_workers=4) as pool:
             wave = list(pool.map(lambda _: request("/api/auth/google"), range(4)))
@@ -124,6 +146,7 @@ def probe(baseline: bool = False) -> dict:
             "concurrent_wave": wave,
             "recovery": "passed",
             "private_readiness_boundary": "passed",
+            "challenge_bootstrap_budget": "passed",
             "duration_seconds": round(time.monotonic() - start, 2),
         }
     finally:

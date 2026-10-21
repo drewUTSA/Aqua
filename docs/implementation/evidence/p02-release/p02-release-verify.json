@@ -1,0 +1,27 @@
+{
+  "purpose": "aqua_p02_release",
+  "action": "verify",
+  "status": "verified",
+  "schema_version": 1,
+  "network": "none",
+  "tcp_port": false,
+  "runtime_ddl_ledger_denied": true,
+  "recovery": "passed",
+  "services": {
+    "backend": {
+      "id": "a92e927d70709445adf159fea95fd3758cd79c3e56d2d08372031835c6baa389",
+      "image": "sha256:71ff1e332cca32e441bc4f6f4f1b2b44a25b73d4be5cc5c653697aba35e3d6f3",
+      "running": true,
+      "health": "healthy"
+    },
+    "frontend": {
+      "id": "679ed8a9883645ac73aa33469847fd8bf4652cb0936c00fc7b4d60f9d1bed47c",
+      "image": "sha256:ac73aed548459eab3fb278926d46200311d829b0be6ebccd4da44deba79b2ed5",
+      "running": true,
+      "health": "healthy"
+    }
+  },
+  "git_status": [
+    "?? .env.bak"
+  ]
+}

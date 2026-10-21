@@ -1,0 +1,7 @@
+{
+  "purpose": "new_frontend_contract_checks_against_unmodified_p02_client",
+  "baseline_sha256": "9e79bf9bf01b9190c76d90fb31738d0d06a15fa920ca91c3cc55e728f03aad82",
+  "exit_code": 1,
+  "expected": "fails_before_p03",
+  "output": "frontend-contract-red.txt"
+}

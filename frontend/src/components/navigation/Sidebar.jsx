@@ -148,6 +148,10 @@ export default function Sidebar({
   const composerFocus = useRef(onComposerFocus);
   composerFocus.current = onComposerFocus;
 
+  useEffect(() => {
+    if (!auth.demoMode && !auth.canQuery) setOpen(false);
+  }, [auth.demoMode, auth.canQuery]);
+
   const closeDrawer = (focusComposer = false) => {
     focusAfterClose.current = focusComposer ? "composer" : "trigger";
     setOpen(false);
@@ -234,7 +238,7 @@ export default function Sidebar({
       <button className="sidebar-trigger" type="button" ref={triggerRef} aria-label="Open workspace navigation" aria-expanded={open} aria-controls={`${id}-drawer`} onClick={() => { focusAfterClose.current = "trigger"; setOpen(true); }}>
         <NavIcon kind="menu" />
       </button>
-      {mobileLayout && open && createPortal(
+      {mobileLayout && open && (auth.demoMode || auth.canQuery) && createPortal(
         <div className="sidebar-drawer-layer">
           <div className="sidebar-drawer-scrim" aria-hidden="true" onPointerDown={() => closeDrawer()} />
           <div className="sidebar-glass sidebar-drawer" role="dialog" aria-modal="true" aria-label="Workspace navigation" id={`${id}-drawer`} ref={dialogRef} tabIndex={-1}>

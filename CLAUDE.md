@@ -32,11 +32,11 @@ The server runs the app with docker-compose. Code changes are made locally, push
 | Concern | Choice |
 |---|---|
 | Backend language | Python 3.12 (not 3.14; the ML stack does not fully support 3.14 yet) |
-| API | FastAPI on 127.0.0.1:8000; both public hostnames now enter nginx on 127.0.0.1:5173. P01 PR #37 is merged and deployed at 07055eb; both public hosts were verified through nginx |
-| Sign-in | Google Identity Services, verified server-side; signed expiring cookies, no account database |
+| API | FastAPI on 127.0.0.1:8000; both public hostnames now enter nginx on 127.0.0.1:5173. P02 PR #38 is merged/deployed at 5ac90fc; both public hosts enter nginx. P03 source awaits review/cutover |
+| Sign-in | Google Identity Services verified server-side; P03 uses canonical UUID accounts and opaque digest-only, revocable database sessions (cutover pending) |
 | Frontend | React 19 with Vite. Production: a static build served by nginx on port 5173, which forwards `/api` to the backend and rate-limits questions. Development: `npm run dev` forwards API calls but is not the production rate-limit boundary |
 | Analytical database | PostgreSQL on Tiger Cloud free service (TimescaleDB, pgvector, pgvectorscale); unchanged in P02 |
-| Application database | P02 prepares private PostgreSQL 17, socket only, separate credentials/roles; installation and activation await human review |
+| Application database | P02 private PostgreSQL 17 is installed/active at schema 1, socket only, separate roles. P03 code explicitly requires schema 2 |
 | Sample data | Pagila (Postgres port of Sakila) |
 | LLM | Gemini API with the free `gemini-3.5-flash-lite` by default (`LLM_PROVIDER=gemini`). When it is out of quota or down: Ollama (`qwen3`) on Ben's server over Tailscale, then `gemma-4-26b-a4b-it`. Model names read from env |
 | Embeddings | `gemini-embedding-2` at 768 dimensions, stored in pgvector in the `retrieval` schema (Phase 4) |
@@ -135,21 +135,25 @@ The frontend talks to the backend only through `/api`, which in production goes 
 | Route | Purpose |
 |---|---|
 | `GET /api/health` | Liveness for the Docker healthcheck: `status`, `database_configured`, `model`, `retrieval`. Never touches the database or model |
-| `GET /api/ready` | Internal loopback readiness; reports storage disabled or schema version 1, fixed 503 on failure. Public nginx denies this route and normalized aliases |
-| `GET /api/auth/config` | Returns `client_id`, `nonce`, and `csrf_token`; sets the signed login challenge cookie |
-| `POST /api/auth/google` | Body `{"credential": str}` plus `X-CSRF-Token` from config and matching `Origin`. Verifies Google's token and nonce, sets the Aqua session, returns `user`, `csrf_token`, and `can_query` |
-| `GET /api/auth/me` | Requires an Aqua session; returns `user`, `csrf_token`, and `can_query` |
-| `POST /api/auth/logout` | Requires session, matching `Origin`, and session `X-CSRF-Token`; clears the cookie and returns 204 |
+| `GET /api/ready` | Internal loopback readiness; reports storage disabled or required schema version 2, fixed 503 on failure. Public nginx denies this route and normalized aliases |
+| `GET /api/auth/config` | Returns `client_id`, `nonce`, `csrf_token`, boolean `capabilities`; persists a single-use challenge and sets its opaque cookie |
+| `POST /api/auth/google` | Body `{"credential": str}` plus `X-CSRF-Token` from config and matching `Origin`. Verifies Google's token and nonce, sets the Aqua session, returns canonical `user.id`, safe profile, `csrf_token`, `can_query`, and `capabilities` |
+| `GET /api/auth/me` | Requires an Aqua session; returns canonical `user.id`, safe profile, `csrf_token`, `can_query`, and `capabilities` |
+| `POST /api/auth/logout` | Requires session, matching `Origin`, and session `X-CSRF-Token`; commits durable revocation, then clears the cookie and returns 204; failed revocation returns 503 and preserves the cookie |
 | `GET /api/models` | `{"models": [{"id", "name", "description"}]}`, server default first. Lists `gemini` only when `GEMINI_API_KEY` is set |
 | `POST /api/query` | Requires session, matching `Origin`, session `X-CSRF-Token`, and an approved account. Body `{"question": str, "model": "ollama" or "gemini" (optional)}`. Returns `{"status": "success" or "error", "sql": str, "model": str, "message": str, "tables": [...], "visualizations": [...], "kpis": [...], "error": {"code": str, "message": str, "retryable": bool} or null}` |
 
 The shape matches what the React app renders, plus `sql` so every answer shows its query. Each table is `{"id", "title", "columns": [{"key", "label", "type"}], "rows": [{key: value}]}`, where `type` is `string`, `number`, `currency`, `percentage` or `date`; dates are ISO strings. A rejected or failed query returns HTTP 200 with `status` "error", the SQL the model wrote, and the reason, so the UI can show what was blocked. An unreachable model or database returns 503 with `retryable` true; a blank or over-long question returns 422. An unknown `model` is also a 422. Choosing `gemini` on a server with no key returns 400 with code `model_not_configured` and `retryable` false. `message` is a rule-based summary from `summarize.py`. `visualizations` and `kpis` come from `visualize.py`: a single number gives one KPI (`{"id", "label", "value", "type"}`) plus a `{"type": "kpi"}` visualization; labels with a measure give a `bar`, a date with a measure a `line`, each `{"id", "type", "title", "tableId": "result", "xKey", "yKey"}`; anything else leaves both empty. The frontend draws one x column, so a chart labelled by first and last name uses the first.
 
-Health and the model list remain public. Auth configuration or query access returns 503 when the Google client ID or session secret is missing; invalid or expired sessions return 401, and failed CSRF or account access checks return 403. Every `/api` response uses `Cache-Control: no-store`. Authentication does not grant database access: empty account allowlists deny all queries. Email approval is restricted to verified Gmail or Google Workspace identities; other Google accounts require their verified Google `sub` in the subject allowlist. The frontend uses Google's sign-in button on a dedicated `/signin` page, restores sessions, and sends live queries with the session CSRF token. Only approved live sessions enter the workspace at `/`; logout or session/access failure clears it and returns to `/signin`. nginx serves `index.html` for direct `/signin`, `/privacy` and `/terms` visits while `/api/*` stays routed to Python. `VITE_AQUA_DEMO_MODE=true` explicitly enables fictional sample data for local demonstrations. See `docs/google-signin.md` for setup and integration.
+Health and the model list remain public. Authentication requires the enabled private app DB at schema 2 and a valid session secret. Only new Google config/callbacks require the Google client ID; valid durable sessions can be checked and logged out during provider configuration failure. Invalid/expired sessions return 401, CSRF or dataset denial 403, bounded admission 429 with Retry-After, and unavailable storage/config/provider 503. Validation 422 responses contain a fixed detail string without reflecting submitted credentials/prompts. All `/api` responses use no-store.
+
+The auth response user is `{id,email,name,picture}`, where `id` is the canonical UUID; never fabricate a Google subject. Capabilities are explicit booleans (`google_login`, `password_login=false`, `durable_sessions=true`). The browser facade validates that contract and keys workspace state by canonical ID. Confirmed logout/401/account switch clears private state and aborts old requests. Pending/failed logout retains a hidden, inert workspace with retry; it never reports completion before server confirmation.
+
+Google identity is keyed by verified issuer/subject, never automatic email linking. Fresh approved Gmail/Workspace email or explicit subject evidence may seed an absent durable grant for the server-configured dataset. Revoked grants stay revoked on re-login. Every authenticated operation checks account status/epoch/session expiry/revocation and current grant state; current config approval also gates legacy-derived grants. General login grants no analytical permission. Routes remain same-origin, preserve HTTPS Secure/HttpOnly/host-only cookies, Origin/CSRF and nginx SPA routing. See `docs/google-signin.md` and `docs/ops/P03_IDENTITY_CUTOVER.md`.
 
 Charts use the existing `visualizations` and `kpis` fields described above; there is no separate `chart` field. Ben owns `visualize.py` and decides any change to how charts are chosen or shaped.
 
-P01 nginx answers 429 above 10 questions a minute per socket peer (burst of 5; a shared aggregate behind the local tunnel), with a separate Google verification budget of 5/minute plus burst 3; the client shows that as a retryable "slow down" message. The UI shows `sql` under every answer, and under refused queries as the SQL that was not run. `model` names the model that actually answered (empty for outages); it differs from the one requested after a fallback to Ollama, and the UI shows it as "Answered by".
+P01 nginx answers 429 above 10 questions a minute per socket peer (burst of 5; a shared aggregate behind the local tunnel), with separate Google verification 5/minute plus burst 3 and login-bootstrap 10/minute plus burst 5 budgets; the client shows that as a retryable "slow down" message. The UI shows `sql` under every answer, and under refused queries as the SQL that was not run. `model` names the model that actually answered (empty for outages); it differs from the one requested after a fallback to Ollama, and the UI shows it as "Answered by".
 
 ## Pipeline
 
@@ -208,19 +212,21 @@ GOOGLE_CLIENT_ID=
 SESSION_SECRET=
 APP_ORIGIN=https://aqua-ai.us
 SESSION_MAX_AGE_SECONDS=3600
+AUTH_MAX_SESSIONS=5
+AUTH_IDLE_SECONDS=1800
 AUTH_ALLOWED_EMAILS=
 AUTH_ALLOWED_GOOGLE_SUBS=
 ```
 
 Production sets `RETRIEVAL=on` once the index is built (see Commands). Read analytical/model settings only through `backend/nl2sql/config.py`; new `APP_STORAGE_ENABLED`, `APP_DATABASE_URL` and bounded pool settings are separately validated by `backend/storage/config.py`. Never use the analytical URL as a storage fallback. docker-compose passes `.env` to the backend container. Gemini rate limits are per Google Cloud project, so each developer uses an AI Studio key from their own project and the server at `/srv/bank-ai` uses a separate one.
 
-`SESSION_SECRET` must contain at least 32 characters and be randomly generated; never expose it to the frontend. Session lifetime is 300 through 86400 seconds. `APP_ORIGIN` is the browser's exact HTTPS origin; loopback HTTP is supported for local development. Account allowlists are comma-separated and are checked before any schema, database, or model work. They govern the single configured database, not customer database selection. The current Google cookie flow still does not store accounts/sessions. P02 prepares opt-in identity tables but does not connect authentication to them; durable ownership, revocation and atomic session caps are P03. See `ops/appdb/README.md` for the reviewed installation/backup/restore procedure.
+`SESSION_SECRET` must contain at least 32 characters and be randomly generated; never expose it to the frontend. Session lifetime is 300 through 86400 seconds. `APP_ORIGIN` is the browser's exact HTTPS origin; loopback HTTP is supported for local development. Account allowlists are comma-separated and are checked before any schema, database, or model work. They govern the single configured database, not customer database selection. P03 connects identity tables to Google auth. AUTH_MAX_SESSIONS defaults to 5 (1..20), AUTH_IDLE_SECONDS to 1800 (60..3600), and absolute lifetime to 3600 (300..86400). GET polling never extends idle lifetime. Login budgets persist across sessions/workers; they do not replace P07 AI job/global admission. Limits are server policy, never preference values. See `ops/appdb/README.md` for the reviewed installation/backup/restore procedure.
 
 ## Phases
 
 | Phase | Goal | Done when | Status |
 |---|---|---|---|
-| 0 | Repo scaffolding | Layout above exists, CI runs pytest and black | P00/P01 merged; P01 deployed and verified at 07055eb. P02 storage source/checks are prepared for migration/PR review; see `docs/implementation/P02.md` |
+| 0 | Repo scaffolding | Layout above exists, CI runs pytest and black | P02 merged/deployed at 5ac90fc with private schema-1 storage active; P03 source/checks await human review. See `docs/implementation/P03.md` |
 | 1 | Database | Pagila loaded, reader role works, write test fails as expected | Done |
 | 2 | Baseline pipeline | `/api/query` returns validated SQL and rows; full schema in prompt | Done |
 | 3 | Evaluation harness | Execution accuracy reported on a fixed question set | Done; results in `docs/decisions.md` |
@@ -238,7 +244,7 @@ Agreed but not started. Each needs its own change and a `docs/decisions.md` entr
 - Phase 7 logging: `db/06_logging.sql` with a `query_log` table and an insert-only `nl2sql_logger` role, `nl2sql/querylog.py`, and a way to promote checked pairs into `retrieval.example_query` as `query_log` rows.
 - Tableau: `db/07_tableau_role.sql`, a read-only `tableau_reader` without the 10-second timeout and with the same hidden staff columns.
 - A second, harder question set (`eval/datasets/pagila_v2.jsonl`), written before looking at model output, so the retrieval comparison rests on more than 50 questions.
-- P01 PR #37 merged at `07055eb4579f2bfb002d252942805b8d853fbdb8` and is deployed/healthy on the server. P02 private storage is prepared on `codex/p02-private-storage`, uncommitted for human migration/PR review. No persistent app DB or public signup was activated. P03 will implement users, revocable sessions and grants; P07 adds shared operation/global admission. Hosted DB, `db/`, `nl2sql/db.py` and `nl2sql/config.py` remain unchanged. See `docs/implementation/P02.md`.
+- P02 PR #38 merged at `5ac90fcca45a6a74bab5d6f792388c05804d87a2` and is deployed/healthy, with separate private storage active at schema 1. P03 durable users/sessions/grants are uncommitted on `codex/p03-identity-sessions` for review and explicit schema-2 cutover. Public signup remains unchanged. P07 adds AI operation/global admission. Hosted DB, `db/`, `nl2sql/db.py` and `nl2sql/config.py` remain unchanged. See `docs/implementation/P03.md`.
 - Modules over the size guideline: `schema.py`, `validate.py`, `retrieval/store.py`.
 - Fine-tuning an open model (after Phase 7, optional).
 
@@ -286,14 +292,14 @@ npm run dev
 npm test
 ```
 
-Server (run from `/srv/bank-ai`). After a merge, pull and rebuild; the frontend image builds the site itself:
+Server: follow `docs/ops/P03_IDENTITY_CUTOVER.md` for the reviewed migration and image checks. Routine updates after cutover must retain the storage overlay; startup never migrates:
 
 ```bash
-git pull origin main
-docker compose up -d --build
-curl -s localhost:8000/api/health
-curl -s localhost:5173/api/models
-docker compose logs -f backend
+git pull --ff-only origin main
+export AQUA_PRIVATE_STORAGE_DIR=/home/ben2004/.aqua-runtime/app-storage
+docker compose -f docker-compose.yml -f compose.app-storage.yml up -d --build
+curl --fail --silent localhost:8000/api/health
+curl --fail --silent localhost:8000/api/ready
 ```
 
 ## Rules for agents

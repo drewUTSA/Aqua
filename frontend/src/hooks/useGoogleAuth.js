@@ -25,14 +25,21 @@ export function useGoogleAuth({ demoMode = DEMO_MODE } = {}) {
 
   const refresh = useCallback(async () => {
     if (demoMode) return;
+    const current = stateRef.current;
+    // A query finishing during logout must not cancel revocation or unlock the
+    // account after a failed attempt. Only an explicit logout retry resumes it.
+    if (["signingout", "logoutfailed"].includes(current.status)) return;
     const controller = begin();
-    replace(initialState);
+    replace({ ...initialState, session: current.session, status: "loading" });
+    let confirmedSession = current.session;
     try {
       const session = await fetchSession({ signal: controller.signal });
+      confirmedSession = session;
+      if (!session && isCurrent(controller)) replace(initialState);
       const config = session ? null : await fetchAuthConfig({ signal: controller.signal });
       if (isCurrent(controller)) replace({ status: session ? "authenticated" : "signedout", session, config, error: "" });
     } catch (error) {
-      if (isCurrent(controller)) replace({ ...initialState, status: "unavailable", error: error.message });
+      if (isCurrent(controller)) replace({ ...initialState, session: confirmedSession, status: "unavailable", error: error.message });
     }
   }, [begin, demoMode, replace]);
 
@@ -63,7 +70,7 @@ export function useGoogleAuth({ demoMode = DEMO_MODE } = {}) {
 
   const logout = useCallback(async () => {
     const current = stateRef.current;
-    if (demoMode || current.status !== "authenticated") return;
+    if (demoMode || !["authenticated", "logoutfailed"].includes(current.status)) return;
     const controller = begin();
     replace({ ...current, status: "signingout", error: "" });
     try {
@@ -71,7 +78,7 @@ export function useGoogleAuth({ demoMode = DEMO_MODE } = {}) {
     } catch (error) {
       if (!isCurrent(controller)) return;
       if (!(error instanceof AuthError && error.status === 401)) {
-        replace({ ...current, error: "AQUA couldn't sign you out. Please try again." });
+        replace({ ...current, status: "logoutfailed", error: "AQUA couldn't confirm sign-out. Your workspace is locked. Please try again." });
         return;
       }
     }
