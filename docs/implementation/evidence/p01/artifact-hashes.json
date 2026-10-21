@@ -1,0 +1,116 @@
+{
+  "files": [
+    {
+      "path": "backend/bank.txt",
+      "sha256": "38f001bf3f63bd275d226b4d74a7983ec804d9a1b3ee9be14550e77eec148594"
+    },
+    {
+      "path": "backend/bank.xml",
+      "sha256": "f7adc8165f34fa7ecf9034bfaf44ee0b3b62980b5c8671178467912e4979546a"
+    },
+    {
+      "path": "backend/packages.txt",
+      "sha256": "881ee1a316a265e7905f6676a52dc7ecb54f4cfa10576a7afafb040570afd19b"
+    },
+    {
+      "path": "backend/pagila.txt",
+      "sha256": "dd99df10a67c7c24874b39641885163f8418236bbb392bc86ee3226e5b4d0aca"
+    },
+    {
+      "path": "backend/pagila.xml",
+      "sha256": "357177eba95b7180e0159353a2b0763009a80ae798f86378b759adc16063c22f"
+    },
+    {
+      "path": "backend/report.json",
+      "sha256": "42aa3f1ff0be9401a9e6c6f44f254062ded3e71d5e22caa9f34211a88910ad14"
+    },
+    {
+      "path": "exercise-manifest.json",
+      "sha256": "68a2c30821f2da86a19d5ca961441173718b6b43bde3773c6608fa850f504bbd"
+    },
+    {
+      "path": "frontend-build-audit.json",
+      "sha256": "c2a33435f2085f6db2de46e6a83cfc3decd0bbb717af97a8bac18468f36e2243"
+    },
+    {
+      "path": "frontend-isolated.json",
+      "sha256": "09d647e5f371b20de252ce24e9a543ab02002362b0249a48c331fbebbf162b4b"
+    },
+    {
+      "path": "ingress/gateway-live.json",
+      "sha256": "ee3b3c96cfc76b0fa2ab631006dfceb13cccdfe64dbe349fb70bcc501ceebab5"
+    },
+    {
+      "path": "ingress/ingress-after.json",
+      "sha256": "bd871dbb9fc9f37e9af5e83a3652ecf12e99ad2d17cb1e09b33fb85651329b80"
+    },
+    {
+      "path": "ingress/ingress-before.json",
+      "sha256": "a65ce2ec86ae825cde445edf7b648daf0dc4f6f744c5d38b906fc32be38b63aa"
+    },
+    {
+      "path": "ingress/ingress-permissions.json",
+      "sha256": "68a276670e616f0a0f4da451dc732532675be793be8258419322246bde5613d9"
+    },
+    {
+      "path": "ingress/operator-stage.json",
+      "sha256": "fd27a49e1a7c4e868e42e2c1ddebbe04c85a279905a59a9dc206c0da787948a1"
+    },
+    {
+      "path": "ingress/operator-tunnel-report.json",
+      "sha256": "f9ee53cf831cf84c002ab9b68f867b33036cae460a8f6581a6023c46b953cb89"
+    },
+    {
+      "path": "ingress/proxy-runtime.json",
+      "sha256": "fda4df02c6af7573d01bed099b859a649b359ed4a71244ca65a0f86689257e1d"
+    },
+    {
+      "path": "ingress/public-ingress.json",
+      "sha256": "26b29c3541aca7dc31697977b1950ef30ddcdf282d5cf8920ab6388a13653910"
+    },
+    {
+      "path": "ingress/tunnel-helper-tests.json",
+      "sha256": "b9d59539ebb03c2c5c9477a874e23076bdaa8d34fbc1dad71e7c10aef54d006a"
+    },
+    {
+      "path": "proxy-blue.json",
+      "sha256": "97ea8af4d61a4b4f2d1b4aac14a7f648f59c0e3105b2217fc1e79e4c6880e7f0"
+    },
+    {
+      "path": "proxy-red.json",
+      "sha256": "fc9d565e20980dafd102e0d25bdedc5fb3ae0fb9efe8f3d0506a309287b58b9b"
+    },
+    {
+      "path": "python-audit.json",
+      "sha256": "a88845503bac4dedee20ef4b19b7094e3c3ba8478a6a60fc4d9c4e9298764ada"
+    },
+    {
+      "path": "quality.json",
+      "sha256": "f9f064af2d565b0f4e657090f936a24d414debf028dcedfd39bc473ff9829a42"
+    },
+    {
+      "path": "red-baseline/bank.txt",
+      "sha256": "452e8c62c8bec37a18f77e8f13d7dcff3fccb3e061f53b4eb4fa988a65f31aed"
+    },
+    {
+      "path": "red-baseline/bank.xml",
+      "sha256": "cb87826e7b2d0d275d8190aebee95697bfffe634205a8e60b3daff7cf4f377ed"
+    },
+    {
+      "path": "red-baseline/pagila.txt",
+      "sha256": "b6d6dfd5cc1393586ea9654f30f758fa3618c8dab83f0d1f803cecbedacc4f29"
+    },
+    {
+      "path": "red-baseline/pagila.xml",
+      "sha256": "d57f5a7b2441ab51a2a78f43584bcd8dad936f626e54994736b2a9f1e5d60225"
+    },
+    {
+      "path": "red-baseline/report.json",
+      "sha256": "9aa6082208f594e8bee0488ce648d55629fe4e71d3d32596bc73d288b9061e2b"
+    },
+    {
+      "path": "source-hashes.json",
+      "sha256": "e97533a7a5f9b4d43d0dfc4c2d01e417c4dfe21ad9996c66d26b1c52e713618a"
+    }
+  ]
+}

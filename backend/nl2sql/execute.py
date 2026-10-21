@@ -18,6 +18,8 @@ from sqlglot import exp
 
 from nl2sql.config import Settings
 from nl2sql.db import connect
+from nl2sql.errors import diagnostic, query_code
+from nl2sql.relations import physical_tables
 from nl2sql.validate import UnsafeQueryError
 
 # Most rows any query may return. Enough for any table a person would
@@ -28,10 +30,18 @@ DEFAULT_MAX_ROWS = 1000
 class QueryError(RuntimeError):
     """The database rejected or could not finish a validated query.
 
-    For example an unknown column, a type mismatch, or the statement
-    timeout. The message is the database's own first line, which is
-    useful to show the user or send back to the model for a retry.
+    Only a closed diagnostic code crosses this boundary. Never retain raw
+    database messages: casts, constraints and functions may echo private values.
     """
+
+    def __init__(self, code: str = "query_failed") -> None:
+        self.code = (
+            code
+            if code in {"invalid_column", "invalid_query", "timeout", "access_denied"}
+            else "query_failed"
+        )
+        self.fixable = diagnostic(self.code).fixable
+        super().__init__(diagnostic(self.code).message)
 
 
 @dataclass(frozen=True)
@@ -90,13 +100,24 @@ def execute(
             "execute() takes the parsed query from validate_sql(), not a string."
         )
 
+    query = query.copy()
+    if dialect == "postgres":
+        # Legacy validator callers can omit a table allowlist. Preserve public
+        # table resolution for them without putting public functions in scope.
+        for table in physical_tables(query):
+            if isinstance(table.this, exp.Identifier) and not table.db:
+                table.set("db", exp.to_identifier("public"))
     probe_sql = limit_rows(query, max_rows + 1).sql(dialect=dialect)
     with connect(settings) as conn:
         try:
+            # Only resolve built-ins; public functions can overload safe names.
+            # The validator already qualifies approved tables with public.
+            # This is transaction-local, never a change to roles or hosted storage.
+            conn.execute("SET LOCAL search_path = pg_catalog")
             cursor = conn.execute(probe_sql)
             rows = cursor.fetchall()
         except psycopg.Error as exc:
-            raise QueryError(str(exc).strip().splitlines()[0]) from exc
+            raise QueryError(query_code(exc.sqlstate)) from None
         columns = [column.name for column in cursor.description or []]
 
     return QueryResult(

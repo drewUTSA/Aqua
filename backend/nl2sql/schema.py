@@ -14,37 +14,19 @@ Run `python -m nl2sql.schema` from backend/ to print the prompt text.
 
 from __future__ import annotations
 
-import re
 import sys
 import threading
 from collections.abc import Iterable
 from dataclasses import dataclass, field
 
 import psycopg
-from psycopg import sql
 
 from nl2sql.config import Settings, load_settings
 from nl2sql.db import DatabaseError, connect
 
 # Columns the model is never shown; the validator also refuses them.
 # staff.password is a credential hash, staff.picture is binary.
-from nl2sql.validate import HIDDEN_COLUMNS
-
-# Short text columns with this few distinct values get them listed in
-# the prompt (category names, ratings), so the model matches real
-# values instead of guessing spellings.
-MAX_LISTED_VALUES = 20
-
-# Never list values from columns that hold personal details.
-_PERSONAL = re.compile(r"email|phone|user|password|address|postal", re.IGNORECASE)
-
-# ON UPDATE/ON DELETE rules only matter for writes, which never happen.
-_FK_ACTIONS = re.compile(
-    r"\s+ON (UPDATE|DELETE) (CASCADE|RESTRICT|SET NULL|SET DEFAULT|NO ACTION)"
-)
-
-# Plain text columns only; arrays such as text[] are not listed.
-_TEXT_TYPE = re.compile(r"^(text|character( varying)?(\(\d+\))?)$")
+from nl2sql.validate import HIDDEN_COLUMNS as HIDDEN_COLUMNS
 
 
 @dataclass(frozen=True)
@@ -203,114 +185,11 @@ def _create_table(table: Table) -> str:
     )
 
 
-# Ordinary and partitioned tables in public, without the monthly payment
-# partitions: queries use the parent table.
-_TABLES_SQL = """
-SELECT c.oid, c.relname, obj_description(c.oid, 'pg_class'), quote_ident(c.relname)
-FROM pg_class c
-JOIN pg_namespace n ON n.oid = c.relnamespace
-WHERE n.nspname = 'public' AND c.relkind IN ('r', 'p') AND NOT c.relispartition
-ORDER BY c.relname
-"""
-
-_COLUMNS_SQL = """
-SELECT a.attrelid, a.attname, format_type(a.atttypid, a.atttypmod), a.attnotnull,
-       col_description(a.attrelid, a.attnum)
-FROM pg_attribute a
-WHERE a.attrelid = ANY(%s) AND a.attnum > 0 AND NOT a.attisdropped
-ORDER BY a.attrelid, a.attnum
-"""
-
-_CONSTRAINTS_SQL = """
-SELECT con.conrelid, con.contype, pg_get_constraintdef(con.oid), ref.relname
-FROM pg_constraint con
-LEFT JOIN pg_class ref ON ref.oid = con.confrelid
-WHERE con.conrelid = ANY(%s) AND con.contype IN ('p', 'f')
-ORDER BY con.conrelid, con.contype DESC, con.conname
-"""
-
-_ENUMS_SQL = """
-SELECT t.typname, e.enumlabel
-FROM pg_type t
-JOIN pg_namespace n ON n.oid = t.typnamespace
-JOIN pg_enum e ON e.enumtypid = t.oid
-WHERE n.nspname = 'public'
-ORDER BY t.typname, e.enumsortorder
-"""
-
-_DOMAINS_SQL = """
-SELECT t.typname, format_type(t.typbasetype, t.typtypmod)
-FROM pg_type t
-JOIN pg_namespace n ON n.oid = t.typnamespace
-WHERE n.nspname = 'public' AND t.typtype = 'd'
-"""
-
-
-def _listed_values(
-    conn: psycopg.Connection, table: str, column: str
-) -> tuple[str, ...]:
-    """Distinct values of a short text column, or () if there are too many."""
-    query = sql.SQL(
-        "SELECT DISTINCT {col}::text FROM {tbl} WHERE {col} IS NOT NULL LIMIT %s"
-    ).format(col=sql.Identifier(column), tbl=sql.Identifier("public", table))
-    rows = conn.execute(query, (MAX_LISTED_VALUES + 1,)).fetchall()
-    if len(rows) > MAX_LISTED_VALUES:
-        return ()
-    return tuple(sorted(_display_value(r[0]) for r in rows))
-
-
 def load_schema(conn: psycopg.Connection) -> Schema:
-    """Read the public schema through an open connection.
+    """Load only the reviewed dataset catalog and approved static metadata."""
+    from nl2sql.schema_loader import load
 
-    Reads the system catalogs directly. That is allowed here because
-    this is the app's own code, not model-written SQL; the validator
-    still blocks generated SQL from touching the catalogs.
-    """
-    tables_rows = conn.execute(_TABLES_SQL).fetchall()
-    oids = [oid for oid, _, _, _ in tables_rows]
-    names = {oid: name for oid, name, _, _ in tables_rows}
-    table_comments = {oid: _one_line(comment) for oid, _, comment, _ in tables_rows}
-    quoted = {oid: q for oid, _, _, q in tables_rows}
-
-    columns: dict[int, list[tuple[str, str, bool, str]]] = {oid: [] for oid in oids}
-    for oid, name, type_name, not_null, comment in conn.execute(_COLUMNS_SQL, (oids,)):
-        if (names[oid], name) not in HIDDEN_COLUMNS:
-            columns[oid].append((name, type_name, not_null, _one_line(comment)))
-
-    constraints: dict[int, list[str]] = {oid: [] for oid in oids}
-    references: dict[int, set[str]] = {oid: set() for oid in oids}
-    for oid, kind, definition, ref_name in conn.execute(_CONSTRAINTS_SQL, (oids,)):
-        constraints[oid].append(_FK_ACTIONS.sub("", definition))
-        if kind == "f" and ref_name:
-            references[oid].add(ref_name)
-
-    enums: dict[str, list[str]] = {}
-    for type_name, label in conn.execute(_ENUMS_SQL):
-        enums.setdefault(type_name, []).append(label)
-    domains = dict(conn.execute(_DOMAINS_SQL).fetchall())
-
-    tables = {}
-    for oid in oids:
-        name = names[oid]
-        cols = []
-        for col_name, type_name, not_null, comment in columns[oid]:
-            values: tuple[str, ...] = ()
-            if _TEXT_TYPE.match(type_name) and not _PERSONAL.search(col_name):
-                values = _listed_values(conn, name, col_name)
-            cols.append(Column(col_name, type_name, not_null, values, comment))
-        tables[name.lower()] = Table(
-            name=name,
-            columns=tuple(cols),
-            constraints=tuple(constraints[oid]),
-            references=frozenset(references[oid]),
-            comment=table_comments[oid],
-            quoted_name=quoted[oid],
-        )
-    return Schema(
-        tables=tables,
-        enums={k: tuple(v) for k, v in enums.items()},
-        domains=domains,
-    )
+    return load(conn)
 
 
 _cache: dict[str, Schema] = {}
@@ -321,7 +200,7 @@ def get_schema(settings: Settings) -> Schema:
     """The schema for settings.database_url, read once per process.
 
     Cached because it only changes when someone runs a db/ script, and
-    reading it takes a few dozen catalog queries. A failed read is not
+    reading it takes three bounded catalog queries. A failed read is not
     cached, so the next request tries again. Raises db.DatabaseError if
     the database cannot be reached.
     """
@@ -332,8 +211,8 @@ def get_schema(settings: Settings) -> Schema:
         try:
             with connect(settings) as conn:
                 schema = load_schema(conn)
-        except psycopg.Error as exc:
-            raise DatabaseError(f"Could not read the schema: {exc}") from exc
+        except psycopg.Error:
+            raise DatabaseError("Could not read the authorized schema.") from None
         _cache[settings.database_url] = schema
         return schema
 

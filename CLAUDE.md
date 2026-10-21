@@ -32,9 +32,9 @@ The server runs the app with docker-compose. Code changes are made locally, push
 | Concern | Choice |
 |---|---|
 | Backend language | Python 3.12 (not 3.14; the ML stack does not fully support 3.14 yet) |
-| API | FastAPI, served by uvicorn on 127.0.0.1:8000, reachable from outside only through nginx |
+| API | FastAPI on 127.0.0.1:8000; both public hostnames now enter nginx on 127.0.0.1:5173. The October 20 ingress hotfix is verified; full P01 backend deployment remains pending |
 | Sign-in | Google Identity Services, verified server-side; signed expiring cookies, no account database |
-| Frontend | React 19 with Vite. Production: a static build served by nginx on port 5173, which forwards `/api` to the backend and rate-limits questions. Development: `npm run dev`, whose proxy does the same |
+| Frontend | React 19 with Vite. Production: a static build served by nginx on port 5173, which forwards `/api` to the backend and rate-limits questions. Development: `npm run dev` forwards API calls but is not the production rate-limit boundary |
 | Database | PostgreSQL on Tiger Cloud free service (TimescaleDB, pgvector, pgvectorscale) |
 | Sample data | Pagila (Postgres port of Sakila) |
 | LLM | Gemini API with the free `gemini-3.5-flash-lite` by default (`LLM_PROVIDER=gemini`). When it is out of quota or down: Ollama (`qwen3`) on Ben's server over Tailscale, then `gemma-4-26b-a4b-it`. Model names read from env |
@@ -147,19 +147,19 @@ Health and the model list remain public. Auth configuration or query access retu
 
 Charts use the existing `visualizations` and `kpis` fields described above; there is no separate `chart` field. Ben owns `visualize.py` and decides any change to how charts are chosen or shaped.
 
-nginx answers 429 when one visitor sends more than 10 questions a minute (burst of 5); the client shows that as a retryable "slow down" message. The UI shows `sql` under every answer, and under refused queries as the SQL that was not run. `model` names the model that actually answered (empty for outages); it differs from the one requested after a fallback to Ollama, and the UI shows it as "Answered by".
+P01 nginx answers 429 above 10 questions a minute per socket peer (burst of 5; a shared aggregate behind the local tunnel), with a separate Google verification budget of 5/minute plus burst 3; the client shows that as a retryable "slow down" message. The UI shows `sql` under every answer, and under refused queries as the SQL that was not run. `model` names the model that actually answered (empty for outages); it differs from the one requested after a fallback to Ollama, and the UI shows it as "Answered by".
 
 ## Pipeline
 
 1. Receive a question.
-2. Build context: every table from `schema.py`, or with `RETRIEVAL=on` the nearest tables plus similar verified examples. If retrieval fails, fall back to every table.
+2. Build context from a reviewed bank/Pagila manifest, catalog identifiers and static code dictionaries. Never sample row values or live comments for prompts. With retrieval, validate selected relations/examples and rebuild the schema text. Only classified availability failures may fall back within the same authorized manifest; authorization/integrity/unknown failures stop.
 3. Ask the model (Gemini Flash-Lite by default; Ollama, then Gemma 4 26B, when it is out of quota or down) for one SQL statement. With `ANSWER_SIZE_RULES=on`, `answer_size.py` adds one line saying how many rows the question wants: the number it gives, the top 10 for a plural with no number, first place and every tie for a singular, the same within each group for "in each", and no limit for "all".
 4. Validate the SQL with `validate.py` against the schema's allowlist. On failure, never execute.
 5. Execute in a read-only transaction with a row limit and timeout.
-6. If step 4 or 5 failed and the error is fixable (`UnsafeQueryError.fixable`, or a database error other than a timeout), ask the model once more with the failed SQL and the error. Writes, dangerous functions and catalog access are never retried.
+6. For an eligible validation or SQLSTATE failure, ask the model once more with the previous SQL and a fixed diagnostic code/message. Raw database/provider exceptions never reach repair prompts, clients or boundary logs. Permission failures, timeouts and unknown errors are not repaired.
 7. Summarize the rows, pick a chart, and return rows, summary, chart and SQL. The summary says when the default top 10 was applied, or when several rows tie for first place.
 
-Before step 2, `main.py` checks `cache.py`: a successful answer to the same question (ignoring case, spacing and trailing punctuation) with the same model, retrieval and size settings is reused for `ANSWER_CACHE_SECONDS` (600 by default). Refusals, failures and outages are never cached.
+Before cache lookup, `main.py` checks the current session and dataset allowlist. Keys preserve exact question text and include server-owned principal, dataset, authorization/schema/policy/context revisions and provider settings. Successes expire at `ANSWER_CACHE_SECONDS` (600 by default); failures are never cached. LRU storage is capped at 256 entries, 1 MiB encoded per entry and 16 MiB encoded total; object overhead is additional. See `docs/security/P01_BOUNDARIES.md` for costs and limitations.
 
 ## Safety rules (non-negotiable)
 
@@ -218,7 +218,7 @@ Production sets `RETRIEVAL=on` once the index is built (see Commands). Read them
 
 | Phase | Goal | Done when | Status |
 |---|---|---|---|
-| 0 | Repo scaffolding | Layout above exists, CI runs pytest and black | P00 check implementation prepared; first GitHub run and human review pending. See `docs/implementation/P00.md` |
+| 0 | Repo scaffolding | Layout above exists, CI runs pytest and black | P00 merged in PR #36; GitHub checks passed. P01 isolated checks passed; review/deployment pending. See `docs/implementation/P01.md` |
 | 1 | Database | Pagila loaded, reader role works, write test fails as expected | Done |
 | 2 | Baseline pipeline | `/api/query` returns validated SQL and rows; full schema in prompt | Done |
 | 3 | Evaluation harness | Execution accuracy reported on a fixed question set | Done; results in `docs/decisions.md` |
@@ -236,7 +236,7 @@ Agreed but not started. Each needs its own change and a `docs/decisions.md` entr
 - Phase 7 logging: `db/06_logging.sql` with a `query_log` table and an insert-only `nl2sql_logger` role, `nl2sql/querylog.py`, and a way to promote checked pairs into `retrieval.example_query` as `query_log` rows.
 - Tableau: `db/07_tableau_role.sql`, a read-only `tableau_reader` without the 10-second timeout and with the same hidden staff columns.
 - A second, harder question set (`eval/datasets/pagila_v2.jsonl`), written before looking at model output, so the retrieval comparison rests on more than 50 questions.
-- Phase 0: formatting and GitHub checks are prepared in P00, with a separate mechanical-change manifest. Human commit/push/PR remains pending; see `docs/implementation/P00.md` and `tools/checks/README.md`. Connection modules excluded by user scope remain unchanged.
+- P00 merged in PR #36 at `271aa90a3d2a4175be4311f2d9ffcc230fad233d`; both local and server source were synchronized. P01 source changes and isolated evidence are ready for human review on `codex/p01-data-boundaries`; see `docs/implementation/P01.md`. The October 20 ingress-only hotfix closed the direct API tunnel bypass; full P01 backend deployment and later session/global admission gates remain. See `docs/implementation/P01_INGRESS.md` and `docs/security/TARGET_ARCHITECTURE.md`. The hosted DB, `db/`, `nl2sql/db.py` and `nl2sql/config.py` remain unchanged.
 - Modules over the size guideline: `schema.py`, `validate.py`, `retrieval/store.py`.
 - Fine-tuning an open model (after Phase 7, optional).
 

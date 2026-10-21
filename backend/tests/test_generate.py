@@ -163,11 +163,11 @@ def test_no_examples_means_no_examples_heading() -> None:
 
 
 def test_previous_attempt_comes_last_with_its_error() -> None:
-    previous = Attempt("SELECT nope FROM film", 'column "nope" does not exist')
+    previous = Attempt("SELECT nope FROM film", "invalid_column")
     prompt = build_prompt("q", SCHEMA, previous=previous)
     assert prompt.endswith("Write a corrected query that answers the question.")
     assert prompt.index("Question: q") < prompt.index("SELECT nope FROM film")
-    assert 'It failed: column "nope" does not exist' in prompt
+    assert "It failed: A query column does not exist" in prompt
 
 
 def test_examples_and_previous_attempt_reach_the_model() -> None:
@@ -178,10 +178,10 @@ def test_examples_and_previous_attempt_reach_the_model() -> None:
         SETTINGS,
         client=client,
         examples=[Example("How many actors?", "SELECT count(*) FROM actor")],
-        previous=Attempt("SELEC 1", "could not be parsed"),
+        previous=Attempt("SELEC 1", "invalid_query"),
     )
     sent = requests[0]["messages"][-1]["content"]
-    assert "How many actors?" in sent and "could not be parsed" in sent
+    assert "How many actors?" in sent and "syntax or types are invalid" in sent
 
 
 def test_instruction_asks_for_named_columns_and_aliases() -> None:
@@ -194,7 +194,7 @@ def test_size_line_follows_the_question_and_precedes_a_correction() -> None:
         "least popular films",
         SCHEMA,
         size="Answer size: return the top 10.",
-        previous=Attempt("SELEC 1", "could not be parsed"),
+        previous=Attempt("SELEC 1", "invalid_query"),
     )
     assert (
         prompt.index("Question: least popular films")

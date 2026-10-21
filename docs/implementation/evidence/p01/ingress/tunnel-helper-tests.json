@@ -1,0 +1,8 @@
+{
+  "status": "passed",
+  "tests": 3,
+  "command": "python -m unittest discover -s output/implementation/p01 -p test_tunnel_plan.py -v",
+  "scope": "Offline pure route-patching functions only; no root execution or server writes during tests",
+  "cases": ["Exact origin replacements preserve other bytes", "Unexpected configuration hash refuses patch", "Changed hostname, catch-all, path or duplicate route refuses patch"],
+  "live_application_proof": "Operator application plus independent ingress-after and public-ingress checks"
+}

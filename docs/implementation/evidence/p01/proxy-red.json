@@ -1,0 +1,93 @@
+{
+  "name": "aqua-proxy-check-ecffba6b65cd2b17c644f454",
+  "network": "none",
+  "status": "red_finding_reproduced",
+  "cleanup": "removed_and_absence_confirmed",
+  "config_sha256": "cdc49f41fd44b9e807ff3a6146898d8d1a5b302bf8b714efd66ac17c1ce10805",
+  "nginx_image": "sha256:970364228b1e4f932abc22d321932816782cca8a20b85a77552a7cfe9acfb3b5",
+  "tests_image": "sha256:b847dc793be6cc8aa48f081807043ebd0b1fd4d19a1032b7fdb9c3e99e94d34f",
+  "exercise": {
+    "mode": "red_baseline",
+    "finding": "forged_header_creates_fresh_query_budget",
+    "requests": 12,
+    "admitted_work": 12,
+    "statuses": [
+      {
+        "status": 200,
+        "retry_after": null
+      },
+      {
+        "status": 200,
+        "retry_after": null
+      },
+      {
+        "status": 200,
+        "retry_after": null
+      },
+      {
+        "status": 200,
+        "retry_after": null
+      },
+      {
+        "status": 200,
+        "retry_after": null
+      },
+      {
+        "status": 200,
+        "retry_after": null
+      },
+      {
+        "status": 200,
+        "retry_after": null
+      },
+      {
+        "status": 200,
+        "retry_after": null
+      },
+      {
+        "status": 200,
+        "retry_after": null
+      },
+      {
+        "status": 200,
+        "retry_after": null
+      },
+      {
+        "status": 200,
+        "retry_after": null
+      },
+      {
+        "status": 200,
+        "retry_after": null
+      }
+    ]
+  },
+  "resource_snapshots": [
+    {
+      "BlockIO": "0B / 0B",
+      "CPUPerc": "0.00%",
+      "Container": "6e34dbd6322d4f6af060e33d8c5d475a0495a73085dec3372bc1945a298d1b5a",
+      "ID": "6e34dbd6322d",
+      "MemPerc": "0.53%",
+      "MemUsage": "5.418MiB / 1GiB",
+      "Name": "aqua-proxy-check-ecffba6b65cd2b17c644f454-nginx",
+      "NetIO": "0B / 0B",
+      "PIDs": "4"
+    },
+    {
+      "BlockIO": "0B / 0B",
+      "CPUPerc": "0.00%",
+      "Container": "fb6febc24bddb3cf9efb3e957399b33f2b3aadc29f550cce87f510b4f3d3c32f",
+      "ID": "fb6febc24bdd",
+      "MemPerc": "0.33%",
+      "MemUsage": "3.371MiB / 1GiB",
+      "Name": "aqua-proxy-check-ecffba6b65cd2b17c644f454-client",
+      "NetIO": "0B / 0B",
+      "PIDs": "1"
+    }
+  ],
+  "remaining_ids": [],
+  "elapsed_seconds": 5.67,
+  "exit_code": 0,
+  "host_cleanup": "removed"
+}

@@ -9,6 +9,7 @@ import pytest
 
 from nl2sql import pipeline
 from nl2sql.config import Settings
+from nl2sql.errors import RetrievalUnavailable
 from nl2sql.db import DatabaseError
 from nl2sql.execute import QueryError, QueryResult
 from nl2sql.generate import Example, Generation
@@ -114,7 +115,7 @@ def test_rejected_writes_are_never_executed_or_retried(
     answer = answer_question("Delete film 1.", SETTINGS, SCHEMA)
 
     assert executed == [] and len(calls) == 1
-    assert answer.error_code == "rejected" and "Only SELECT" in answer.error
+    assert answer.error_code == "rejected" and "read-only data policy" in answer.error
     assert (
         answer.sql == "DELETE FROM film WHERE film_id = 1"
     )  # shown so the user can see why
@@ -135,7 +136,7 @@ def test_tables_off_the_allowlist_are_rejected_then_retried(
 
     assert len(executed) == 1 and "customer" not in executed[0]
     assert calls[1]["previous"].sql == "SELECT first_name FROM customer"
-    assert "not allowed: customer" in calls[1]["previous"].error
+    assert calls[1]["previous"].error == "repair_query"
     assert answer.error is None and answer.attempts == 2
 
 
@@ -143,11 +144,11 @@ def test_database_refusal_gets_one_retry_with_the_error(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     calls = fake_model(monkeypatch, "SELECT nope FROM film", "SELECT title FROM film")
-    fake_database(monkeypatch, QueryError('column "nope" does not exist'), OK)
+    fake_database(monkeypatch, QueryError("invalid_column"), OK)
 
     answer = answer_question("q", SETTINGS, SCHEMA)
 
-    assert 'column "nope" does not exist' in calls[1]["previous"].error
+    assert calls[1]["previous"].error == "invalid_column"
     assert answer.error is None and answer.attempts == 2
 
 
@@ -157,22 +158,20 @@ def test_second_failure_is_reported_with_the_last_sql(
     fake_model(monkeypatch, "SELECT nope FROM film", "SELECT still_nope FROM film")
     fake_database(
         monkeypatch,
-        QueryError("first"),
-        QueryError('column "still_nope" does not exist'),
+        QueryError("invalid_column"),
+        QueryError("invalid_column"),
     )
 
     answer = answer_question("q", SETTINGS, SCHEMA)
 
     assert answer.error_code == "query_failed"
     assert answer.sql == "SELECT still_nope FROM film"
-    assert "still_nope" in answer.error and answer.attempts == 2
+    assert "column does not exist" in answer.error and answer.attempts == 2
 
 
 def test_timeouts_are_not_retried(monkeypatch: pytest.MonkeyPatch) -> None:
     calls = fake_model(monkeypatch, "SELECT title FROM film")
-    fake_database(
-        monkeypatch, QueryError("canceling statement due to statement timeout")
-    )
+    fake_database(monkeypatch, QueryError("timeout"))
 
     answer = answer_question("q", SETTINGS, SCHEMA)
 
@@ -200,7 +199,7 @@ class FakeRetriever:
     def select(self, question: str, schema: Schema) -> Context:
         self.asked.append(question)
         if self.fail:
-            raise RuntimeError("embedding quota exhausted")
+            raise RetrievalUnavailable("embedding quota exhausted")
         return Context(
             schema_text="CREATE TABLE film (film_id integer);",
             examples=(Example("How many films?", "SELECT count(*) FROM film"),),
@@ -218,7 +217,7 @@ def test_retrieved_context_and_examples_reach_the_model(
     answer = answer_question("Count the films", SETTINGS, SCHEMA, retriever=retriever)
 
     assert retriever.asked == ["Count the films"]
-    assert calls[0]["schema"] == "CREATE TABLE film (film_id integer);"
+    assert calls[0]["schema"] == SCHEMA.to_prompt(["film"])
     assert calls[0]["examples"][0].question == "How many films?"
     assert answer.used_retrieval is True
 
@@ -313,7 +312,7 @@ def test_size_rules_can_be_switched_off(monkeypatch: pytest.MonkeyPatch) -> None
 
 def test_the_size_line_survives_a_retry(monkeypatch: pytest.MonkeyPatch) -> None:
     calls = fake_model(monkeypatch, "SELECT nope FROM film", "SELECT title FROM film")
-    fake_database(monkeypatch, QueryError('column "nope" does not exist'), OK)
+    fake_database(monkeypatch, QueryError("invalid_column"), OK)
     answer_question("top 5 films", SETTINGS, SCHEMA)
     assert calls[0]["size"] == calls[1]["size"]
     assert "exactly 5 rows" in calls[1]["size"]

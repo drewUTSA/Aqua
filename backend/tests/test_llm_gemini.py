@@ -122,7 +122,7 @@ def test_network_failures_become_llm_errors(error: Exception) -> None:
 
 def test_empty_reply_reports_why() -> None:
     client = FakeGenai(text=None, candidates=[SimpleNamespace(finish_reason="SAFETY")])
-    with pytest.raises(LLMError, match="SAFETY") as caught:
+    with pytest.raises(LLMError, match="no answer") as caught:
         complete("q", NO_FALLBACK, client=client)
     assert caught.value.transient is True  # another model may answer
 

@@ -18,6 +18,8 @@ CREATE TABLE rental (rental_id int PRIMARY KEY, customer_id int REFERENCES custo
 CREATE TABLE payment (payment_id int PRIMARY KEY, customer_id int, rental_id int, staff_id int);
 INSERT INTO film SELECT n,'Synthetic film '||n,'G',2000,ARRAY['Synthetic'] FROM generate_series(1,1000) n;
 INSERT INTO category VALUES (1,'Horror');
+INSERT INTO actor VALUES (1,'PRIVATE_SYNTHETIC_CANARY_927','Example');
+COMMENT ON TABLE film IS 'PRIVATE_SYNTHETIC_CANARY_927';
 INSERT INTO staff VALUES (1,'Synthetic','Staff','not-a-password',NULL);
 CREATE SCHEMA retrieval;
 CREATE TABLE retrieval.schema_doc (id int PRIMARY KEY);
@@ -26,3 +28,14 @@ GRANT USAGE ON SCHEMA public,retrieval TO nl2sql_reader;
 GRANT SELECT ON ALL TABLES IN SCHEMA public,retrieval TO nl2sql_reader;
 REVOKE SELECT ON staff FROM nl2sql_reader;
 GRANT SELECT (staff_id,first_name,last_name) ON staff TO nl2sql_reader;
+
+CREATE SCHEMA aqua_private;
+CREATE TABLE aqua_private.accounts (id int);
+INSERT INTO aqua_private.accounts VALUES (1);
+CREATE SCHEMA shadow;
+CREATE TABLE shadow.film (id int);
+INSERT INTO shadow.film VALUES (1);
+GRANT USAGE ON SCHEMA shadow TO nl2sql_reader;
+GRANT SELECT ON shadow.film TO nl2sql_reader;
+CREATE FUNCTION public.lower(integer) RETURNS text LANGUAGE sql IMMUTABLE
+AS $$ SELECT 'PRIVATE_SYNTHETIC_CANARY_927'::text $$;

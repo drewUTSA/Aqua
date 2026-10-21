@@ -27,6 +27,9 @@ from collections.abc import Iterable
 import sqlglot
 from sqlglot import exp
 from sqlglot.errors import SqlglotError
+from sqlglot.optimizer.normalize_identifiers import normalize_identifiers
+from nl2sql.relations import identifier_name, physical_tables
+from nl2sql.function_policy import approved_call
 
 
 class UnsafeQueryError(ValueError):
@@ -194,7 +197,7 @@ SYSTEM_SCHEMAS: frozenset[str] = frozenset(
 
 # Schemas that hold the app's own tables (retrieval embeddings, example
 # queries). The app reads them itself; generated SQL never may.
-APP_SCHEMAS: frozenset[str] = frozenset({"retrieval"})
+APP_SCHEMAS: frozenset[str] = frozenset({"retrieval", "app", "aqua_app"})
 
 # Columns no query may read, as (table, column). The read-only role is
 # also denied them in the database (db/05_hide_columns.sql); this is the
@@ -204,35 +207,29 @@ HIDDEN_COLUMNS: frozenset[tuple[str, str]] = frozenset(
 )
 
 
-def _check_tables(statement: exp.Query, allowed: frozenset[str] | None) -> None:
-    """Raise if the query reads a system catalog or a table not allowed.
-
-    Names are compared lowercase, and schema prefixes are ignored for the
-    allowlist, so film, public.film and sakila.film all count as film.
-    """
-    # Names defined by WITH inside this query. They look like tables but
-    # are temporary results, and they can never have a schema prefix.
-    cte_names = {cte.alias.lower() for cte in statement.find_all(exp.CTE)}
-
-    for table in statement.find_all(exp.Table):
-        name = table.name.lower()
-        if not name:
-            continue  # a table function like generate_series(); see FORBIDDEN_FUNCTIONS
-        schemas = {table.db.lower(), table.catalog.lower()} - {""}
-        if schemas & SYSTEM_SCHEMAS or (not schemas and name.startswith("pg_")):
-            # Postgres finds pg_catalog tables like pg_user even without
-            # the prefix, so unprefixed pg_ names are system tables too.
-            raise UnsafeQueryError(f"Query reads a system catalog: {table.sql()}.")
-        if schemas & APP_SCHEMAS:
-            raise UnsafeQueryError(
-                f"Query reads the app's internal tables: {table.sql()}."
-            )
-        if not schemas and name in cte_names:
-            continue
+def _check_tables(
+    statement: exp.Query, allowed: frozenset[str] | None, dialect: str
+) -> None:
+    """Allow physical public relations only; CTE identity is lexical and exact."""
+    for table in physical_tables(statement):
+        if not isinstance(table.this, exp.Identifier):
+            continue  # table functions are checked by the function policy
+        name = identifier_name(table.this, dialect)
+        schema = identifier_name(table.args.get("db"), dialect)
+        catalog = identifier_name(table.args.get("catalog"), dialect)
+        if schema.lower() in SYSTEM_SCHEMAS or (not schema and name.startswith("pg_")):
+            raise UnsafeQueryError("Query reads a system catalog.")
+        if schema in APP_SCHEMAS:
+            raise UnsafeQueryError("Query reads the app's internal tables.")
+        if catalog or schema not in {"", "public"}:
+            raise UnsafeQueryError("Query uses a relation outside the public dataset.")
         if allowed is not None and name not in allowed:
             raise UnsafeQueryError(
                 f"Query uses a table that is not allowed: {name}.", fixable=True
             )
+        if dialect == "postgres" and allowed is not None:
+            # Resolve the validated relation explicitly; search_path cannot redirect it.
+            table.set("db", exp.to_identifier("public"))
 
 
 def _check_hidden_columns(statement: exp.Query) -> None:
@@ -296,14 +293,18 @@ def validate_sql(
     `allowed_tables`, if given, is the only tables the query may read.
     Left as None, any table is allowed except system catalogs.
     """
+    if len(sql) > 32768:
+        raise UnsafeQueryError("SQL exceeds the allowed query size.")
     try:
-        statements = sqlglot.parse(sql, read=dialect)
+        statements = sqlglot.parse(sql, read=dialect, error_message_context=0)
     except SqlglotError as exc:
         # SqlglotError is the parent of both ParseError (bad grammar) and
         # TokenError (text that cannot even be split into SQL words, such
         # as an unclosed quote). Catching only ParseError would let
         # TokenError escape as a crash instead of a clean rejection.
-        raise UnsafeQueryError(f"SQL could not be parsed: {exc}", fixable=True) from exc
+        raise UnsafeQueryError(
+            "SQL could not be parsed. Check PostgreSQL syntax.", fixable=True
+        ) from exc
     except RecursionError as exc:
         # The parser calls itself once per nesting level, so thousands of
         # nested parentheses exceed Python's recursion limit.
@@ -319,12 +320,15 @@ def validate_sql(
         )
 
     statement = statements[0]
+    normalize_identifiers(statement, dialect=dialect)
     if not isinstance(statement, ALLOWED_STATEMENTS):
         raise UnsafeQueryError(
             f"Only SELECT queries are allowed, got {statement.key.upper()}."
         )
 
-    for node in statement.walk():
+    for index, node in enumerate(statement.walk()):
+        if index > 4096:
+            raise UnsafeQueryError("SQL exceeds the allowed query complexity.")
         if isinstance(node, FORBIDDEN_NODES):
             raise UnsafeQueryError(
                 f"Query contains a forbidden operation: {node.key.upper()}."
@@ -333,11 +337,28 @@ def validate_sql(
             raise UnsafeQueryError(
                 f"Query uses a forbidden function: {_function_name(node).upper()}."
             )
+        if (
+            isinstance(node, exp.Func)
+            and sql[node.meta.get("start", len(sql)) :][:1] == '"'
+        ):
+            # SQLGlot canonicalizes quoted builtin spellings. Reject rather than
+            # silently changing a case-sensitive user-defined function's meaning.
+            raise UnsafeQueryError(
+                "Quoted function names are outside the approved policy."
+            )
+        if isinstance(node, exp.Func) and not approved_call(node, _function_name(node)):
+            raise UnsafeQueryError(
+                "Query uses a function outside the approved analytical policy."
+            )
 
     allowed = (
-        None if allowed_tables is None else frozenset(t.lower() for t in allowed_tables)
+        None
+        if allowed_tables is None
+        else frozenset(
+            t if dialect == "postgres" else t.lower() for t in allowed_tables
+        )
     )
-    _check_tables(statement, allowed)
+    _check_tables(statement, allowed, dialect)
     _check_hidden_columns(statement)
 
     return statement

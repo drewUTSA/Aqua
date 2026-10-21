@@ -1,4 +1,4 @@
-# Reproducible P00 checks
+# Reproducible phase security and regression checks
 
 Run these from the repository root on a trusted Linux Docker host or Docker
 Desktop using Linux containers. Do not run arbitrary pull-request code on the
@@ -14,6 +14,8 @@ python -m pip_audit --no-deps --disable-pip -r tools/checks/requirements-runtime
 docker build --pull -t aqua-checks:p00 -f tools/checks/Dockerfile .
 docker pull postgres@sha256:3645570cccdfa447589da9f57dd740faa29b30938e861289a5574b6ca6b03826
 python tools/checks/run_backend.py
+docker pull nginx@sha256:970364228b1e4f932abc22d321932816782cca8a20b85a77552a7cfe9acfb3b5
+python tools/checks/run_proxy.py
 ```
 
 Then run `npm ci --ignore-scripts`, `npm audit --audit-level=low`, `npm test` and
@@ -83,3 +85,44 @@ Official references: [pip hash checking](https://pip.pypa.io/en/stable/topics/se
 [Docker resource limits](https://docs.docker.com/engine/containers/resource_constraints/),
 [pip-audit](https://pypi.org/project/pip-audit/),
 [Ruff rules](https://docs.astral.sh/ruff/rules/).
+
+## Every phase: reproduce, prevent, retest and review
+
+Run the same CI workflow on each PR. Before changing an affected boundary, add
+a bounded synthetic attack with a legitimate control case. Keep the failing
+baseline separately from the passing retest; an expected baseline failure is
+evidence of a finding, never a passing implementation. Add prevention and safe
+category logs, assert actual work/state behind the denial, then prove recovery.
+Retest all earlier suites when shared auth, routing, storage or cache changes.
+Follow `docs/planning/SECURITY_TESTING_PLAN.md` and record not-run/deferred gates.
+Do not claim scanner success or a 429 alone proves safe behavior.
+
+`run_proxy.py` exercises the checked-in nginx configuration with two workers,
+an in-memory fake upstream and no application/Google/model/email process. Its
+containers have the same 1 GiB/two-core/256-process ceiling, dropped capabilities,
+read-only roots and exact-ID cleanup as the backend runner. No host volumes,
+ports or Docker socket are mounted. Client and proxy share only a network-none
+namespace: HTTP is limited to 127.0.0.1:5173 and the fake upstream at :8000.
+The probe stops at 100 requests, under 5/second, at most four callers and 55
+seconds; individual responses time out at two seconds. It records admission
+counters, header/route churn, separate buckets, body limits, concurrent calls and
+cooldown recovery. Post-run resource samples are not peak-load measurements.
+Its report is `.check-results/proxy.json`; the frontend build remains separate.
+
+For a reviewed vulnerable configuration, `--config <file> --baseline` asserts the
+specific forged-header bypass. Never use baseline mode as a release gate or send
+it to a public origin. The default mode requires prevention and recovery. The
+P01 reports retain both sides of this comparison.
+
+After checks, save source/config/image hashes, package versions, request budgets,
+sanitized evidence, remaining deployment gates and rollback steps. Leave the
+phase uncommitted for human review, commit/push/PR and merge; do not silently
+advance to the next phase. Live ingress, account-level quotas, failure/restart
+behavior and capacity must pass their later applicable gates as implemented.
+
+For an exact already-inspected deployment image, pass `--nginx-image <image-id>`
+to `run_proxy.py`. This retains the same isolation/budgets and records the actual
+image ID; it does not contact live ingress. The October 20 hotfix tested the live
+frontend base this way before deployment. Keep CI's default pinned nginx image.
+See `docs/implementation/P01_INGRESS.md` for the separate four-request public
+smoke scope and the server's uncommitted configuration patch.

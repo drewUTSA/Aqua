@@ -12,7 +12,9 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from auth.router import router as auth_router
 from auth.security import UserSession, require_database_access
-from nl2sql.cache import AnswerCache, cache_key
+from nl2sql.cache import AnswerCache, scoped_cache_key
+from nl2sql.cache_scope import request_scope
+from nl2sql.errors import ContextDenied
 from nl2sql.config import load_settings
 from nl2sql.db import DatabaseError
 from nl2sql.display import display_for
@@ -131,8 +133,8 @@ def query(
     A plain def (not async): FastAPI runs it in a worker thread, so a
     slow model call does not hold up other requests. Rejected or failed
     queries return 200 with status "error" so the UI can show the SQL and
-    the reason; an unreachable model or database returns 503. Details of
-    outages are logged, not sent, so internal addresses stay private.
+    a safe diagnostic; an unreachable model or database returns 503.
+    Logs contain failure categories, never raw provider/database exceptions.
     """
     provider = request.model or SETTINGS.llm_provider
     if provider == "gemini" and not SETTINGS.gemini_api_key:
@@ -142,16 +144,22 @@ def query(
         body["error"]["retryable"] = False  # asking again will not help
         return JSONResponse(status_code=400, content=body)
     settings = replace(SETTINGS, llm_provider=provider)
-    key = cache_key(
-        request.question,
-        provider,
-        _model_name(provider),
-        RETRIEVER is not None,
-        settings.answer_size_rules,
-    )
-
     try:
         schema = get_schema(settings)
+        scope = request_scope(session.user["sub"], settings, schema.to_prompt())
+        key = scoped_cache_key(
+            request.question,
+            scope,
+            provider,
+            _model_name(provider),
+            RETRIEVER is not None,
+            settings.answer_size_rules,
+            settings.llm_fallback,
+            settings.gemini_fallback_models,
+            settings.ollama_model,
+            settings.ollama_think,
+            settings.gemini_embed_model,
+        )
         answer = ANSWER_CACHE.get(key)
         if answer is None:
             answer = answer_question(
@@ -160,20 +168,30 @@ def query(
             ANSWER_CACHE.put(key, answer)
         else:
             log.info("answer cache hit (%s)", provider)
-    except LLMError as exc:
-        log.warning("model unavailable (%s): %s", provider, exc)
+    except LLMError:
+        log.warning(
+            "query_service_failure category=model_unavailable provider=%s", provider
+        )
         return JSONResponse(
             status_code=503,
             content=outage_response(
                 "model_unavailable", "The language model is not reachable right now."
             ),
         )
-    except DatabaseError as exc:
-        log.warning("database unavailable: %s", exc)
+    except DatabaseError:
+        log.warning("query_service_failure category=database_unavailable")
         return JSONResponse(
             status_code=503,
             content=outage_response(
                 "database_unavailable", "The database is not reachable right now."
+            ),
+        )
+    except ContextDenied:
+        log.warning("query_context_denied")
+        return JSONResponse(
+            status_code=503,
+            content=outage_response(
+                "database_unavailable", "The authorized dataset context is unavailable."
             ),
         )
     return to_response(answer, display_for(schema))

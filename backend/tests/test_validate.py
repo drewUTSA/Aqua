@@ -80,6 +80,61 @@ def test_error_is_a_value_error() -> None:
         validate_sql("DROP TABLE film")
 
 
+@pytest.mark.parametrize(
+    "sql",
+    [
+        "SELECT title FROM private.film",
+        "SELECT title FROM another_database.public.film",
+        'SELECT title FROM "PUBLIC".film',
+        'SELECT title FROM public."FILM"',
+        "SELECT * FROM secret UNION ALL SELECT * FROM (WITH secret AS (SELECT 1) SELECT * FROM secret) t",
+        "WITH safe AS (WITH secret AS (SELECT 1) SELECT * FROM secret) SELECT * FROM secret",
+    ],
+)
+def test_p01_relation_identity_and_cte_scope_cannot_bypass_allowlist(sql):
+    with pytest.raises(UnsafeQueryError):
+        validate_sql(sql, allowed_tables={"film"})
+
+
+@pytest.mark.parametrize(
+    "sql",
+    [
+        "SELECT private.read_secret()",
+        "SELECT public.lower('x')",
+        "SELECT current_setting('aqua.secret')",
+        "SELECT pg_catalog.current_setting('aqua.secret')",
+        "SELECT pg_ls_dir('.')",
+        "SELECT private.secret_function(title) FROM film",
+        'SELECT "LOWER"(title) FROM film',
+    ],
+)
+def test_p01_unapproved_functions_cannot_read_outside_relations(sql):
+    with pytest.raises(UnsafeQueryError):
+        validate_sql(sql, allowed_tables={"film"})
+
+
+def test_p01_public_relations_are_qualified_before_execution():
+    query = validate_sql(
+        "WITH x AS (SELECT title FROM film) SELECT title FROM x",
+        allowed_tables={"film"},
+    )
+    assert "public.film" in query.sql()
+    assert "public.x" not in query.sql()
+
+
+@pytest.mark.parametrize(
+    "sql",
+    [
+        "SELECT pg_catalog.lower(title) FROM film",
+        "WITH x AS (SELECT title FROM film) SELECT title FROM x",
+        "WITH X AS (SELECT title FROM film) SELECT title FROM x",
+        "SELECT title FROM film WHERE EXISTS (SELECT 1 FROM film f WHERE f.title = film.title)",
+    ],
+)
+def test_p01_legitimate_qualified_and_nested_queries_remain_allowed(sql):
+    assert isinstance(validate_sql(sql, allowed_tables={"film"}), exp.Query)
+
+
 def test_returns_tree_of_the_query() -> None:
     """Later stages rely on getting the parsed query back, not a bool."""
     tree = validate_sql("SELECT title FROM film")
@@ -174,7 +229,10 @@ def test_system_catalogs_are_always_blocked(dialect: str, sql: str) -> None:
     ("dialect", "sql"),
     [
         ("mysql", "SELECT * FROM film"),
-        ("mysql", "SELECT * FROM sakila.FILM"),  # schema prefix and case ignored
+        (
+            "mysql",
+            "SELECT * FROM public.FILM",
+        ),  # explicit authorized schema; MySQL case folding
         ("postgres", "SELECT * FROM public.film"),
         (
             "mysql",

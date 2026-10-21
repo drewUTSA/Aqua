@@ -1,0 +1,16 @@
+{
+  "purpose": "aqua_gateway_config_hotfix",
+  "status": "passed",
+  "config_sha256": "70abb93b69c4a9a333e1ce80627663a51d786da66c39338a32b63db4bfc59884",
+  "frontend_before": "c81ea1536bb71535f80a5e175c292dab6a62ade74b4e9c969fea9f4c340f419d",
+  "image_before": "sha256:bd63990b7efe68cb1f2f8f2c9f5c3797def41b84a6f78a9078c0e413a0a0f08d",
+  "backend_id": "0b698b7cad7089ee4044a8bb44624c1b9ff95acfb6983af97414bf665311e9fa",
+  "source_before_sha256": "0db32e4cd47ee3acad8c5adf08d44d28561b23184f8f782c0ea7338a10908afc",
+  "tracked_source_change": "frontend/nginx.conf",
+  "image_after": "sha256:a3b6f4886181904a095d18c2bcd6e6e77c5cfa305b51b88fdec7054e8f2b8c42",
+  "frontend_after": "2e067cf111f55afab3dde312ffd906b88f80554fc0d8cde10e460e41c9a9b34e",
+  "backend_unchanged": true,
+  "rollback_image": "aqua-ingress-before:p01",
+  "cloudflare_tunnel_changed": false,
+  "temporary_context_removed": true
+}
