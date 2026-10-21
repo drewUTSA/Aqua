@@ -16,6 +16,8 @@ import tarfile
 import time
 
 from matrix import coverage
+from app_fixture import initialize
+from app_restore import verify as verify_restore
 
 ROOT = Path(__file__).resolve().parents[2]
 POSTGRES = (
@@ -37,11 +39,16 @@ def source_archive() -> bytes:
     """Copy only code/fixtures from known paths; never package .env or Git data."""
     stream = io.BytesIO()
     with tarfile.open(fileobj=stream, mode="w") as archive:
-        for folder in ("backend", "eval", "tools/checks"):
+        for folder in ("backend", "eval", "tools/checks", "ops"):
             for path in sorted((ROOT / folder).rglob("*")):
                 if path.is_symlink():
                     raise RuntimeError("symlink in check source")
-                if not path.is_file() or path.suffix not in {".py", ".sql", ".ini"}:
+                if not path.is_file() or path.suffix not in {
+                    ".py",
+                    ".sql",
+                    ".psql",
+                    ".ini",
+                }:
                     continue
                 if any(
                     p.startswith(".") or p in {"__pycache__", "results"}
@@ -167,6 +174,7 @@ def run(image: str, output: Path) -> int:
                 "aqua_test_" + dataset,
                 data=(ROOT / "tools/checks/fixtures" / (dataset + ".sql")).read_bytes(),
             )
+        initialize(docker, pg, ROOT)
         runner = create(
             run_name + "-tests",
             image,
@@ -198,6 +206,8 @@ def run(image: str, output: Path) -> int:
                     "/checks/backend",
                     "-e",
                     "AQUA_TEST_DATASET=" + dataset,
+                    "-e",
+                    "AQUA_TEST_APP_STORAGE=1",
                     runner,
                     "python",
                     "-m",
@@ -222,10 +232,11 @@ def run(image: str, output: Path) -> int:
             print(log.decode(errors="replace"))
         # Record immutable versions used, without inspecting runtime environments.
         report["coverage"] = coverage(output)
+        report["app_restore"] = verify_restore(docker, pg)
         (output / "packages.txt").write_bytes(
             docker("exec", runner, "python", "-m", "pip", "freeze")
         )
-    except (RuntimeError, subprocess.TimeoutExpired) as error:
+    except (RuntimeError, AssertionError, subprocess.TimeoutExpired) as error:
         report["error"] = str(error)
     finally:
         cleanup_errors = []

@@ -263,3 +263,32 @@ to provide no extra capacity. Canonical session ownership, durable revocation,
 atomic active-session limits and budgets shared across sessions are mandatory
 P03/P07 gates; they are not implemented by P01's stateless cookie or peer quota.
 See `security/TARGET_ARCHITECTURE.md` for boundaries and adversarial acceptance.
+
+
+### P02: separate socket-only application storage and reproducible runtime
+
+Use dedicated PostgreSQL 17 for accounts/session metadata, with a nonlogin owner,
+explicit migrator, bounded runtime and SELECT-only backup role. Preserve Tiger
+Cloud and its connection modules. P02 only supplies the schema and storage
+foundation; authentication cutover and row ownership remain P03.
+
+A production-like disposable rehearsal showed that the proposed internal Docker
+bridge did not expose its loopback-published port to the host. Use a Unix socket
+volume instead: no DB network or TCP listener, a read-only runtime mount, SCRAM
+authentication, and no host firewall or new sudo configuration. Actual installer,
+repeated migration, denied DDL, password checks, export and cleanup are exercised
+against synthetic resources. Stop rather than adopting a public bind as a fallback.
+
+Use a small checksum-ledger migration module rather than adding an ORM/migration
+framework. Serialize migrations using a transaction advisory lock; never migrate
+on web startup. Psycopg Pool 3.3.3 supplies bounded connections/waiters and reliable
+cleanup; this is the only new runtime dependency. Reset successful and failed
+leases with DISCARD ALL, and disable prepared statements for compatible resets.
+
+A P01 release check caught an unpinned SQLGlot upgrade that failed LIMIT ALL
+validation. Rebuilding with the already reviewed lock passed the exact-image
+suite. P02 makes the pinned Python base/hash-locked graph canonical for production
+and CI. Dependency upgrades need explicit lock refresh and regression checks.
+Keep readiness internal because it acquires a DB lease. Backups use the restricted
+role and preserve ACLs; recovery fences restored sessions/challenges. Synthetic
+recovery does not establish production RPO/RTO or complete future auth behavior.

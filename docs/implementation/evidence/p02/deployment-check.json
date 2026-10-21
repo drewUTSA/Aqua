@@ -1,0 +1,7 @@
+{
+  "image": "sha256:09daa627b85a7f7e93a9f3227302e77530ca1020abcf5ecd63d201effef0d7ea",
+  "exit_code": 0,
+  "output": "{\"run\": \"aqua-storage-check-c62038542a9e886f0632a5bb\", \"status\": \"passed\", \"bootstrap\": {\"status\": \"bootstrapped\", \"database\": \"aqua_app\", \"public_database_port\": false, \"schema_migrated\": false}, \"backup_export\": {\"status\": \"passed\", \"bytes\": 26439, \"sha256\": \"05035d5982a6a498922242f0be30b52be4abecf43ca550226ceba281ad6d5ec3\", \"storage\": \"memory_only\"}, \"repeated_migration\": \"passed\", \"password_auth\": \"passed\", \"runtime_ddl_denial_and_recovery\": \"passed\", \"network_disabled\": true, \"no_tcp_port\": true, \"real_data_accessed\": false, \"cleanup\": \"removed_and_absence_confirmed\"}\n",
+  "stderr": "",
+  "context_removed": true
+}

@@ -103,6 +103,10 @@ def probe(baseline: bool = False) -> dict:
         before = calls["/api/oversize"]
         assert request("/api/oversize", body=b"x" * 17000)["status"] == 413
         assert calls["/api/oversize"] == before
+        for path in ("/api/ready", "/api/ready/", "/api/%72eady", "/api//ready"):
+            before = sum(calls.values())
+            assert request(path)["status"] == 404
+            assert sum(calls.values()) == before
         time.sleep(12)
         assert request()["status"] == 200
         before = sum(calls.values())
@@ -119,6 +123,7 @@ def probe(baseline: bool = False) -> dict:
             "auth_statuses": auth,
             "concurrent_wave": wave,
             "recovery": "passed",
+            "private_readiness_boundary": "passed",
             "duration_seconds": round(time.monotonic() - start, 2),
         }
     finally:

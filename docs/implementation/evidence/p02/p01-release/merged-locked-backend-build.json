@@ -1,0 +1,8 @@
+{
+  "status": "built_not_deployed",
+  "image": "sha256:9069a33c2bb0588308d49371e38f872fb9d95a540208622c3f127203d28e4d1d",
+  "commit": "07055eb4579f2bfb002d252942805b8d853fbdb8",
+  "runtime_lock_sha256": "286e918f9b5aece06c7848e7144a02ac8f1287ac8e52d4aa6bb8465f993eb6fb",
+  "recipe": "FROM python:3.12.14-slim-bookworm@sha256:392307d22300de8b5986851a12d9176dfc0fc073e65bf6523ebd7dcbeb23564e\nENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1\nCOPY tools/checks/requirements-runtime.lock /tmp/requirements-runtime.lock\nRUN python -m pip install --no-cache-dir --no-deps --require-hashes -r /tmp/requirements-runtime.lock && python -m pip check\nRUN useradd --uid 1000 --create-home appuser\nWORKDIR /app\nCOPY --chown=1000:1000 backend/main.py .\nCOPY --chown=1000:1000 backend/auth ./auth\nCOPY --chown=1000:1000 backend/nl2sql ./nl2sql\nUSER 1000:1000\nCMD [\"uvicorn\", \"main:app\", \"--host\", \"127.0.0.1\", \"--port\", \"8000\"]\n",
+  "network_secrets_included": false
+}

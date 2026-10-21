@@ -1,0 +1,7 @@
+{
+  "image": "sha256:d32117bfc410857a54f8b14b79fd1ce6798d16955cb13f4fdd554d502fdfc0f9",
+  "exit_code": 1,
+  "output": "{\"run\": \"aqua-storage-check-18744886a7b2721ec3806fd0\", \"status\": \"failed\", \"bootstrap\": {\"status\": \"bootstrapped\", \"database\": \"aqua_app\", \"public_database_port\": false, \"schema_migrated\": false}, \"error_type\": \"RuntimeError\", \"cleanup\": \"removed_and_absence_confirmed\"}\n",
+  "stderr": "Traceback (most recent call last):\n  File \"/srv/bank-ai/.aqua-p02-build-xyow9d7g/tools/checks/storage_deployment.py\", line 180, in <module>\n    raise SystemExit(check(args.image)[\"status\"] != \"passed\")\n                     ~~~~~^^^^^^^^^^^^\n  File \"/srv/bank-ai/.aqua-p02-build-xyow9d7g/tools/checks/storage_deployment.py\", line 59, in check\n    assert manager.migrate()[\"schema_version\"] == 1\n           ~~~~~~~~~~~~~~~^^\n  File \"/srv/bank-ai/.aqua-p02-build-xyow9d7g/ops/appdb/manage.py\", line 157, in migrate\n    result = docker(\n        \"run\",\n    ...<17 lines>...\n        \"storage.migrate\",\n    )\n  File \"/srv/bank-ai/.aqua-p02-build-xyow9d7g/ops/appdb/manage.py\", line 39, in docker\n    return run([\"/usr/bin/docker\", *args], data)\n  File \"/srv/bank-ai/.aqua-p02-build-xyow9d7g/ops/appdb/manage.py\", line 34, in run\n    raise RuntimeError(\"application_storage_command_failed_output_redacted\")\nRuntimeError: application_storage_command_failed_output_redacted\n",
+  "context_removed": true
+}

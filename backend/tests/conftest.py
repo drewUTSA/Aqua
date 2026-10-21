@@ -70,3 +70,7 @@ def no_real_gemini(monkeypatch: pytest.MonkeyPatch) -> None:
         raise AssertionError("a test tried to create a real Gemini client")
 
     monkeypatch.setattr(genai, "Client", refuse)
+
+
+# Fixture imports register the explicitly isolated private app database.
+from storage_fixtures import app_database, storage  # noqa: E402,F401

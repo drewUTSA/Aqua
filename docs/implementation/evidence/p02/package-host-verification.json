@@ -1,0 +1,49 @@
+{
+  "status": "passed",
+  "packaged_files": 38,
+  "image": "sha256:09daa627b85a7f7e93a9f3227302e77530ca1020abcf5ecd63d201effef0d7ea",
+  "pip_check": "passed",
+  "live_services": {
+    "backend": {
+      "image": "sha256:9069a33c2bb0588308d49371e38f872fb9d95a540208622c3f127203d28e4d1d",
+      "status": "running",
+      "health": "healthy"
+    },
+    "frontend": {
+      "image": "sha256:982f1b5b43cd24026b01a92532548fde025d68dc3a59e423342ac7811b003292",
+      "status": "running",
+      "health": "healthy"
+    }
+  },
+  "persistent_resources": [
+    {
+      "kind": "container",
+      "name": "aqua-app-db",
+      "exists": false
+    },
+    {
+      "kind": "volume",
+      "name": "aqua_app_data",
+      "exists": false
+    },
+    {
+      "kind": "volume",
+      "name": "aqua_app_sockets",
+      "exists": false
+    }
+  ],
+  "commit": "07055eb4579f2bfb002d252942805b8d853fbdb8",
+  "git_status": [
+    "?? .env.bak"
+  ],
+  "capacity_snapshot": {
+    "cpu_count": 32,
+    "memory": {
+      "MemTotal": 32488480768,
+      "MemAvailable": 29501063168
+    },
+    "project_free_bytes": 41020420096,
+    "project_total_bytes": 105089261568
+  },
+  "limits": "Snapshots only; no capacity/load, real-data or persistent DB activation claims."
+}

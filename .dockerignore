@@ -1,7 +1,12 @@
-# Root build context is only for the P00 dependency image. Production Compose
-# continues using its existing backend/ and frontend/ build contexts.
+# Root context serves the locked runtime and production backend builds.
+# Allow only runtime Python, versioned SQL and the reviewed dependency lock.
 **
-!tools
-!tools/checks
+!backend/Dockerfile
+!backend/main.py
+!backend/auth/*.py
+!backend/nl2sql/*.py
+!backend/nl2sql/retrieval/*.py
+!backend/storage/*.py
+!backend/migrations/*.sql
 !tools/checks/Dockerfile
 !tools/checks/requirements-runtime.lock

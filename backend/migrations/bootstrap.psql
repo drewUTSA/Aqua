@@ -1,0 +1,29 @@
+-- Operator-only, NEW dedicated cluster. Variables come from private input, never argv.
+\set ON_ERROR_STOP on
+DO $$ BEGIN
+ IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname IN ('aqua_app_owner','aqua_app_migrator','aqua_app_runtime','aqua_app_backup'))
+ THEN RAISE EXCEPTION 'application roles already exist; inspect before bootstrap'; END IF;
+END $$;
+CREATE ROLE aqua_app_owner NOLOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS;
+CREATE ROLE aqua_app_migrator LOGIN NOINHERIT NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS CONNECTION LIMIT 2;
+CREATE ROLE aqua_app_runtime LOGIN NOINHERIT NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS CONNECTION LIMIT 12;
+CREATE ROLE aqua_app_backup LOGIN NOINHERIT NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS CONNECTION LIMIT 2;
+SELECT format('ALTER ROLE aqua_app_migrator PASSWORD %L', :'migrator_password') \gexec
+SELECT format('ALTER ROLE aqua_app_runtime PASSWORD %L', :'runtime_password') \gexec
+SELECT format('ALTER ROLE aqua_app_backup PASSWORD %L', :'backup_password') \gexec
+GRANT aqua_app_owner TO aqua_app_migrator;
+CREATE DATABASE aqua_app OWNER aqua_app_owner TEMPLATE template0 ENCODING 'UTF8' LC_COLLATE 'C' LC_CTYPE 'C' CONNECTION LIMIT 24;
+REVOKE ALL ON DATABASE aqua_app FROM PUBLIC;
+GRANT CONNECT ON DATABASE aqua_app TO aqua_app_migrator,aqua_app_runtime,aqua_app_backup;
+ALTER ROLE aqua_app_runtime IN DATABASE aqua_app SET search_path = pg_catalog,app;
+ALTER ROLE aqua_app_runtime IN DATABASE aqua_app SET statement_timeout = '3s';
+ALTER ROLE aqua_app_runtime IN DATABASE aqua_app SET lock_timeout = '1s';
+ALTER ROLE aqua_app_runtime IN DATABASE aqua_app SET idle_in_transaction_session_timeout = '10s';
+ALTER ROLE aqua_app_backup IN DATABASE aqua_app SET default_transaction_read_only = on;
+ALTER ROLE aqua_app_backup IN DATABASE aqua_app SET statement_timeout = '120s';
+\connect aqua_app
+REVOKE ALL ON SCHEMA public FROM PUBLIC;
+-- No runtime or backup role can become the owner or create schema objects.
+SET ROLE aqua_app_owner;
+CREATE SCHEMA app AUTHORIZATION aqua_app_owner;
+RESET ROLE;

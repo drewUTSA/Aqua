@@ -15,6 +15,7 @@ def test_current_http_surface_is_explicit():
     }
     expected = {
         ("/api/health", "GET"),
+        ("/api/ready", "GET"),
         ("/api/models", "GET"),
         ("/api/query", "POST"),
         ("/api/auth/config", "GET"),

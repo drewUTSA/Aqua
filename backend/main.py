@@ -2,6 +2,7 @@
 turns requests into pipeline calls and pipeline results into JSON."""
 
 import logging
+from contextlib import asynccontextmanager
 from collections.abc import Awaitable, Callable
 from dataclasses import replace
 from typing import Any, Literal
@@ -23,12 +24,28 @@ from nl2sql.pipeline import Retriever, answer_question
 from nl2sql.response import outage_response, to_response
 from nl2sql.schema import get_schema
 
-app = FastAPI(title="Aqua")
+from storage.config import load_storage_settings
+from storage.pool import Storage
+from storage.readiness import router as readiness_router
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    app.state.storage.open()
+    try:
+        yield
+    finally:
+        app.state.storage.close()
+
+
+app = FastAPI(title="Aqua", lifespan=lifespan)
 log = logging.getLogger("aqua")
 
 SETTINGS = load_settings()
 app.state.settings = SETTINGS
 app.include_router(auth_router)
+app.include_router(readiness_router)
+app.state.storage = Storage(load_storage_settings())
 
 
 @app.middleware("http")
