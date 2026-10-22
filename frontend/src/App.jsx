@@ -1,120 +1,60 @@
-import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { useReducedMotion } from "./hooks/useReducedMotion.js";
-import ChatShell from "./components/chat/ChatShell.jsx";
-import Sidebar from "./components/navigation/Sidebar.jsx";
-import WaterSparkles from "./components/aqua/WaterSparkles.jsx";
-import { useChat } from "./hooks/useChat.js";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useGoogleAuth } from "./hooks/useGoogleAuth.js";
-import SignInPage from "./pages/SignInPage.jsx";
+import AuthPage from "./pages/AuthPage.jsx";
 import LegalPage from "./pages/LegalPage.jsx";
+import Workspace from "./components/workspace/Workspace.jsx";
+import { AUTH_PATHS, consumeLocation, navigateLocal } from "./services/routes.js";
 
+// Capture once before UI/SDK setup, including StrictMode's initializer replay.
+const initialRoute = typeof window === "undefined" ? { path: "/", proof: null }
+  : consumeLocation(window.location, window.history);
 export default function App() {
-  const [path, setPath] = useState(() => window.location.pathname);
+  const [route, setRoute] = useState(() => ({ ...initialRoute, revision: 0 }));
+  const acceptRoute = useCallback((next) => setRoute((current) => ({ ...next, revision: current.revision + 1 })), []);
+  const navigate = useCallback((path) => navigateLocal(path, window.history, acceptRoute), [acceptRoute]);
   useEffect(() => {
-    const syncPath = () => setPath(window.location.pathname);
-    window.addEventListener("popstate", syncPath);
-    return () => window.removeEventListener("popstate", syncPath);
-  }, []);
-  // Public policy pages must remain readable even when authentication is down.
-  if (path === "/privacy" || path === "/terms") return <LegalPage kind={path.slice(1)} />;
-  return <AuthenticatedApp />;
-}
-
-function AuthenticatedApp() {
-  const auth = useGoogleAuth();
-  const showWorkspace = auth.demoMode || (auth.status === "authenticated" && auth.canQuery);
-  const accountId = auth.demoMode ? "demo" : auth.user?.id ?? null;
-  const workspaceOwner = useRef(null);
-  // Keep this account's mounted drafts/results while logout is unresolved.
-  // Canonical account changes or a confirmed missing session discard them.
-  if (workspaceOwner.current !== accountId) workspaceOwner.current = null;
-  if (showWorkspace) workspaceOwner.current = accountId;
-  const retainWorkspace = accountId !== null && workspaceOwner.current === accountId;
-
-  useLayoutEffect(() => {
-    const path = showWorkspace ? "/" : "/signin";
-    const syncPath = () => {
-      if (["/privacy", "/terms"].includes(window.location.pathname)) return;
-      if (window.location.pathname !== path || window.location.search || window.location.hash) {
-        window.history.replaceState(window.history.state, "", path);
-      }
+    const sync = (event) => {
+      // Fragment navigation may queue both popstate and hashchange. The first
+      // captures and strips its bearer; the empty second event must not erase it.
+      if (event.type === "hashchange" && !window.location.hash) return;
+      acceptRoute(consumeLocation(window.location, window.history));
     };
-    syncPath();
-    document.title = showWorkspace ? "AQUA | Your data, clearly" : "Sign in | AQUA";
-    document.getElementById(showWorkspace ? "workspace-heading" : "signin-heading")?.focus({ preventScroll: true });
-    window.addEventListener("popstate", syncPath);
-    return () => window.removeEventListener("popstate", syncPath);
-  }, [showWorkspace]);
-
-  // A confirmed logout, 401 or account switch unmounts the private workspace;
-  // its cleanup aborts requests before another account can receive results.
-  return <>
-    {retainWorkspace && <Workspace key={accountId} auth={auth} hidden={!showWorkspace} />}
-    {!showWorkspace && <SignInPage auth={auth} />}
-  </>;
+    window.addEventListener("popstate", sync);
+    window.addEventListener("hashchange", sync);
+    initialRoute.proof = null;
+    return () => { window.removeEventListener("popstate", sync); window.removeEventListener("hashchange", sync); };
+  }, [acceptRoute]);
+  const legal = ["/privacy", "/terms"].includes(route.path);
+  const accountStarted = useRef(!legal);
+  if (!legal) accountStarted.current = true;
+  // Direct policy visits need no sign-in bootstrap. Once started, the account
+  // owner must survive policy navigation, including an unresolved logout.
+  if (!accountStarted.current) return <LegalPage kind={route.path.slice(1)} onNavigate={navigate} />;
+  return <AccountApp route={route} navigate={navigate}
+    clearProof={() => setRoute((current) => ({ ...current, proof: null }))} />;
 }
-
-function Workspace({ auth, hidden = false }) {
-  const chat = useChat({ demoMode: auth.demoMode, canQuery: auth.canQuery, csrfToken: auth.csrfToken, onAuthFailure: auth.refresh });
-  const reducedMotion = useReducedMotion();
-  const [births, setBirths] = useState([]);
-  const [focusRequest, setFocusRequest] = useState(0);
-  const originRef = useRef(null);
-  const inputRef = useRef(null);
-  const backgroundRef = useRef(null);
-  const observedResponses = useRef(new Set());
-  const previousConversation = useRef(null);
-
-  useLayoutEffect(() => {
-    if (previousConversation.current !== chat.activeConversationId) {
-      previousConversation.current = chat.activeConversationId;
-      observedResponses.current = new Set(chat.messages.filter((m) => m.role === "aqua").map((m) => m.id));
-      setBirths([]);
-      return;
-    }
-    for (const message of chat.messages) {
-      if (message.role !== "aqua" || observedResponses.current.has(message.id)) continue;
-      if (!["streaming", "success"].includes(message.response?.status)) continue;
-      observedResponses.current.add(message.id);
-      if (!reducedMotion) setBirths((current) => [...current, message.id]);
-    }
-  }, [chat.activeConversationId, chat.messages, reducedMotion]);
-  useEffect(() => { if (reducedMotion) setBirths([]); }, [reducedMotion]);
-
-  const focusComposer = useCallback(() => setFocusRequest((request) => request + 1), []);
-  const send = useCallback((prompt) => {
-    const id = chat.submit(prompt);
-    if (id && !reducedMotion) setBirths((current) => [...current, id]);
-    return id;
-  }, [chat.submit, reducedMotion]);
-  const completeBirth = useCallback((id) => {
-    setBirths((current) => current.filter((messageId) => messageId !== id));
-  }, []);
-  const startConversation = () => { setBirths([]); chat.startConversation(); focusComposer(); };
-  const stop = () => { chat.stop(); setBirths([]); focusComposer(); };
-  const selectConversation = (id) => { setBirths([]); chat.selectConversation(id); };
-  const selectFAQ = (prompt) => { chat.setDraft(prompt); focusComposer(); };
-
-  return (
-    <div className="app-shell" hidden={hidden} inert={hidden ? true : undefined} style={hidden ? { display: "none" } : undefined}>
-      <div className="ambient-light" aria-hidden="true" />
-      <WaterSparkles />
-      <Sidebar conversations={chat.conversations} activeConversationId={chat.activeConversationId}
-        models={chat.models} selectedModelId={chat.selectedModelId} onSelectModel={chat.setModelId}
-        projects={chat.projects} faqs={chat.faqs} expandedFolderIds={chat.expandedFolderIds}
-        onToggleFolder={chat.toggleFolder} onStartConversation={startConversation}
-        onSelectConversation={selectConversation} onSelectFAQ={selectFAQ}
-        onComposerFocus={focusComposer} backgroundRef={backgroundRef} auth={auth} />
-      <div className="main-panel" ref={backgroundRef}>
-        {auth.demoMode && <span className="workspace-mode">Demo · fictional sample data</span>}
-        <ChatShell messages={chat.messages} pending={chat.pending}
-          waiting={chat.waiting} onSend={send} onStop={stop} onRetry={chat.retry} birthId={births[0] || null}
-          formingIds={births} onBirthComplete={completeBirth} originRef={originRef} inputRef={inputRef}
-          draft={chat.draft} onDraftChange={chat.setDraft} focusRequest={focusRequest}
-          effectKey={chat.activeConversationId} disabled={!auth.canQuery}
-          maxQuestionLength={auth.demoMode ? 10000 : 2000}
-          disabledHint="Sign in to ask a question." />
-      </div>
-    </div>
-  );
+function AccountApp({ route, navigate, clearProof }) {
+  const auth = useGoogleAuth();
+  const unlocked = auth.demoMode || auth.status === "authenticated";
+  const accountId = auth.demoMode ? "demo" : auth.user?.id ?? null;
+  const owner = useRef(null);
+  if (owner.current !== accountId) owner.current = null;
+  if (unlocked) owner.current = accountId;
+  const retain = accountId !== null && owner.current === accountId;
+  const workspaceRoute = route.path === "/" || route.path === "/settings";
+  const legal = ["/privacy", "/terms"].includes(route.path);
+  useEffect(() => {
+    if (unlocked && route.path === "/signin") navigate("/");
+    else if (auth.status === "signedout" && workspaceRoute) navigate("/signin");
+  }, [auth.status, unlocked, route.path, workspaceRoute, navigate]);
+  // Account UI and dataset permission are separate. Pending/failed logout keeps
+  // this account mounted but hidden/inert; confirmed logout or switch clears it.
+  return <>
+    {retain && <Workspace key={accountId} auth={auth} path={route.path} onNavigate={navigate} hidden={!unlocked || !workspaceRoute} />}
+    {legal ? <LegalPage kind={route.path.slice(1)} onNavigate={navigate} /> : (!unlocked || !workspaceRoute) && (AUTH_PATHS.has(route.path) || workspaceRoute
+      ? <AuthPage key={`${route.path}:${route.revision}`} path={workspaceRoute ? "/signin" : route.path} proof={route.proof}
+          onProofConsumed={clearProof} onNavigate={navigate} auth={auth} />
+      : <main className="not-found"><h1 tabIndex={-1}>Page not found</h1><p>This page is not available.</p>
+          <button type="button" onClick={() => navigate(unlocked ? "/" : "/signin")}>Back to AQUA</button></main>)}
+  </>;
 }

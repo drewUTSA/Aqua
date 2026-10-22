@@ -1,0 +1,48 @@
+{
+  "status": "built_not_deployed",
+  "shell": "legacy",
+  "image": "sha256:a363a8b0768c9e3b7a7334d20eebac9be9186bc97d15d340ac79fd8dd8c3cb58",
+  "context_sha256": "139b297690bf0bb17b6eb480f70b055ccfa0baec4aaae9f688a14780b4cb2937",
+  "synthetic_env_excluded": true,
+  "invalid_shell_build_rejected": true,
+  "cleanup": "container_absent_temporary_context_removed",
+  "assets": [
+    {
+      "path": "50x.html",
+      "bytes": 497,
+      "sha256": "876766b4e80133fd490603e073d3567425b88794828a9292104244c9e40875ed",
+      "gzip_bytes": 341
+    },
+    {
+      "path": "index.html",
+      "bytes": 672,
+      "sha256": "d9b78126fdc2ae6895c3a86d76934f9adb9e8e086fc8281c46d333a350c1c9f1",
+      "gzip_bytes": 394
+    },
+    {
+      "path": "assets/AQUA_V2_Final_static-cJJYBiOn.svg",
+      "bytes": 2111901,
+      "sha256": "a610bf95498d5bbc765cf49879bc98ee9a33f385cdf88452622a6871ae825648",
+      "gzip_bytes": 329472
+    },
+    {
+      "path": "assets/DashboardPreview-Dlx3FTYJ.js",
+      "bytes": 407228,
+      "sha256": "31584138205ba2b3728285b1670de88ae019317585cf3ce5ac68b1c853992856",
+      "gzip_bytes": 110278
+    },
+    {
+      "path": "assets/index-BfmamgzU.css",
+      "bytes": 48503,
+      "sha256": "b15b71f2e3c990bb99d24122dda4eb2151ad1982e798b4925a501f85d490c853",
+      "gzip_bytes": 10454
+    },
+    {
+      "path": "assets/index-nNBMZ_B5.js",
+      "bytes": 440080,
+      "sha256": "94c2c86a0874080ffa175cc848a8cc966d2621fc499a4e0d9f87ae7a1ca5138a",
+      "gzip_bytes": 136080
+    }
+  ],
+  "current_source_rebuild_matches": true
+}

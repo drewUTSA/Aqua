@@ -7,7 +7,8 @@
     "dev": "vite --host 0.0.0.0 --port 5173 --strictPort",
     "build": "vite build",
     "test": "node --test \"checks/*.test.mjs\"",
-    "test:content-safety-browser": "node checks/content-safety-browser.mjs"
+    "test:content-safety-browser": "node checks/content-safety-browser.mjs",
+    "test:p05-browser": "node checks/p05-browser.mjs"
   },
   "dependencies": {
     "@react-three/fiber": "^9.1.2",

@@ -34,24 +34,33 @@ async function request(path, options = {}) {
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-function sessionResponse(body) {
+function capabilitiesResponse(capabilities) {
+  if (!capabilities || typeof capabilities !== "object" || Array.isArray(capabilities)
+    || Object.keys(capabilities).length > 16
+    || Object.entries(capabilities).some(([key, value]) => !/^[a-z][a-z0-9_]{0,47}$/.test(key)
+      || ["__proto__", "prototype", "constructor"].includes(key) || typeof value !== "boolean")) {
+    throw new AuthError(502);
+  }
+  return { ...capabilities };
+}
+
+export function sessionResponse(body) {
   const user = body?.user;
-  if (!user || typeof user.id !== "string" || !UUID.test(user.id) || /^0{8}-0{4}-0{4}-0{4}-0{12}$/.test(user.id)
-    || (user.sub !== undefined && (typeof user.sub !== "string" || !user.sub)) || typeof user.email !== "string"
-    || typeof user.name !== "string" || typeof user.picture !== "string"
-    || typeof body.csrf_token !== "string" || !body.csrf_token || typeof body.can_query !== "boolean") {
+  if (!user || typeof user !== "object" || Array.isArray(user)
+    || typeof user.id !== "string" || !UUID.test(user.id) || /^0{8}-0{4}-0{4}-0{4}-0{12}$/.test(user.id)
+    || (user.sub !== undefined && (typeof user.sub !== "string" || !user.sub || user.sub.length > 255))
+    || typeof user.email !== "string" || user.email.length > 254
+    || typeof user.name !== "string" || user.name.length > 256
+    || typeof user.picture !== "string" || user.picture.length > 2048
+    || typeof body.csrf_token !== "string" || !body.csrf_token || body.csrf_token.length > 512
+    || typeof body.can_query !== "boolean") {
     throw new AuthError(502);
   }
   const identity = { id: user.id.toLowerCase(), email: user.email, name: user.name, picture: user.picture };
   if (user.sub !== undefined) identity.sub = user.sub;
   const session = { user: identity, csrf_token: body.csrf_token, can_query: body.can_query };
   if (body.capabilities !== undefined) {
-    if (!body.capabilities || typeof body.capabilities !== "object" || Array.isArray(body.capabilities)
-      || Object.keys(body.capabilities).length > 16
-      || Object.entries(body.capabilities).some(([key, value]) => !/^[a-z][a-z0-9_]{0,47}$/.test(key) || typeof value !== "boolean")) {
-      throw new AuthError(502);
-    }
-    session.capabilities = { ...body.capabilities };
+    session.capabilities = capabilitiesResponse(body.capabilities);
   }
   return session;
 }
@@ -61,7 +70,8 @@ export async function fetchAuthConfig({ signal } = {}) {
   if (!body || !["client_id", "nonce", "csrf_token"].every((key) => typeof body[key] === "string" && body[key])) {
     throw new AuthError(502);
   }
-  return { client_id: body.client_id, nonce: body.nonce, csrf_token: body.csrf_token };
+  return { client_id: body.client_id, nonce: body.nonce, csrf_token: body.csrf_token,
+    ...(body.capabilities === undefined ? {} : { capabilities: capabilitiesResponse(body.capabilities) }) };
 }
 
 export async function fetchSession({ signal } = {}) {

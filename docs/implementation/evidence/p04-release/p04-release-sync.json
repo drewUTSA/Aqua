@@ -1,0 +1,38 @@
+{
+  "purpose": "aqua_p04_release",
+  "action": "sync",
+  "status": "synchronized",
+  "commit": "067fb5a0aacc90ce646138fedbb770ecea6f0c92",
+  "prior_schema_version": 2,
+  "disabled_runtime": {
+    "flags_disabled": {
+      "PASSWORD_AUTH_ENABLED": true,
+      "PASSWORD_REGISTRATION_ENABLED": true,
+      "PASSWORD_RECOVERY_ENABLED": true,
+      "ACCOUNT_MAIL_ENABLED": true,
+      "ACCOUNT_MAIL_WORKER_ENABLED": true
+    },
+    "provider_key_absent": true,
+    "outbox_key_absent": true,
+    "project_workers_absent": true,
+    "other_socket_containers_absent": true,
+    "mail_secret_mount_absent": true
+  },
+  "git_status": [
+    "?? .env.bak"
+  ],
+  "services": {
+    "backend": {
+      "id": "65e8a929f01868f021f169159bad4f965abb1ee6b2334cbfa6721566af68efb5",
+      "image": "sha256:b0bd8621bfaca1669d26c8e01b50edd5e9ccc4393918e70d88fedf7c83c68800",
+      "running": true,
+      "health": "healthy"
+    },
+    "frontend": {
+      "id": "3c17c1d4684b2d6b097013eab078da60fa24a91153640ef74e573f97ff6bcf54",
+      "image": "sha256:cafe40e786635bd833e228e7aaf81359e239413311dd6cd0d288aeac912b5fae",
+      "running": true,
+      "health": "healthy"
+    }
+  }
+}

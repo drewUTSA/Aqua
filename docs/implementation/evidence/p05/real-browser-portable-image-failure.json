@@ -1,0 +1,50 @@
+{
+  "status": "failed",
+  "failure": "bridge_unmatched_response",
+  "checked_utc": "2026-10-21T22:57:40.272Z",
+  "mode": "real_fastapi_disposable_postgres_browser",
+  "loadedAssets": [
+    {
+      "name": "/assets/DashboardPreview-BsoI507J.js",
+      "sha256": "0983660236243b69e5eb02f533bb2147d436293e9a0f37d7b03ddf6124e13062"
+    },
+    {
+      "name": "/assets/index-Btz76ta8.css",
+      "sha256": "7341cddddd44cebfd8cf99f8383f07cd883c5cd15d644eb66af993c8fc16642b"
+    },
+    {
+      "name": "/assets/index-Ca9ILvDQ.js",
+      "sha256": "18c87e75eeb23c0e6212c25c047ce71c0bddc4872a7dc5a04434211c8ef4a466"
+    },
+    {
+      "name": "/index.html",
+      "sha256": "f05086a8905bc5d771e827e54a0ef6888cad94ebd99773d59c04a5dde05cbb36"
+    }
+  ],
+  "results": [],
+  "screenshots": [],
+  "observations": {
+    "requests": 0,
+    "apiRequests": 0,
+    "external_attempts": 0,
+    "consoleLeaks": 0,
+    "browserErrors": [],
+    "protocolErrors": [],
+    "canceled": 0,
+    "explicit_fixture_admission_clock_steps": 0,
+    "apiOutcomes": []
+  },
+  "cleanup": {
+    "browser_stopped": true,
+    "temporary_profile_removed": false,
+    "loopback_closed": true,
+    "backend_status": "unconfirmed",
+    "backend_resources_removed": false
+  },
+  "elapsed_seconds": 2.48,
+  "limitations": [
+    "Real FastAPI/auth/database code against synthetic disposable fixtures; no deployed origin or production data validation.",
+    "Google verifier and email sender are synthetic test adapters; no Google or email provider contacted.",
+    "No analytical database or AI model is exercised."
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "exact_absence": {
+    "exit_code": 1,
+    "stdout": "\n",
+    "stderr": "Error response from daemon: get aqua-p05-browser-f9668ad796da15560d25b6db-socket: no such volume\n"
+  },
+  "containers": {
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "volumes": {
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": ""
+  }
+}

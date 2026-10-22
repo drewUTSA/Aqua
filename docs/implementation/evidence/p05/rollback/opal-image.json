@@ -1,0 +1,48 @@
+{
+  "status": "built_not_deployed",
+  "shell": "opal",
+  "image": "sha256:ef5b096f38e4b0b63d2247cb19aed613de0cb6d664a570ace0d73ae423e03aeb",
+  "context_sha256": "139b297690bf0bb17b6eb480f70b055ccfa0baec4aaae9f688a14780b4cb2937",
+  "synthetic_env_excluded": true,
+  "invalid_shell_build_rejected": true,
+  "cleanup": "container_absent_temporary_context_removed",
+  "assets": [
+    {
+      "path": "50x.html",
+      "bytes": 497,
+      "sha256": "876766b4e80133fd490603e073d3567425b88794828a9292104244c9e40875ed",
+      "gzip_bytes": 341
+    },
+    {
+      "path": "index.html",
+      "bytes": 672,
+      "sha256": "d2a533be779c3586aac88b7f9e716ead50d23e36ce21782bf10db38e692f5842",
+      "gzip_bytes": 388
+    },
+    {
+      "path": "assets/AQUA_V2_Final_static-cJJYBiOn.svg",
+      "bytes": 2111901,
+      "sha256": "a610bf95498d5bbc765cf49879bc98ee9a33f385cdf88452622a6871ae825648",
+      "gzip_bytes": 329472
+    },
+    {
+      "path": "assets/DashboardPreview-yqJpD0yn.js",
+      "bytes": 407228,
+      "sha256": "675853584cae40831dd84b6d43c08e14bbd98279a77cd2f39c3acb276446cb6a",
+      "gzip_bytes": 110277
+    },
+    {
+      "path": "assets/index-BfmamgzU.css",
+      "bytes": 48503,
+      "sha256": "b15b71f2e3c990bb99d24122dda4eb2151ad1982e798b4925a501f85d490c853",
+      "gzip_bytes": 10454
+    },
+    {
+      "path": "assets/index-BtVueq-Z.js",
+      "bytes": 440078,
+      "sha256": "d0385487cfb264dad7909abe886b357a17162a638b7b19e2f0f89678836c97c7",
+      "gzip_bytes": 136078
+    }
+  ],
+  "current_source_rebuild_matches": true
+}

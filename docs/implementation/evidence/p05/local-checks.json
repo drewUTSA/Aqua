@@ -1,0 +1,62 @@
+{
+  "status": "passed",
+  "source_guard": {
+    "status": "passed",
+    "findings": []
+  },
+  "runtime_lock": "passed",
+  "unit_cases": 120,
+  "protected_files": 16,
+  "protected_sha256": {
+    "AQUA_CODEX_HANDOFF.md": "711c09eaa8d7a37b515b809a631facfacdbdea8f2233ae05c2449f3735a73e02",
+    "backend/migrations/0001_identity.sql": "ec2a506fa518accc29104b41e77cb1c14b05cc1752be559902e6ca09f1c7576b",
+    "backend/migrations/0002_identity_policy.sql": "e4f057c11b01586ec195ade98ab4c2e6e0c76bd511d0ae9bf09f1c658a9a26be",
+    "backend/migrations/0003_password_auth.sql": "168ad37703845d16d1872dd6b5dd37f82affc198744a67a2323683ab61663db4",
+    "backend/migrations/bootstrap.psql": "6e89768dd3b0fb80fd6c498445090ed396e4e7379a39284ce3282ee88be52d69",
+    "backend/nl2sql/config.py": "083c4f5e3a0f66760bfdbf6f27bb1556a378934c3dbae0a22efea092c7a5fd6d",
+    "backend/nl2sql/db.py": "59cfedbd75f765a24a325a3a73533b5bfd61a27cb0662b6c5afa0da11f3804f6",
+    "db/01_extensions.sql": "78cad69a9712a950077f63c423b0c55baa6900fc86a063863bc120947ff9e630",
+    "db/02_load_pagila.sh": "52f6c76e870ac96a8b54c6b93917c1c8838667eee2bc2c7f34d771a51772aa0f",
+    "db/03_users.sql": "85111251d2d083f450460551c622490e78c658c0836c7a25f689d52f798ff1b3",
+    "db/04_retrieval.sql": "768aa5b7390fbee601ce612ab6b098a9642c40670bd226dff40b3935eda75371",
+    "db/05_hide_columns.sql": "f727dd6bbf860e83cfb6ab90f6a0827f5f3c3aac1cd057ee84843d317b5af661",
+    "db/README.md": "1d656b0d3bd96123730cadab532a283823fae5c05306efcecca9c6ee1d52e8c4",
+    "db/financial/01_export.sh": "a77feacc5392b24547a816996f36a1cfd2c7c9a5ae2d66b6d226c125d58f9f0a",
+    "db/financial/02_load.sql": "4e131534d2e0baa83044d0624fde25335e0644cfe786afe5c46f330ef0406254",
+    "db/financial/README.md": "8408d3d1e48f471cac7c31ef56004fde8fa3bac45c649561a7a399372e656d44"
+  },
+  "assets": [
+    {
+      "path": "index.html",
+      "bytes": 672,
+      "gzip_bytes": 391,
+      "sha256": "e6e5ac9eb359854ebedeb455db35604e7bc21169ed8c96fe4c206ac949674842"
+    },
+    {
+      "path": "assets/AQUA_V2_Final_static-cJJYBiOn.svg",
+      "bytes": 2111901,
+      "gzip_bytes": 329472,
+      "sha256": "a610bf95498d5bbc765cf49879bc98ee9a33f385cdf88452622a6871ae825648"
+    },
+    {
+      "path": "assets/DashboardPreview-DNcgiEVu.js",
+      "bytes": 407228,
+      "gzip_bytes": 110278,
+      "sha256": "b2f309703ecf8424ba6fe10fc714ff33a0c15341974baceffc1c70c28921f67c"
+    },
+    {
+      "path": "assets/index-BfmamgzU.css",
+      "bytes": 48503,
+      "gzip_bytes": 10454,
+      "sha256": "b15b71f2e3c990bb99d24122dda4eb2151ad1982e798b4925a501f85d490c853"
+    },
+    {
+      "path": "assets/index-BNXAxMjq.js",
+      "bytes": 439998,
+      "gzip_bytes": 136059,
+      "sha256": "9130cce80b3a09804f1b7009fa685c2f995373f796fd160bb9b99a2165e9bdf4"
+    }
+  ],
+  "browser_gate": "separate_pending",
+  "backend": "unchanged_P04_release_1056_cases_and_98_proxy_requests"
+}

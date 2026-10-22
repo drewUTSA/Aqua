@@ -1,0 +1,455 @@
+{
+  "status": "failed",
+  "failure": "backend_cleanup_unconfirmed",
+  "checked_utc": "2026-10-21T22:59:11.168Z",
+  "mode": "real_fastapi_disposable_postgres_browser",
+  "loadedAssets": [
+    {
+      "name": "/assets/DashboardPreview-BsoI507J.js",
+      "sha256": "0983660236243b69e5eb02f533bb2147d436293e9a0f37d7b03ddf6124e13062"
+    },
+    {
+      "name": "/assets/index-Btz76ta8.css",
+      "sha256": "7341cddddd44cebfd8cf99f8383f07cd883c5cd15d644eb66af993c8fc16642b"
+    },
+    {
+      "name": "/assets/index-Ca9ILvDQ.js",
+      "sha256": "18c87e75eeb23c0e6212c25c047ce71c0bddc4872a7dc5a04434211c8ef4a466"
+    },
+    {
+      "name": "/index.html",
+      "sha256": "f05086a8905bc5d771e827e54a0ef6888cad94ebd99773d59c04a5dde05cbb36"
+    }
+  ],
+  "results": [
+    {
+      "check": "actual email proof is consumed only into page memory",
+      "passed": true
+    },
+    {
+      "check": "real verification creates no automatic browser session",
+      "passed": true
+    },
+    {
+      "check": "new password account has personal UI without dataset access",
+      "passed": true
+    },
+    {
+      "check": "actual API rejects a query from a no-dataset account",
+      "passed": true
+    },
+    {
+      "check": "actual signed-in account can reach its own Settings",
+      "passed": true
+    },
+    {
+      "check": "actual logout removes the authenticated server session",
+      "passed": true
+    },
+    {
+      "check": "actual spent verification proof cannot be replayed",
+      "passed": true
+    },
+    {
+      "check": "actual reset bearer stays out of URL DOM and storage",
+      "passed": true
+    },
+    {
+      "check": "actual password reset revokes previously issued server sessions",
+      "passed": true
+    },
+    {
+      "check": "real exhausted bootstrap budget disables login and clears its password",
+      "passed": true
+    },
+    {
+      "check": "real rate window recovers naturally with zero automatic password retries",
+      "passed": true
+    },
+    {
+      "check": "old password fails with safe generic feedback after reset",
+      "passed": true
+    },
+    {
+      "check": "new password works after reset while reset proof remains one-use",
+      "passed": true
+    },
+    {
+      "check": "actual Google handler rejects forged CSRF then accepts a fresh legitimate nonce flow",
+      "passed": true
+    },
+    {
+      "check": "final browser state contains no captured proof values",
+      "passed": true
+    },
+    {
+      "check": "actual browser/API journeys use bounded local traffic without provider calls",
+      "passed": true
+    }
+  ],
+  "screenshots": [
+    {
+      "name": "actual-password-account-settings",
+      "file": "retained_in_planning_workspace/actual-password-account-settings.png"
+    },
+    {
+      "name": "actual-google-no-dataset-workspace",
+      "file": "retained_in_planning_workspace/actual-google-no-dataset-workspace.png"
+    }
+  ],
+  "observations": {
+    "requests": 121,
+    "apiRequests": 66,
+    "external_attempts": 0,
+    "consoleLeaks": 0,
+    "browserErrors": [],
+    "protocolErrors": [],
+    "canceled": 0,
+    "explicit_fixture_admission_clock_steps": 2,
+    "apiOutcomes": [
+      {
+        "method": "GET",
+        "path": "/api/auth/me",
+        "status": 401
+      },
+      {
+        "method": "GET",
+        "path": "/api/auth/config",
+        "status": 200
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/bootstrap",
+        "status": 200
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/registrations",
+        "status": 202
+      },
+      {
+        "method": "GET",
+        "path": "/api/auth/me",
+        "status": 401
+      },
+      {
+        "method": "GET",
+        "path": "/api/auth/config",
+        "status": 200
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/bootstrap",
+        "status": 200
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/email-verifications",
+        "status": 204
+      },
+      {
+        "method": "GET",
+        "path": "/api/auth/me",
+        "status": 401
+      },
+      {
+        "method": "GET",
+        "path": "/api/auth/config",
+        "status": 200
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/bootstrap",
+        "status": 200
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/password-login",
+        "status": 200
+      },
+      {
+        "method": "GET",
+        "path": "/api/models",
+        "status": 200
+      },
+      {
+        "method": "GET",
+        "path": "/api/auth/me",
+        "status": 200
+      },
+      {
+        "method": "POST",
+        "path": "/api/query",
+        "status": 403
+      },
+      {
+        "method": "POST",
+        "path": "/api/auth/logout",
+        "status": 204
+      },
+      {
+        "method": "GET",
+        "path": "/api/auth/config",
+        "status": 200
+      },
+      {
+        "method": "GET",
+        "path": "/api/auth/me",
+        "status": 401
+      },
+      {
+        "method": "GET",
+        "path": "/api/auth/me",
+        "status": 401
+      },
+      {
+        "method": "GET",
+        "path": "/api/auth/config",
+        "status": 200
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/bootstrap",
+        "status": 200
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/email-verifications",
+        "status": 400
+      },
+      {
+        "method": "GET",
+        "path": "/api/auth/me",
+        "status": 401
+      },
+      {
+        "method": "GET",
+        "path": "/api/auth/config",
+        "status": 200
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/bootstrap",
+        "status": 200
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/password-login",
+        "status": 200
+      },
+      {
+        "method": "GET",
+        "path": "/api/models",
+        "status": 200
+      },
+      {
+        "method": "GET",
+        "path": "/api/auth/me",
+        "status": 200
+      },
+      {
+        "method": "GET",
+        "path": "/api/auth/me",
+        "status": 200
+      },
+      {
+        "method": "GET",
+        "path": "/api/models",
+        "status": 200
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/bootstrap",
+        "status": 200
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/password-reset-requests",
+        "status": 202
+      },
+      {
+        "method": "GET",
+        "path": "/api/auth/me",
+        "status": 200
+      },
+      {
+        "method": "GET",
+        "path": "/api/models",
+        "status": 200
+      },
+      {
+        "method": "GET",
+        "path": "/api/auth/config",
+        "status": 200
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/bootstrap",
+        "status": 200
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/password-resets",
+        "status": 204
+      },
+      {
+        "method": "GET",
+        "path": "/api/auth/config",
+        "status": 200
+      },
+      {
+        "method": "GET",
+        "path": "/api/auth/me",
+        "status": 401
+      },
+      {
+        "method": "GET",
+        "path": "/api/auth/config",
+        "status": 200
+      },
+      {
+        "method": "GET",
+        "path": "/api/auth/config",
+        "status": 200
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/bootstrap",
+        "status": 200
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/password-resets",
+        "status": 400
+      },
+      {
+        "method": "GET",
+        "path": "/api/auth/config",
+        "status": 200
+      },
+      {
+        "method": "GET",
+        "path": "/api/auth/config",
+        "status": 429
+      },
+      {
+        "method": "GET",
+        "path": "/api/auth/me",
+        "status": 401
+      },
+      {
+        "method": "GET",
+        "path": "/api/auth/config",
+        "status": 429
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/bootstrap",
+        "status": 429
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/bootstrap",
+        "status": 200
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/password-login",
+        "status": 401
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/auth/bootstrap",
+        "status": 200
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/password-login",
+        "status": 200
+      },
+      {
+        "method": "GET",
+        "path": "/api/models",
+        "status": 200
+      },
+      {
+        "method": "POST",
+        "path": "/api/auth/logout",
+        "status": 204
+      },
+      {
+        "method": "GET",
+        "path": "/api/auth/config",
+        "status": 200
+      },
+      {
+        "method": "GET",
+        "path": "/api/auth/me",
+        "status": 401
+      },
+      {
+        "method": "GET",
+        "path": "/api/auth/config",
+        "status": 200
+      },
+      {
+        "method": "GET",
+        "path": "/api/auth/config",
+        "status": 200
+      },
+      {
+        "method": "POST",
+        "path": "/api/auth/google",
+        "status": 403
+      },
+      {
+        "method": "GET",
+        "path": "/api/auth/me",
+        "status": 401
+      },
+      {
+        "method": "GET",
+        "path": "/api/auth/me",
+        "status": 401
+      },
+      {
+        "method": "GET",
+        "path": "/api/auth/config",
+        "status": 200
+      },
+      {
+        "method": "POST",
+        "path": "/api/auth/google",
+        "status": 200
+      },
+      {
+        "method": "GET",
+        "path": "/api/models",
+        "status": 200
+      },
+      {
+        "method": "POST",
+        "path": "/api/auth/logout",
+        "status": 204
+      },
+      {
+        "method": "GET",
+        "path": "/api/auth/config",
+        "status": 200
+      }
+    ]
+  },
+  "cleanup": {
+    "browser_stopped": true,
+    "temporary_profile_removed": true,
+    "loopback_closed": true,
+    "backend_status": "failed",
+    "backend_resources_removed": false
+  },
+  "elapsed_seconds": 70.03,
+  "limitations": [
+    "Real FastAPI/auth/database code against synthetic disposable fixtures; no deployed origin or production data validation.",
+    "Google verifier and email sender are synthetic test adapters; no Google or email provider contacted.",
+    "No analytical database or AI model is exercised."
+  ]
+}

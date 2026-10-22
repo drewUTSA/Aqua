@@ -1,0 +1,316 @@
+{
+  "status": "passed",
+  "failure": null,
+  "checked_utc": "2026-10-21T22:54:43.692Z",
+  "mode": "production_build_synthetic_api_browser",
+  "loadedAssets": [
+    {
+      "name": "/assets/DashboardPreview-BsoI507J.js",
+      "sha256": "0983660236243b69e5eb02f533bb2147d436293e9a0f37d7b03ddf6124e13062"
+    },
+    {
+      "name": "/assets/index-Btz76ta8.css",
+      "sha256": "7341cddddd44cebfd8cf99f8383f07cd883c5cd15d644eb66af993c8fc16642b"
+    },
+    {
+      "name": "/assets/index-Ca9ILvDQ.js",
+      "sha256": "18c87e75eeb23c0e6212c25c047ce71c0bddc4872a7dc5a04434211c8ef4a466"
+    },
+    {
+      "name": "/index.html",
+      "sha256": "f05086a8905bc5d771e827e54a0ef6888cad94ebd99773d59c04a5dde05cbb36"
+    }
+  ],
+  "results": [
+    {
+      "check": "labeled autofill-friendly dual login",
+      "passed": true
+    },
+    {
+      "check": "password visibility toggle exposes state",
+      "passed": true
+    },
+    {
+      "check": "rejected credentials are generic and password clears",
+      "passed": true
+    },
+    {
+      "check": "password works during stalled Google configuration",
+      "passed": true
+    },
+    {
+      "check": "chat-only entry has complete composer and no empty visuals",
+      "passed": true
+    },
+    {
+      "check": "account menu Escape restores trigger focus",
+      "passed": true
+    },
+    {
+      "check": "IME Enter does not submit",
+      "passed": true
+    },
+    {
+      "check": "Shift+Enter preserves multiline input",
+      "passed": true
+    },
+    {
+      "check": "Settings return preserves draft without new conversation",
+      "passed": true
+    },
+    {
+      "check": "Settings return preserves conversation scroll",
+      "passed": true
+    },
+    {
+      "check": "failed query preserves recoverable draft",
+      "passed": true
+    },
+    {
+      "check": "pending logout retains hidden inert account draft",
+      "passed": true
+    },
+    {
+      "check": "failed logout preserves locked draft",
+      "passed": true
+    },
+    {
+      "check": "confirmed logout and account switch discard old private state",
+      "passed": true
+    },
+    {
+      "check": "signed-in no-dataset account cannot submit a query",
+      "passed": true
+    },
+    {
+      "check": "no-dataset account can reach own Settings",
+      "passed": true
+    },
+    {
+      "check": "Google failure does not block password and duplicate submit makes one POST",
+      "passed": true
+    },
+    {
+      "check": "registration asks only for email before ownership proof",
+      "passed": true
+    },
+    {
+      "check": "403 requires manual email-only resubmit with a fresh challenge",
+      "passed": true
+    },
+    {
+      "check": "registration response stays generic",
+      "passed": true
+    },
+    {
+      "check": "throttling disables premature retry and hides diagnostic",
+      "passed": true
+    },
+    {
+      "check": "Retry-After is honored without automatic email replay",
+      "passed": true
+    },
+    {
+      "check": "verification proof is removed from URL DOM cookies and storage",
+      "passed": true
+    },
+    {
+      "check": "verification completion does not auto-login or show an invalid-link CTA",
+      "passed": true
+    },
+    {
+      "check": "same-document verification link is consumed without persistence",
+      "passed": true
+    },
+    {
+      "check": "used verification proof receives recovery state",
+      "passed": true
+    },
+    {
+      "check": "missing reset proof has no password submission",
+      "passed": true
+    },
+    {
+      "check": "reset proof is removed from URL DOM cookies and storage",
+      "passed": true
+    },
+    {
+      "check": "reset completion returns to sign-in without auto-login",
+      "passed": true
+    },
+    {
+      "check": "wrong-purpose proof fails with safe recovery state",
+      "passed": true
+    },
+    {
+      "check": "untrusted return destinations and fragments are discarded",
+      "passed": true
+    },
+    {
+      "check": "supported Google callback reaches canonical workspace",
+      "passed": true
+    },
+    {
+      "check": "hostile output cannot execute or create external active elements",
+      "passed": true
+    },
+    {
+      "check": "confirmed logout clears private state in the other real tab",
+      "passed": true
+    },
+    {
+      "check": "other-tab account switch never reuses old account conversation",
+      "passed": true
+    },
+    {
+      "check": "held reset permits reproducing old-session foreground revalidation",
+      "passed": true
+    },
+    {
+      "check": "ambiguous reset response keeps this tab out of its workspace",
+      "passed": true
+    },
+    {
+      "check": "reset attempt clears other-tab private draft even on ambiguous response",
+      "passed": true
+    },
+    {
+      "check": "cross-tab notifications carry only bounded event metadata",
+      "passed": true
+    },
+    {
+      "check": "ambiguous reset has exactly one explicit POST across both tabs",
+      "passed": true
+    },
+    {
+      "check": "mobile drawer contains keyboard focus",
+      "passed": true
+    },
+    {
+      "check": "mobile drawer Escape returns focus",
+      "passed": true
+    },
+    {
+      "check": "320 CSS pixel home has no page overflow",
+      "passed": true
+    },
+    {
+      "check": "forced colors and reduced motion preserve essential controls",
+      "passed": true
+    },
+    {
+      "check": "forced colors light uses a visible arrow mask",
+      "passed": true
+    },
+    {
+      "check": "forced colors light keeps header action glyphs visible",
+      "passed": true
+    },
+    {
+      "check": "forced colors light preserves disabled arrow contrast",
+      "passed": true
+    },
+    {
+      "check": "forced colors dark uses a visible arrow mask",
+      "passed": true
+    },
+    {
+      "check": "forced colors dark keeps header action glyphs visible",
+      "passed": true
+    },
+    {
+      "check": "forced colors dark preserves disabled arrow contrast",
+      "passed": true
+    },
+    {
+      "check": "320 CSS pixel sign-in has no page overflow",
+      "passed": true
+    },
+    {
+      "check": "200 percent text preserves page reflow",
+      "passed": true
+    },
+    {
+      "check": "200 percent text keeps sign-in reachable",
+      "passed": true
+    },
+    {
+      "check": "unknown route has recovery navigation",
+      "passed": true
+    },
+    {
+      "check": "public policy remains readable signed out",
+      "passed": true
+    },
+    {
+      "check": "all traffic bounded and intercepted; no external calls or console bearer leak",
+      "passed": true
+    }
+  ],
+  "screenshots": [
+    {
+      "name": "signin-desktop-1440x900",
+      "file": "browser-signin-desktop-1440x900.png"
+    },
+    {
+      "name": "home-desktop-1440x980",
+      "file": "browser-home-desktop-1440x980.png"
+    },
+    {
+      "name": "home-mobile-390x844",
+      "file": "browser-home-mobile-390x844.png"
+    },
+    {
+      "name": "home-mobile-320-reflow",
+      "file": "browser-home-mobile-320-reflow.png"
+    },
+    {
+      "name": "home-forced-colors-reduced-motion",
+      "file": "browser-home-forced-colors-reduced-motion.png"
+    },
+    {
+      "name": "home-forced-colors-light-enabled",
+      "file": "browser-home-forced-colors-light-enabled.png"
+    },
+    {
+      "name": "home-forced-colors-dark-enabled",
+      "file": "browser-home-forced-colors-dark-enabled.png"
+    },
+    {
+      "name": "signin-mobile-390x844",
+      "file": "browser-signin-mobile-390x844.png"
+    },
+    {
+      "name": "signin-mobile-320-reflow",
+      "file": "browser-signin-mobile-320-reflow.png"
+    },
+    {
+      "name": "signin-mobile-text-200-percent",
+      "file": "browser-signin-mobile-text-200-percent.png"
+    }
+  ],
+  "limits": {
+    "maximum_seconds": 240,
+    "maximum_requests": 900,
+    "maximum_api_requests": 180
+  },
+  "observations": {
+    "requestCount": 177,
+    "staticRequests": 85,
+    "apiRequests": 90,
+    "external_attempts": 0,
+    "consoleLeaks": 0,
+    "runtimeErrors": 0,
+    "forbidden_api_calls": 0,
+    "protocolFailures": [],
+    "canceledInterceptions": 0
+  },
+  "cleanup": "browser_stopped_loopback_closed_temporary_profile_removed",
+  "elapsed_seconds": 5.87,
+  "limitations": [
+    "Synthetic intercepted API and GIS contracts; no actual backend, Google, email, database or production-origin validation.",
+    "400% reflow represented by a 320 CSS-pixel viewport; 200% text doubles computed text sizes.",
+    "Keyboard and semantic assertions are not a complete screen-reader or contrast audit.",
+    "Screenshots require human/agent visual review; saving them alone is not visual approval."
+  ]
+}

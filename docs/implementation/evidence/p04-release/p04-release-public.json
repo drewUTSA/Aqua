@@ -1,0 +1,147 @@
+{
+  "purpose": "aqua_p04_public_disabled_smoke",
+  "date_utc": "2026-10-21T22:35:45.992456+00:00",
+  "scope": {
+    "hosts": [
+      "aqua-ai.us",
+      "api.aqua-ai.us"
+    ],
+    "requests_max": 12,
+    "requests_per_second_max": 2,
+    "duration_seconds_max": 45,
+    "per_request_timeout_seconds": 6,
+    "body_bytes_max": 17000,
+    "redirects": false,
+    "resolved_public_ip_pinned": true,
+    "providers_and_data_queries": false
+  },
+  "results": [
+    {
+      "host": "aqua-ai.us",
+      "pinned_address": "104.21.96.134",
+      "method": "GET",
+      "path": "/api/health",
+      "status": 200,
+      "expected": 200,
+      "cache_control": "no-store, no-store",
+      "passed": true,
+      "liveness_ok": true
+    },
+    {
+      "host": "aqua-ai.us",
+      "pinned_address": "104.21.96.134",
+      "method": "GET",
+      "path": "/api/ready",
+      "status": 404,
+      "expected": 404,
+      "cache_control": "no-store",
+      "passed": true
+    },
+    {
+      "host": "aqua-ai.us",
+      "pinned_address": "104.21.96.134",
+      "method": "GET",
+      "path": "/api/auth/me",
+      "status": 401,
+      "expected": 401,
+      "cache_control": "no-store, no-store",
+      "passed": true
+    },
+    {
+      "host": "aqua-ai.us",
+      "pinned_address": "104.21.96.134",
+      "method": "POST",
+      "path": "/api/__aqua_ingress_probe__",
+      "status": 413,
+      "expected": 413,
+      "cache_control": "no-store",
+      "passed": true
+    },
+    {
+      "host": "aqua-ai.us",
+      "pinned_address": "104.21.96.134",
+      "method": "GET",
+      "path": "/api/v1/auth/bootstrap?action=login",
+      "status": 503,
+      "expected": 503,
+      "cache_control": "no-store, no-store",
+      "passed": true
+    },
+    {
+      "host": "api.aqua-ai.us",
+      "pinned_address": "104.21.96.134",
+      "method": "GET",
+      "path": "/api/health",
+      "status": 200,
+      "expected": 200,
+      "cache_control": "no-store, no-store",
+      "passed": true,
+      "liveness_ok": true
+    },
+    {
+      "host": "api.aqua-ai.us",
+      "pinned_address": "104.21.96.134",
+      "method": "GET",
+      "path": "/api/ready",
+      "status": 404,
+      "expected": 404,
+      "cache_control": "no-store",
+      "passed": true
+    },
+    {
+      "host": "api.aqua-ai.us",
+      "pinned_address": "104.21.96.134",
+      "method": "GET",
+      "path": "/api/auth/me",
+      "status": 401,
+      "expected": 401,
+      "cache_control": "no-store, no-store",
+      "passed": true
+    },
+    {
+      "host": "api.aqua-ai.us",
+      "pinned_address": "104.21.96.134",
+      "method": "POST",
+      "path": "/api/__aqua_ingress_probe__",
+      "status": 413,
+      "expected": 413,
+      "cache_control": "no-store",
+      "passed": true
+    },
+    {
+      "host": "api.aqua-ai.us",
+      "pinned_address": "104.21.96.134",
+      "method": "GET",
+      "path": "/api/v1/auth/bootstrap?action=login",
+      "status": 503,
+      "expected": 503,
+      "cache_control": "no-store, no-store",
+      "passed": true
+    },
+    {
+      "host": "aqua-ai.us",
+      "pinned_address": "104.21.96.134",
+      "method": "GET",
+      "path": "/api/auth/config",
+      "status": 200,
+      "expected": 200,
+      "cache_control": "no-store, no-store",
+      "passed": true,
+      "bootstrap_fields_present": true,
+      "cookie_protections": true,
+      "durable_capability": true,
+      "password_capability_disabled": true
+    },
+    {
+      "host": "aqua-ai.us",
+      "pinned_address": "104.21.96.134",
+      "method": "GET",
+      "path": "/api/auth/me",
+      "status": 401,
+      "expected": 401,
+      "cache_control": "no-store, no-store",
+      "passed": true
+    }
+  ],
+  "status": "passed"
+}

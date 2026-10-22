@@ -347,3 +347,65 @@ Pausing new registration/recovery leaves existing password login available.
 Shared anonymous bootstrap budgets remain an aggregate availability tradeoff.
 P05 forms and reviewed real delivery/worker integration must precede activation;
 this source does not open signup, start a scheduler or send actual messages.
+
+### P05 browser shell and authentication boundaries — 2026-10-21
+
+Use the approved Opal Figma screens with static exact local assets and semantic
+React controls. Remove WebGL from the critical composer/login/home path while
+preserving current table/inline-chart rendering. Full history, charts and editable
+preferences keep their phase boundaries; the Settings entry is explicitly read-only.
+
+Keep Google and password transports independent. Consume a fresh action-bound
+bootstrap before each explicit password POST, with bounded response/deadline and
+no automatic credential/email retry. Registration is email-first despite the older
+Figma mockup: a mailbox proof precedes password establishment. Keep proof fragments
+only in memory and remove them before UI/SDK initialization; navigation uses a
+fixed local allowlist rather than return URLs. A route revision, not a bearer in
+a React key, resets same-path email journeys.
+
+Separate account identity from dataset entitlement. Preserve hidden/inert drafts
+while logout is unresolved and unmount on confirmed missing session or account
+switch. Broadcast only session-change metadata across tabs, revalidate on bounded
+foreground events and lock cached identity at reset start and in completion
+cleanup because a reset can commit even when its response is lost. These client privacy controls supplement
+the authoritative server session/grant checks; browser limits never grant capacity.
+
+P04 is deployed with schema 3 after backup, repeat migration and release checks.
+The initial P05 baseline passed 117 unit cases, 56 exact-image browser checks, 16 combined real-backend
+browser checks and 12 fixture lifecycle regressions. Exact production-flag rebuild
+hashes matched that tested frontend image. The later handoff audit reopened the
+checkpoint for the follow-up below; those counts do not prove the changed source.
+Remote CI and merge remain required. None of these UI changes enables password/email
+flags or schedules a worker. Preserve the schema-3 backend during frontend rollback.
+
+### P05 reversible presentation and navigation follow-up — 2026-10-21
+
+The handoff requires a UI rollback flag that preserves current secure auth and
+password-only access. Reusing the older P04 image does not satisfy that contract
+after password activation. Use `VITE_AQUA_UI_SHELL=opal|legacy` at build time,
+forwarded through Docker/Compose `AQUA_UI_SHELL`, default Opal. Reject typos.
+Legacy applies the classic blue/glass layout to shared semantic Workspace,
+composer, native mobile dialog, account owner and authentication/routes; it does
+not restore old auth/WebGL implementations. A runtime URL/storage/theme switch
+was rejected because this is an operator deployment rollback, not P09 preferences.
+
+Retain the existing account owner during legal SPA navigation, including pending
+or failed logout, so the hidden/inert draft survives Back. Direct public legal
+visits still avoid auth bootstrap. Fix policy text to reflect implemented account,
+password/email/model processing; do not imply operator/legal approval. Restore
+the required search affordance as bounded visit-local title filtering only:
+100 conversations, 512 title characters and 120 query characters, no message-body
+search or network work. Durable owner-scoped history/search stays P06.
+
+Both variants passed final build, 77 synthetic UI/security and 20 actual
+private-backend auth/natural rate-limit recovery checks, with confirmed resource
+cleanup. The follow-up also passed 120 unit and 12 fixture-cleanup cases,
+Black/Ruff/source/lock/protected-file checks, tablet/intermediate/keyboard-height
+and 200% workspace checks. Actual bundle/lazy-load/local timing observations are
+recorded, including the classic logo's delivery cost. Final contrast review fixed
+legacy search text over the gradient, and both complete suites/rebuild comparisons
+passed again. The sealed final evidence supersedes baseline counts in
+`docs/implementation/evidence/p05/rollback/`; copy/hash guards verify the
+actual checkout before human review. See
+`docs/implementation/P05_ROLLBACK.md` for the requirement/evidence matrix and
+frontend-only deployment procedure. Human commit/push/PR and rollout remain gated.

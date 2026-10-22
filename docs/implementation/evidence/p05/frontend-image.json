@@ -1,0 +1,34 @@
+{
+  "status": "built_not_deployed",
+  "image": "sha256:5a5bdbbd396356066e88ba75453b6ed27b2f86e78ed42a4264abd2de8b3c6866",
+  "context_sha256": "20ef3f7a1bdcb21b151d154f27acd9b80c576ce5b4321cddf73a4a595e782561",
+  "synthetic_env_excluded": true,
+  "cleanup": "container_absent_temporary_context_removed",
+  "assets": [
+    {
+      "path": "50x.html",
+      "bytes": 497,
+      "sha256": "876766b4e80133fd490603e073d3567425b88794828a9292104244c9e40875ed"
+    },
+    {
+      "path": "index.html",
+      "bytes": 616,
+      "sha256": "f05086a8905bc5d771e827e54a0ef6888cad94ebd99773d59c04a5dde05cbb36"
+    },
+    {
+      "path": "assets/DashboardPreview-BsoI507J.js",
+      "bytes": 407228,
+      "sha256": "0983660236243b69e5eb02f533bb2147d436293e9a0f37d7b03ddf6124e13062"
+    },
+    {
+      "path": "assets/index-Btz76ta8.css",
+      "bytes": 40629,
+      "sha256": "7341cddddd44cebfd8cf99f8383f07cd883c5cd15d644eb66af993c8fc16642b"
+    },
+    {
+      "path": "assets/index-Ca9ILvDQ.js",
+      "bytes": 437739,
+      "sha256": "18c87e75eeb23c0e6212c25c047ce71c0bddc4872a7dc5a04434211c8ef4a466"
+    }
+  ]
+}

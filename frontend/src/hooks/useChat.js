@@ -66,6 +66,9 @@ export function useChat({ demoMode = DEMO_MODE, canQuery = demoMode, csrfToken =
         const exists = conversation.messages.some((message) => message.id === replyId);
         return {
           ...conversation,
+          // Recover failed submissions without overwriting text typed while
+          // waiting. This draft remains scoped to the mounted account.
+          draft: phase === "complete" && response.status === "error" && !conversation.draft ? prompt : conversation.draft,
           updatedAt: Date.now(),
           request: phase === "complete" ? null : { id: requestId, modelId, phase },
           messages: exists
@@ -172,6 +175,8 @@ export function useChat({ demoMode = DEMO_MODE, canQuery = demoMode, csrfToken =
   }, [runRequest, update]);
 
   const startConversation = useCallback(() => {
+    // This is a browser memory bound, not a replacement for server admission.
+    if (stateRef.current.conversations.length >= 100) return null;
     const id = createId("conversation");
     update((current) => ({
       ...current,

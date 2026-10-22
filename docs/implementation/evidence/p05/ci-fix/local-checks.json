@@ -1,0 +1,13 @@
+{
+  "status": "passed",
+  "frontend_unit_cases": 133,
+  "new_bridge_cases": 13,
+  "startup_cases": 7,
+  "cleanup_cases": 12,
+  "source_guard": {
+    "status": "passed",
+    "findings": []
+  },
+  "runtime_lock": "passed",
+  "unchanged_production_files_verified": 244
+}

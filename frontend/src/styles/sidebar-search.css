@@ -1,0 +1,7 @@
+.sidebar-search { display: grid; gap: 8px; margin-bottom: 12px; }
+.sidebar-search label { color: #adb0ba; font-size: 12px; line-height: 1.6; }
+.sidebar-search input { min-width: 0; width: 100%; min-height: 44px; padding: 10px 12px; border: 1px solid #737682; border-radius: 10px; background: #232429; color: #f2f1ed; font-size: 14px; line-height: 1.5; }
+.sidebar-search input::placeholder { color: #adb0ba; opacity: 1; }
+.sidebar-search .sidebar-search__clear { padding: 8px; color: #cdc8ec; font-size: 12px; }
+.sidebar-search__status { margin: 0; color: #adb0ba; font-size: 12px; line-height: 1.6; }
+@media (forced-colors: active) { .sidebar-search input { border-color: CanvasText; } }

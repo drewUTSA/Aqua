@@ -35,6 +35,8 @@ jobs:
           python tools/checks/check_lock.py
           python -m black --check backend eval tools/checks ops
           python -m ruff check backend eval tools/checks ops
+          python tools/checks/p05_browser_cleanup_test.py
+          python tools/checks/p05_browser_startup_test.py
       - name: Audit pinned runtime dependencies
         run: python -m pip_audit --no-deps --disable-pip -r tools/checks/requirements-runtime.lock
       - name: Prepare isolated test images
@@ -64,6 +66,49 @@ jobs:
           node --test "checks/*.test.mjs"
       - name: Frontend dependency audit and production build
         working-directory: frontend
+        env:
+          VITE_AQUA_DEMO_MODE: 'false'
+          VITE_AQUA_USE_MOCK: 'false'
+          VITE_AQUA_UI_SHELL: 'opal'
         run: |
           npm audit --audit-level=low
           npm run build
+      - name: Synthetic browser security and responsive UI journeys
+        working-directory: frontend
+        env:
+          AQUA_P05_EXPECTED_SHELL: opal
+          AQUA_P05_ARTIFACT_DIR: ${{ runner.temp }}/aqua-p05/opal/synthetic
+        run: |
+          export AQUA_CHROME_EXECUTABLE="$(command -v google-chrome)"
+          test -x "$AQUA_CHROME_EXECUTABLE"
+          node checks/p05-browser.mjs
+      - name: Real private-database browser journeys and rate-limit recovery
+        env:
+          AQUA_P05_EXPECTED_SHELL: opal
+          AQUA_P05_ARTIFACT_DIR: ${{ runner.temp }}/aqua-p05/opal/real
+        run: |
+          python tools/checks/p05_browser_startup_smoke.py
+          export AQUA_CHROME_EXECUTABLE="$(command -v google-chrome)"
+          test -x "$AQUA_CHROME_EXECUTABLE"
+          export AQUA_P05_BRIDGE_EXECUTABLE="$(command -v python)"
+          export AQUA_P05_BRIDGE_ARGS_JSON='["tools/checks/p05_browser_backend.py","--image","aqua-runtime:check"]'
+          node frontend/checks/p05-real-backend-browser.mjs
+      - name: Build classic UI rollback with the current secure auth contracts
+        working-directory: frontend
+        env:
+          VITE_AQUA_DEMO_MODE: 'false'
+          VITE_AQUA_USE_MOCK: 'false'
+          VITE_AQUA_UI_SHELL: legacy
+        run: npm run build
+      - name: Classic UI security, responsive and real database rate-limit journeys
+        env:
+          AQUA_P05_EXPECTED_SHELL: legacy
+        run: |
+          export AQUA_CHROME_EXECUTABLE="$(command -v google-chrome)"
+          test -x "$AQUA_CHROME_EXECUTABLE"
+          export AQUA_P05_ARTIFACT_DIR="${{ runner.temp }}/aqua-p05/legacy/synthetic"
+          node frontend/checks/p05-browser.mjs
+          export AQUA_P05_ARTIFACT_DIR="${{ runner.temp }}/aqua-p05/legacy/real"
+          export AQUA_P05_BRIDGE_EXECUTABLE="$(command -v python)"
+          export AQUA_P05_BRIDGE_ARGS_JSON='["tools/checks/p05_browser_backend.py","--image","aqua-runtime:check"]'
+          node frontend/checks/p05-real-backend-browser.mjs

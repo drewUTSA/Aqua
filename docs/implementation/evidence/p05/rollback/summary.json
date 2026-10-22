@@ -1,0 +1,112 @@
+{
+  "status": "passed_not_deployed",
+  "variants": {
+    "opal": {
+      "image": "sha256:ef5b096f38e4b0b63d2247cb19aed613de0cb6d664a570ace0d73ae423e03aeb",
+      "synthetic": {
+        "checks": 77,
+        "observations": {
+          "requestCount": 216,
+          "staticRequests": 113,
+          "apiRequests": 101,
+          "external_attempts": 0,
+          "consoleLeaks": 0,
+          "runtimeErrors": 0,
+          "forbidden_api_calls": 0,
+          "protocolFailures": [],
+          "canceledInterceptions": 0,
+          "scrollObservations": [
+            {
+              "action": "settings_return",
+              "before": 80,
+              "after": 80
+            }
+          ]
+        },
+        "elapsed_seconds": 8.02,
+        "cleanup": "browser_stopped_loopback_closed_temporary_profile_removed"
+      },
+      "real": {
+        "checks": 20,
+        "observations": {
+          "requests": 121,
+          "apiRequests": 66,
+          "external_attempts": 0,
+          "consoleLeaks": 0,
+          "browserErrors": [],
+          "protocolErrors": [],
+          "canceled": 0,
+          "explicit_fixture_admission_clock_steps": 2
+        },
+        "elapsed_seconds": 70.72,
+        "cleanup": {
+          "browser_stopped": true,
+          "temporary_profile_removed": true,
+          "loopback_closed": true,
+          "backend_status": "passed",
+          "backend_resources_removed": true,
+          "backend_report": {
+            "run": "aqua-p05-browser-8b72e7454937c5b8c3748da0",
+            "status": "passed",
+            "cleanup": "removed_and_absence_confirmed",
+            "remaining_ids": []
+          }
+        }
+      }
+    },
+    "legacy": {
+      "image": "sha256:a363a8b0768c9e3b7a7334d20eebac9be9186bc97d15d340ac79fd8dd8c3cb58",
+      "synthetic": {
+        "checks": 77,
+        "observations": {
+          "requestCount": 229,
+          "staticRequests": 124,
+          "apiRequests": 101,
+          "external_attempts": 0,
+          "consoleLeaks": 0,
+          "runtimeErrors": 0,
+          "forbidden_api_calls": 0,
+          "protocolFailures": [],
+          "canceledInterceptions": 1,
+          "scrollObservations": [
+            {
+              "action": "settings_return",
+              "before": 80,
+              "after": 80
+            }
+          ]
+        },
+        "elapsed_seconds": 12.23,
+        "cleanup": "browser_stopped_loopback_closed_temporary_profile_removed"
+      },
+      "real": {
+        "checks": 20,
+        "observations": {
+          "requests": 127,
+          "apiRequests": 66,
+          "external_attempts": 0,
+          "consoleLeaks": 0,
+          "browserErrors": [],
+          "protocolErrors": [],
+          "canceled": 2,
+          "explicit_fixture_admission_clock_steps": 2
+        },
+        "elapsed_seconds": 71.48,
+        "cleanup": {
+          "browser_stopped": true,
+          "temporary_profile_removed": true,
+          "loopback_closed": true,
+          "backend_status": "passed",
+          "backend_resources_removed": true,
+          "backend_report": {
+            "run": "aqua-p05-browser-e853e8d40fc89ddb87001a00",
+            "status": "passed",
+            "cleanup": "removed_and_absence_confirmed",
+            "remaining_ids": []
+          }
+        }
+      }
+    }
+  },
+  "remote_ci": "pending_human_push"
+}

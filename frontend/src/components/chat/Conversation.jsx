@@ -1,26 +1,37 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useLayoutEffect, useRef } from "react";
 import AquaMessage from "./AquaMessage.jsx";
 import UserMessage from "./UserMessage.jsx";
 
-export default function Conversation({ messages, pending, waiting, formingIds = [], onRetry }) {
+export default function Conversation({ messages, pending, waiting, formingIds = [], onRetry, suspended = false }) {
   const scrollerRef = useRef(null);
   const nearBottomRef = useRef(true);
+  const scrollPositionRef = useRef(0);
+  const visible = (node) => node && !suspended && node.getClientRects().length > 0 && node.clientHeight > 0 && !node.closest("[hidden],[inert]");
 
   const updateNearBottom = () => {
     const node = scrollerRef.current;
-    if (node) nearBottomRef.current = node.scrollHeight - node.scrollTop - node.clientHeight < 120;
+    // Hidden panels report zero dimensions. They must not convert an older
+    // reading position into "follow newest" while visiting Settings or policies.
+    if (!visible(node)) return;
+    scrollPositionRef.current = node.scrollTop;
+    nearBottomRef.current = node.scrollHeight - node.scrollTop - node.clientHeight < 120;
   };
+
+  useLayoutEffect(() => {
+    const node = scrollerRef.current;
+    if (visible(node)) node.scrollTop = nearBottomRef.current ? node.scrollHeight : scrollPositionRef.current;
+  }, [suspended]);
 
   useEffect(() => {
     const node = scrollerRef.current;
-    if (!node || !nearBottomRef.current) return undefined;
-    node.scrollTop = node.scrollHeight;
+    if (!visible(node)) return undefined;
+    if (nearBottomRef.current) node.scrollTop = node.scrollHeight;
     const observer = new ResizeObserver(() => {
-      if (nearBottomRef.current) node.scrollTop = node.scrollHeight;
+      if (visible(node) && nearBottomRef.current) node.scrollTop = node.scrollHeight;
     });
     observer.observe(node.querySelector(".conversation__messages") || node);
     return () => observer.disconnect();
-  }, [messages, pending]);
+  }, [messages, pending, suspended]);
 
   return (
     <section className="conversation" aria-label="Conversation">

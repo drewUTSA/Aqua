@@ -1,0 +1,85 @@
+{
+  "purpose": "aqua_p04_release_evidence_integrity",
+  "commit": "067fb5a0aacc90ce646138fedbb770ecea6f0c92",
+  "status": "deployed_storage_ready_features_disabled",
+  "production_schema": 3,
+  "backup_receipt_attribution": "Operator-supplied output of reviewed helper; production restore not performed",
+  "excludes": "artifact-hashes.json (self)",
+  "files": [
+    {
+      "path": "checks/backend/bank.txt",
+      "bytes": 1717,
+      "sha256": "180c54c1709b0b6abd507ab4a4b73c1af8962afb07995215f4c3a221c300823d"
+    },
+    {
+      "path": "checks/backend/bank.xml",
+      "bytes": 145564,
+      "sha256": "6259f1831460d0cb9cd2f62e810e173b4b66de7d844aaa6cf4376f6da9445926"
+    },
+    {
+      "path": "checks/backend/packages.txt",
+      "bytes": 881,
+      "sha256": "63a1a6eb99cf1c165bbd94a41a0c0f79437b6489ef54cd1799ce63a95c8f8cff"
+    },
+    {
+      "path": "checks/backend/pagila.txt",
+      "bytes": 1717,
+      "sha256": "9b3e121d02506965e97cb4b2d4751bf19acd2a86ba1164bfae397d813a8befd2"
+    },
+    {
+      "path": "checks/backend/pagila.xml",
+      "bytes": 143977,
+      "sha256": "0a85c2f987af9a20c57c160a76853f81adb3bec0b67a98a18ecb1ca071d8b7a2"
+    },
+    {
+      "path": "checks/backend/report.json",
+      "bytes": 936,
+      "sha256": "5533586d12c38bf7796e1f14d1d72e91bde1d93891f51a1faa6303e39e91eae9"
+    },
+    {
+      "path": "checks/proxy.json",
+      "bytes": 6952,
+      "sha256": "8015bdb3392db56a4d241f45e090a78e495cee5e29da5b96aedea8ccd2b9ca21"
+    },
+    {
+      "path": "p04-release-backup.json",
+      "bytes": 466,
+      "sha256": "c760f2995dde16dfbe5fdc320e41350e918c9e4d492ff37fa5913e2489cd4740"
+    },
+    {
+      "path": "p04-release-build.json",
+      "bytes": 1369,
+      "sha256": "9f5f5f78bed5332acfcc2b419250a48a9514786c924cd3885acf43c348ee2e5f"
+    },
+    {
+      "path": "p04-release-check.json",
+      "bytes": 18340,
+      "sha256": "46f66f960c06daddcb06c112a38415aa2a555f15f88639d482600e4e3257fe02"
+    },
+    {
+      "path": "p04-release-cutover.json",
+      "bytes": 1783,
+      "sha256": "a5fa921401a8b501e58339973abaaecbd641c95faf6f2ca52c557100f6090f64"
+    },
+    {
+      "path": "p04-release-public.json",
+      "bytes": 3831,
+      "sha256": "265ffd38e9ef1f68443f52c7803a30d8dfd525f28ede1bee8adb570c141ff2b4"
+    },
+    {
+      "path": "p04-release-sync.json",
+      "bytes": 1195,
+      "sha256": "71d6399bd69ceb263ec870236c9ec9b7d5fc6dc268f2de9105e5248888204638"
+    },
+    {
+      "path": "p04-release-verify.json",
+      "bytes": 1484,
+      "sha256": "d140e9dd620db3f76b1720a0fc66c2cccca2173ccfd968a10247134aa04a614d"
+    },
+    {
+      "path": "README.md",
+      "bytes": 2449,
+      "sha256": "b69bc43a579fb7c643aebdaf196d700e4c53d4c1d32697bd3ebd60ce4bf72858"
+    }
+  ]
+}

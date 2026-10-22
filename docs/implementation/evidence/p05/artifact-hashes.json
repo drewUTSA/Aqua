@@ -1,0 +1,385 @@
+{
+  "algorithm": "sha256",
+  "files": [
+    {
+      "path": "browser-home-desktop-1440x980.png",
+      "bytes": 245059,
+      "sha256": "7e11e1f38bac18abea6e3e720ca47a1585a8a681233059767a8c2180cce21131"
+    },
+    {
+      "path": "browser-home-forced-colors-dark-enabled.png",
+      "bytes": 25479,
+      "sha256": "06bc53972900afd38125160e1fce855b748e7152632c227f30e8b9b67bf96236"
+    },
+    {
+      "path": "browser-home-forced-colors-light-enabled.png",
+      "bytes": 25164,
+      "sha256": "e44138f5e91d1c6410923c811512ac00e7116bf4796ddb78d0aa878c8f06970a"
+    },
+    {
+      "path": "browser-home-forced-colors-reduced-motion.png",
+      "bytes": 26551,
+      "sha256": "bcbd90f2c872b1a2de146adfcc7b3889ec4fe3925e193fd8419f518c0b3de31b"
+    },
+    {
+      "path": "browser-home-mobile-320-reflow.png",
+      "bytes": 71143,
+      "sha256": "9edba6109dca9dc65ddb34cff621e59b9dbb72fd0388c0ae04a80e0ad79724f4"
+    },
+    {
+      "path": "browser-home-mobile-390x844.png",
+      "bytes": 74922,
+      "sha256": "159392021d8ca589342d63cee4ebf5472b805d6717fc45943f570e94b3c62663"
+    },
+    {
+      "path": "browser-report.json",
+      "bytes": 8925,
+      "sha256": "d66d6fb840139d1ce3baed6411e16d2ec86fd7b7dc55da28f0ed7248cb943857"
+    },
+    {
+      "path": "browser-signin-desktop-1440x900.png",
+      "bytes": 249607,
+      "sha256": "c993c9254eac92f2498216ab87dfd93853405fe2a6b5edf3bfe52582f0b9e9cc"
+    },
+    {
+      "path": "browser-signin-mobile-320-reflow.png",
+      "bytes": 34173,
+      "sha256": "89db4c5eee801ce50c71cf298adbc22d485c031fa63cf32e957f5ec2d0c8c305"
+    },
+    {
+      "path": "browser-signin-mobile-390x844.png",
+      "bytes": 34673,
+      "sha256": "6ddae836be199be5c6e5613c9932928a8977851d8594716c568f6f3612705220"
+    },
+    {
+      "path": "browser-signin-mobile-text-200-percent.png",
+      "bytes": 50919,
+      "sha256": "6baacfd955ad347b6b1cf229665fa0823d5717625888eb337b2b02b3bc6e800b"
+    },
+    {
+      "path": "browser-version.json",
+      "bytes": 40,
+      "sha256": "ba05b1a83a78a149b3894d7a85b65ba87a8f31b980d6505096e9a1c7f7e4ad92"
+    },
+    {
+      "path": "cleanup-inventory.json",
+      "bytes": 354,
+      "sha256": "e6409abe46ad45d4e0822fb89970a2a692f5cade7fdf33c7c94e28b15eb5bf54"
+    },
+    {
+      "path": "frontend-build.txt",
+      "bytes": 560,
+      "sha256": "48dffd560022616fdb0760a50ffabb793da186806d5064850ac776de4c99f05e"
+    },
+    {
+      "path": "frontend-image.json",
+      "bytes": 1136,
+      "sha256": "c979aecfacefc0b6e77c3b40080b676f134df55b5e293cccadfe8ac1a70b4398"
+    },
+    {
+      "path": "frontend-unit.xml",
+      "bytes": 30678,
+      "sha256": "ba94e6b7c63e3b09671192d9c2a1147008eba1b85ca355e44420352c414eeea1"
+    },
+    {
+      "path": "local-checks.json",
+      "bytes": 2947,
+      "sha256": "421f8365f80bee8860402f2164d4610001161dbc33f6ec88304abdacf6e8b72c"
+    },
+    {
+      "path": "quality-checks.json",
+      "bytes": 244,
+      "sha256": "5bb54ab9430bf51ec89f4a094d8f943021dd6b5be851c33a1a90f6584718e4f6"
+    },
+    {
+      "path": "README.md",
+      "bytes": 1868,
+      "sha256": "b6702d9d6fe2098abdad25e6b885f488b305870675d3378864ffda064c7b0e60"
+    },
+    {
+      "path": "real-browser-actual-google-no-dataset-workspace.png",
+      "bytes": 240065,
+      "sha256": "211dca74472815c1f43b59b686d5f4dbacb482add24fec76481f630c0330d0fd"
+    },
+    {
+      "path": "real-browser-actual-password-account-settings.png",
+      "bytes": 193427,
+      "sha256": "f27f179f6ef714899a376413bbd95b1b6b53a8ac8b37ec8756140bfabc5a61d0"
+    },
+    {
+      "path": "real-browser-cleanup-failure.json",
+      "bytes": 10864,
+      "sha256": "35a7feb4fb09e9f07d200f75f6b5be5c01a8258486a1dba8c357a8bf0004e5dc"
+    },
+    {
+      "path": "real-browser-first-failure.json",
+      "bytes": 2999,
+      "sha256": "36d81844201e621eb818c94febe2259a3b0729c459b5d1f58eb3215fb2265bfa"
+    },
+    {
+      "path": "real-browser-portable-image-failure.json",
+      "bytes": 1626,
+      "sha256": "3c74b040820762c1a01537c4cb4c65fc99d97d1c9da7448f9ca0faa194e36b4d"
+    },
+    {
+      "path": "real-browser-report.json",
+      "bytes": 10999,
+      "sha256": "e31797e9238746f295fe7a16b45627c2e487d30d978dbcf35d15d2d985b7553f"
+    },
+    {
+      "path": "real-browser-version.json",
+      "bytes": 40,
+      "sha256": "ba05b1a83a78a149b3894d7a85b65ba87a8f31b980d6505096e9a1c7f7e4ad92"
+    },
+    {
+      "path": "rollback/artifact-hashes.json",
+      "bytes": 8903,
+      "sha256": "0e3c8c79c8abdfb833876aa6510c637efa72fed79d7e9e360ec42e536e7960ff"
+    },
+    {
+      "path": "rollback/frontend-unit.xml",
+      "bytes": 30678,
+      "sha256": "ba94e6b7c63e3b09671192d9c2a1147008eba1b85ca355e44420352c414eeea1"
+    },
+    {
+      "path": "rollback/legacy-image.json",
+      "bytes": 1592,
+      "sha256": "2c8d44c48df0cfe3bcfd1b6efbb7fbf85a8d8084312fcfe7c73bef0409d6314a"
+    },
+    {
+      "path": "rollback/legacy-real-actual-google-no-dataset-workspace.png",
+      "bytes": 702176,
+      "sha256": "ef4b476da743749edc360b94384e95e4f7df7d294bbc1f15c2ba3114a9dc5de2"
+    },
+    {
+      "path": "rollback/legacy-real-actual-password-account-settings.png",
+      "bytes": 524629,
+      "sha256": "3fb5cef84eb37e88684f0cfd5db72369facbbb2132814ae5c93bff580ee3a3b2"
+    },
+    {
+      "path": "rollback/legacy-real-browser-version.json",
+      "bytes": 40,
+      "sha256": "ba05b1a83a78a149b3894d7a85b65ba87a8f31b980d6505096e9a1c7f7e4ad92"
+    },
+    {
+      "path": "rollback/legacy-real-report.json",
+      "bytes": 12326,
+      "sha256": "83a220c9a94746e9836fb8e898dce883a5d26bd30380ecc8b5ea6926e94857f9"
+    },
+    {
+      "path": "rollback/legacy-synthetic-active-mobile-text-200-percent.png",
+      "bytes": 181114,
+      "sha256": "28e9c98d74c86594b9507082241a8d540f386c3dec1b7493293496e588744c88"
+    },
+    {
+      "path": "rollback/legacy-synthetic-browser-version.json",
+      "bytes": 40,
+      "sha256": "ba05b1a83a78a149b3894d7a85b65ba87a8f31b980d6505096e9a1c7f7e4ad92"
+    },
+    {
+      "path": "rollback/legacy-synthetic-home-desktop-1440x980.png",
+      "bytes": 758084,
+      "sha256": "d31626e0160e3725fef4795fd87a561f566323213aaa100ef1108071a8cc44b3"
+    },
+    {
+      "path": "rollback/legacy-synthetic-home-forced-colors-dark-enabled.png",
+      "bytes": 34375,
+      "sha256": "d1e374267d4ae952ffbea31a2de7780acbb22e57c25ef161eb4904b2454b6e77"
+    },
+    {
+      "path": "rollback/legacy-synthetic-home-forced-colors-light-enabled.png",
+      "bytes": 34089,
+      "sha256": "c2e89606cd5ba64e4eb94e1d07115435e7827d8296a563f756321ec246d5928d"
+    },
+    {
+      "path": "rollback/legacy-synthetic-home-forced-colors-reduced-motion.png",
+      "bytes": 34792,
+      "sha256": "41ea1d68e6ee9564314dcac8ab6f42d94e78e8f55ea827500d00ebdaf10019db"
+    },
+    {
+      "path": "rollback/legacy-synthetic-home-intermediate-1024x768.png",
+      "bytes": 476106,
+      "sha256": "8bfabd003d451f888c51b2d2353417548473da9366a8c2dc484e3fd407186d78"
+    },
+    {
+      "path": "rollback/legacy-synthetic-home-intermediate-768x1024.png",
+      "bytes": 360326,
+      "sha256": "a73a1370a2416f6ec59b314c8f8e2d8000e450fd5330744a7748a21dcc412cbb"
+    },
+    {
+      "path": "rollback/legacy-synthetic-home-mobile-320-reflow.png",
+      "bytes": 176498,
+      "sha256": "5d43830445ee1b810502945ca3128c41235f2ae936874162adda9f52f504f6a6"
+    },
+    {
+      "path": "rollback/legacy-synthetic-home-mobile-390x844.png",
+      "bytes": 199162,
+      "sha256": "869ec8350efa0b3305dd4baea4cb50425e181aeb90b3c1f4f6fe607d737ae410"
+    },
+    {
+      "path": "rollback/legacy-synthetic-home-mobile-keyboard-height-390x420.png",
+      "bytes": 93259,
+      "sha256": "118f947a460d3529ab80ff8eba7f3437ed8b035933908cafa1d4e1b9d6e5ac8e"
+    },
+    {
+      "path": "rollback/legacy-synthetic-home-mobile-text-200-percent.png",
+      "bytes": 240415,
+      "sha256": "effc83c806d33734e95b90541fbf14e7d958dfe5cb61883c8776142561141b44"
+    },
+    {
+      "path": "rollback/legacy-synthetic-report.json",
+      "bytes": 15936,
+      "sha256": "6d863244246a0d0095eacae88854882756d8035a49fa056d7f71aa6dd2952139"
+    },
+    {
+      "path": "rollback/legacy-synthetic-signin-desktop-1440x900.png",
+      "bytes": 249607,
+      "sha256": "c993c9254eac92f2498216ab87dfd93853405fe2a6b5edf3bfe52582f0b9e9cc"
+    },
+    {
+      "path": "rollback/legacy-synthetic-signin-mobile-320-reflow.png",
+      "bytes": 34173,
+      "sha256": "89db4c5eee801ce50c71cf298adbc22d485c031fa63cf32e957f5ec2d0c8c305"
+    },
+    {
+      "path": "rollback/legacy-synthetic-signin-mobile-390x844.png",
+      "bytes": 34673,
+      "sha256": "6ddae836be199be5c6e5613c9932928a8977851d8594716c568f6f3612705220"
+    },
+    {
+      "path": "rollback/legacy-synthetic-signin-mobile-text-200-percent.png",
+      "bytes": 50919,
+      "sha256": "6baacfd955ad347b6b1cf229665fa0823d5717625888eb337b2b02b3bc6e800b"
+    },
+    {
+      "path": "rollback/local-checks.json",
+      "bytes": 2992,
+      "sha256": "8c9eeccc7fbcd4518ebbeaef9a0f5376e2ec3753a527af8eb536b46f52f97700"
+    },
+    {
+      "path": "rollback/opal-image.json",
+      "bytes": 1590,
+      "sha256": "9b9590308f2814414d0862701285e59a59baf559fadf9e86a5210be70e2b592d"
+    },
+    {
+      "path": "rollback/opal-real-actual-google-no-dataset-workspace.png",
+      "bytes": 244222,
+      "sha256": "91db3568f870bc1c9571850a28436a2f296d6ab621021bc1aa3f7a01ac2fba0f"
+    },
+    {
+      "path": "rollback/opal-real-actual-password-account-settings.png",
+      "bytes": 198120,
+      "sha256": "de102652c16c2b1948b91d35db8577a296dab9a0e4b86d4be36fe77b67738bb7"
+    },
+    {
+      "path": "rollback/opal-real-browser-version.json",
+      "bytes": 40,
+      "sha256": "ba05b1a83a78a149b3894d7a85b65ba87a8f31b980d6505096e9a1c7f7e4ad92"
+    },
+    {
+      "path": "rollback/opal-real-report.json",
+      "bytes": 12320,
+      "sha256": "c8b919a3f0388ce2064b71cf6325afe153f861105c2f11af9bf0fbb63a0749ed"
+    },
+    {
+      "path": "rollback/opal-synthetic-active-mobile-text-200-percent.png",
+      "bytes": 74963,
+      "sha256": "a8f00baee625bce071ec380645cdc675d79e62005e45300775120ea661578507"
+    },
+    {
+      "path": "rollback/opal-synthetic-browser-version.json",
+      "bytes": 40,
+      "sha256": "ba05b1a83a78a149b3894d7a85b65ba87a8f31b980d6505096e9a1c7f7e4ad92"
+    },
+    {
+      "path": "rollback/opal-synthetic-home-desktop-1440x980.png",
+      "bytes": 249703,
+      "sha256": "c49b03f04634400331ea0c590bb38732fcd9bd56c29530585dd1e966a94d6445"
+    },
+    {
+      "path": "rollback/opal-synthetic-home-forced-colors-dark-enabled.png",
+      "bytes": 25479,
+      "sha256": "06bc53972900afd38125160e1fce855b748e7152632c227f30e8b9b67bf96236"
+    },
+    {
+      "path": "rollback/opal-synthetic-home-forced-colors-light-enabled.png",
+      "bytes": 25164,
+      "sha256": "e44138f5e91d1c6410923c811512ac00e7116bf4796ddb78d0aa878c8f06970a"
+    },
+    {
+      "path": "rollback/opal-synthetic-home-forced-colors-reduced-motion.png",
+      "bytes": 25574,
+      "sha256": "64f95053d252325c928fe6f43761d8721123fe40570d1eeef1fde479910e3a4a"
+    },
+    {
+      "path": "rollback/opal-synthetic-home-intermediate-1024x768.png",
+      "bytes": 148098,
+      "sha256": "23889dcbc76b80b4d915cd3ad471042bc08c88b7109c39ad23f9c1d7caaf30b8"
+    },
+    {
+      "path": "rollback/opal-synthetic-home-intermediate-768x1024.png",
+      "bytes": 120650,
+      "sha256": "4fc9c0b860c930803b7b89b0c159feceb13ef8583b6f95733ff80d27e81e549c"
+    },
+    {
+      "path": "rollback/opal-synthetic-home-mobile-320-reflow.png",
+      "bytes": 69635,
+      "sha256": "e8dbb7c866675b9940ef7abcce9d4906b4da7e58ed5e01313c85e0473a4e36ba"
+    },
+    {
+      "path": "rollback/opal-synthetic-home-mobile-390x844.png",
+      "bytes": 74922,
+      "sha256": "159392021d8ca589342d63cee4ebf5472b805d6717fc45943f570e94b3c62663"
+    },
+    {
+      "path": "rollback/opal-synthetic-home-mobile-keyboard-height-390x420.png",
+      "bytes": 37948,
+      "sha256": "02c92cdcecb0381e6492ffaa6ac6e0b925cee223e568131c05515bbc533004c9"
+    },
+    {
+      "path": "rollback/opal-synthetic-home-mobile-text-200-percent.png",
+      "bytes": 105927,
+      "sha256": "661acaece76e53fa17deaf20f713d9d5002c8f8622e94a047949613bf942e7c5"
+    },
+    {
+      "path": "rollback/opal-synthetic-report.json",
+      "bytes": 15614,
+      "sha256": "268c51e774772f5d47baef553a02558b8a6aab27357ebdda084af9f06df72263"
+    },
+    {
+      "path": "rollback/opal-synthetic-signin-desktop-1440x900.png",
+      "bytes": 249607,
+      "sha256": "c993c9254eac92f2498216ab87dfd93853405fe2a6b5edf3bfe52582f0b9e9cc"
+    },
+    {
+      "path": "rollback/opal-synthetic-signin-mobile-320-reflow.png",
+      "bytes": 34173,
+      "sha256": "89db4c5eee801ce50c71cf298adbc22d485c031fa63cf32e957f5ec2d0c8c305"
+    },
+    {
+      "path": "rollback/opal-synthetic-signin-mobile-390x844.png",
+      "bytes": 34673,
+      "sha256": "6ddae836be199be5c6e5613c9932928a8977851d8594716c568f6f3612705220"
+    },
+    {
+      "path": "rollback/opal-synthetic-signin-mobile-text-200-percent.png",
+      "bytes": 50919,
+      "sha256": "6baacfd955ad347b6b1cf229665fa0823d5717625888eb337b2b02b3bc6e800b"
+    },
+    {
+      "path": "rollback/quality-checks.json",
+      "bytes": 1040,
+      "sha256": "d6eff181b02121287d8bbc2ee20eccbc627679a834d311f908bf0560c6393897"
+    },
+    {
+      "path": "rollback/retained-findings.json",
+      "bytes": 2983,
+      "sha256": "67c0ce928172e28d0918c6badca1482c6d2110dafb652981c560a3a4ebc11b11"
+    },
+    {
+      "path": "rollback/summary.json",
+      "bytes": 3432,
+      "sha256": "1e5be53bf6fa7990b5dea2667a32a3deba75d33fd003a7dbfb6d90c54a1650f6"
+    }
+  ]
+}

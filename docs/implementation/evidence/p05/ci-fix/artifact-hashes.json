@@ -1,0 +1,65 @@
+{
+  "algorithm": "sha256",
+  "files": [
+    {
+      "path": "frontend-unit.xml",
+      "sha256": "170e2074d557397820afa542dbd0de9278f4e5ad2981615779ba1e98ad9b2468",
+      "bytes": 33904
+    },
+    {
+      "path": "legacy-actual-google-no-dataset-workspace.png",
+      "sha256": "ef4b476da743749edc360b94384e95e4f7df7d294bbc1f15c2ba3114a9dc5de2",
+      "bytes": 702176
+    },
+    {
+      "path": "legacy-actual-password-account-settings.png",
+      "sha256": "3fb5cef84eb37e88684f0cfd5db72369facbbb2132814ae5c93bff580ee3a3b2",
+      "bytes": 524629
+    },
+    {
+      "path": "legacy-browser-version.json",
+      "sha256": "ba05b1a83a78a149b3894d7a85b65ba87a8f31b980d6505096e9a1c7f7e4ad92",
+      "bytes": 40
+    },
+    {
+      "path": "legacy-report.json",
+      "sha256": "18f9eff86dc6b0c8047733de56d74df442a495244c3a62dc0285927d064d25af",
+      "bytes": 12652
+    },
+    {
+      "path": "local-checks.json",
+      "sha256": "bee5241c1daea243c4f084ceae09ef988d55bd67b826d39e96ae94516f133e38",
+      "bytes": 281
+    },
+    {
+      "path": "opal-actual-google-no-dataset-workspace.png",
+      "sha256": "91db3568f870bc1c9571850a28436a2f296d6ab621021bc1aa3f7a01ac2fba0f",
+      "bytes": 244222
+    },
+    {
+      "path": "opal-actual-password-account-settings.png",
+      "sha256": "de102652c16c2b1948b91d35db8577a296dab9a0e4b86d4be36fe77b67738bb7",
+      "bytes": 198120
+    },
+    {
+      "path": "opal-browser-version.json",
+      "sha256": "ba05b1a83a78a149b3894d7a85b65ba87a8f31b980d6505096e9a1c7f7e4ad92",
+      "bytes": 40
+    },
+    {
+      "path": "opal-report.json",
+      "sha256": "f1182faf72b225a37ab904f9d42890a99a239b31e993bb78930e0add973f4dc8",
+      "bytes": 12639
+    },
+    {
+      "path": "quality.json",
+      "sha256": "085dda0eef0a44e8c35c222bdb90cb136ec5ecdbf5a788ea749ca943018711d9",
+      "bytes": 236
+    },
+    {
+      "path": "startup-smoke.json",
+      "sha256": "c9c9cff1e45d203a80e38fa3dde6c63e48fad7221805a3f2d1db2af3edf8c1ea",
+      "bytes": 560
+    }
+  ]
+}
