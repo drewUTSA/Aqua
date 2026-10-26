@@ -11,7 +11,7 @@ from psycopg_pool import ConnectionPool, PoolClosed, PoolTimeout, TooManyRequest
 from storage.config import StorageSettings
 
 log = logging.getLogger("aqua.storage")
-SCHEMA_VERSION = 3
+SCHEMA_VERSION = 4
 
 
 class StorageUnavailable(RuntimeError):

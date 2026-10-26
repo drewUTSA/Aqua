@@ -37,6 +37,8 @@ jobs:
           python -m ruff check backend eval tools/checks ops
           python tools/checks/p05_browser_cleanup_test.py
           python tools/checks/p05_browser_startup_test.py
+          python tools/checks/p06_browser_routes_test.py
+          python tools/checks/p06_browser_analysis_test.py
       - name: Audit pinned runtime dependencies
         run: python -m pip_audit --no-deps --disable-pip -r tools/checks/requirements-runtime.lock
       - name: Prepare isolated test images
@@ -54,6 +56,13 @@ jobs:
           aqua-runtime:check python - --expect guarded < tools/checks/telemetry_probe.py
       - name: Backend contracts and both disposable database fixtures
         run: python tools/checks/run_backend.py --image aqua-runtime:check
+      - name: Private workspace access-log protection
+        run: >-
+          docker run --rm -i --network none --read-only --cap-drop ALL
+          --security-opt no-new-privileges --memory 256m --memory-swap 256m
+          --cpus 1 --pids-limit 64 --user 1000:1000
+          --tmpfs /tmp:rw,nosuid,nodev,noexec,size=8m
+          aqua-runtime:check python - < tools/checks/workspace_runtime_probe.py
       - name: Private database installer with disposable socket volumes
         run: python tools/checks/storage_deployment.py --image aqua-runtime:check
       - name: Rate-limit bypass, denial and recovery checks in an isolated proxy
@@ -91,13 +100,14 @@ jobs:
       - name: Real private-database browser journeys and rate-limit recovery
         env:
           AQUA_P05_EXPECTED_SHELL: opal
+          AQUA_P06_ANALYSIS_FIXTURE: 'true'
           AQUA_P05_ARTIFACT_DIR: ${{ runner.temp }}/aqua-p05/opal/real
         run: |
           python tools/checks/p05_browser_startup_smoke.py
           export AQUA_CHROME_EXECUTABLE="$(command -v google-chrome)"
           test -x "$AQUA_CHROME_EXECUTABLE"
           export AQUA_P05_BRIDGE_EXECUTABLE="$(command -v python)"
-          export AQUA_P05_BRIDGE_ARGS_JSON='["tools/checks/p05_browser_backend.py","--image","aqua-runtime:check"]'
+          export AQUA_P05_BRIDGE_ARGS_JSON='["tools/checks/p05_browser_backend.py","--image","aqua-runtime:check","--workspace-analysis"]'
           node frontend/checks/p05-real-backend-browser.mjs
       - name: Build classic UI rollback with the current secure auth contracts
         working-directory: frontend
@@ -109,6 +119,7 @@ jobs:
       - name: Classic UI security, responsive and real database rate-limit journeys
         env:
           AQUA_P05_EXPECTED_SHELL: legacy
+          AQUA_P06_ANALYSIS_FIXTURE: 'true'
         run: |
           export AQUA_CHROME_EXECUTABLE="$(command -v google-chrome)"
           test -x "$AQUA_CHROME_EXECUTABLE"
@@ -116,7 +127,7 @@ jobs:
           node frontend/checks/p05-browser.mjs
           export AQUA_P05_ARTIFACT_DIR="${{ runner.temp }}/aqua-p05/legacy/real"
           export AQUA_P05_BRIDGE_EXECUTABLE="$(command -v python)"
-          export AQUA_P05_BRIDGE_ARGS_JSON='["tools/checks/p05_browser_backend.py","--image","aqua-runtime:check"]'
+          export AQUA_P05_BRIDGE_ARGS_JSON='["tools/checks/p05_browser_backend.py","--image","aqua-runtime:check","--workspace-analysis"]'
           node frontend/checks/p05-real-backend-browser.mjs
       # Only synthetic browser evidence is retained. Never upload the checkout,
       # arbitrary temporary files, fixture pipes, credentials or runtime config.

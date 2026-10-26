@@ -47,6 +47,28 @@ INSERT INTO app.sessions(user_id,token_digest,csrf_digest,auth_epoch,method,idle
     )
     recipient_sql = b"SELECT issued_at,last_queued_at,expires_at FROM app.mail_recipient_budget WHERE purpose='verify_email' AND recipient_digest=decode(repeat('ef',32),'hex'); SELECT has_table_privilege('aqua_app_runtime','app.mail_recipient_budget','UPDATE'),has_table_privilege('aqua_app_backup','app.mail_recipient_budget','UPDATE');"
     recipient_expected = sql("aqua_app", recipient_sql)
+    sql(
+        "aqua_app",
+        b"""
+BEGIN;
+SET LOCAL ROLE aqua_app_runtime;
+INSERT INTO app.chats(id,user_id,title,next_message_sequence,message_count) VALUES
+ ('10000000-0000-4000-8000-000000000001','00000000-0000-0000-0000-000000000001','Synthetic recovery history',5,4);
+INSERT INTO app.messages(id,user_id,chat_id,sequence,role,content,request_id,reply_to,model_id,status) VALUES
+ ('20000000-0000-4000-8000-000000000001','00000000-0000-0000-0000-000000000001','10000000-0000-4000-8000-000000000001',1,'user','Completed synthetic input','30000000-0000-4000-8000-000000000001',NULL,'ollama','complete'),
+ ('20000000-0000-4000-8000-000000000002','00000000-0000-0000-0000-000000000001','10000000-0000-4000-8000-000000000001',2,'aqua','','30000000-0000-4000-8000-000000000001','20000000-0000-4000-8000-000000000001','ollama','complete'),
+ ('20000000-0000-4000-8000-000000000003','00000000-0000-0000-0000-000000000001','10000000-0000-4000-8000-000000000001',3,'user','Pending synthetic input','30000000-0000-4000-8000-000000000002',NULL,'ollama','complete'),
+ ('20000000-0000-4000-8000-000000000004','00000000-0000-0000-0000-000000000001','10000000-0000-4000-8000-000000000001',4,'aqua','','30000000-0000-4000-8000-000000000002','20000000-0000-4000-8000-000000000003','ollama','pending');
+INSERT INTO app.analysis_requests(id,user_id,chat_id,client_request_id,fingerprint,input_message_id,reply_message_id,state,reserved_bytes,requested_model,dataset_key,grant_version) VALUES
+ ('30000000-0000-4000-8000-000000000001','00000000-0000-0000-0000-000000000001','10000000-0000-4000-8000-000000000001','40000000-0000-4000-8000-000000000001',decode(repeat('ab',32),'hex'),'20000000-0000-4000-8000-000000000001','20000000-0000-4000-8000-000000000002','complete',0,'ollama','synthetic',1),
+ ('30000000-0000-4000-8000-000000000002','00000000-0000-0000-0000-000000000001','10000000-0000-4000-8000-000000000001','40000000-0000-4000-8000-000000000002',decode(repeat('cd',32),'hex'),'20000000-0000-4000-8000-000000000003','20000000-0000-4000-8000-000000000004','pending',1024,'ollama','synthetic',1);
+INSERT INTO app.visual_results(user_id,chat_id,request_id,response) VALUES
+ ('00000000-0000-0000-0000-000000000001','10000000-0000-4000-8000-000000000001','30000000-0000-4000-8000-000000000001','{"status":"success","message":"Completed synthetic answer"}');
+INSERT INTO app.workspace_usage(user_id,content_bytes) VALUES('00000000-0000-0000-0000-000000000001',2048);
+UPDATE app.workspace_totals SET content_bytes=content_bytes+2048 WHERE singleton;
+COMMIT;
+""",
+    )
     dump = docker(
         "exec",
         "-e",
@@ -92,7 +114,13 @@ INSERT INTO app.sessions(user_id,token_digest,csrf_digest,auth_epoch,method,idle
         .decode()
         .splitlines()
     )
-    assert observed == expected and observed[2:] == ["1", "2", "3", "t|f"], observed
+    assert observed == expected and observed[2:] == [
+        "1",
+        "2",
+        "3",
+        "4",
+        "t|f",
+    ], observed
     denied = False
     try:
         sql("aqua_restore", b"SET ROLE aqua_app_backup; DELETE FROM app.users;")
@@ -114,6 +142,30 @@ INSERT INTO app.sessions(user_id,token_digest,csrf_digest,auth_epoch,method,idle
         b"SELECT count(*) FROM app.password_hash_slots; SELECT count(*) FROM app.account_mail WHERE state IN ('pending','sending'); SELECT state,ciphertext=decode(repeat('00',30),'hex') FROM app.account_mail WHERE id='f4d6b61d-11be-4510-bca3-0521dd724aaa'; SELECT lease_id IS NULL AND lease_expires_at IS NULL FROM app.account_mail_control WHERE singleton;",
     ).decode().splitlines() == ["0", "0", "expired|t", "t"]
     assert sql("aqua_restore", recipient_sql) == recipient_expected
+    workspace_sql = b"SELECT state,reserved_bytes FROM app.analysis_requests WHERE user_id='00000000-0000-0000-0000-000000000001' ORDER BY id; SELECT content_bytes FROM app.workspace_usage WHERE user_id='00000000-0000-0000-0000-000000000001'; SELECT count(*) FROM app.visual_results WHERE user_id='00000000-0000-0000-0000-000000000001' AND response->>'message'='Completed synthetic answer'; SELECT status FROM app.messages WHERE id='20000000-0000-4000-8000-000000000004';"
+    workspace_expected = ["complete|0", "interrupted|0", "1024", "1", "interrupted"]
+    assert (
+        sql(
+            "aqua_restore",
+            b"SELECT t.content_bytes=(SELECT sum(content_bytes) FROM app.workspace_usage) FROM app.workspace_totals t WHERE singleton;",
+        )
+        .decode()
+        .strip()
+        == "t"
+    )
+    assert (
+        sql("aqua_restore", workspace_sql).decode().splitlines() == workspace_expected
+    )
+    # Recovery fences are repeatable without refunding the reservation twice.
+    sql(
+        "aqua_restore",
+        (
+            Path(__file__).resolve().parents[2] / "ops/appdb/restore_session_fence.sql"
+        ).read_bytes(),
+    )
+    assert (
+        sql("aqua_restore", workspace_sql).decode().splitlines() == workspace_expected
+    )
     assert recipient_expected.decode().splitlines()[-1] == "t|f"
     return {
         "status": "passed",
@@ -124,4 +176,5 @@ INSERT INTO app.sessions(user_id,token_digest,csrf_digest,auth_epoch,method,idle
         "restored_hash_and_mail_fence": "applied",
         "restored_recipient_budget": "preserved_with_runtime_backup_privileges",
         "dump_storage": "memory_only",
+        "restored_workspace_history": "preserved_and_pending_fenced",
     }

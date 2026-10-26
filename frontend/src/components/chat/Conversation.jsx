@@ -2,10 +2,11 @@ import React, { useEffect, useLayoutEffect, useRef } from "react";
 import AquaMessage from "./AquaMessage.jsx";
 import UserMessage from "./UserMessage.jsx";
 
-export default function Conversation({ messages, pending, waiting, formingIds = [], onRetry, suspended = false }) {
+export default function Conversation({ messages, pending, waiting, formingIds = [], onRetry, suspended = false, position, onPositionChange }) {
   const scrollerRef = useRef(null);
-  const nearBottomRef = useRef(true);
-  const scrollPositionRef = useRef(0);
+  const nearBottomRef = useRef(position?.nearBottom ?? true);
+  const scrollPositionRef = useRef(position?.top ?? 0);
+  const previousLayout = useRef(null);
   const visible = (node) => node && !suspended && node.getClientRects().length > 0 && node.clientHeight > 0 && !node.closest("[hidden],[inert]");
 
   const updateNearBottom = () => {
@@ -14,13 +15,24 @@ export default function Conversation({ messages, pending, waiting, formingIds = 
     // reading position into "follow newest" while visiting Settings or policies.
     if (!visible(node)) return;
     scrollPositionRef.current = node.scrollTop;
+    if (previousLayout.current) previousLayout.current = { ...previousLayout.current, top: node.scrollTop, height: node.scrollHeight };
     nearBottomRef.current = node.scrollHeight - node.scrollTop - node.clientHeight < 120;
+    onPositionChange?.({ top: scrollPositionRef.current, nearBottom: nearBottomRef.current });
   };
 
   useLayoutEffect(() => {
     const node = scrollerRef.current;
     if (visible(node)) node.scrollTop = nearBottomRef.current ? node.scrollHeight : scrollPositionRef.current;
   }, [suspended]);
+  useLayoutEffect(() => {
+    const node = scrollerRef.current, previous = previousLayout.current;
+    if (!visible(node)) return;
+    if (previous && Number.isSafeInteger(messages[0]?.sequence) && messages[0].sequence < previous.firstSequence) {
+      node.scrollTop = previous.top + node.scrollHeight - previous.height;
+      nearBottomRef.current = false; scrollPositionRef.current = node.scrollTop;
+    } else if (!nearBottomRef.current) node.scrollTop = scrollPositionRef.current;
+    previousLayout.current = { height: node.scrollHeight, top: node.scrollTop, firstSequence: messages[0]?.sequence };
+  }, [messages, suspended]);
 
   useEffect(() => {
     const node = scrollerRef.current;

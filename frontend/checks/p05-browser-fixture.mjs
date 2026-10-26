@@ -1,4 +1,5 @@
 // Synthetic contract fixture only. It never opens a DB, provider or mailbox.
+import { workspaceFixture } from "./p06-browser-fixture.mjs";
 export const PASSWORD = "Fixture orbital meadow password 27";
 export const EMAIL_A = "reader-a@example.test";
 export const EMAIL_B = "reader-b@example.test";
@@ -25,6 +26,7 @@ export const GOOGLE_STUB = `(() => {
 })();`;
 
 export function makeFixture() {
+  let workspace;
   return {
     email: null, canQuery: true, google: "ready", passwordEnabled: true,
     holdLogin: false, holdLogout: false, holdQuery: false, holdReset: false, logoutFailure: false,
@@ -36,6 +38,8 @@ export function makeFixture() {
         capabilities: { google_login: true, password_login: this.passwordEnabled, durable_sessions: true } };
     },
     count(path, method = "POST") { return this.calls.filter((call) => call.path === path && call.method === method).length; },
+    queryCount() { return this.calls.filter((call) => call.method === "POST" && (call.path === "/api/query" || /^\/api\/v1\/chats(?:\/[^/]+\/messages(?:\/[^/]+\/retries)?)?$/.test(call.path))).length; },
+    securityCallCount() { return this.calls.filter((call) => call.path.startsWith("/api/auth/") || call.path.startsWith("/api/v1/auth/")).length + this.queryCount(); },
     async route(request, reply) {
       const url = new URL(request.url);
       const headers = Object.fromEntries(Object.entries(request.headers).map(([key, value]) => [key.toLowerCase(), value]));
@@ -48,6 +52,8 @@ export function makeFixture() {
       // aggregate method/path counts and booleans, never request bodies or proofs.
       const call = { path: url.pathname, method: request.method, action: url.searchParams.get("action"), body, headers };
       this.calls.push(call);
+      workspace ||= workspaceFixture(this);
+      if (await workspace({ url, method: request.method, body, headers }, reply)) return;
       if (url.pathname === "/api/auth/me" && request.method === "GET") return this.email ? reply(200, this.session()) : reply(401, {});
       if (url.pathname === "/api/models" && request.method === "GET") return reply(200, { models: [{ id: "fixture-model", name: "Fixture model" }] });
       if (url.pathname === "/api/auth/config" && request.method === "GET") {

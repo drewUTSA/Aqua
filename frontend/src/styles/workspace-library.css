@@ -1,0 +1,18 @@
+.workspace-library-row { display: flex; align-items: center; gap: .3rem; min-width: 0; }
+.opal-sidebar .workspace-library-row > button:first-child { flex: 1; min-width: 0; }
+.opal-sidebar .workspace-library-row > button:last-child:not(:first-child) { flex: 0 0 auto; width: auto; padding-inline: .45rem; font-size: .75rem; }
+.opal-sidebar .workspace-library-row button span { overflow: hidden; text-overflow: ellipsis; }
+.workspace-history-controls { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; margin: .5rem 1rem; font-size: .85rem; }
+.workspace-history-controls button, .workspace-request-notice button { border: 1px solid #64676e; background: #292b30; color: #f0efeb; border-radius: .5rem; padding: .45rem .7rem; }
+.workspace-request-notice { background: #292b30; color: #f0efeb; border: 1px solid #64676e; border-radius: .7rem; margin: .5rem 1rem; padding: .7rem; font-size: .85rem; }
+.workspace-editor { max-width: min(34rem, calc(100vw - 2rem)); max-height: calc(100dvh - 2rem); overflow: auto; border: 1px solid #64676e; border-radius: 1rem; background: #222429; color: #f0efeb; padding: 1.4rem; }
+.workspace-editor::backdrop { background: #05070dcc; }
+.workspace-editor form { display: grid; gap: 1rem; }
+.workspace-editor label { display: grid; gap: .4rem; }
+.workspace-editor input:not([type=checkbox]), .workspace-editor textarea, .workspace-editor select { box-sizing: border-box; width: 100%; min-width: 0; border: 1px solid #777a82; border-radius: .4rem; background: #14161b; color: #f0efeb; padding: .6rem; font: inherit; }
+.workspace-editor .workspace-editor__check { display: flex; align-items: center; gap: .5rem; }
+.workspace-editor__actions { display: flex; flex-wrap: wrap; gap: .5rem; }
+.workspace-editor button { border: 1px solid #777a82; border-radius: .4rem; padding: .55rem .8rem; background: #34373e; color: #f0efeb; font: inherit; }
+.workspace-editor :focus-visible, .workspace-history-controls :focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+.workspace-editor [role=alert] { color: #f6c9bc; }
+@media (forced-colors: active) { .workspace-editor, .workspace-request-notice { border: 1px solid CanvasText; } }

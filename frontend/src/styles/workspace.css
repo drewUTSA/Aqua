@@ -37,7 +37,7 @@
 .account-menu__panel button:hover { background: #353740; }
 .opal-main { position: relative; display: flex; flex: 1; flex-direction: column; min-width: 0; min-height: 0; }
 .workspace-header { display: flex; align-items: center; gap: 12px; flex-shrink: 0; min-height: 48px; padding: 0 4px 0 8px; }
-.breadcrumb { color: #adb0ba; font-size: 14px; line-height: 1.6; }
+.breadcrumb { color: #adb0ba; font-size: 14px; line-height: 1.6; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .breadcrumb > span { padding: 0 12px; }
 .breadcrumb strong { color: #f2f1ed; font-weight: 500; }
 .workspace-header__actions { display: flex; align-items: center; gap: 12px; margin-left: auto; min-width: 0; }

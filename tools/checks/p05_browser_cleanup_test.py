@@ -172,7 +172,7 @@ class CleanupTests(unittest.TestCase):
     def run_host(self, cleanup: list[str], wait: Mock) -> tuple[int, dict]:
         child = SimpleNamespace(
             stdin=Mock(),
-            stdout=io.BytesIO(b'{"kind":"ready","schema_version":3}\n'),
+            stdout=io.BytesIO(b'{"kind":"ready","schema_version":4}\n'),
             wait=wait,
             terminate=Mock(),
             kill=Mock(),

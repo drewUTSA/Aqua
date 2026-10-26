@@ -1,4 +1,4 @@
-"""Real FastAPI/private-storage fixture with fake Google and mail only."""
+"""Real private APIs with fake identity/mail and explicitly opt-in fake analysis."""
 
 import json
 import logging
@@ -59,7 +59,7 @@ def guard_fixture() -> None:
     psycopg.connect = psycopg.Connection.connect
 
 
-def worker(origin: str) -> int:
+def worker(origin: str, workspace_analysis: bool = False) -> int:
     """Actual app/router/session/password code; only provider and mail are fakes."""
     global WORKER_STAGE
     WORKER_STAGE = "environment"
@@ -100,6 +100,7 @@ def worker(origin: str) -> int:
     from storage.config import StorageSettings
     from storage.migrate import apply
     from storage.pool import Storage
+    from p06_browser_analysis import AnalysisFixture, DATASET
 
     WORKER_STAGE = "migration"
     with psycopg.connect(MIGRATOR, autocommit=True, connect_timeout=2) as conn:
@@ -109,7 +110,7 @@ def worker(origin: str) -> int:
     settings = replace(
         main.app.state.settings,
         app_origin=origin,
-        database_url="",
+        database_url=DATASET if workspace_analysis else "",
         session_secret=secrets.token_urlsafe(64),
         google_client_id="p05-fixture-client.apps.googleusercontent.com",
         auth_allowed_emails=frozenset(),
@@ -117,6 +118,9 @@ def worker(origin: str) -> int:
         retrieval=False,
     )
     main.app.state.settings, main.app.state.storage = settings, service
+    analysis = AnalysisFixture(service, settings) if workspace_analysis else None
+    if analysis is not None:
+        main.app.state.workspace_query = analysis.answer
     policy = MailPolicy(
         enabled=True, key=secrets.token_bytes(32), public_origin=MAIL_ORIGIN
     )
@@ -166,17 +170,18 @@ def worker(origin: str) -> int:
             main.app, base_url=origin, raise_server_exceptions=True
         ) as client:
             readiness = service.readiness()
-            if readiness.get("schema_version") != 3:
+            if readiness.get("schema_version") != 4:
                 raise RuntimeError("fixture_schema_invalid")
             emit(
                 {
                     "kind": "ready",
-                    "schema_version": 3,
+                    "schema_version": 4,
                     "origin": origin,
                     "mail_origin": MAIL_ORIGIN,
                     "google_email": GOOGLE_EMAIL,
                     "google_subject": GOOGLE_SUBJECT,
                     "dataset_grants": 0,
+                    "workspace_analysis_fixture": workspace_analysis,
                     "network": "none",
                     "database_transport": "private_unix_socket",
                     "max_requests": MAX_REQUESTS,
@@ -186,6 +191,7 @@ def worker(origin: str) -> int:
                         "password_login": True,
                         "google_login": True,
                         "durable_sessions": True,
+                        "workspace_analysis": workspace_analysis,
                     },
                     "mail_origin_override": "fixture-only canonical HTTPS mailbox links; app Origin is exact supplied loopback",
                 }
@@ -194,7 +200,10 @@ def worker(origin: str) -> int:
                 item = message()
                 if item is None:
                     return 0
-                response = dispatch(item, client, service, mail.once, captured)
+                WORKER_STAGE = "request_dispatch"
+                response = dispatch(
+                    item, client, service, mail.once, captured, analysis
+                )
                 emit(response)
     finally:
         main.app.dependency_overrides.clear()

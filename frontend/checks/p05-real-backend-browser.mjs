@@ -4,6 +4,8 @@ import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import { FixtureBridge } from "./p05-browser-bridge.mjs";
 import { BrowserPipe } from "./p05-browser-pipe.mjs";
+import { actualPersonalWorkspace, foreignPersonalWorkspace } from "./p06-real-browser-checks.mjs";
+import { actualAnalysisWorkspace } from "./p06-analysis-browser-checks.mjs";
 import { createServer } from "node:http";
 import { readFile, readdir, lstat, realpath, mkdtemp, mkdir, writeFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -26,6 +28,7 @@ async function ensureArtifacts() {
   if ((await lstat(artifacts)).isSymbolicLink()) throw new Error("artifact_directory_symlink_rejected");
 }
 const MAX_MS = 240000, MAX_BODY = 16384, MAX_REQUESTS = 400;
+const analysisFixture = process.env.AQUA_P06_ANALYSIS_FIXTURE === "true";
 const EMAIL = "p05-browser-reader@example.test";
 const PASSWORD = "Synthetic orbital meadow password 27";
 const NEXT_PASSWORD = "Synthetic restored mountain password 48";
@@ -34,7 +37,7 @@ const proofValues = [], browserErrors = [], protocolErrors = [];
 const sensitiveValues = new Set([PASSWORD, NEXT_PASSWORD]);
 const apiOutcomes = [];
 const abortedNetworkRequests = new Set();
-let browser, bridge, cdp, profile, server, origin, sessionId, deadline, failure = null, failureDiagnostic = null;
+let browser, bridge, cdp, profile, server, origin, sessionId, deadline, failure = null, failureDiagnostic = null, firstAccountWorkspace = null;
 let requests = 0, apiRequests = 0, external = 0, consoleLeaks = 0, bridgeCleanup = null;
 let navigating = false, canceled = 0, staticCount = 0, fixtureClockSteps = 0;
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -60,7 +63,7 @@ async function navigate(route) {
   } finally { navigating = false; }
 }
 async function fill(selector, value) {
-  await evaluate(`(()=>{const el=document.querySelector(${quote(selector)});if(!el||el.disabled)throw Error();el.focus();Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(el,${quote(value)});el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}));return true})()`);
+  await evaluate(`(()=>{const el=document.querySelector(${quote(selector)});if(!el||el.disabled)throw Error();el.focus();const prototype=el instanceof HTMLTextAreaElement?HTMLTextAreaElement.prototype:HTMLInputElement.prototype;Object.getOwnPropertyDescriptor(prototype,'value').set.call(el,${quote(value)});el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}));return true})()`);
 }
 async function click(selector) {
   await evaluate(`(()=>{const el=[...document.querySelectorAll(${quote(selector)})].find(el=>el.getClientRects().length&&!el.closest('[hidden],[inert]'));if(!el||el.disabled)throw Error();el.focus();el.click();return true})()`);
@@ -143,9 +146,11 @@ try {
   await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve)); origin = `http://127.0.0.1:${server.address().port}`;
   bridge = new FixtureBridge(executable, argv, origin);
   const ready = await bridge.ready;
-  assert.equal(ready.schema_version, 3, "schema3_fixture_required");
+  assert.equal(ready.schema_version, 4, "schema4_fixture_required");
   assert.equal(ready.origin, origin, "exact_loopback_origin_required");
   assert.equal(ready.dataset_grants, 0, "ungranted_fixture_account_required");
+  assert.equal(ready.workspace_analysis_fixture === true, analysisFixture, "explicit_analysis_fixture_mode_required");
+  if (analysisFixture) assert.equal(ready.capabilities?.workspace_analysis, true, "analysis_fixture_capability_required");
   assert.equal(ready.network, "none", "isolated_backend_network_required");
   assert.equal(ready.database_transport, "private_unix_socket", "isolated_database_required");
   const temporaryRoot = await realpath(tmpdir()); profile = await mkdtemp(path.join(temporaryRoot, "aqua-p05-real-browser-"));
@@ -204,8 +209,10 @@ try {
   await check("new password account has personal UI without dataset access", "document.querySelector('.opal-composer textarea').disabled&&document.body.textContent.includes('Access pending')");
   const me = await rawRequest("GET", "/api/auth/me"); assert.equal(me.status, 200, "real_session_cookie_round_trip");
   const session = JSON.parse(me.body); assert.equal(session.can_query, false, "new_account_has_no_dataset_grant");
+  firstAccountWorkspace = await actualPersonalWorkspace({ check, click, clickText, fill, waitFor, evaluate, navigate, rawRequest, screenshot, csrf: session.csrf_token });
   const query = await rawRequest("POST", "/api/query", { question: "Synthetic dataset-denial check" }, { "X-CSRF-Token": session.csrf_token });
   assert.equal(query.status, 403, "real_dataset_permission_denial"); results.push({ check: "actual API rejects a query from a no-dataset account", passed: true });
+  if (analysisFixture) firstAccountWorkspace.chatId = await actualAnalysisWorkspace({ check, click, clickText, fill, waitFor, evaluate, navigate, rawRequest, bridge, screenshot, csrf: session.csrf_token });
   await click(".workspace-header [aria-label='Account menu']"); await clickText("Settings", "[role=menuitem]");
   await check("actual signed-in account can reach its own Settings", `document.querySelector('.settings-shell').textContent.includes(${quote(EMAIL)})`);
   await screenshot("actual-password-account-settings"); await clickText("Back to workspace");
@@ -275,6 +282,8 @@ try {
   await navigate("/signin"); await waitFor("Boolean(document.querySelector('[data-testid=fixture-google-button]'))", "fresh_google_config");
   await click("[data-testid=fixture-google-button]"); await waitFor("Boolean(document.querySelector('.opal-workspace:not([hidden])'))", "actual_google_login");
   await assertShell(check);
+  const googleSession = await rawRequest("GET", "/api/auth/me");
+  await foreignPersonalWorkspace({ check, rawRequest, workspace: firstAccountWorkspace, csrf: JSON.parse(googleSession.body).csrf_token });
   results.push({ check: "actual Google handler rejects forged CSRF then accepts a fresh legitimate nonce flow", passed: true });
   await screenshot("actual-google-no-dataset-workspace"); await logout();
   await assertNoProofPersistence("final browser state contains no captured proof values");
@@ -315,7 +324,7 @@ if (!failure && (!backendRemoved || !backendPassed)) failure = "backend_cleanup_
 // Only explicitly sanitized bridge cleanup fields are persisted. Mail payloads,
 // cookies, credentials, CSRF values and proof links never enter the report.
 const report = { status: failure ? "failed" : "passed", failure, checked_utc: new Date().toISOString(), mode: "real_fastapi_disposable_postgres_browser",
-  expected_shell: EXPECTED_SHELL, browser_diagnostic: failureDiagnostic ?? cdp?.diagnostic ?? null, bridge_diagnostic: bridge?.diagnostic ?? null, loadedAssets, results, screenshots, performanceSamples, observations: { requests, apiRequests, external_attempts: external, consoleLeaks, browserErrors, protocolErrors, canceled, explicit_fixture_admission_clock_steps: fixtureClockSteps, apiOutcomes },
+  expected_shell: EXPECTED_SHELL, analysis_fixture: analysisFixture, browser_diagnostic: failureDiagnostic ?? cdp?.diagnostic ?? null, bridge_diagnostic: bridge?.diagnostic ?? null, loadedAssets, results, screenshots, performanceSamples, observations: { requests, apiRequests, external_attempts: external, consoleLeaks, browserErrors, protocolErrors, canceled, explicit_fixture_admission_clock_steps: fixtureClockSteps, apiOutcomes },
   cleanup: { browser_stopped: !browser || cdp?.stopped === true, temporary_profile_removed: Boolean(profile), loopback_closed: !server?.listening, backend_status: bridgeCleanup?.status ?? null, backend_resources_removed: backendRemoved, backend_report: backendReport },
   elapsed_seconds: Math.round((performance.now() - started) / 10) / 100,
   limitations: ["Real FastAPI/auth/database code against synthetic disposable fixtures; no deployed origin or production data validation.", "Google verifier and email sender are synthetic test adapters; no Google or email provider contacted.", "No analytical database or AI model is exercised."] };

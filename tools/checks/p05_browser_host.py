@@ -31,7 +31,7 @@ def close_worker(child: subprocess.Popen[bytes]) -> bool:
     return False
 
 
-def host(origin: str, image: str) -> int:
+def host(origin: str, image: str, workspace_analysis: bool = False) -> int:
     """Run <=256 messages for <=300 seconds; always remove owned resources."""
     name = "aqua-p05-browser-" + secrets.token_hex(12)
     resources = Resources(name)
@@ -42,9 +42,10 @@ def host(origin: str, image: str) -> int:
         "status": "failed",
         "network": "none",
         "database_transport": "private_unix_socket",
-        "schema_version": 3,
+        "schema_version": 4,
         "real_data_accessed": False,
         "provider_calls": 0,
+        "workspace_analysis_fixture": workspace_analysis,
     }
     signal.signal(signal.SIGALRM, timeout_signal)
     signal.signal(signal.SIGTERM, timeout_signal)
@@ -67,6 +68,7 @@ def host(origin: str, image: str) -> int:
                 "--worker",
                 "--origin",
                 origin,
+                *(["--workspace-analysis"] if workspace_analysis else []),
             ],
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
@@ -79,7 +81,7 @@ def host(origin: str, image: str) -> int:
         )
         assert child.stdout is not None and child.stdin is not None
         ready = json.loads(child.stdout.readline(MAX_LINE + 1))
-        if ready.get("kind") != "ready" or ready.get("schema_version") != 3:
+        if ready.get("kind") != "ready" or ready.get("schema_version") != 4:
             if ready.get("kind") == "error":
                 report["worker_error"] = {
                     key: ready.get(key) for key in ("category", "stage", "module")

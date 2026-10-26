@@ -8,6 +8,7 @@ from typing import Any
 from urllib.parse import urlsplit
 
 from p05_browser_protocol import MAX_BODY, PATHS
+from p06_browser_routes import workspace_route
 
 
 def dispatch(
@@ -16,9 +17,14 @@ def dispatch(
     service: Any,
     deliver: Callable[[], bool],
     captured: list[dict[str, str]],
+    analysis: Any = None,
 ) -> dict[str, Any]:
     identifier = item["id"]
     kind = item.get("kind")
+    if kind in {"workspace_grant", "workspace_revoke", "workspace_stats"}:
+        if analysis is None:
+            raise ValueError("fixture_analysis_not_enabled")
+        return analysis.control(item)
     if kind == "mailbox":
         purpose = item.get("purpose")
         subjects = {
@@ -70,8 +76,13 @@ def dispatch(
         or not path.startswith("/api/")
         or "\\" in path
         or any(ord(c) < 32 for c in path)
-        or urlsplit(path).path not in PATHS
-        or method not in {"GET", "POST", "HEAD", "OPTIONS"}
+        or not (
+            (
+                urlsplit(path).path in PATHS
+                and method in {"GET", "POST", "HEAD", "OPTIONS"}
+            )
+            or workspace_route(path, method)
+        )
     ):
         raise ValueError("fixture_request_invalid")
     headers = item.get("headers", [])

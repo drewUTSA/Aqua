@@ -127,6 +127,17 @@ def run(image: str, output: Path) -> int:
             "--tmpfs=/tmp:rw,nosuid,nodev,size=67108864",
             "-e",
             "POSTGRES_HOST_AUTH_METHOD=trust",
+            # Repeated disposable schema migrations generate WAL faster than
+            # the default five-minute checkpoint on this bounded tmpfs.
+            command=(
+                "postgres",
+                "-c",
+                "max_wal_size=128MB",
+                "-c",
+                "min_wal_size=32MB",
+                "-c",
+                "checkpoint_timeout=30s",
+            ),
         )
         containers.append(pg)
         docker("start", pg)
@@ -235,6 +246,37 @@ def run(image: str, output: Path) -> int:
             report["results"].append(
                 {"dataset": dataset, "exit_code": result.returncode}
             )
+            if result.returncode:
+                fixture_log = docker("logs", "--tail", "100", pg).decode(
+                    errors="replace"
+                )
+                report.setdefault("fixture_diagnostics", []).append(
+                    {
+                        "dataset": dataset,
+                        "database_tmpfs": docker(
+                            "exec", pg, "df", "-k", "/var/lib/postgresql/data"
+                        )
+                        .decode()
+                        .splitlines()[-1]
+                        .split()[1:5],
+                        "database_oom_killed": docker(
+                            "inspect", pg, "--format", "{{.State.OOMKilled}}"
+                        )
+                        .decode()
+                        .strip()
+                        == "true",
+                        "database_categories": [
+                            category
+                            for category in (
+                                "No space left on device",
+                                "out of memory",
+                                "PANIC",
+                                "database system is in recovery mode",
+                            )
+                            if category in fixture_log
+                        ],
+                    }
+                )
             (output / (dataset + ".xml")).write_bytes(
                 docker("exec", runner, "cat", "/tmp/" + dataset + ".xml")
             )

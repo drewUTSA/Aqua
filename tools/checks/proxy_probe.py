@@ -1,6 +1,6 @@
 """Bounded nginx exercise; run only in the disposable network-none namespace.
 
-At most 100 requests, 5/second, four callers and 55 seconds. An in-process fake
+At most 120 requests, 5/second, four callers and 55 seconds. An in-process fake
 upstream counts admitted work; no authentication provider or application runs.
 """
 
@@ -25,6 +25,9 @@ def probe(baseline: bool = False) -> dict:
             self.rfile.read(int(self.headers.get("Content-Length", "0")))
             self.answer()
 
+        do_PATCH = do_POST
+        do_DELETE = do_POST
+
         def answer(self):
             calls[self.path] += 1
             self.send_response(200)
@@ -44,7 +47,7 @@ def probe(baseline: bool = False) -> dict:
         nonlocal last, sent
         with pace:
             time.sleep(max(0, 0.21 - (time.monotonic() - last)))
-            if sent >= 100 or time.monotonic() - start >= 55:
+            if sent >= 120 or time.monotonic() - start >= 55:
                 raise RuntimeError("exercise budget exceeded")
             sent += 1
             last = time.monotonic()
@@ -65,15 +68,22 @@ def probe(baseline: bool = False) -> dict:
     try:
         # Every request has a different claimed address and session. The actual
         # network peer is unchanged and must own one shared budget across workers.
+        question_paths = (
+            "/api/query",
+            "/api/v1/chats",
+            "/api/v1/chats/synthetic-chat/messages",
+            "/api/v1/chats/synthetic-chat/messages/synthetic-input/retries",
+        )
         for n in range(12):
             results.append(
                 request(
+                    path="/api/query" if baseline else question_paths[n % 4],
                     headers={
                         "CF-Connecting-IP": f"192.0.2.{n+1}",
                         "X-Forwarded-For": f"198.51.100.{n+1}",
                         "Forwarded": f"for=192.0.2.{n+1}",
                         "Cookie": f"synthetic-session={n}",
-                    }
+                    },
                 )
             )
         if baseline:
@@ -95,6 +105,26 @@ def probe(baseline: bool = False) -> dict:
             assert reply["status"] == 429, (path, reply)
             assert sum(calls.values()) == before
             assert reply["retry_after"] == "12"
+        # New first-question, append, and retry endpoints cannot create fresh
+        # quotas; nginx normalizes escaped/repeated slashes before map matching.
+        for path in question_paths[1:]:
+            for alias in (
+                path + "/",
+                path.replace("chats", "%63hats"),
+                path.replace("/api/", "/api//"),
+            ):
+                before = sum(calls.values())
+                assert request(alias)["status"] == 429, alias
+                assert sum(calls.values()) == before
+        for method, path in (
+            ("GET", "/api/v1/chats"),
+            ("GET", "/api/v1/chats/synthetic-chat/messages"),
+            ("POST", "/api/v1/chats/search"),
+            ("PATCH", "/api/v1/chats/synthetic-chat"),
+            ("DELETE", "/api/v1/chats/synthetic-chat?revision=1"),
+            ("GET", "/api/v1/me/saved-prompts"),
+        ):
+            assert request(path, method=method)["status"] == 200
         # Auth has a separate budget. Logout and health remain usable during abuse.
         auth = [request("/api/auth/google") for _ in range(7)]
         assert any(r["status"] == 429 for r in auth)
@@ -206,6 +236,8 @@ def probe(baseline: bool = False) -> dict:
             "concurrent_wave": wave,
             "recovery": "passed",
             "private_readiness_boundary": "passed",
+            "shared_workspace_question_budget": "passed",
+            "personal_metadata_outside_question_budget": "passed",
             "challenge_bootstrap_budget": "passed",
             "password_route_budgets": "passed",
             "password_waves": password_waves,

@@ -15,12 +15,13 @@ if __name__ == "__main__":
     parser.add_argument("--worker", action="store_true")
     parser.add_argument("--origin", required=True, type=origin_value)
     parser.add_argument("--image", default=DEFAULT_IMAGE)
+    parser.add_argument("--workspace-analysis", action="store_true")
     arguments = parser.parse_args()
     try:
         raise SystemExit(
-            p05_browser_worker.worker(arguments.origin)
+            p05_browser_worker.worker(arguments.origin, arguments.workspace_analysis)
             if arguments.worker
-            else host(arguments.origin, arguments.image)
+            else host(arguments.origin, arguments.image, arguments.workspace_analysis)
         )
     except Exception as error:  # noqa: BLE001 - outer process boundary emits type only
         emit(
