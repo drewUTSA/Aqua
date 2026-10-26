@@ -40,7 +40,7 @@
 .breadcrumb { color: #adb0ba; font-size: 14px; line-height: 1.6; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .breadcrumb > span { padding: 0 12px; }
 .breadcrumb strong { color: #f2f1ed; font-weight: 500; }
-.workspace-header__actions { display: flex; align-items: center; gap: 12px; margin-left: auto; min-width: 0; }
+.workspace-header__actions { display: flex; align-items: center; gap: 12px; margin-left: auto; min-width: 0; flex-shrink: 0; }
 .data-badge { padding: 10px; border-radius: 8px; background: #2b2d33; color: #adb0ba; font-size: 12px; white-space: nowrap; }
 .navigation-toggle, .mobile-new-chat { display: none; }
 .opal-workspace--collapsed .navigation-toggle { display: inline-flex; }
