@@ -2,15 +2,15 @@
 
 Instructions for coding agents working in this repository. Read this file before making changes.
 
-Latest verified checkpoint (October 26): P05 PR #42 is merged at `5d1bc1f`
-and its Opal frontend is already deployed and healthy; the P04 backend remains
-healthy at schema 3 with password/mail activation flags disabled. Fresh isolated
-backend, installer, proxy and both real-database browser suites passed. The
-merged-main GitHub browser timeout remains unresolved remotely. A reviewed repair
-is prepared in `docs/implementation/P05_CI_CLOSURE.md`; publication and green
-remote checks remain required. Actions rerun permission is unavailable. See also
-`docs/implementation/P05_RELEASE_READINESS.md`. This supersedes older open-PR/
-not-deployed statements below. P06 is on hold until issue closure.
+Latest verified checkpoint (October 26): P05 issue closure is complete at code
+checkpoint `8a5c71d` (repair PR #43). Required PR and merged-main GitHub checks
+passed, and the tested patched backend is deployed and healthy alongside the
+existing Opal frontend. Private storage remains at schema 3 with all
+password/registration/recovery/mail/worker activation flags disabled. See
+`docs/implementation/P05_CI_CLOSURE.md` for final evidence and
+`docs/implementation/P05_RELEASE_READINESS.md` for earlier verification.
+This supersedes older prepared/pending/open-PR/not-deployed statements below.
+P06 is ready to start and has not started.
 
 The user explicitly authorized direct server access and routine server updates
 after required checks pass. A dedicated key-backed Windows SSH alias,

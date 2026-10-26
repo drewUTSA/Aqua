@@ -1,9 +1,41 @@
 # P05 CI and dependency repair — October 26, 2026
 
-The user authorized publishing this specific repair on a separate branch and
-merging only after required GitHub checks pass. P06 remains on hold until it is
-published and the required GitHub checks pass. The production application is
-unchanged and healthy at its existing P05 frontend/P04 backend checkpoint.
+## Final checkpoint
+
+P05 issue closure is complete at code checkpoint `8a5c71d`, the merge of
+[PR #43](https://github.com/drewUTSA/Aqua/pull/43)
+(`8a5c71d00dc42f302b0178ff4daf1aeb9a115867`). Required checks passed for
+[the PR](https://github.com/drewUTSA/Aqua/actions/runs/40407905580) and
+[merged main](https://github.com/drewUTSA/Aqua/actions/runs/40408923453),
+including all 24 merged-main steps. P06 is ready to start and has not started.
+
+Only the backend was recreated, at 22:07:08 UTC on October 26, using the tested
+patched runtime
+`sha256:9578f8882f88201f5753f64eb1ee477f5a7724c786e3ec9618130f56cf4f9771`.
+Post-deployment verification at 22:07:15 UTC passed: the actual running image
+matches, `opentelemetry-api` is 1.45.1, `pip check` passed, and the backend is
+healthy with readiness at schema 3. All five password/registration/recovery/
+mail/worker activation flags remain disabled. The frontend and private database
+retain their exact pre-deployment container IDs and remain healthy.
+
+Bounded public checks at `https://aqua-ai.us` returned homepage 200, health 200,
+unauthenticated `/api/auth/me` 401 and public `/api/ready` 404. Delivered assets
+match the unchanged frontend bytes: JavaScript SHA-256
+`d0385487cfb264dad7909abe886b357a17162a638b7b19e2f0f89678836c97c7` and CSS
+SHA-256 `b15b71f2e3c990bb99d24122dda4eb2151ad1982e798b4925a501f85d490c853`.
+Server evidence is in
+`/srv/bank-ai/.check-results/p05-ci-closure-20261026-IG7ZiZ/`:
+`server-preflight-before-c66519b84b72.json` and
+`server-postdeploy-20261026T220717Z.json`.
+
+No database migration, frontend replacement or Cloudflare configuration change
+was needed. The user authorized this specific repair on a separate branch,
+with merge after required checks, and routine server updates after passing
+gates. Other Git work retains the repository's human checkpoint.
+
+The sections below preserve repair preparation, failed attempts and verification
+evidence. This final checkpoint supersedes their prospective publication and
+deployment wording; the historical failed run remains in the audit record.
 
 ## Problem and final behavior
 
