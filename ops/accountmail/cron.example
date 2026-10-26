@@ -1,0 +1,4 @@
+# Review/install as ben2004; never copy a secret into crontab or this file.
+# One job per minute; the private lock and persisted DB lease prevent overlap.
+# logger receives only fixed JSON statuses. The launcher never emits child logs.
+* * * * * /usr/bin/python3 -E -s -B /srv/bank-ai/ops/accountmail/launch.py 2>/dev/null | /usr/bin/logger -t aqua-account-mail

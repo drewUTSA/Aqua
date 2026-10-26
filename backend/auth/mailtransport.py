@@ -8,6 +8,7 @@ import uuid
 import httpx
 
 from auth.mailconfig import MailUnavailable
+from auth.mailtemplates import validate
 
 SENDER = "AQUA <no-reply@account.aqua-ai.us>"
 
@@ -24,13 +25,31 @@ class ResendTransport:
 
     def send(self, job_id: uuid.UUID, payload: dict[str, str]) -> str:
         # No proxy/env trust, redirect following, SDK retry, or configurable URL.
-        # Plain text prevents HTML execution; there are no tracking links/images.
+        # The worker opens the exact canonical encrypted envelope first. Retain
+        # legacy bodies unchanged; only versioned envelopes carry branded HTML.
+        if (
+            not isinstance(payload, dict)
+            or not {"to", "subject", "text"} <= set(payload)
+            or any(not isinstance(value, str) for value in payload.values())
+        ):
+            return "invalid"
         body = {
             "from": SENDER,
             "to": [payload["to"]],
             "subject": payload["subject"],
             "text": payload["text"],
         }
+        if set(payload) != {"to", "subject", "text"}:
+            try:
+                validate(payload.get("purpose", ""), payload, payload.get("origin", ""))
+            except MailUnavailable:
+                return "invalid"
+            body["html"] = payload["html"]
+            body["tags"] = [
+                {"name": "app", "value": "aqua"},
+                {"name": "purpose", "value": payload["purpose"]},
+                {"name": "template", "value": payload["template_version"]},
+            ]
         try:
             with httpx.Client(
                 trust_env=False,
