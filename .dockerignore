@@ -7,6 +7,7 @@
 !backend/nl2sql/*.py
 !backend/nl2sql/retrieval/*.py
 !backend/storage/*.py
+!backend/workspace/*.py
 !backend/migrations/*.sql
 !tools/checks/Dockerfile
 !tools/checks/requirements-runtime.lock

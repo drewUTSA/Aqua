@@ -51,7 +51,7 @@ def test_data_constraints_and_no_default_dataset_grant(storage):
         with pytest.raises(StorageUnavailable):
             with storage.transaction() as conn:
                 conn.execute(statement, params)
-    assert storage.readiness()["schema_version"] == 3
+    assert storage.readiness()["schema_version"] == 4
 
 
 def test_session_child_cannot_reference_another_owner(storage):

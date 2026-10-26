@@ -9,10 +9,11 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createHash } from "node:crypto";
 import { BrowserPipe } from "./p05-browser-pipe.mjs";
+import { workspaceJourneys, pendingWorkspaceJourney } from "./p06-browser-checks.mjs";
 import { makeFixture, GOOGLE_STUB, EMAIL_A, EMAIL_B, PASSWORD, VERIFY_PROOF, RESET_PROOF } from "./p05-browser-fixture.mjs";
 import { EXPECTED_SHELL, assertShell, assertLoginDelivery, capturePerformance, assertEssentialControls, assertSafeAreaStyles, enlargeText, captureControlBounds } from "./p05-shell-browser-checks.mjs";
 
-const MAX_MS = 240000, MAX_REQUESTS = 900, MAX_API = 180;
+const MAX_MS = 240000, MAX_REQUESTS = 900, MAX_API = 320;
 const started = performance.now();
 const frontend = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 function configuredPath(name, fallback) {
@@ -73,6 +74,7 @@ async function check(label, expression) {
 }
 const visibleFunction = `(el)=>Boolean(el&&el.getClientRects().length&&!el.closest('[hidden],[inert]'))`;
 async function click(selector) {
+  await waitFor(`(()=>{const el=[...document.querySelectorAll(${escaped(selector)})].find(${visibleFunction});return Boolean(el&&!el.disabled)})()`, "click_control_ready");
   const expression = `(()=>{const el=[...document.querySelectorAll(${escaped(selector)})].find(${visibleFunction});if(!el||el.disabled)throw Error('control_missing');el.click();return true})()`;
   await evaluate(expression);
 }
@@ -120,7 +122,7 @@ async function signIn(email = EMAIL_A) {
   assert.equal(await evaluate("document.querySelector('.opal-workspace').dataset.uiShell"), EXPECTED_SHELL, "authenticated_shell_must_match_operator_build");
 }
 async function legalRoundTrip(state) {
-  const requestsBefore = fixture.calls.length;
+  const requestsBefore = fixture.securityCallCount();
   await click("a[href='/privacy']");
   await waitFor("location.pathname==='/privacy'&&Boolean(document.querySelector('[data-testid=legal-page]'))", "locked_privacy_route");
   await check(`${state} logout keeps the same private workspace locked during Privacy`, "document.querySelector('.opal-workspace')===window.__fixtureRetainedWorkspace&&Boolean(document.querySelector('.opal-workspace[hidden][inert]'))&&document.querySelector('.opal-workspace textarea').value==='Account A private unsent fixture'&&!document.body.innerText.includes('Account A private unsent fixture')");
@@ -129,7 +131,7 @@ async function legalRoundTrip(state) {
   await clickText("Back to AQUA");
   await waitFor("location.pathname==='/'&&Boolean(document.querySelector('.auth-page'))", "locked_workspace_return");
   await check(`${state} logout survives Terms and Back without remounting or revealing a draft`, "document.querySelector('.opal-workspace')===window.__fixtureRetainedWorkspace&&Boolean(document.querySelector('.opal-workspace[hidden][inert]'))&&document.querySelector('.opal-workspace textarea').value==='Account A private unsent fixture'&&!document.body.innerText.includes('Account A private unsent fixture')");
-  assert.equal(fixture.calls.length, requestsBefore, "legal_navigation_cannot_restart_auth_or_query");
+  assert.equal(fixture.securityCallCount(), requestsBefore, "legal_navigation_cannot_restart_auth_or_query");
 }
 async function menu(action) {
   await click(".workspace-header [aria-label='Account menu']");
@@ -239,29 +241,35 @@ try {
   await assertShell(check);
   await check("password works during stalled Google configuration", "location.pathname==='/'&&Boolean(document.querySelector('.opal-workspace:not([hidden])'))");
   fixture.google = "ready"; await fixture.release("google");
+  await workspaceJourneys({ check, click, clickText, fill, waitFor, evaluate, navigate, screenshot, fixture });
   await check("chat-only entry has complete composer and no empty visuals", "Boolean(document.querySelector('.opal-composer textarea'))&&Boolean(document.querySelector('[aria-label=\"Send message\"]'))&&!document.querySelector('[role=separator],.visual-pane,[aria-label=Visuals]')");
   await viewport(1440, 980); await screenshot("home-desktop-1440x980"); await captureFonts("workspace");
   performanceSamples.push(await capturePerformance(evaluate, "desktop-workspace"));
   await click(".workspace-header [aria-label='Account menu']"); await key("Escape");
   await check("account menu Escape restores trigger focus", "!document.querySelector('[role=menu][aria-label=\"Your account\"]')&&document.activeElement.getAttribute('aria-label')==='Account menu'");
 
-  const beforeIME = fixture.count("/api/query"); await fill(".opal-composer textarea", "Synthetic IME draft");
+  const beforeIME = fixture.queryCount(); await fill(".opal-composer textarea", "Synthetic IME draft");
   await evaluate("document.querySelector('.opal-composer textarea').dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',keyCode:229,isComposing:true,bubbles:true}))");
-  await delay(80); assert.equal(fixture.count("/api/query"), beforeIME, "IME must not submit"); results.push({ check: "IME Enter does not submit", passed: true });
+  await delay(80); assert.equal(fixture.queryCount(), beforeIME, "IME must not submit"); results.push({ check: "IME Enter does not submit", passed: true });
   await key("Enter", 8, "\r"); await check("Shift+Enter preserves multiline input", "document.querySelector('.opal-composer textarea').value.includes(String.fromCharCode(10))");
   fixture.queryMessage = Array.from({ length: 24 }, (_, index) => `Synthetic paragraph ${index + 1}: this bounded answer contains only fixture values and helps verify reading position.`).join("\n\n");
   await key("Enter"); await waitFor("document.querySelector('.conversation')?.textContent.includes('Synthetic paragraph 24')", "query_answer");
   await fill(".opal-composer textarea", "Draft preserved through Settings");
   const searchSelector = ".desktop-sidebar .sidebar-search input";
-  const searchCalls = fixture.calls.length;
-  await check("visit-local chat search has an accessible bounded input", "(()=>{const input=document.querySelector('.desktop-sidebar .sidebar-search input');return input?.maxLength===120&&input.labels?.[0]?.textContent==='Search chats in this visit'})()");
+  const searchCalls = fixture.queryCount();
+  await check("saved chat-title search has an accessible bounded input", "(()=>{const input=document.querySelector('.desktop-sidebar .sidebar-search input');return input?.maxLength===80&&input.labels?.[0]?.textContent==='Search chat titles'})()");
   await fill(searchSelector, "Synthetic IME");
-  await check("visit-local title search retains the matching conversation", "document.querySelector('.desktop-sidebar .sidebar-search__status').textContent.includes('1 chat matches')&&Boolean(document.querySelector('.desktop-sidebar button[aria-current=page]'))");
+  await click(".desktop-sidebar .sidebar-search button[type=submit]");
+  await waitFor("document.querySelector('.desktop-sidebar .sidebar-search__status').textContent.includes('1 chat matches')", "title_search_ready");
+  await check("saved title search retains the matching conversation", "Boolean(document.querySelector('.desktop-sidebar button[aria-current=page]'))");
   await fill(searchSelector, "<img src=https://attacker.invalid/x onerror=alert(1)> $(rm -rf /)");
+  await click(".desktop-sidebar .sidebar-search button[type=submit]");
+  await waitFor("document.querySelector('.desktop-sidebar .sidebar-search__status').textContent.includes('0 chats match')", "hostile_title_search_ready");
   await check("hostile search is literal and cannot select or submit a conversation", "document.querySelector('.desktop-sidebar .sidebar-search__status').textContent.includes('0 chats match')&&!document.querySelector('.desktop-sidebar button[aria-current=page]')&&document.querySelector('.opal-composer textarea').value==='Draft preserved through Settings'&&document.querySelector('.conversation').textContent.includes('Synthetic paragraph 24')&&window.__fixtureScriptExecuted===0");
   await clickText("Clear chat search");
+  await waitFor("Boolean(document.querySelector('.desktop-sidebar button[aria-current=page]'))", "clear_title_search_ready");
   await check("clearing local search restores titles without losing the draft", "document.querySelector('.desktop-sidebar .sidebar-search input').value===''&&Boolean(document.querySelector('.desktop-sidebar button[aria-current=page]'))&&document.querySelector('.opal-composer textarea').value==='Draft preserved through Settings'");
-  assert.equal(fixture.calls.length, searchCalls, "search_makes_no_api_requests");
+  assert.equal(fixture.queryCount(), searchCalls, "title_search_never_runs_analysis");
   await evaluate("(()=>{const el=document.querySelector('.conversation__scroll');el.scrollTop=80;el.dispatchEvent(new Event('scroll'));return true})()");
   await evaluate("new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve(true))))");
   const scrollBefore = await evaluate("document.querySelector('.conversation__scroll').scrollTop");
@@ -276,6 +284,8 @@ try {
   fixture.nextError = { path: "/api/query", status: 503 }; await click("[aria-label='Send message']");
   await waitFor("Boolean(document.querySelector('.conversation'))&&!document.querySelector('[aria-label=\"Stop response\"]')", "query_failure_settled");
   await check("failed query preserves recoverable draft", "document.querySelector('.opal-composer textarea').value==='Draft preserved through Settings'");
+  await clickText("Check saved request");
+  await waitFor("!document.querySelector('.workspace-request-notice')&&!document.querySelector('[aria-label=\"Stop response\"]')", "ambiguous_submission_checked_without_new_id");
 
   fixture.holdQuery = true; fixture.queryMessage = "STALE_ACCOUNT_A_RESULT"; await click("[aria-label='Send message']");
   await waitFor("Boolean(document.querySelector('[aria-label=\"Stop response\"]'))", "query_held");
@@ -293,6 +303,7 @@ try {
   await waitFor("Boolean(document.querySelector('#auth-email'))&&!document.querySelector('.opal-workspace')", "logout_confirmed");
   fixture.canQuery = false; await signIn(EMAIL_B); fixture.holdQuery = false; await fixture.release("query");
   await check("confirmed logout and account switch discard old private state", "document.querySelector('.opal-composer textarea').value===''&&!document.body.textContent.includes('Account A private unsent fixture')&&!document.body.textContent.includes('STALE_ACCOUNT_A_RESULT')&&!document.body.textContent.includes('Synthetic paragraph 24')");
+  await pendingWorkspaceJourney({ check, click, clickText, fill, waitFor, fixture });
   await check("signed-in no-dataset account cannot submit a query", "document.querySelector('.opal-composer textarea').disabled&&document.querySelector('[aria-label=\"Send message\"]').disabled&&document.body.textContent.includes('Access pending')");
   await menu("Settings"); await check("no-dataset account can reach own Settings", `document.querySelector('.settings-shell').textContent.includes(${escaped(EMAIL_B)})`); await clickText("Back to workspace");
 

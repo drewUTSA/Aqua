@@ -179,9 +179,13 @@ def migrate() -> dict:
             if item["Config"].get("Labels", {}).get("io.aqua.migration") != nonce:
                 raise RuntimeError("migration_resource_ownership_changed")
             docker("rm", "--force", item["Id"])
-    if result.strip() != b"application_schema_version=3":
+    if result.strip() != b"application_schema_version=4":
         raise RuntimeError("unexpected_migration_result")
-    return {"status": "migrated", "schema_version": 3, "public_signup_enabled": False}
+    return {
+        "status": "migrated",
+        "schema_version": 4,
+        "authentication_activation": "unchanged_by_migration",
+    }
 
 
 def main() -> None:

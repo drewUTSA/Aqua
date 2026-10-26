@@ -6,7 +6,12 @@ Use separate reviewed PRs and passing required checks for activation and P06;
 apply the private application migration only after its own backup and tests.
 This authorization does not change Google approvals or analytical-data grants.
 
-## Candidate behavior
+Production activation is complete at server commit
+`2f163e01d6477af8a8444a6f36a1d632cfe7b324` (PR #45). P06 has its own
+implementation and release checkpoint; completing activation does not claim
+that P06 or later phases are deployed.
+
+## Activated behavior
 
 New `aqua-account-v1` envelopes persist canonical HTML and plain text together,
 including purpose, origin and version, inside the existing encrypted outbox.
@@ -26,7 +31,7 @@ before cleanup and confirms absence. The once-per-minute cron reference emits
 only fixed aggregate statuses to the system logger. It installs nothing by
 being checked out. See [the worker runbook](../../ops/accountmail/README.md).
 
-## Verification and pending production gate
+## Verification
 
 - All 96 focused mail and launcher cases passed in an offline Linux fixture.
 - Black, Ruff, source/whitespace guards passed for the candidate files.
@@ -46,30 +51,61 @@ The encrypted backup and credential-free report are under
 AppData, with an encrypted recovery copy. Never commit or print private keys,
 runtime environments, recipients, passwords, bearer links or database contents.
 
-Required full candidate/remote checks, deployment, sender/inbox proof, schedule
-installation and public flags are still pending. A Sending-access Resend key
-correctly cannot inspect domains, tracking configuration or account limits;
-the observed restricted-key response does not establish those facts. Controlled
-received-message checks must establish sender authentication, direct trusted
-links and actual receipt. No provider key broadening is required.
+PR CI run `40415408132` and merged-main CI run `40416452369` passed all steps.
+The final matrix passed all 1,129 cases; the disposable installer and recovery
+checks also passed. The 67-file deployment source comparison passed after CRLF/LF
+normalization only. No broader data grant or Google approval was added.
 
-## Controlled activation and recovery
+A Sending-access Resend key correctly cannot inspect domains, tracking
+configuration or account limits; its restricted-key response establishes none
+of those facts. Actual received-message checks supplied the delivery evidence
+below, without broadening the provider key.
 
-The approved live exercise is one verification, one reset email and one
-password-change notice to the operator's chosen inbox, using a fresh plus alias
-to avoid changing an existing Google-only account. Use at most 25 auth HTTP
-requests, a loopback-only canary API, no model/business queries, and manual
-one-job worker invocations before installing the normal schedule. Do not print
-or retain plaintext test passwords, cookies or bearer values. Stop on unexpected
-state, authentication, delivery, budget or cleanup failure. Synthetic attack,
-load, fairness and replay exercises remain in isolated fixtures.
+## Completed controlled activation
 
-After inbox and lifecycle proof, enable password login, registration, recovery
-and web outbox encryption deliberately. Enable delivery only in the separate
-worker environment; the web receives no provider key and starts no worker.
-Preserve Google configuration, sessions, account epochs and dataset grants.
-Record actual image IDs, flag states, scheduler state, public checks and cleanup
-in the final release checkpoint before claiming production activation complete.
+The approved live exercise delivered one verification email, one reset email
+and one password-change notice to the controlled inbox through a fresh plus
+alias. All three reached Gmail INBOX and contained both plain text and HTML,
+direct trusted AQUA links, and no remote assets. The received headers reported
+DKIM PASS for `account.aqua-ai.us` with account-domain alignment and SPF PASS.
+No DMARC result was present, so this checkpoint makes no DMARC claim. The
+sanitized receipt report is
+`.check-results/p05-activation/live-receipts.json`; it contains no bearer links.
+
+The loopback-only canary completed all four auth-probe phases in 18 HTTP
+requests, below the hard ceiling of 25. It proved verification, password login,
+reset redemption, rejection of the old password and session, new-password
+login without a dataset grant, and logout followed by rejection of the test
+session. Exactly three manual one-job worker invocations preceded scheduler
+installation. No model or analytical query ran, and no unrelated account was
+changed. The canary was removed and its absence confirmed. Only the encrypted
+current test password and controlled-account metadata remain for the separately
+scoped P06 smoke; passwords, cookies and bearer values were not printed or
+stored as plaintext. Synthetic attack, load, fairness and replay exercises
+remain isolated fixtures.
+
+After this proof, production enabled `PASSWORD_AUTH_ENABLED`,
+`PASSWORD_REGISTRATION_ENABLED`, `PASSWORD_RECOVERY_ENABLED` and
+`ACCOUNT_MAIL_ENABLED`. The web worker flag remains false, and the web process
+has no provider key. Delivery uses the separate private worker environment.
+The deployed immutable backend image is
+`sha256:fe8da574799c10b24c15ecf29f09f7eff5f2010f297f9959a4d312f39043756c`,
+in container
+`7836cf83c733c09badff9e1a53f1881c60ca4e4f4c9955120882282306ca7fe3`.
+The existing frontend and schema-3 private database were retained. Public
+configuration reported password login enabled; registration and reset-request
+bootstrap checks returned HTTP 200.
+
+The scheduler installer passed, and read-only inspection confirmed exactly one
+expected once-per-minute cron entry. Cron, journald and rsyslog were active.
+The cron journal recorded the scheduled AQUA command at 23:12:01 UTC on
+October 26, 2026; the `aqua-account-mail` journal recorded its fixed aggregate
+`idle` status at 23:12:02 UTC under the operator UID. This proves an actual
+scheduled invocation, with no manual diagnostic worker run or environment read.
+Normal operational review should continue to inspect these aggregate statuses;
+this release does not claim an active email-alerting service.
+
+## Recovery
 
 Pause worker delivery and new issuance independently on failure, retaining the
 outbox key, pending records and durable security state. Preserve working login

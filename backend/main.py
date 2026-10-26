@@ -7,7 +7,8 @@ from collections.abc import Awaitable, Callable
 from dataclasses import replace
 from typing import Any, Literal
 
-from fastapi import Depends, FastAPI, Request
+from fastapi import Depends, FastAPI, HTTPException, Request
+from fastapi.exception_handlers import http_exception_handler
 from fastapi.responses import JSONResponse, Response
 from fastapi.exceptions import RequestValidationError
 from pydantic import BaseModel, ConfigDict, Field
@@ -29,6 +30,10 @@ from nl2sql.schema import get_schema
 from storage.config import load_storage_settings
 from storage.pool import Storage
 from storage.readiness import router as readiness_router
+from workspace.router import router as workspace_router
+from workspace.errors import WorkspaceError, failure as workspace_failure
+from workspace.boundary import PREFIXES as WORKSPACE_PREFIXES, WorkspaceBodyLimit
+from workspace.access_logging import install as private_workspace_access_logging
 
 
 @asynccontextmanager
@@ -41,6 +46,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Aqua", lifespan=lifespan)
+private_workspace_access_logging()
 log = logging.getLogger("aqua")
 
 SETTINGS = load_settings()
@@ -48,7 +54,21 @@ app.state.settings = SETTINGS
 app.include_router(auth_router)
 app.include_router(password_router)
 app.include_router(readiness_router)
+app.include_router(workspace_router)
 app.state.storage = Storage(load_storage_settings())
+app.add_middleware(WorkspaceBodyLimit)
+
+
+@app.exception_handler(HTTPException)
+async def safe_workspace_http_error(request: Request, error: HTTPException) -> Response:
+    if request.url.path.startswith(WORKSPACE_PREFIXES):
+        code = {
+            401: "session_invalid",
+            403: "access_denied",
+            503: "service_unavailable",
+        }.get(error.status_code, "invalid_request")
+        return workspace_failure(WorkspaceError(code, error.status_code))
+    return await http_exception_handler(request, error)
 
 
 @app.exception_handler(RequestValidationError)
@@ -56,6 +76,15 @@ async def safe_request_validation(
     request: Request, error: RequestValidationError
 ) -> JSONResponse:
     """Validation errors must not reflect credentials or private prompts."""
+    if request.url.path.startswith(
+        (
+            "/api/v1/chats",
+            "/api/v1/projects",
+            "/api/v1/me/saved-prompts",
+            "/api/v1/starter-prompts",
+        )
+    ):
+        return workspace_failure(WorkspaceError("invalid_request", 422))
     return JSONResponse(
         status_code=422, content={"detail": "Request could not be validated."}
     )
@@ -237,3 +266,13 @@ def query(
             ),
         )
     return to_response(answer, display_for(schema))
+
+
+def workspace_query(
+    question: str, model: str, session: UserSession, configured: Settings
+) -> dict[str, Any] | JSONResponse:
+    """The durable wrapper shares the legacy query safety/cache implementation."""
+    return query(QueryRequest(question=question, model=model), session, configured)
+
+
+app.state.workspace_query = workspace_query

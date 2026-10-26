@@ -48,14 +48,14 @@ Maintain this table or an equivalent repository progress log during implementati
 | Field | Verified checkpoint — October 26, 2026 |
 | --- | --- |
 | Current phase | P05 issue closure complete; P00–P05 merged |
-| Code checkpoint | `8a5c71d`, P05 repair PR #43 merged |
-| Deployment | P05 Opal frontend and patched P04 backend healthy; private storage at schema 3; password/registration/recovery/mail/worker activation flags disabled |
+| Code checkpoint | `2f163e0`, P05 activation PR #45 merged after the PR #43 repair |
+| Deployment | P05 password login, registration, recovery and branded mail active; separate scheduled worker verified; private storage still schema 3 |
 | Last accepted design | Opal home, dual login, on-demand right visuals, complete Settings |
 | Historical verification | 47 existing frontend tests passed during audit; not a current security or backend result |
-| Phase evidence | Required PR/main CI and patched-runtime checks passed; see [P05 closure and deployment](docs/implementation/P05_CI_CLOSURE.md) and [earlier verification](docs/implementation/P05_RELEASE_READINESS.md) |
-| Findings/blockers | No unresolved P05 release blocker; later feature/activation work remains in the phase plan |
-| Review checkpoint | P05 repair PR #43 merged after required checks; patched backend deployed and verified |
-| Next phase | P06 ready; not started |
+| Phase evidence | P05 activation PR/main CI, actual-image matrix, three controlled inbox receipts and scheduler passed; see [activation](docs/implementation/P05_PRODUCTION_ACTIVATION.md) and [P06 candidate](docs/implementation/P06_PERSISTENT_WORKSPACE.md) |
+| Findings/blockers | No unresolved P05 release blocker; P06 final checks, private migration and deployment remain pending |
+| Review checkpoint | P06 implemented and independently reviewed; separate release PR/checks and fresh encrypted backup precede migration |
+| Next phase | Finish P06 release; P07 has not started and is outside this run |
 
 ---
 

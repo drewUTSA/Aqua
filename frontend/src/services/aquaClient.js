@@ -7,6 +7,7 @@ import { fetchModels, queryApi } from "./apiClient.js";
 import * as mock from "./mockClient.js";
 import { AI_MODELS } from "../mocks/aiModels.js";
 import { DEMO_MODE } from "./runtimeConfig.js";
+export * from "./workspaceClient.js";
 
 function useMock(options) {
   return options.demoMode ?? DEMO_MODE;

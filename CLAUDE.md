@@ -2,15 +2,16 @@
 
 Instructions for coding agents working in this repository. Read this file before making changes.
 
-Latest verified checkpoint (October 26): P05 issue closure is complete at code
-checkpoint `8a5c71d` (repair PR #43). Required PR and merged-main GitHub checks
-passed, and the tested patched backend is deployed and healthy alongside the
-existing Opal frontend. Private storage remains at schema 3 with all
-password/registration/recovery/mail/worker activation flags disabled. See
-`docs/implementation/P05_CI_CLOSURE.md` for final evidence and
-`docs/implementation/P05_RELEASE_READINESS.md` for earlier verification.
-This supersedes older prepared/pending/open-PR/not-deployed statements below.
-P06 is ready to start and has not started.
+Latest verified checkpoint (October 26): P05 production activation is complete
+at `2f163e0` (PR #45), following the earlier issue closure in PR #43. Required
+PR/main checks and actual-runtime tests passed. Password login, registration,
+recovery and encrypted account mail are enabled; three controlled inbox receipts
+and the scheduled worker were verified. The provider key stays in the separate
+worker environment. Private storage is still schema 3. See
+`docs/implementation/P05_PRODUCTION_ACTIVATION.md` for actual release evidence.
+P06 is implemented and under final release checks; its schema-4 migration and
+deployment remain pending. See `docs/implementation/P06_PERSISTENT_WORKSPACE.md`.
+This supersedes older status statements below. P07 has not started.
 
 Current authorized run (October 26): the user requested end-to-end production
 email/password activation with AQUA-branded mail and completion of P06, and
