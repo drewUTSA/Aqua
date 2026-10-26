@@ -1,8 +1,12 @@
 # P05 release readiness — October 26, 2026
 
-Latest issue-closure follow-up: see [P05_CI_CLOSURE.md](P05_CI_CLOSURE.md) for the
-reviewed transport/cleanup repair, current regression counts and publication
-gate. The results below retain the earlier direct-access verification evidence.
+Final checkpoint: P05 repair PR #43 is merged at code checkpoint `8a5c71d`;
+required PR/main CI passed and the tested patched backend is deployed and
+healthy. P06 is ready to start and has not started. See
+[P05_CI_CLOSURE.md](P05_CI_CLOSURE.md) for final CI/deployment proof.
+The dated checks, server state, prepared changes and remaining gates below
+record the earlier verification stage; this paragraph supersedes those
+earlier pending/uncommitted/unchanged-production statements.
 
 P05 PR #42 is merged into `main` at
 `5d1bc1f5fad4712df3b625966944fcc966ea2ff0`, including the earlier CI fixture fix.

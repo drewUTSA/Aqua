@@ -1,17 +1,16 @@
 # Aqua
 Ask a database a question in plain English. Get back data, a readable summary and the exact SQL that produced it.
 
-Current checkpoint (October 26, 2026): [P05 PR #42](https://github.com/drewUTSA/Aqua/pull/42)
-is merged on `main` at `5d1bc1f`. Its Opal frontend is deployed and healthy;
-the P04 backend remains healthy with private storage at schema 3 and all
+Current checkpoint (October 26, 2026): P05 issue closure is complete at code
+checkpoint `8a5c71d`, including [repair PR #43](https://github.com/drewUTSA/Aqua/pull/43).
+Required PR and merged-main checks passed. The Opal frontend and patched P04
+backend are healthy; private storage remains at schema 3 with all
 password/registration/recovery/mail/worker activation flags disabled.
 
-We are closing P05 issues before starting P06. Fresh isolated backend,
-database recovery/installer, proxy security and both real-database browser
-suites passed; see [current verification and remaining gates](docs/implementation/P05_RELEASE_READINESS.md).
-The [CI repair](docs/implementation/P05_CI_CLOSURE.md) is prepared with bounded
-startup, strict cleanup and retained evidence. Publication and a green GitHub
-run remain required; Actions rerun permission is unavailable. The [approved phased specification](docs/planning/AQUA_CODEX_HANDOFF.md)
+P06 is ready to start and has not started. See the
+[final repair and deployment record](docs/implementation/P05_CI_CLOSURE.md)
+and [earlier release evidence](docs/implementation/P05_RELEASE_READINESS.md).
+The [approved phased specification](docs/planning/AQUA_CODEX_HANDOFF.md)
 covers the remaining work. Verification: [check runner guide](tools/checks/README.md).
 
 ## Private application storage and identity

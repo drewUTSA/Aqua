@@ -53,15 +53,15 @@ Maintain this table or an equivalent repository progress log during implementati
 
 | Field | Verified checkpoint — October 26, 2026 |
 | --- | --- |
-| Current phase | P05 issue closure before P06; P00–P05 are merged |
-| Current repository branch/commit | `main` at `5d1bc1f`, P05 PR #42 merge |
-| Deployment | P05 Opal frontend and P04 backend healthy; private storage at schema 3; password/registration/recovery/mail/worker activation flags disabled |
+| Current phase | P05 issue closure complete; P00–P05 merged |
+| Code checkpoint | `8a5c71d`, P05 repair PR #43 merged |
+| Deployment | P05 Opal frontend and patched P04 backend healthy; private storage at schema 3; password/registration/recovery/mail/worker activation flags disabled |
 | Last accepted design | Opal home, dual login, on-demand right visuals, complete Settings |
 | Historical verification | 47 existing frontend tests passed during audit; not a current security or backend result |
-| Phase evidence | Fresh isolated backend, recovery/installer, proxy security and both real-database browser suites passed; see [P05 release readiness](../implementation/P05_RELEASE_READINESS.md) |
-| Findings/blockers | CI repair prepared; publication and a green GitHub run required; Actions rerun permission unavailable |
-| Review checkpoint | P05 PR #42 merged; review/publish the [CI repair](../implementation/P05_CI_CLOSURE.md) and verify remote checks |
-| Next phase | P06 after P05 issue closure and required checks; not started |
+| Phase evidence | Required PR/main CI and patched-runtime checks passed; see [P05 closure and deployment](../implementation/P05_CI_CLOSURE.md) and [earlier verification](../implementation/P05_RELEASE_READINESS.md) |
+| Findings/blockers | No unresolved P05 release blocker; later feature/activation work remains in the phase plan |
+| Review checkpoint | P05 repair PR #43 merged after required checks; patched backend deployed and verified |
+| Next phase | P06 ready; not started |
 
 ---
 
