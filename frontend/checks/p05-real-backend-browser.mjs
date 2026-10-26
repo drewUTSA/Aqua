@@ -3,6 +3,7 @@
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import { FixtureBridge } from "./p05-browser-bridge.mjs";
+import { BrowserPipe } from "./p05-browser-pipe.mjs";
 import { createServer } from "node:http";
 import { readFile, readdir, lstat, realpath, mkdtemp, mkdir, writeFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -33,44 +34,12 @@ const proofValues = [], browserErrors = [], protocolErrors = [];
 const sensitiveValues = new Set([PASSWORD, NEXT_PASSWORD]);
 const apiOutcomes = [];
 const abortedNetworkRequests = new Set();
-let browser, bridge, cdp, profile, server, origin, sessionId, deadline, failure = null;
+let browser, bridge, cdp, profile, server, origin, sessionId, deadline, failure = null, failureDiagnostic = null;
 let requests = 0, apiRequests = 0, external = 0, consoleLeaks = 0, bridgeCleanup = null;
 let navigating = false, canceled = 0, staticCount = 0, fixtureClockSteps = 0;
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const quote = JSON.stringify;
 
-class CDP {
-  constructor(child) {
-    this.pending = new Map(); this.id = 0; this.buffer = Buffer.alloc(0); this.event = () => {};
-    child.stdio[4].on("data", (chunk) => {
-      this.buffer = Buffer.concat([this.buffer, chunk]);
-      if (this.buffer.length > 16 * 1024 * 1024) { child.kill(); return; }
-      let end;
-      while ((end = this.buffer.indexOf(0)) >= 0) {
-        const line = this.buffer.subarray(0, end); this.buffer = this.buffer.subarray(end + 1);
-        let value; try { value = JSON.parse(line.toString("utf8")); } catch { child.kill(); return; }
-        const task = this.pending.get(value.id);
-        if (task) {
-          this.pending.delete(value.id); clearTimeout(task.timer);
-          if (value.error) {
-            const error = new Error("browser_protocol_error");
-            error.canceled = /Invalid InterceptionId|No resource with given identifier/.test(String(value.error.message));
-            task.reject(error);
-          } else task.resolve(value.result);
-        } else this.event(value);
-      }
-    });
-    const fail = () => { for (const task of this.pending.values()) { clearTimeout(task.timer); task.reject(new Error("browser_closed")); } this.pending.clear(); };
-    child.once("error", fail); child.once("exit", fail); this.child = child;
-  }
-  send(method, params = {}, target = sessionId) {
-    return new Promise((resolve, reject) => {
-      const id = ++this.id, timer = setTimeout(() => { this.pending.delete(id); reject(new Error("browser_protocol_timeout")); }, 7000);
-      this.pending.set(id, { resolve, reject, timer });
-      this.child.stdio[3].write(JSON.stringify({ id, method, params, ...(target ? { sessionId: target } : {}) }) + "\0");
-    });
-  }
-}
 async function evaluate(expression) {
   const value = await cdp.send("Runtime.evaluate", { expression, returnByValue: true, awaitPromise: true });
   if (value.exceptionDetails) throw new Error("page_evaluation_failed");
@@ -183,10 +152,11 @@ try {
   const env = Object.fromEntries(["SystemRoot", "WINDIR", "PATH", "TEMP", "TMP", "LOCALAPPDATA", "USERPROFILE", "APPDATA", "HOME"].filter((name) => process.env[name]).map((name) => [name, process.env[name]]));
   const chromeExecutable = process.env.AQUA_CHROME_EXECUTABLE || (process.platform === "win32" ? "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe" : "/usr/bin/google-chrome");
   browser = spawn(chromeExecutable, ["--headless=new", "--no-first-run", "--no-default-browser-check", "--disable-background-networking", "--disable-component-update", "--disable-sync", "--disable-extensions", "--disable-default-apps", "--no-pings", "--metrics-recording-only", "--host-resolver-rules=MAP * ~NOTFOUND, EXCLUDE 127.0.0.1", "--remote-debugging-pipe", `--user-data-dir=${profile}`, "about:blank"], { windowsHide: true, stdio: ["ignore", "ignore", "ignore", "pipe", "pipe"], env });
-  cdp = new CDP(browser); deadline = setTimeout(() => browser.kill(), Math.max(1, MAX_MS - (performance.now() - started)));
-  const version = await cdp.send("Browser.getVersion"); const targets = await cdp.send("Target.getTargets");
+  cdp = new BrowserPipe(browser, { session: () => sessionId, deadline: started + MAX_MS });
+  deadline = setTimeout(() => cdp.fail("browser_suite_deadline"), Math.max(1, MAX_MS - (performance.now() - started)));
+  const version = await cdp.ready(); const targets = await cdp.send("Target.getTargets");
   ({ sessionId } = await cdp.send("Target.attachToTarget", { targetId: targets.targetInfos.find((item) => item.type === "page").targetId, flatten: true }));
-  cdp.event = (event) => {
+  cdp.onEvent = (event) => {
     if (event.sessionId !== sessionId) return;
     if (event.method === "Network.loadingFailed" && event.params.canceled && abortedNetworkRequests.size < MAX_REQUESTS) abortedNetworkRequests.add(event.params.requestId);
     if (event.method === "Runtime.exceptionThrown") browserErrors.push("runtime_exception");
@@ -313,13 +283,12 @@ try {
   await writeFile(path.join(artifacts, "browser-version.json"), JSON.stringify({ browser: version.product }, null, 2) + "\n");
 } catch (error) {
   failure = error instanceof assert.AssertionError ? error.message.split("\n")[0] : String(error.message || "real_browser_gate_failed");
+  failureDiagnostic = error.browserDiagnostic ?? cdp?.diagnostic ?? null;
   if (sessionId) await screenshot("failure-current-view").catch(() => {});
 } finally {
   clearTimeout(deadline);
-  if (browser && browser.exitCode === null) {
-    await cdp?.send("Browser.close", {}, null).catch(() => {}); await delay(500);
-    if (browser.exitCode === null) { browser.kill(); await delay(500); }
-  }
+  if (cdp) await cdp.stop();
+  if (!failure && cdp?.cleanupFailure) failure = "browser_cleanup_failed";
   if (bridge?.finished) bridgeCleanup = bridge.finished;
   if (bridge && bridge.process.exitCode === null) {
     if (!bridge.finished) {
@@ -344,10 +313,10 @@ if (!failure && (!backendRemoved || !backendPassed)) failure = "backend_cleanup_
 // Only explicitly sanitized bridge cleanup fields are persisted. Mail payloads,
 // cookies, credentials, CSRF values and proof links never enter the report.
 const report = { status: failure ? "failed" : "passed", failure, checked_utc: new Date().toISOString(), mode: "real_fastapi_disposable_postgres_browser",
-  expected_shell: EXPECTED_SHELL, bridge_diagnostic: bridge?.diagnostic ?? null, loadedAssets, results, screenshots, performanceSamples, observations: { requests, apiRequests, external_attempts: external, consoleLeaks, browserErrors, protocolErrors, canceled, explicit_fixture_admission_clock_steps: fixtureClockSteps, apiOutcomes },
-  cleanup: { browser_stopped: !browser || browser.exitCode !== null, temporary_profile_removed: Boolean(profile), loopback_closed: !server?.listening, backend_status: bridgeCleanup?.status ?? null, backend_resources_removed: backendRemoved, backend_report: backendReport },
+  expected_shell: EXPECTED_SHELL, browser_diagnostic: failureDiagnostic ?? cdp?.diagnostic ?? null, bridge_diagnostic: bridge?.diagnostic ?? null, loadedAssets, results, screenshots, performanceSamples, observations: { requests, apiRequests, external_attempts: external, consoleLeaks, browserErrors, protocolErrors, canceled, explicit_fixture_admission_clock_steps: fixtureClockSteps, apiOutcomes },
+  cleanup: { browser_stopped: !browser || cdp?.stopped === true, temporary_profile_removed: Boolean(profile), loopback_closed: !server?.listening, backend_status: bridgeCleanup?.status ?? null, backend_resources_removed: backendRemoved, backend_report: backendReport },
   elapsed_seconds: Math.round((performance.now() - started) / 10) / 100,
   limitations: ["Real FastAPI/auth/database code against synthetic disposable fixtures; no deployed origin or production data validation.", "Google verifier and email sender are synthetic test adapters; no Google or email provider contacted.", "No analytical database or AI model is exercised."] };
 await writeFile(path.join(artifacts, "report.json"), JSON.stringify(report, null, 2) + "\n");
-console.log(JSON.stringify({ status: report.status, checks: results.length, failure, bridge_diagnostic: report.bridge_diagnostic, backend_cleanup: backendReport, report: path.join(artifacts, "report.json") }));
+console.log(JSON.stringify({ status: report.status, checks: results.length, failure, browser_diagnostic: report.browser_diagnostic, bridge_diagnostic: report.bridge_diagnostic, backend_cleanup: backendReport, report: path.join(artifacts, "report.json") }));
 if (failure || !report.cleanup.browser_stopped || !report.cleanup.loopback_closed || report.cleanup.backend_status !== "passed") process.exitCode = 1;

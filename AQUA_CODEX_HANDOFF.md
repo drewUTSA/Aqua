@@ -45,16 +45,17 @@ Prepared October 16, 2026. This single file contains the approved frontend/backe
 
 Maintain this table or an equivalent repository progress log during implementation. Do not mark a phase complete based on its documentation.
 
-| Field | Initial handoff value |
+| Field | Verified checkpoint — October 26, 2026 |
 | --- | --- |
-| Current phase | P00 — not yet implemented by this handoff |
-| Current repository branch/commit | Inspect and record; historical baseline above |
+| Current phase | P05 issue closure before P06; P00–P05 are merged |
+| Current repository branch/commit | `main` at `5d1bc1f`, P05 PR #42 merge |
+| Deployment | P05 Opal frontend and P04 backend healthy; private storage at schema 3; password/registration/recovery/mail/worker activation flags disabled |
 | Last accepted design | Opal home, dual login, on-demand right visuals, complete Settings |
 | Historical verification | 47 existing frontend tests passed during audit; not a current security or backend result |
-| Phase evidence | Pending: functional checks; red attempts; blue prevention/detection/recovery; fixes/retests; readability review |
-| Findings/blockers | Record severity, affected capability, owner, resolution and retest |
-| Review checkpoint | Pending human review/commit/push/PR after P00 |
-| Next phase | P01 only after checkpoint continuation |
+| Phase evidence | Fresh isolated backend, recovery/installer, proxy security and both real-database browser suites passed; see [P05 release readiness](docs/implementation/P05_RELEASE_READINESS.md) |
+| Findings/blockers | CI repair prepared; publication and a green GitHub run required; Actions rerun permission unavailable |
+| Review checkpoint | P05 PR #42 merged; review/publish the [CI repair](docs/implementation/P05_CI_CLOSURE.md) and verify remote checks |
+| Next phase | P06 after P05 issue closure and required checks; not started |
 
 ---
 

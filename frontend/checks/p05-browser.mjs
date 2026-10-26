@@ -8,10 +8,11 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createHash } from "node:crypto";
+import { BrowserPipe } from "./p05-browser-pipe.mjs";
 import { makeFixture, GOOGLE_STUB, EMAIL_A, EMAIL_B, PASSWORD, VERIFY_PROOF, RESET_PROOF } from "./p05-browser-fixture.mjs";
 import { EXPECTED_SHELL, assertShell, assertLoginDelivery, capturePerformance, assertEssentialControls, assertSafeAreaStyles, enlargeText, captureControlBounds } from "./p05-shell-browser-checks.mjs";
 
-const MAX_MS = 240000, MAX_REQUESTS = 900, MAX_API = 180, MAX_PROTOCOL_BYTES = 16 * 1024 * 1024;
+const MAX_MS = 240000, MAX_REQUESTS = 900, MAX_API = 180;
 const started = performance.now();
 const frontend = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 function configuredPath(name, fallback) {
@@ -30,48 +31,10 @@ const temporaryRoot = await realpath(tmpdir());
 const fixture = makeFixture();
 const results = [], screenshots = [], external = [], protocolFailures = [], performanceSamples = [], scrollObservations = [];
 const sessions = new Set(), fonts = [], transitions = new Set(), closingSessions = new Set();
-let browser, cdp, profile, server, sessionId, origin, closed, deadline;
+let browser, cdp, profile, server, sessionId, origin, deadline;
 let requestCount = 0, staticRequests = 0, apiRequests = 0, consoleLeaks = 0, runtimeErrors = 0, canceledInterceptions = 0, cleanup = false;
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const escaped = (value) => JSON.stringify(value);
-
-class PipeClient {
-  constructor(child) {
-    this.child = child; this.pending = new Map(); this.sequence = 0; this.buffer = Buffer.alloc(0); this.onEvent = () => {};
-    child.stdio[4].on("data", (chunk) => {
-      this.buffer = Buffer.concat([this.buffer, chunk]);
-      if (this.buffer.length > MAX_PROTOCOL_BYTES) { this.fail(); child.kill(); return; }
-      let end;
-      while ((end = this.buffer.indexOf(0)) !== -1) {
-        const raw = this.buffer.subarray(0, end); this.buffer = this.buffer.subarray(end + 1);
-        if (!raw.length) continue;
-        let message;
-        try { message = JSON.parse(raw.toString("utf8")); } catch { this.fail(); child.kill(); return; }
-        const task = this.pending.get(message.id);
-        if (task) {
-          clearTimeout(task.timer); this.pending.delete(message.id);
-          if (message.error) {
-            const detail = String(message.error.message ?? "");
-            const error = new Error("browser_protocol_failed");
-            error.protocolReason = /Invalid InterceptionId|No resource with given identifier/.test(detail) ? "request_no_longer_exists"
-              : /Session with given id not found|Target closed|Session closed/.test(detail) ? "target_no_longer_exists" : "other_protocol_error";
-            task.reject(error);
-          } else task.resolve(message.result);
-        } else this.onEvent(message);
-      }
-    });
-    child.once("error", () => this.fail()); child.once("exit", () => this.fail());
-  }
-  fail() { for (const task of this.pending.values()) { clearTimeout(task.timer); task.reject(new Error("browser_closed")); } this.pending.clear(); }
-  send(method, params = {}, target = sessionId) {
-    return new Promise((resolve, reject) => {
-      const id = ++this.sequence;
-      const timer = setTimeout(() => { this.pending.delete(id); reject(new Error("browser_protocol_deadline")); }, 7000);
-      this.pending.set(id, { resolve, reject, timer });
-      this.child.stdio[3].write(JSON.stringify({ id, method, params, ...(target ? { sessionId: target } : {}) }) + "\0");
-    });
-  }
-}
 
 async function preload() {
   const files = new Map(); let bytes = 0;
@@ -117,6 +80,9 @@ async function clickText(text, selector = "button,a") {
   await evaluate(`(()=>{const el=[...document.querySelectorAll(${escaped(selector)})].find(el=>(${visibleFunction})(el)&&el.textContent.trim()===${escaped(text)});if(!el||el.disabled)throw Error('control_missing');el.click();return true})()`);
 }
 async function fill(selector, value) {
+  // The route shell can render before its auth check releases the form.
+  // Wait for an editable field instead of racing that protected loading state.
+  await waitFor(`(()=>{const el=document.querySelector(${escaped(selector)});return Boolean(el&&!el.disabled&&(${visibleFunction})(el))})()`, "editable_field_ready");
   await evaluate(`(()=>{const el=document.querySelector(${escaped(selector)});if(!el||el.disabled)throw Error('field_missing');el.focus();const proto=el.tagName==='TEXTAREA'?HTMLTextAreaElement.prototype:HTMLInputElement.prototype;Object.getOwnPropertyDescriptor(proto,'value').set.call(el,${escaped(value)});el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}));return true})()`);
 }
 async function key(key, modifiers = 0, text) {
@@ -197,7 +163,7 @@ async function preparePage() {
   await cdp.send("Page.addScriptToEvaluateOnNewDocument", { source: GOOGLE_STUB });
 }
 
-let failure = null, failureLayout = null;
+let failure = null, failureLayout = null, failureDiagnostic = null;
 try {
   await ensureArtifacts(); const files = await preload();
   server = createServer((request, response) => {
@@ -217,9 +183,9 @@ try {
   const executable = process.env.AQUA_CHROME_EXECUTABLE || (process.platform === "win32" ? "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe" : "/usr/bin/google-chrome");
   const env = Object.fromEntries(["SystemRoot", "WINDIR", "PATH", "TEMP", "TMP", "LOCALAPPDATA", "USERPROFILE", "APPDATA", "HOME"].filter((name) => process.env[name]).map((name) => [name, process.env[name]]));
   browser = spawn(executable, ["--headless=new", "--no-first-run", "--no-default-browser-check", "--disable-background-networking", "--disable-component-update", "--disable-sync", "--disable-extensions", "--disable-default-apps", "--disable-client-side-phishing-detection", "--no-pings", "--metrics-recording-only", "--host-resolver-rules=MAP * ~NOTFOUND, EXCLUDE 127.0.0.1", "--remote-debugging-pipe", `--user-data-dir=${profile}`, "about:blank"], { windowsHide: true, stdio: ["ignore", "ignore", "ignore", "pipe", "pipe"], env });
-  closed = new Promise((resolve) => browser.once("exit", resolve)); cdp = new PipeClient(browser);
-  deadline = setTimeout(() => browser.kill(), MAX_MS);
-  const version = await cdp.send("Browser.getVersion");
+  cdp = new BrowserPipe(browser, { session: () => sessionId, deadline: started + MAX_MS });
+  deadline = setTimeout(() => cdp.fail("browser_suite_deadline"), Math.max(1, MAX_MS - (performance.now() - started)));
+  const version = await cdp.ready();
   const targets = await cdp.send("Target.getTargets");
   const target = targets.targetInfos.find((item) => item.type === "page"); assert.ok(target, "isolated_page_missing");
   ({ sessionId } = await cdp.send("Target.attachToTarget", { targetId: target.targetId, flatten: true }));
@@ -517,29 +483,28 @@ try {
   await writeFile(path.join(artifacts, "font-diagnostics.json"), JSON.stringify(fonts, null, 2) + "\n");
 } catch (error) {
   failure = error instanceof assert.AssertionError ? error.message.split("\n")[0] : String(error.message || "browser_gate_failed");
+  failureDiagnostic = error.browserDiagnostic ?? cdp?.diagnostic ?? null;
   if (sessionId) failureLayout = await captureControlBounds(evaluate).catch(() => null);
   if (sessionId) await screenshot("failure-current-view").catch(() => {});
 } finally {
   clearTimeout(deadline);
-  if (browser) {
-    if (browser.exitCode === null) { await cdp?.send("Browser.close", {}, null).catch(() => {}); await Promise.race([closed, delay(1500)]); }
-    if (browser.exitCode === null) { browser.kill(); await Promise.race([closed, delay(1000)]); }
-  }
-  cdp?.fail(); server?.closeAllConnections(); if (server?.listening) await new Promise((resolve) => server.close(resolve));
+  if (cdp) await cdp.stop();
+  if (!failure && cdp?.cleanupFailure) failure = "browser_cleanup_failed";
+  server?.closeAllConnections(); if (server?.listening) await new Promise((resolve) => server.close(resolve));
   if (profile) {
     const resolved = await realpath(profile); assert.equal(path.dirname(resolved), temporaryRoot);
     assert.ok(path.basename(resolved).startsWith("aqua-p05-browser-")); assert.equal((await lstat(profile)).isSymbolicLink(), false);
     await rm(profile, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
   }
-  cleanup = !browser || browser.exitCode !== null;
+  cleanup = !browser || cdp?.stopped === true;
 }
 const report = { status: failure ? "failed" : "passed", failure, failureLayout, checked_utc: new Date().toISOString(),
-  mode: "production_build_synthetic_api_browser", expected_shell: EXPECTED_SHELL, loadedAssets, results, screenshots, performanceSamples,
+  mode: "production_build_synthetic_api_browser", expected_shell: EXPECTED_SHELL, browser_diagnostic: failureDiagnostic ?? cdp?.diagnostic ?? null, loadedAssets, results, screenshots, performanceSamples,
   limits: { maximum_seconds: MAX_MS / 1000, maximum_requests: MAX_REQUESTS, maximum_api_requests: MAX_API },
   observations: { requestCount, staticRequests, apiRequests, external_attempts: external.length, consoleLeaks, runtimeErrors, forbidden_api_calls: fixture.forbiddenCalls, protocolFailures, canceledInterceptions, scrollObservations },
   cleanup: cleanup ? "browser_stopped_loopback_closed_temporary_profile_removed" : "failed",
   elapsed_seconds: Math.round((performance.now() - started) / 10) / 100,
   limitations: ["Synthetic intercepted API and GIS contracts; no actual backend, Google, email, database or production-origin validation.", "400% reflow represented by a 320 CSS-pixel viewport; 200% text doubles computed text sizes.", "Small viewport models keyboard-constrained space; it is not an actual mobile OS keyboard test.", "Navigation timings are local observations, not production performance guarantees; initial delivery byte limits are deterministic.", "Keyboard and semantic assertions are not a complete screen-reader or contrast audit.", "Screenshots require human/agent visual review; saving them alone is not visual approval."] };
 await ensureArtifacts(); await writeFile(path.join(artifacts, "report.json"), JSON.stringify(report, null, 2) + "\n");
-console.log(JSON.stringify({ status: report.status, checks: results.length, failure, report: path.join(artifacts, "report.json"), cleanup: report.cleanup }));
+console.log(JSON.stringify({ status: report.status, checks: results.length, failure, browser_diagnostic: report.browser_diagnostic, report: path.join(artifacts, "report.json"), cleanup: report.cleanup }));
 if (failure || !cleanup) process.exitCode = 1;

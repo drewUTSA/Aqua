@@ -112,3 +112,22 @@ jobs:
           export AQUA_P05_BRIDGE_EXECUTABLE="$(command -v python)"
           export AQUA_P05_BRIDGE_ARGS_JSON='["tools/checks/p05_browser_backend.py","--image","aqua-runtime:check"]'
           node frontend/checks/p05-real-backend-browser.mjs
+      # Only synthetic browser evidence is retained. Never upload the checkout,
+      # arbitrary temporary files, fixture pipes, credentials or runtime config.
+      - name: Retain bounded browser reports after success or failure
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: p05-browser-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/aqua-p05/opal/synthetic/*.json
+            ${{ runner.temp }}/aqua-p05/opal/synthetic/*.png
+            ${{ runner.temp }}/aqua-p05/opal/real/*.json
+            ${{ runner.temp }}/aqua-p05/opal/real/*.png
+            ${{ runner.temp }}/aqua-p05/legacy/synthetic/*.json
+            ${{ runner.temp }}/aqua-p05/legacy/synthetic/*.png
+            ${{ runner.temp }}/aqua-p05/legacy/real/*.json
+            ${{ runner.temp }}/aqua-p05/legacy/real/*.png
+          if-no-files-found: warn
+          retention-days: 7
+          include-hidden-files: false
