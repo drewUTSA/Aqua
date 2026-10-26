@@ -178,7 +178,8 @@ try {
       } else if (url.origin === origin && request.method === "GET") await cdp.send("Fetch.continueRequest", { requestId });
       else { external++; await cdp.send("Fetch.failRequest", { requestId, errorReason: "BlockedByClient" }); }
     })().catch((error) => {
-      if (error.canceled && (wasNavigating || navigating || abortedNetworkRequests.has(event.params.networkId))) canceled++;
+      if (error.shutdownSessionMissing && cdp.stopping) canceled++;
+      else if (error.canceled && (wasNavigating || navigating || abortedNetworkRequests.has(event.params.networkId))) canceled++;
       else protocolErrors.push(error instanceof assert.AssertionError ? "bridge_contract_assertion" : error.message);
     });
   };
@@ -308,6 +309,7 @@ try {
 await ensureArtifacts();
 const backendRemoved = bridgeCleanup?.report?.cleanup === "removed_and_absence_confirmed" && Array.isArray(bridgeCleanup?.report?.remaining_ids) && bridgeCleanup.report.remaining_ids.length === 0;
 const backendPassed = bridgeCleanup?.status === "passed" && bridgeCleanup?.report?.status === "passed";
+if (!failure && protocolErrors.length) failure = "browser_bridge_protocol_failure";
 const backendReport = Object.fromEntries(["run", "status", "step", "cleanup", "remaining_ids", "worker_exit", "failure", "worker_error"].filter((key) => Object.hasOwn(bridgeCleanup?.report ?? {}, key)).map((key) => [key, bridgeCleanup.report[key]]));
 if (!failure && (!backendRemoved || !backendPassed)) failure = "backend_cleanup_unconfirmed";
 // Only explicitly sanitized bridge cleanup fields are persisted. Mail payloads,

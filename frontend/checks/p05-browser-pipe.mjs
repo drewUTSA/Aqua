@@ -1,6 +1,8 @@
 // CDP over anonymous pipes only. Reports retain fixed lifecycle metadata, never
 // expressions, URLs, payloads, raw frames, browser errors or stream exceptions.
 const MAX_FRAME = 16 * 1024 * 1024, MAX_PENDING = 64;
+const CLOSING_FETCH = new Set(["Fetch.fulfillRequest", "Fetch.continueRequest", "Fetch.failRequest"]);
+const FRAME_KINDS = new Set(["non_object", "response_shape", "response_payload_shape", "response_session_missing", "response_session_mismatch", "event_shape"]);
 const METHODS = new Set([
   "Browser.getVersion", "Browser.close", "Target.getTargets", "Target.attachToTarget", "Target.createTarget", "Target.closeTarget",
   "Page.enable", "Page.navigate", "Page.captureScreenshot", "Page.addScriptToEvaluateOnNewDocument", "Page.bringToFront",
@@ -8,6 +10,10 @@ const METHODS = new Set([
   "Emulation.setDeviceMetricsOverride", "Emulation.setEmulatedMedia", "Input.dispatchKeyEvent", "DOM.enable", "DOM.getDocument", "DOM.querySelector", "CSS.enable", "CSS.getPlatformFontsForNode",
 ]);
 const record = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
+const protocolClass = (error) => !record(error) || typeof error.message !== "string" ? "none"
+  : error.code === -32001 && error.message === "Session with given id not found." ? "session_not_found"
+  : /Invalid InterceptionId|No resource with given identifier/.test(error.message) ? "request_no_longer_exists"
+  : /Session with given id not found|Target closed|Session closed/.test(error.message) ? "target_no_longer_exists" : "other_protocol_error";
 async function waitForClose(closed, milliseconds) {
   let timer;
   try { await Promise.race([closed, new Promise((resolve) => { timer = setTimeout(resolve, milliseconds); })]); }
@@ -65,6 +71,11 @@ export class BrowserPipe {
     this.diagnostic ||= { reason, stage: "browser_cleanup", method: "Browser.close", pending_count: this.pending.size,
       ...(this.closeKind ? { exit_kind: this.closeKind } : {}) };
   }
+  invalidFrame(kind, task = this.pending.values().next().value, error = null) {
+    // Both fields are fixed enums derived here; no frame text or IDs survive.
+    this.diagnostic ||= { ...this.describe("browser_protocol_invalid_frame", task), invalid_frame_kind: FRAME_KINDS.has(kind) ? kind : "unknown_frame", protocol_error_class: protocolClass(error) };
+    return this.fail("browser_protocol_invalid_frame", task);
+  }
   receive(chunk) {
     if (this.failure) return;
     this.buffer = Buffer.concat([this.buffer, chunk]);
@@ -75,24 +86,31 @@ export class BrowserPipe {
       if (!raw.length) continue;
       let message;
       try { message = JSON.parse(raw.toString("utf8")); } catch { return this.fail("browser_protocol_invalid_json"); }
-      if (!record(message)) return this.fail("browser_protocol_invalid_frame");
+      if (!record(message)) return this.invalidFrame("non_object");
       if (Object.hasOwn(message, "id")) {
         const task = this.pending.get(message.id);
         if (!Number.isSafeInteger(message.id) || !task) return this.fail("browser_protocol_unmatched_response");
-        if ((message.sessionId ?? null) !== task.target || Object.hasOwn(message, "result") === Object.hasOwn(message, "error")
-          || (message.error ? !record(message.error) || typeof message.error.message !== "string" : !record(message.result))) return this.fail("browser_protocol_invalid_frame", task);
+        if (Object.hasOwn(message, "result") === Object.hasOwn(message, "error")) return this.invalidFrame("response_shape", task, message.error);
+        if (message.error ? !record(message.error) || typeof message.error.message !== "string" : !record(message.result)) return this.invalidFrame("response_payload_shape", task, message.error);
+        // Chromium emits SessionNotFound on its root session after a flattened
+        // child is removed. Only this exact correlated shutdown Fetch rejection
+        // may omit sessionId; it never becomes a successful command response.
+        const shutdownSessionMissing = this.stopping && Boolean(task.target) && CLOSING_FETCH.has(task.method)
+          && !Object.hasOwn(message, "sessionId") && protocolClass(message.error) === "session_not_found";
+        if ((message.sessionId ?? null) !== task.target && !shutdownSessionMissing) return this.invalidFrame(Object.hasOwn(message, "sessionId") ? "response_session_mismatch" : "response_session_missing", task, message.error);
         this.pending.delete(message.id); clearTimeout(task.timer);
         if (message.error) {
           const error = new Error("browser_protocol_failed");
-          error.protocolReason = /Invalid InterceptionId|No resource with given identifier/.test(message.error.message) ? "request_no_longer_exists"
-            : /Session with given id not found|Target closed|Session closed/.test(message.error.message) ? "target_no_longer_exists" : "other_protocol_error";
+          const classification = protocolClass(message.error);
+          error.protocolReason = classification === "session_not_found" ? "target_no_longer_exists" : classification;
           error.canceled = error.protocolReason === "request_no_longer_exists";
+          error.shutdownSessionMissing = shutdownSessionMissing;
           error.browserDiagnostic = { ...this.describe("browser_protocol_failed", task), protocol_reason: error.protocolReason };
           task.reject(error);
         } else task.resolve(message.result);
       } else {
         if (typeof message.method !== "string" || message.method.length > 128 || !/^[A-Za-z]+\.[A-Za-z]+$/.test(message.method)
-          || (Object.hasOwn(message, "params") && !record(message.params))) return this.fail("browser_protocol_invalid_frame");
+          || (Object.hasOwn(message, "params") && !record(message.params))) return this.invalidFrame("event_shape");
         try { this.onEvent(message); } catch { return this.fail("browser_event_failed"); }
       }
       if (this.failure) return;

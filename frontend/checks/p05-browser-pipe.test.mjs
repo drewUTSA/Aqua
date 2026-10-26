@@ -230,6 +230,42 @@ test("idle channel failure is surfaced by stop without replacing the primary dia
   assert.equal(JSON.stringify(client.diagnostic).includes(CANARY), false);
 });
 
+test("normal shutdown correlates a sessionless SessionNotFound Fetch rejection without resolving it", async (t) => {
+  const { client, child, requests, reply } = fixture(t, { session: () => "synthetic-session" });
+  const stopped = client.stop(); reply({ id: requests[0].id, result: {} }); await Promise.resolve();
+  const fetch = client.send("Fetch.fulfillRequest", { requestId: CANARY });
+  const rejected = assert.rejects(fetch, (error) => error.message === "browser_protocol_failed" && error.protocolReason === "target_no_longer_exists"
+    && error.shutdownSessionMissing === true && !JSON.stringify(error).includes(CANARY));
+  reply({ id: requests.at(-1).id, error: { code: -32001, message: "Session with given id not found." } });
+  await rejected; assert.equal(client.failure, null);
+  child.emit("exit", 0, null); child.emit("close", 0, null); assert.equal(await stopped, true);
+  assert.equal(client.cleanupFailure, null); assert.equal(client.diagnostic, null);
+});
+
+for (const [label, fields, expected] of [["wrong session", { sessionId: CANARY }, "browser_protocol_invalid_frame"],
+  ["null session", { sessionId: null }, "browser_protocol_invalid_frame"], ["unknown id", { id: 999 }, "browser_protocol_unmatched_response"],
+  ["missing id", { id: undefined }, "browser_protocol_invalid_frame"], ["result and error", { result: {} }, "browser_protocol_invalid_frame"],
+  ["wrong error code", { error: { code: -32000, message: "Session with given id not found." } }, "browser_protocol_invalid_frame"]]) {
+  test(`shutdown session exception rejects ${label} and retains only fixed diagnostics`, async (t) => {
+    const { client, requests, reply } = fixture(t, { session: () => "synthetic-session" });
+    const stopped = client.stop(); reply({ id: requests[0].id, result: {} }); await Promise.resolve();
+    const rejected = assert.rejects(client.send("Fetch.fulfillRequest", { requestId: CANARY }), { message: expected });
+    reply({ id: requests.at(-1).id, error: { code: -32001, message: "Session with given id not found." }, ...fields });
+    await rejected; await stopped;
+    assert.equal(client.cleanupFailure, expected);
+    assert.equal(JSON.stringify(client.diagnostic).includes(CANARY), false);
+    if (expected === "browser_protocol_invalid_frame") assert.ok(client.diagnostic.invalid_frame_kind);
+  });
+}
+
+test("sessionless Fetch errors remain invalid before shutdown", async (t) => {
+  const { client, requests, reply } = fixture(t, { session: () => "synthetic-session" });
+  const rejected = assert.rejects(client.send("Fetch.fulfillRequest"), { message: "browser_protocol_invalid_frame" });
+  reply({ id: requests[0].id, error: { code: -32001, message: "Session with given id not found." } }); await rejected;
+  assert.equal(client.diagnostic.invalid_frame_kind, "response_session_missing");
+  assert.equal(client.diagnostic.protocol_error_class, "session_not_found");
+});
+
 test("real anonymous child pipes drain a final response before close", { timeout: 5000 }, async (t) => {
   const source = `const fs=require('node:fs');const input=fs.createReadStream(null,{fd:3});let data='';input.on('data',chunk=>{data+=chunk;let end;while((end=data.indexOf(String.fromCharCode(0)))>=0){const request=JSON.parse(data.slice(0,end));data=data.slice(end+1);fs.writeSync(4,JSON.stringify({id:request.id,result:{product:'Synthetic Chrome'}})+String.fromCharCode(0));process.exit(0)}});`;
   const child = spawn(process.execPath, ["--eval", source], { windowsHide: true, stdio: ["ignore", "ignore", "ignore", "pipe", "pipe"] });

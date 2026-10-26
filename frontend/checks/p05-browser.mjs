@@ -216,7 +216,8 @@ try {
     })().catch((error) => {
       // Chrome can cancel a paused old-document request during a deliberate
       // navigation/tab close. Suppress only that specific lifecycle condition.
-      if (["request_no_longer_exists", "target_no_longer_exists"].includes(error.protocolReason)
+      if (error.shutdownSessionMissing && cdp.stopping) canceledInterceptions++;
+      else if (["request_no_longer_exists", "target_no_longer_exists"].includes(error.protocolReason)
         && (wasTransitioning || transitions.has(event.sessionId) || closingSessions.has(event.sessionId))) canceledInterceptions++;
       else protocolFailures.push(error.protocolReason || "interception_failed");
     });
@@ -498,6 +499,7 @@ try {
   }
   cleanup = !browser || cdp?.stopped === true;
 }
+if (!failure && protocolFailures.length) failure = "interception_failure";
 const report = { status: failure ? "failed" : "passed", failure, failureLayout, checked_utc: new Date().toISOString(),
   mode: "production_build_synthetic_api_browser", expected_shell: EXPECTED_SHELL, browser_diagnostic: failureDiagnostic ?? cdp?.diagnostic ?? null, loadedAssets, results, screenshots, performanceSamples,
   limits: { maximum_seconds: MAX_MS / 1000, maximum_requests: MAX_REQUESTS, maximum_api_requests: MAX_API },
