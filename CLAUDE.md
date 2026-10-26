@@ -2,11 +2,24 @@
 
 Instructions for coding agents working in this repository. Read this file before making changes.
 
-Latest P05 checkpoint: PR #42 is open at `0ffb3bd`. Its first CI run failed before
-the real-database browser checks. A fixture-only startup/readiness and sanitized
-bridge-reporting correction awaits human follow-up commit/push; see
-`docs/implementation/P05_CI_FIX.md`. This supersedes earlier pre-commit P05 status
-below. Production remains P04/schema 3, and app login/session code is unchanged.
+Latest verified checkpoint (October 26): P05 PR #42 is merged at `5d1bc1f`
+and its Opal frontend is already deployed and healthy; the P04 backend remains
+healthy at schema 3 with password/mail activation flags disabled. Fresh isolated
+backend, installer, proxy and both real-database browser suites passed. The
+merged-main GitHub browser timeout remains unresolved remotely. A reviewed repair
+is prepared in `docs/implementation/P05_CI_CLOSURE.md`; publication and green
+remote checks remain required. Actions rerun permission is unavailable. See also
+`docs/implementation/P05_RELEASE_READINESS.md`. This supersedes older open-PR/
+not-deployed statements below. P06 is on hold until issue closure.
+
+The user explicitly authorized direct server access and routine server updates
+after required checks pass. A dedicated key-backed Windows SSH alias,
+`aqua-codex`, has been verified; use the user's SSH config, never copy private
+key contents into the repository. Preserve phase isolation and recovery gates.
+The user also explicitly authorized the specific P05 test/CI/docs repair on
+October 26: commit it on a separate branch, publish its PR, and merge only after
+required GitHub checks pass. This is an exception for that repair; other Git
+commit/push/PR work retains the human checkpoint below.
 
 ## What this project is
 
