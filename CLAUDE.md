@@ -2,16 +2,18 @@
 
 Instructions for coding agents working in this repository. Read this file before making changes.
 
-Latest verified checkpoint (October 26): P05 production activation is complete
-at `2f163e0` (PR #45), following the earlier issue closure in PR #43. Required
-PR/main checks and actual-runtime tests passed. Password login, registration,
-recovery and encrypted account mail are enabled; three controlled inbox receipts
-and the scheduled worker were verified. The provider key stays in the separate
-worker environment. Private storage is still schema 3. See
-`docs/implementation/P05_PRODUCTION_ACTIVATION.md` for actual release evidence.
-P06 is implemented and under final release checks; its schema-4 migration and
-deployment remain pending. See `docs/implementation/P06_PERSISTENT_WORKSPACE.md`.
-This supersedes older status statements below. P07 has not started.
+Latest verified checkpoint (October 26): P05 production activation and P06 are
+complete and deployed. P06 code is `6872e41` (PR #46); required PR/main CI passed
+all 25 steps. The tested backend/Opal images are healthy on private schema 4,
+Cloudflare serves the exact tested assets, and the controlled 23-call catalog
+smoke passed without a dataset grant or model/analytical request. The fresh
+encrypted backup, migration, canary cleanup and resumed scheduled worker were
+verified. See `docs/implementation/P06_PERSISTENT_WORKSPACE.md`.
+Password login, registration, recovery and encrypted branded mail remain active;
+three P05 controlled inbox receipts were verified. The provider key stays in the
+separate worker environment. See `docs/implementation/P05_PRODUCTION_ACTIVATION.md`.
+This supersedes older status statements below. P07 has not started and is outside
+the completed authorized run.
 
 Current authorized run (October 26): the user requested end-to-end production
 email/password activation with AQUA-branded mail and completion of P06, and

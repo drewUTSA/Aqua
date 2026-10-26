@@ -47,15 +47,15 @@ Maintain this table or an equivalent repository progress log during implementati
 
 | Field | Verified checkpoint — October 26, 2026 |
 | --- | --- |
-| Current phase | P05 issue closure complete; P00–P05 merged |
-| Code checkpoint | `2f163e0`, P05 activation PR #45 merged after the PR #43 repair |
-| Deployment | P05 password login, registration, recovery and branded mail active; separate scheduled worker verified; private storage still schema 3 |
+| Current phase | P06 complete; P00–P06 merged and the authorized activation/P06 run finished |
+| Code checkpoint | `6872e41`, P06 PR #46 merged after P05 activation PR #45 |
+| Deployment | Persistent private workspace live on schema 4 with tested backend/Opal assets; password login, registration, recovery and branded mail active; scheduled worker verified |
 | Last accepted design | Opal home, dual login, on-demand right visuals, complete Settings |
 | Historical verification | 47 existing frontend tests passed during audit; not a current security or backend result |
-| Phase evidence | P05 activation PR/main CI, actual-image matrix, three controlled inbox receipts and scheduler passed; see [activation](docs/implementation/P05_PRODUCTION_ACTIVATION.md) and [P06 candidate](docs/implementation/P06_PERSISTENT_WORKSPACE.md) |
-| Findings/blockers | No unresolved P05 release blocker; P06 final checks, private migration and deployment remain pending |
-| Review checkpoint | P06 implemented and independently reviewed; separate release PR/checks and fresh encrypted backup precede migration |
-| Next phase | Finish P06 release; P07 has not started and is outside this run |
+| Phase evidence | P06 PR/main CI passed all 25 steps; backend, unit, both-shell browser, red/blue proxy, encrypted backup, migration and controlled production gates passed; see [P06 release](docs/implementation/P06_PERSISTENT_WORKSPACE.md) and [activation](docs/implementation/P05_PRODUCTION_ACTIVATION.md) |
+| Findings/blockers | No unresolved P05 activation or P06 release blocker |
+| Review checkpoint | P06 independently reviewed, merged, deployed and verified; private data/socket volumes and activation settings preserved |
+| Next phase | P07 is next, has not started, and is outside this completed run |
 
 ---
 
