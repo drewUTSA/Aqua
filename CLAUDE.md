@@ -12,6 +12,15 @@ password/registration/recovery/mail/worker activation flags disabled. See
 This supersedes older prepared/pending/open-PR/not-deployed statements below.
 P06 is ready to start and has not started.
 
+Current authorized run (October 26): the user requested end-to-end production
+email/password activation with AQUA-branded mail and completion of P06, and
+confirmed that P07–P13 are excluded. Continue through separate tested PRs,
+required checks and server deployment for that scope. The private application
+migration requires its own backup and disposable-fixture verification; shared
+analytical DDL and broader Google/data approvals remain excluded. See
+`docs/implementation/P05_PRODUCTION_ACTIVATION.md` for the activation record.
+The default human Git checkpoint below remains for work outside this run.
+
 The user explicitly authorized direct server access and routine server updates
 after required checks pass. A dedicated key-backed Windows SSH alias,
 `aqua-codex`, has been verified; use the user's SSH config, never copy private

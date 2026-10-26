@@ -31,6 +31,8 @@ class MailWorker:
         except MailUnavailable:
             outcome = "invalid"
         else:
+            # HTML/text/version are durable, canonically validated fields. The
+            # transport forwards them unchanged under the original job key.
             outcome = self.transport.send(job.id, payload)
         committed = self.outbox.finish(job, outcome)
         # Fixed event categories only; no recipient, job link, response or token.

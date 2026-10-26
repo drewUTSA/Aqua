@@ -8,6 +8,7 @@ import pytest
 
 from auth.mailconfig import MailUnavailable
 from auth.mailtransport import ResendTransport
+from auth.mailtemplates import TEMPLATE_VERSION, render
 
 
 @pytest.mark.parametrize(
@@ -62,6 +63,7 @@ def test_transport_owns_no_retries_and_never_redirects(monkeypatch, status, outc
         job_id
     )
     assert calls[0][2]["json"]["text"] == "synthetic body"
+    assert set(calls[0][2]["json"]) == {"from", "to", "subject", "text"}
     assert "re_synthetic_fixture_key" not in repr(transport)
 
 
@@ -128,3 +130,83 @@ def test_large_provider_response_does_not_buffer_unlimited_data(monkeypatch):
 def test_worker_rejects_missing_and_header_injected_provider_key(key):
     with pytest.raises(MailUnavailable):
         ResendTransport(key)
+
+
+@pytest.mark.parametrize(
+    "purpose", ["verify_email", "reset_password", "password_changed"]
+)
+def test_branded_delivery_keeps_durable_body_and_fixed_non_personal_tags(
+    monkeypatch, purpose
+):
+    calls = []
+
+    class Response:
+        status_code = 200
+
+        def iter_raw(self, **kwargs):
+            yield b"{}"
+
+    class Client:
+        def __init__(self, **kwargs):
+            assert kwargs["trust_env"] is False and kwargs["follow_redirects"] is False
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            return False
+
+        @contextmanager
+        def stream(self, method, url, **kwargs):
+            calls.append(kwargs)
+            yield Response()
+
+    monkeypatch.setattr(httpx, "Client", Client)
+    payload = render(
+        purpose,
+        "fixture@example.invalid",
+        None if purpose == "password_changed" else "M" * 43,
+        "https://aqua-ai.us",
+    )
+    transport = ResendTransport("re_synthetic_fixture_key")
+    job = uuid.uuid4()
+    assert transport.send(job, payload) == "accepted"
+    assert transport.send(job, payload) == "accepted"
+    assert calls[0] == calls[1]
+    assert calls[0]["json"]["html"] == payload["html"]
+    assert calls[0]["json"]["text"] == payload["text"]
+    assert calls[0]["json"]["tags"] == [
+        {"name": "app", "value": "aqua"},
+        {"name": "purpose", "value": purpose},
+        {"name": "template", "value": TEMPLATE_VERSION},
+    ]
+    assert not {"origin", "purpose", "template_version"} & set(calls[0]["json"])
+
+
+@pytest.mark.parametrize(
+    "change", ["html", "purpose", "extra", "missing", "non_string"]
+)
+def test_branded_transport_rejects_divergent_content_before_any_provider_call(
+    monkeypatch, change
+):
+    def no_transport(**kwargs):
+        pytest.fail("invalid branded content reached the provider")
+
+    monkeypatch.setattr(httpx, "Client", no_transport)
+    payload = render(
+        "verify_email", "fixture@example.invalid", "M" * 43, "https://aqua-ai.us"
+    )
+    if change == "html":
+        payload["html"] += '<img src="https://tracking.invalid">'
+    elif change == "purpose":
+        payload["purpose"] = "arbitrary_personal_tag"
+    elif change == "extra":
+        payload["headers"] = "unsafe"
+    elif change == "missing":
+        del payload["text"]
+    else:
+        payload["html"] = None
+    assert (
+        ResendTransport("re_synthetic_fixture_key").send(uuid.uuid4(), payload)
+        == "invalid"
+    )
