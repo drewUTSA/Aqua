@@ -47,15 +47,15 @@ Maintain this table or an equivalent repository progress log during implementati
 
 | Field | Verified checkpoint — October 26, 2026 |
 | --- | --- |
-| Current phase | P07 in progress; P00–P06 complete and deployed |
-| Code checkpoint | `6872e41`, P06 PR #46 merged after P05 activation PR #45 |
-| Deployment | Persistent private workspace live on schema 4 with tested backend/Opal assets; password login, registration, recovery and branded mail active; scheduled worker verified |
+| Current phase | P07 complete; P00–P07 complete and deployed |
+| Code checkpoint | `1d08364`, P07 PR #48 merged after all required checks |
+| Deployment | Durable bounded analysis live on schema 5 with tested backend/Opal assets; password login, registration, recovery and branded mail active; scheduled worker verified |
 | Last accepted design | Opal home, dual login, on-demand right visuals, complete Settings |
 | Historical verification | 47 existing frontend tests passed during audit; not a current security or backend result |
-| Phase evidence | P06 PR/main CI passed all 25 steps; backend, unit, both-shell browser, red/blue proxy, encrypted backup, migration and controlled production gates passed; see [P06 release](docs/implementation/P06_PERSISTENT_WORKSPACE.md) and [activation](docs/implementation/P05_PRODUCTION_ACTIVATION.md) |
-| Findings/blockers | No unresolved P05 activation or P06 release blocker |
-| Review checkpoint | P06 independently reviewed, merged, deployed and verified; private data/socket volumes and activation settings preserved |
-| Next phase | Complete the newly authorized P07 with its own tests, PR and release; P08 onward remain excluded |
+| Phase evidence | P07 PR/main CI each passed all 25 steps; 1,243 backend tests, 236 frontend units, 103 synthetic and 39 real-DB browser checks per shell, red/blue security/proxy, encrypted backup, migration and production checks passed; see [P07 release](docs/implementation/P07_DURABLE_ANALYSIS.md) |
+| Findings/blockers | No unresolved P07 release blocker; configured legacy formatting exclusions are recorded in the evidence |
+| Review checkpoint | P07 independently reviewed, merged, deployed and verified; private data/socket volumes and activation settings preserved |
+| Next phase | P08 — Plotly and conditional visuals; await the user's next phase request |
 
 ---
 

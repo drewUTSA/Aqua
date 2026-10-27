@@ -1,10 +1,9 @@
 # P07 durable analysis
 
-Status: implementation and local release gates passed; phase PR/CI and production
-cutover pending. No P07 code, schema or images deployed.
+Status: complete and deployed at code `1d08364` (PR #48), private schema 5.
 Authorized October 26, 2026 by the user's request to proceed to P07, following
-the completed activation/P06 run. Production remains on P06 code `6872e41`,
-schema 4, with checkout/documentation `a9b2e0f` until the release gates pass.
+the completed activation/P06 run. Production cutover and public verification
+completed October 27 UTC (October 26 local time). P08 onward remains excluded.
 
 ## Scope and contract
 
@@ -22,9 +21,9 @@ children must terminate before their known slot is released. Normal cancellation
 first interrupts the owned child so psycopg can cancel an active server query;
 a bounded grace precedes forced termination. A forced stop retains conservative
 capacity through the remote SQL bound; a locally unconfirmed exit quarantines
-its slot until stopped-worker recovery. Expired running
-work becomes interrupted and requires an explicit retry; it is never silently
-sent to a provider again. Final values remain subject to implementation tests.
+its slot until stopped-worker recovery. An expired running lease becomes
+interrupted; reaching the intake deadline becomes expired. Both require an
+explicit retry and are never silently sent to a provider again.
 
 Admission reserves four possible provider calls per new logical request:
 12 calls/minute per account, 120 globally/per dataset and 60 per configured
@@ -66,7 +65,8 @@ progressive streaming requires separate genuine stream tests. Cancellation
 cannot promise that a remote provider reverses work or charges already begun.
 
 The frozen backend passed 229 distinct focused cases across both disposable
-datasets, with independent security coverage passing 63 cases in each. The
+datasets, with an independent suite passing 63 cases in each: 37 adversarial
+security cases and 26 focused API/cache regressions. The
 frontend passed 236 unit cases and 103 synthetic browser checks in each shell.
 Both shells also passed all 39 real private-database browser checks against the
 final backend image and exact built assets, including server cancellation,
@@ -74,8 +74,8 @@ reconnect without new work, context, restart recovery and exact values. Browser,
 profile and fixture cleanup passed. The test-only transport accounting bound is
 512 browser requests; the separate opt-in bridge remains 400 operations within
 300 seconds. Production quotas are unchanged by those fixture limits.
-These browser results supplement the final-image database suite; PR/main CI and
-production release gates remain separate. Credential-free evidence is retained in
+These browser results supplement the final-image database suite. Required PR/main
+CI and production release gates passed separately. Credential-free evidence is retained in
 [`evidence/p07`](evidence/p07/).
 
 The final-image full matrix passed all 1,243 distinct tests: bank 1,224 passed
@@ -114,10 +114,10 @@ or production stream evidence.
 
 Both final frontend images also passed the complete 116-request proxy checks.
 Their public assets and Nginx configuration matched the tested build files
-exactly. The backend candidate is
+exactly. The deployed backend is
 `sha256:81acee49864b4c08ba400fdc41b512b03b3dcacdafc6c7df5dc8e990247845e7`.
 
-| Candidate | Immutable image ID |
+| Image | Immutable image ID |
 | --- | --- |
 | Opal | `sha256:d86a8f577c7744ce85145e9359880618082deaa9eb7959250585a20efce73c9f` |
 | Classic fallback | `sha256:5fcd5b541e37695427a8d07a7b2fd135dd9d497e63754954f92550af62118034` |
@@ -160,3 +160,63 @@ work without resubmitting it.
 No live provider-quality benchmark, production load test, business database DDL,
 new data entitlement or production restore is included. Conservative limits are
 policy choices; measured capacity and agreed RPO/RTO remain later work.
+
+## Completed production release
+
+[PR #48](https://github.com/drewUTSA/Aqua/pull/48) merged only after the exact
+reviewed head passed [PR run 40431771945](https://github.com/drewUTSA/Aqua/actions/runs/40431771945).
+The merged code `1d083649322b26b13de76c148148a4ee00195480` then passed
+[main run 40432773968](https://github.com/drewUTSA/Aqua/actions/runs/40432773968).
+Both runs completed all 25 steps successfully, without failures or skipped steps.
+An earlier PR run was superseded by a documentation-only clarification of the
+configured formatting evidence; no runtime image changed.
+
+The server checkout fast-forwarded to that reviewed commit. Preflight compared
+all runtime source and the dependency lock to the tested image, resolved the
+reviewed resource settings and verified no environment differences. Compose
+serializes memory limits as numeric strings on this host; the operator preflight
+was corrected to compare their exact numeric value. A disposable image rehearsal
+also proved init, 3 GiB memory/swap, four CPUs and 256 PIDs, with confirmed cleanup.
+
+The exact mail cron was paused and its launcher lock held through stopped-writer
+backup and migration. Fresh encrypted schema-4 snapshot
+`pre-p07-20261027T013844Z.pgdump.age` has encrypted SHA-256
+`e65dd757d0755e913abdf7637f1df606f53de12e946b418847fc8de11236b646`.
+The same stopped backend and live guard were attested before export and after
+authenticated decryption verification, with server UTC bookends after writer
+shutdown. The separately protected recovery identity matched. No plaintext dump
+was saved or printed. The encrypted file remains in the approved local
+`.check-results/p07-release` folder, with recovery material protected separately.
+
+Reviewed migration 0005 succeeded, then only backend/frontend were recreated
+from the exact tested images without rebuilding or pulling. The original private
+database container `5d0ab1293dd015846de301c7d732933d595538118ae535e4cb7f13951bcfd427`
+and its volumes were preserved. New backend
+`74ddd36d825f25b6a08b32b6455ae57a2a96dab3799b45d09a4c8839886e764d`
+reports ready on schema 5. Frontend
+`b05ce5994c4196661707c6b3629098b3f52222543c108a254b45c01548abc990`
+is healthy on the tested Opal image. UID, read-only socket, network-none database,
+resource bounds and activated password/registration/recovery/mail settings all
+passed verification. The web mail worker remains disabled and has no Resend key.
+
+Cloudflare served the exact container assets:
+
+| Asset | SHA-256 |
+| --- | --- |
+| `/assets/index-UcEH1IkK.js` | `f85153046ed6f17a9398bb1ed0ac178ba382df89277fcbd9b9d98036db6a8d70` |
+| `/assets/index-CADnTdTB.css` | `b124b254db185d9377e96601b1c9c978b13994908d30a5d7c7c72001d8bf8670` |
+
+Public root, sign-in and health returned 200. Anonymous identity, analysis status
+and events returned 401; public readiness stayed 404. A clean Chrome profile
+loaded those assets and confirmed enabled email/password fields and registration/
+recovery links. Its screenshot was reviewed and browser/profile cleanup passed.
+This public check used no account, dataset grant or model request; authenticated
+progress/cancellation semantics were verified in the isolated feature suites.
+
+The hash-identical original cron was restored after schema-5 readiness and the
+compatible backend tag were verified. Its guard then released successfully.
+The next scheduled worker reported `idle` at `2026-10-27T01:40:02.009753Z`, with
+cron active and exactly one managed line. No mail attempts, quotas or leases were
+reset. Credential-free release evidence is in
+[`evidence/p07/production-release.json`](evidence/p07/production-release.json);
+private environments, dumps, keys and bearer values are excluded.

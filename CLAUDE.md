@@ -2,27 +2,25 @@
 
 Instructions for coding agents working in this repository. Read this file before making changes.
 
-Latest verified checkpoint (October 26): P05 production activation and P06 are
-complete and deployed. P06 code is `6872e41` (PR #46); required PR/main CI passed
-all 25 steps. The tested backend/Opal images are healthy on private schema 4,
-Cloudflare serves the exact tested assets, and the controlled 23-call catalog
-smoke passed without a dataset grant or model/analytical request. The fresh
-encrypted backup, migration, canary cleanup and resumed scheduled worker were
-verified. See `docs/implementation/P06_PERSISTENT_WORKSPACE.md`.
-Password login, registration, recovery and encrypted branded mail remain active;
-three P05 controlled inbox receipts were verified. The provider key stays in the
-separate worker environment. See `docs/implementation/P05_PRODUCTION_ACTIVATION.md`.
-This supersedes older status statements below. The user has now requested P07;
-its implementation is in progress on `codex/p07-durable-analysis`.
+Latest verified checkpoint (October 26 local / October 27 UTC): P00 through P07 are
+complete and deployed. P07 code is `1d08364` (PR #48); required PR/main CI each
+passed all 25 steps. The tested backend/Opal images are healthy on private
+schema 5, and Cloudflare serves their exact tested assets. Durable analysis,
+bounded follow-up context, progress, server cancellation and exact numeric
+result metadata passed isolated feature/security/browser gates. The approved
+fresh encrypted backup, migration, preserved database volumes, public checks
+and resumed scheduled worker were verified. See
+`docs/implementation/P07_DURABLE_ANALYSIS.md`.
 
-Current authorized run (October 26): after completing activation and P06, the
-user said “lets go on too p7.” Continue P07 through its tested phase PR,
-required checks and server deployment using the previously authorized direct
-server workflow. P08–P13 remain outside this run. The private application
-migration requires a fresh backup and disposable-fixture verification; shared
-analytical DDL and broader Google/data approvals remain excluded. See
-`docs/implementation/P07_DURABLE_ANALYSIS.md` for current scope and evidence.
-The default human Git checkpoint below remains for work outside this run.
+Password login, registration, recovery and encrypted branded mail remain active;
+the mail provider key stays in the separate worker environment. The public
+release check used no authenticated account, dataset grant or model request.
+P07 included no live provider-quality/load benchmark or production restore.
+
+The authorized P07 run is complete. P08 (Plotly and conditional visuals) is next
+and requires the user's next phase request. Do not start P08 through P13 automatically.
+The default human Git checkpoint below applies outside explicitly authorized
+phase work. This checkpoint supersedes historical status statements below.
 
 The user explicitly authorized direct server access and routine server updates
 after required checks pass. A dedicated key-backed Windows SSH alias,
@@ -63,11 +61,11 @@ The server runs the app with docker-compose. Code changes are made locally, push
 | Concern | Choice |
 |---|---|
 | Backend language | Python 3.12 (not 3.14; the ML stack does not fully support 3.14 yet) |
-| API | FastAPI on 127.0.0.1:8000; public hostnames enter nginx on 127.0.0.1:5173. P06 code `6872e41` is deployed with schema 4; P07 candidate release gates are pending |
+| API | FastAPI on 127.0.0.1:8000; public hostnames enter nginx on 127.0.0.1:5173. P07 code `1d08364` (PR #48) is deployed with schema 5 and verified public assets |
 | Sign-in | Canonical UUID accounts with revocable digest-only sessions, Google and password sign-in. Password login/registration/recovery and branded mail are active; the scheduler runs a separate worker and the web worker flag stays false |
 | Frontend | React 19 with Vite. Production: a static build served by nginx on port 5173, which forwards `/api` to the backend and rate-limits questions. Development: `npm run dev` forwards API calls but is not the production rate-limit boundary |
 | Analytical database | PostgreSQL on Tiger Cloud free service (TimescaleDB, pgvector, pgvectorscale); unchanged in P02 |
-| Application database | Private PostgreSQL 17 is active at schema 4, socket only, network none and separate roles. Applied migrations 0001–0004 are immutable; P07 adds reviewed migration 0005 |
+| Application database | Private PostgreSQL 17 is active at schema 5, socket only, network none and separate roles. Applied migrations 0001–0005 are immutable |
 | Sample data | Pagila (Postgres port of Sakila) |
 | LLM | Gemini API with the free `gemini-3.5-flash-lite` by default (`LLM_PROVIDER=gemini`). When it is out of quota or down: Ollama (`qwen3`) on Ben's server over Tailscale, then `gemma-4-26b-a4b-it`. Model names read from env |
 | Embeddings | `gemini-embedding-2` at 768 dimensions, stored in pgvector in the `retrieval` schema (Phase 4) |
@@ -89,7 +87,7 @@ No model name is hardcoded. `LLM_PROVIDER` picks the server default (`gemini` or
 
 Both providers sit behind the same `complete()` call in `nl2sql/llm.py`, so the rest of the pipeline does not change when the provider does.
 
-- Gemini API: Gemini models get the rules as a system instruction and a JSON schema for `{"sql": ...}`. Gemma models take neither, so for them the rules go at the top of the prompt and `generate.extract_sql` reads the SQL from the code fence Gemma writes. Each call gets three attempts with a short backoff, for server errors only (429 is not retried: it would spend more quota). If a model still fails with an outage, a spent quota or a timeout, and `LLM_FALLBACK` is on (the default), `complete()` follows `llm.fallback_chain()`: Gemini Flash-Lite, then Ollama, then each of `GEMINI_FALLBACK_MODELS` (when Ollama is chosen, Ollama first, then the Gemini models). Any Ollama failure moves on, because Ben's machine may simply be off. An empty Gemini reply (a safety or recitation stop) also moves on. Bad keys and model names (400, 403, 404) never fall back, so configuration mistakes stay visible. The answer reports the model that actually answered.
+- Gemini API: Gemini models get the rules as a system instruction and a JSON schema for `{"sql": ...}`. Gemma models take neither, so for them the rules go at the top of the prompt and `generate.extract_sql` reads the SQL from the code fence Gemma writes. P07 provider attempts, fallback, embedding and SQL repair share a four-call budget and one 120-second job deadline; SDK automatic retries are disabled. Each provider slice is bounded by the remaining deadline. If a model still fails with an outage, a spent quota or a timeout, and `LLM_FALLBACK` is on (the default), `complete()` follows `llm.fallback_chain()`: Gemini Flash-Lite, then Ollama, then each of `GEMINI_FALLBACK_MODELS` (when Ollama is chosen, Ollama first, then the Gemini models). Any Ollama failure moves on, because Ben's machine may simply be off. An empty Gemini reply (a safety or recitation stop) also moves on. Bad keys and model names (400, 403, 404) never fall back, so configuration mistakes stay visible. The answer reports the model that actually answered.
 - Ollama: called with a JSON schema, Qwen's recommended sampling, a fixed seed and a 16k context. `OLLAMA_THINK` turns reasoning on or off; on was more accurate in testing.
 
 ## Repository layout
@@ -159,6 +157,8 @@ aqua/                         (checked out at /srv/bank-ai on the server)
 
 Directories that only hold a `.gitkeep` are placeholders. `backend/Dockerfile` copies `main.py`, `auth/` (Google verification, sessions and access checks), the whole `nl2sql/` package, `storage/` and versioned migrations; `eval/` and `db/` stay out of the image. Production and CI use the same hashed dependency lock with a repository-root build context.
 
+P06/P07 additionally include `workspace/` and `analysis/` in that runtime image.
+
 ## API contract
 
 The frontend talks to the backend only through `/api`, which in production goes through nginx. Keep these shapes stable; change them only with Ben's agreement. `frontend/src/services/apiClient.js` is the one place the frontend reads these shapes.
@@ -166,25 +166,29 @@ The frontend talks to the backend only through `/api`, which in production goes 
 | Route | Purpose |
 |---|---|
 | `GET /api/health` | Liveness for the Docker healthcheck: `status`, `database_configured`, `model`, `retrieval`. Never touches the database or model |
-| `GET /api/ready` | Internal loopback readiness; reports storage disabled or required schema version 3, fixed 503 on failure. Public nginx denies this route and normalized aliases |
+| `GET /api/ready` | Internal loopback readiness; reports storage disabled or required schema version 5, fixed 503 on failure. Public nginx denies this route and normalized aliases |
 | `GET /api/auth/config` | Returns `client_id`, `nonce`, `csrf_token`, boolean `capabilities`; persists a single-use challenge and sets its opaque cookie |
 | `POST /api/auth/google` | Body `{"credential": str}` plus `X-CSRF-Token` from config and matching `Origin`. Verifies Google's token and nonce, sets the Aqua session, returns canonical `user.id`, safe profile, `csrf_token`, `can_query`, and `capabilities` |
 | `GET /api/auth/me` | Requires an Aqua session; returns canonical `user.id`, safe profile, `csrf_token`, `can_query`, and `capabilities` |
 | `POST /api/auth/logout` | Requires session, matching `Origin`, and session `X-CSRF-Token`; commits durable revocation, then clears the cookie and returns 204; failed revocation returns 503 and preserves the cookie |
 | `GET /api/models` | `{"models": [{"id", "name", "description"}]}`, server default first. Lists `gemini` only when `GEMINI_API_KEY` is set |
 | `POST /api/query` | Requires session, matching `Origin`, session `X-CSRF-Token`, and an approved account. Body `{"question": str, "model": "ollama" or "gemini" (optional)}`. Returns `{"status": "success" or "error", "sql": str, "model": str, "message": str, "tables": [...], "visualizations": [...], "kpis": [...], "error": {"code": str, "message": str, "retryable": bool} or null}` |
+| `POST /api/v1/chats/{chat_id}/messages` | Saves owned canonical input/request and returns 202 lifecycle snapshot; request-key replay never starts another job |
+| `GET /api/v1/analysis-requests/{id}` | Current authorized lifecycle snapshot; terminal result requires current ownership/grant |
+| `POST /api/v1/analysis-requests/{id}/cancel` | Same-origin session/CSRF plus strict empty JSON body; server cancellation, independent of browser abort |
+| `GET /api/v1/analysis-requests/{id}/events` | Bounded metadata-only SSE with current-authority revalidation and owned-status polling fallback |
 
 The shape matches what the React app renders, plus `sql` so every answer shows its query. Each table is `{"id", "title", "columns": [{"key", "label", "type"}], "rows": [{key: value}]}`, where `type` is `string`, `number`, `currency`, `percentage` or `date`; dates are ISO strings. A rejected or failed query returns HTTP 200 with `status` "error", the SQL the model wrote, and the reason, so the UI can show what was blocked. An unreachable model or database returns 503 with `retryable` true; a blank or over-long question returns 422. An unknown `model` is also a 422. Choosing `gemini` on a server with no key returns 400 with code `model_not_configured` and `retryable` false. `message` is a rule-based summary from `summarize.py`. `visualizations` and `kpis` come from `visualize.py`: a single number gives one KPI (`{"id", "label", "value", "type"}`) plus a `{"type": "kpi"}` visualization; labels with a measure give a `bar`, a date with a measure a `line`, each `{"id", "type", "title", "tableId": "result", "xKey", "yKey"}`; anything else leaves both empty. The frontend draws one x column, so a chart labelled by first and last name uses the first.
 
-Health and the model list remain public. Authentication requires the enabled private app DB at schema 3 and a valid session secret. Only new Google config/callbacks require the Google client ID; valid durable sessions can be checked and logged out during provider configuration failure. Invalid/expired sessions return 401, CSRF or dataset denial 403, bounded admission 429 with Retry-After, and unavailable storage/config/provider 503. Validation 422 responses contain a fixed detail string without reflecting submitted credentials/prompts. All `/api` responses use no-store.
+Health and the model list remain public. Authentication requires the enabled private app DB at schema 5 and a valid session secret. Only new Google config/callbacks require the Google client ID; valid durable sessions can be checked and logged out during provider configuration failure. Invalid/expired sessions return 401, CSRF or dataset denial 403, bounded admission 429 with Retry-After, and unavailable storage/config/provider 503. Validation 422 responses contain a fixed detail string without reflecting submitted credentials/prompts. All `/api` responses use no-store.
 
 The auth response user is `{id,email,name,picture}`, where `id` is the canonical UUID; never fabricate a Google subject. Capabilities are explicit booleans (`google_login`, `password_login` (feature flag, default false), `durable_sessions=true`). The browser facade validates that contract and keys workspace state by canonical ID. Confirmed logout/401/account switch clears private state and aborts old requests. Pending/failed logout retains a hidden, inert workspace with retry; it never reports completion before server confirmation.
 
 Google identity is keyed by verified issuer/subject, never automatic email linking. Fresh approved Gmail/Workspace email or explicit subject evidence may seed an absent durable grant for the server-configured dataset. Revoked grants stay revoked on re-login. Every authenticated operation checks account status/epoch/session expiry/revocation and current grant state; current config approval also gates legacy-derived grants. General login grants no analytical permission. Routes remain same-origin, preserve HTTPS Secure/HttpOnly/host-only cookies, Origin/CSRF and nginx SPA routing. See `docs/google-signin.md` and `docs/ops/P03_IDENTITY_CUTOVER.md`.
 
-### P04 password API (disabled until reviewed activation)
+### P04 password API (reviewed production activation complete)
 
-All new routes use `/api/v1/auth`, server-controlled flags and enabled schema-3
+All new routes use `/api/v1/auth`, server-controlled flags and enabled schema-5
 storage. They never require Google configuration. `GET /bootstrap?action=...`
 returns action-bound CSRF and an opaque `__Host-aqua_password` cookie; accepted
 actions are registration, verification, login, reset-request and reset. Each
@@ -301,17 +305,22 @@ Production sets `RETRIEVAL=on` once the index is built (see Commands). Read anal
 
 `SESSION_SECRET` must contain at least 32 characters and be randomly generated; never expose it to the frontend. Session lifetime is 300 through 86400 seconds. `APP_ORIGIN` is the browser's exact HTTPS origin; loopback HTTP is supported for local development. Account allowlists are comma-separated and are checked before any schema, database, or model work. They govern the single configured database, not customer database selection. P03 connects identity tables to Google auth. AUTH_MAX_SESSIONS defaults to 5 (1..20), AUTH_IDLE_SECONDS to 1800 (60..3600), and absolute lifetime to 3600 (300..86400). GET polling never extends idle lifetime. Login budgets persist across sessions/workers; they do not replace P07 AI job/global admission. Limits are server policy, never preference values. See `ops/appdb/README.md` for the reviewed installation/backup/restore procedure.
 
-## Phases
+## Historical research phases
+
+These original research phase numbers predate the current P00–P13 product
+implementation order in `AQUA_CODEX_HANDOFF.md`. In particular, the research
+logging backlog below is not P07 durable analysis. Use the handoff checkpoint
+at the top of this guide for current status and next-phase authorization.
 
 | Phase | Goal | Done when | Status |
 |---|---|---|---|
-| 0 | Repo scaffolding | Layout above exists, CI runs pytest and black | P04 merged/deployed at 067fb5a with private schema-3 storage; password/mail disabled. P05 follow-up passed both presentation variants' local gates; copy/hash guards verify checkout identity and human review remains. See `docs/implementation/P04_RELEASE.md`, `P05.md` and `P05_ROLLBACK.md` |
+| 0 | Repo scaffolding | Layout above exists, CI runs pytest and black | Done; current P07 release and all required checks verified |
 | 1 | Database | Pagila loaded, reader role works, write test fails as expected | Done |
 | 2 | Baseline pipeline | `/api/query` returns validated SQL and rows; full schema in prompt | Done |
 | 3 | Evaluation harness | Execution accuracy reported on a fixed question set | Done; results in `docs/decisions.md` |
 | 4 | Retrieval layer | Relevant tables and examples retrieved per question; accuracy compared to Phase 3 | Done; helps qwen3:4b, no measurable difference for Gemma 4 on this set |
 | 5 | Validation hardening | Adversarial test suite passes | Done |
-| 6 | React interface | Shows question, SQL, rows, and summary; served on the project domain as a production build | Done in code; live once the server is rebuilt |
+| 6 | React interface | Shows question, SQL, rows, and summary; served on the project domain as a production build | Done and live; see current P07 checkpoint |
 | 7 | Logging and learning loop | Queries logged; good ones feed the example store | Not started |
 
 Work one phase at a time. Do not build ahead. Frontend work can run alongside backend phases as long as it codes against the API contract above.
@@ -323,14 +332,17 @@ Agreed but not started. Each needs its own change and a `docs/decisions.md` entr
 - Phase 7 logging: `db/06_logging.sql` with a `query_log` table and an insert-only `nl2sql_logger` role, `nl2sql/querylog.py`, and a way to promote checked pairs into `retrieval.example_query` as `query_log` rows.
 - Tableau: `db/07_tableau_role.sql`, a read-only `tableau_reader` without the 10-second timeout and with the same hidden staff columns.
 - A second, harder question set (`eval/datasets/pagila_v2.jsonl`), written before looking at model output, so the retrieval comparison rests on more than 50 questions.
-- P04 PR #41 merged at `067fb5a0aacc90ce646138fedbb770ecea6f0c92` and is deployed/healthy with schema 3 after the fresh encrypted schema-2 backup and repeat migration. Signup/recovery/mail remain disabled. P05 on `codex/p05-opal-shell` fixed the handoff audit's shell-rollback, legal-navigation, search and viewport/delivery gaps. Final results: 120 unit cases, 77 synthetic and 20 actual-backend browser checks per shell, 12 fixture cleanup cases, Black/Ruff/source/lock and unchanged protected files. All test resources were removed and absence confirmed; evidence is sealed in `docs/implementation/evidence/p05/rollback/`. Copy/hash guards verify actual-checkout identity; human review/commit/push/remote PR checks follow. P05 is not deployed. P07 supplies AI job admission and P10 linking/session-management UI. Hosted DB, `db/`, `nl2sql/db.py`, `nl2sql/config.py` and applied migrations are unchanged.
+Completed product phases P05 activation, P06 workspace and P07 analysis are
+live and verified. See the current checkpoint and
+`docs/implementation/P07_DURABLE_ANALYSIS.md`; the older research backlog above
+does not reopen completed product work.
 
 P05 presentation rollback uses build-time `VITE_AQUA_UI_SHELL=opal|legacy`, exposed
 through Docker/Compose `AQUA_UI_SHELL` (default `opal`, invalid values rejected).
 Both variants must share current authentication, account ownership, routes,
 semantic composer and mobile dialog. Never restore obsolete auth components or
 change a backend/security flag to switch appearance. Rebuild only the frontend;
-retain the schema-3 backend/private-storage overlay. The legacy shell must retain
+retain the current schema-5 backend/private-storage overlay. The legacy shell must retain
 password-only access. Existing account ownership survives legal/Back navigation
 while logout is unresolved; direct public policy visits need no auth bootstrap.
 
