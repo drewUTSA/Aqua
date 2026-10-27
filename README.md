@@ -1,29 +1,29 @@
 # Aqua
 Ask a database a question in plain English. Get back data, a readable summary and the exact SQL that produced it.
 
-Current checkpoint (October 26, 2026 local time): P00 through P07 are complete and live
-at code `1d08364` (PR #48), private schema 5. Analysis requests persist through
-reloads, use bounded server execution and follow-up context, and expose owned
-progress and server cancellation. Workspace results include honest provenance
-and exact numeric values where ordinary JavaScript numbers would lose precision.
+Current checkpoint: P00 through P08 are complete and live at code checkpoint
+`d76be9a` (PR #50), private schema 5. Analysis retains P07's durable requests,
+owned progress, server cancellation and exact numeric values. Requested visuals
+now open a bounded lazy Plotly pane with linked table/chart controls, compatible
+zoom, keyboard resizing and mobile navigation.
 
 Password login, registration, recovery and encrypted AQUA-branded mail remain
-active. The separate scheduled worker, private database/socket volumes and
-existing data were preserved. Required PR/main checks, encrypted backup,
-migration and controlled production verification passed. See
-[P07 release evidence](docs/implementation/P07_DURABLE_ANALYSIS.md),
-[P06 workspace](docs/implementation/P06_PERSISTENT_WORKSPACE.md) and
+active. P08 required no migration; the private database/socket volumes,
+scheduled worker and existing data were preserved. Required PR/main checks and
+controlled production health/asset verification passed. See
+[P08 release evidence](docs/implementation/P08_PLOTLY_VISUALS.md),
+[P07 durable analysis](docs/implementation/P07_DURABLE_ANALYSIS.md) and
 [activation](docs/implementation/P05_PRODUCTION_ACTIVATION.md).
 
-P08 Plotly and conditional visuals are next; P08 onward has not started. The
-[approved phased specification](AQUA_CODEX_HANDOFF.md) governs the order.
+P09 Settings is next and requires a new user request; P09 onward has not started.
+The [approved phased specification](AQUA_CODEX_HANDOFF.md) governs the order.
 Verification: [check runner guide](tools/checks/README.md).
 
 ## Private application storage and identity
 
 The application PostgreSQL is separate from the hosted analytical database. It has no network, TCP listener or published port. Backend/migration jobs attach only the private Unix socket, with distinct runtime, owner, migrator and backup privileges. nginx refuses public readiness; liveness stays independent of databases/models. P03's canonical UUID accounts, opaque digest-only sessions, one-use Google challenges, durable revocation, grants and session caps are deployed. Legacy signed cookies require fresh authentication.
 
-P04 introduced email-first registration, fresh-password verification, password login, reset/session fencing, bounded Argon2id work, an offline common-password corpus and encrypted account mail with reserved recovery/security capacity. Activation flags remain off by default for new installations; this production installation completed the reviewed P05 activation. P06 requires schema 4; the deployed P07 release requires schema 5. New installations must apply the reviewed migrations explicitly before starting the matching backend.
+P04 introduced email-first registration, fresh-password verification, password login, reset/session fencing, bounded Argon2id work, an offline common-password corpus and encrypted account mail with reserved recovery/security capacity. Activation flags remain off by default for new installations; this production installation completed the reviewed P05 activation. P06 requires schema 4; the deployed P08 release retains schema 5. New installations must apply the reviewed migrations explicitly before starting the matching backend.
 
 Frontend presentation is selected at build time: `AQUA_UI_SHELL=opal` (default) or
 `legacy` for Docker/Compose, and `VITE_AQUA_UI_SHELL` for direct Vite builds.
