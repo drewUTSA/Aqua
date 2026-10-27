@@ -3,8 +3,12 @@ import { exactCell, canonicalNumeric, compareExactNumeric } from "../../services
 export function formatCell(value, column, table = {}) {
   if (value == null) return "\u2014";
   if (column.type === "currency" && typeof value === "number") {
+    const currency = column.currency || table.currency;
+    if (!currency) return new Intl.NumberFormat("en-US", {
+      maximumFractionDigits: column.fractionDigits ?? 2
+    }).format(value);
     return new Intl.NumberFormat("en-US", {
-      style: "currency", currency: column.currency || table.currency || "USD",
+      style: "currency", currency,
       maximumFractionDigits: column.fractionDigits ?? 0
     }).format(value);
   }
@@ -15,9 +19,14 @@ export function formatCell(value, column, table = {}) {
     return new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 }).format(value);
   }
   if (column.type === "date" && typeof value === "string") {
-    const date = new Date(`${value.slice(0, 10)}T12:00:00`);
-    return Number.isNaN(date.valueOf()) ? value : new Intl.DateTimeFormat("en-US", {
-      month: "short", day: "numeric", year: "numeric"
+    // Timestamp text carries source precision and offset; never truncate it to
+    // a calendar day. Check calendar components because Date rolls invalid days.
+    const parts = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+    if (!parts || Number(parts[1]) === 0) return value;
+    const date = new Date(`${value}T12:00:00Z`);
+    if (date.getUTCFullYear() !== Number(parts[1]) || date.getUTCMonth() + 1 !== Number(parts[2]) || date.getUTCDate() !== Number(parts[3])) return value;
+    return new Intl.DateTimeFormat("en-US", {
+      month: "short", day: "numeric", year: "numeric", timeZone: "UTC"
     }).format(date);
   }
   return String(value);
@@ -78,11 +87,11 @@ export function createCsv(table, rows = table.rows) {
 
 // One headline number: a KPI card, a chart axis, a tooltip. Whole units,
 // since an axis does not need cents. Uses the currency the response names
-// (CZK for the bank), dollars when it names none.
+// (CZK for the bank); unknown units remain plain numbers.
 export function formatMetric(value, type, currency) {
-  if (type === "currency") {
+  if (type === "currency" && currency) {
     return new Intl.NumberFormat("en-US", {
-      style: "currency", currency: currency || "USD", maximumFractionDigits: 0
+      style: "currency", currency, maximumFractionDigits: 0
     }).format(value);
   }
   if (type === "percentage") return `${value}%`;

@@ -7,17 +7,17 @@ import arrow from "../../assets/opal/workspace/imgIconArrow.svg";
 import chart from "../../assets/opal/workspace/imgIconChart.svg";
 import legacyMark from "../../assets/models/AQUA_V2_Final_static.svg?url";
 
-export default function OpalChat({ chat, auth, inputRef, focusRequest, onPrompt, shell = "opal", visible = true, scrollPositions }) {
+export default function OpalChat({ chat, auth, inputRef, focusRequest, onPrompt, shell = "opal", visible = true, scrollPositions, onShowVisual, visualsHidden = false }) {
   const active = chat.messages.length > 0 || (chat.durable && chat.active.messageCount > 0);
   const legacy = shell === "legacy";
-  return <main className={`opal-chat${active ? " opal-chat--active" : ""}`}>
+  return <main className={`opal-chat${active ? " opal-chat--active" : ""}${visualsHidden ? " opal-chat--visual-hidden" : ""}`}>
     {!active && <header className="opal-welcome"><img src={legacy ? legacyMark : mark} alt="" /><h1 id="workspace-heading" tabIndex={-1}>What would you like to explore?</h1>
       <p>{auth.canQuery ? "Ask about your data. Bring a chart into view when you need one." : "You’re signed in. Ask your AQUA administrator for access to your data."}</p></header>}
     {active && <><h1 id="workspace-heading" className="sr-only" tabIndex={-1}>AQUA workspace</h1>
       {chat.durable && <div className="workspace-history-controls"><button type="button" disabled={chat.pending || chat.active.historyLoading} onClick={chat.refresh}>Refresh saved chat</button>
         {chat.active.olderCursor && <button type="button" disabled={chat.pending || chat.active.historyLoading} onClick={chat.loadOlder}>Load older messages</button>}
         {chat.active.historyLoading && <span role="status">Loading messages…</span>}</div>}
-      <Conversation key={chat.activeConversationId} messages={chat.messages} pending={chat.durable ? chat.submitting : chat.pending} waiting={chat.waiting} onRetry={chat.retry} suspended={!visible}
+      <Conversation key={chat.active?.viewId || chat.activeConversationId} messages={chat.messages} pending={chat.durable ? chat.submitting : chat.pending} waiting={chat.waiting} onRetry={chat.retry} onShowVisual={onShowVisual} suspended={!visible}
         position={scrollPositions?.get(chat.activeConversationId)} onPositionChange={(position) => scrollPositions?.set(chat.activeConversationId, position)} /></>}
     {chat.durable && !active && chat.active.historyLoading && <p role="status">Loading saved conversation…</p>}
     {chat.durable && chat.uncertain && <div className="workspace-request-notice" role="status"><p>This request may still be processing. Stopping this browser request does not cancel work on the server.</p>

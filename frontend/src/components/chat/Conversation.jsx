@@ -2,7 +2,7 @@ import React, { useEffect, useLayoutEffect, useRef } from "react";
 import AquaMessage from "./AquaMessage.jsx";
 import UserMessage from "./UserMessage.jsx";
 
-export default function Conversation({ messages, pending, waiting, formingIds = [], onRetry, suspended = false, position, onPositionChange }) {
+export default function Conversation({ messages, pending, waiting, formingIds = [], onRetry, onShowVisual, suspended = false, position, onPositionChange }) {
   const scrollerRef = useRef(null);
   const nearBottomRef = useRef(position?.nearBottom ?? true);
   const scrollPositionRef = useRef(position?.top ?? 0);
@@ -63,6 +63,7 @@ export default function Conversation({ messages, pending, waiting, formingIds = 
                 message={message}
                 hidden={formingIds.includes(message.id)}
                 onRetry={onRetry}
+                onShowVisual={onShowVisual}
               />)}
           {pending && (
             <p className="processing-status" role="status" aria-live="polite">

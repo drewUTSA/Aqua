@@ -1,0 +1,230 @@
+{
+  "phase": "P08",
+  "status": "local_release_gates_passed_pending_CI_and_deployment",
+  "backend_image": "sha256:99827d3498aa20d997fd2811104a300c1dce11d188238259985a67b4ce6c0aff",
+  "runtime_manifest_raw_sha256": "8c4866d54d099cf2c27a39007223aa689127399498cfc5a9779b64638eb2dfbf",
+  "frontend_images": [
+    {
+      "shell": "opal",
+      "image_id": "sha256:8ffd49a31d62e7577455f6784d772b8e1a0d9bb0195ab9b860aa62826a1d02a1",
+      "tag": "aqua-p08-frontend:opal-r6",
+      "assets": 5,
+      "exact_asset_set": true,
+      "cleanup": "removed_and_absence_confirmed"
+    },
+    {
+      "shell": "legacy",
+      "image_id": "sha256:2c67661bbeaa5db79a7508c270f2c83c0a19af3fafc7289b013a177f258420da",
+      "tag": "aqua-p08-frontend:legacy-r6",
+      "assets": 5,
+      "exact_asset_set": true,
+      "cleanup": "removed_and_absence_confirmed"
+    }
+  ],
+  "backend": {
+    "unique_cases": 1303,
+    "bank": {
+      "passed": 1284,
+      "fixture_skips": 19
+    },
+    "pagila": {
+      "passed": 1291,
+      "fixture_skips": 12
+    },
+    "restore": "passed",
+    "installer": "passed",
+    "privacy": "passed",
+    "telemetry": "passed",
+    "dependency_audit": "zero_known_vulnerabilities"
+  },
+  "frontend_units": {
+    "passed": 323,
+    "failed": 0,
+    "skipped": 0
+  },
+  "shells": {
+    "opal": {
+      "synthetic_checks": 103,
+      "real_database_checks": 39,
+      "plotly_checks": 35,
+      "plotly_jobs": 12,
+      "plotly_observations": {
+        "requests": 100,
+        "api_requests": 80,
+        "external_attempts": 0,
+        "runtime_errors": 0,
+        "console_leaks": 0,
+        "protocol_errors": [],
+        "maximum_paused_requests": 7
+      },
+      "plotly_cleanup": {
+        "browser_stopped": true,
+        "profile_removed": true,
+        "loopback_closed": true,
+        "backend_resources_removed": true,
+        "backend": {
+          "run": "aqua-p05-browser-cb21956e15b53187b9101d7e",
+          "status": "passed",
+          "step": "worker_start",
+          "cleanup": "removed_and_absence_confirmed",
+          "remaining_ids": []
+        }
+      },
+      "report_sha256": {
+        "synthetic": "aa1d8a8ff48f4d2b923f0157209e195d859657c753d8f50f69ed0aefb707b848",
+        "real_database": "7471d6b21cbf56bb64e6f9a17f735866499da77c62edfb38b88e52b47603b374",
+        "plotly": "c8c87a76d889d222cf85d7c2b48c696743ff6b59860a0f31602246d68ac95ad1"
+      },
+      "bundle": {
+        "status": "passed",
+        "initial": {
+          "files": [
+            {
+              "file": "assets/index-5CBnWypE.js",
+              "bytes": 518752,
+              "gzip_bytes": 161671
+            },
+            {
+              "file": "assets/index-vQHI7jLB.css",
+              "bytes": 55211,
+              "gzip_bytes": 11839
+            }
+          ],
+          "bytes": 573963,
+          "gzip_bytes": 173510
+        },
+        "engine": {
+          "file": "assets/plotly-basic.min-BtqLa9Ln.js",
+          "bytes": 1211596,
+          "gzip_bytes": 404238,
+          "sha256": "049bcf4c11f2487d891350f744d91cdd80e3e0929aedabe2a782c3a8713e6040",
+          "initial": false
+        },
+        "manifest_sha256": "59c3cd75f5ac2673f849029afbf16591e9c1737f2a98709cd08750abf3119dab",
+        "baseline": {
+          "files": [
+            {
+              "file": "assets/index-CADnTdTB.css",
+              "bytes": 51066,
+              "gzip_bytes": 11094
+            },
+            {
+              "file": "assets/index-UcEH1IkK.js",
+              "bytes": 488388,
+              "gzip_bytes": 151389
+            }
+          ],
+          "bytes": 539454,
+          "gzip_bytes": 162483
+        },
+        "initial_delta": {
+          "bytes": 34509,
+          "gzip_bytes": 11027
+        }
+      },
+      "proxy": {
+        "requests": 116,
+        "admitted_work": 51,
+        "cleanup": "removed_and_absence_confirmed"
+      }
+    },
+    "legacy": {
+      "synthetic_checks": 103,
+      "real_database_checks": 39,
+      "plotly_checks": 35,
+      "plotly_jobs": 12,
+      "plotly_observations": {
+        "requests": 103,
+        "api_requests": 80,
+        "external_attempts": 0,
+        "runtime_errors": 0,
+        "console_leaks": 0,
+        "protocol_errors": [],
+        "maximum_paused_requests": 8
+      },
+      "plotly_cleanup": {
+        "browser_stopped": true,
+        "profile_removed": true,
+        "loopback_closed": true,
+        "backend_resources_removed": true,
+        "backend": {
+          "run": "aqua-p05-browser-b46a0fecb4646a2ecf40cabc",
+          "status": "passed",
+          "step": "worker_start",
+          "cleanup": "removed_and_absence_confirmed",
+          "remaining_ids": []
+        }
+      },
+      "report_sha256": {
+        "synthetic": "25b9e259728fbcfc5735ba03e82f5978cc075ca33d57e0468ab478eb0d9682e4",
+        "real_database": "575663a274473827e08c80f3f7cf1176b282a45c8e3f171e85940fffa6872791",
+        "plotly": "479259d9a11ddf40fddcc81af1f8d27e49a21e0c221fe8009bb16e0da04bed61"
+      },
+      "bundle": {
+        "status": "passed",
+        "initial": {
+          "files": [
+            {
+              "file": "assets/index-CF5cuHc1.js",
+              "bytes": 518754,
+              "gzip_bytes": 161671
+            },
+            {
+              "file": "assets/index-vQHI7jLB.css",
+              "bytes": 55211,
+              "gzip_bytes": 11839
+            }
+          ],
+          "bytes": 573965,
+          "gzip_bytes": 173510
+        },
+        "engine": {
+          "file": "assets/plotly-basic.min-DtmQHgEe.js",
+          "bytes": 1211596,
+          "gzip_bytes": 404237,
+          "sha256": "5069101f43cb0f7fc846dff2c63ce3653e6b92fd4c4f124a1bfa8a6e2c487fc6",
+          "initial": false
+        },
+        "manifest_sha256": "f8873685e8df17ceb25314629ef558861b2a5fab1ae9f7a497b01c253776923d",
+        "baseline": {
+          "files": [
+            {
+              "file": "assets/index-CADnTdTB.css",
+              "bytes": 51066,
+              "gzip_bytes": 11094
+            },
+            {
+              "file": "assets/index-UcEH1IkK.js",
+              "bytes": 488388,
+              "gzip_bytes": 151389
+            }
+          ],
+          "bytes": 539454,
+          "gzip_bytes": 162483
+        },
+        "initial_delta": {
+          "bytes": 34511,
+          "gzip_bytes": 11027
+        }
+      },
+      "proxy": {
+        "requests": 116,
+        "admitted_work": 51,
+        "cleanup": "removed_and_absence_confirmed"
+      }
+    }
+  },
+  "source_scan": {
+    "files": 53,
+    "findings": 0
+  },
+  "schema_version": 5,
+  "migration": "none",
+  "production_changed": false,
+  "live_provider_or_analytical_request": false,
+  "limitations": [
+    "All feature/security exercises use disposable synthetic data and fake providers.",
+    "Live model quality, business-data load and production restore are outside P08.",
+    "PR/main CI and production evidence are recorded separately after they occur."
+  ]
+}

@@ -1,4 +1,5 @@
-// Local Chrome DevTools Protocol review. Uses Node's native WebSocket; no packages.
+// Historical 3D demo review, not the secured production browser gate. Uses
+// Node's native WebSocket; current P08 release checks live in p08-browser*.mjs.
 import { spawn } from "node:child_process";
 import { mkdir, writeFile, readdir, readFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -235,9 +236,13 @@ try {
     const origins=[...new Set(bubbleFrames.flat().map(b=>Math.round(b.x)))];
     const surfaceWidth=await evaluate("document.querySelector('.composer-surface').getBoundingClientRect().width");
     check("bubbles cover five regions across the real bar",origins.length>=5 && Math.max(...origins)-Math.min(...origins)>surfaceWidth*0.78);
-    check("both tables and KPI results render", await evaluate("document.querySelectorAll('table').length === 2 && document.querySelectorAll('.kpi-card').length === 3"));
-    check("charts show semantic axis labels",await evaluate("document.querySelectorAll('.recharts-xAxis').length===2 && document.querySelectorAll('.recharts-yAxis').length===2"));
+    check("both tables remain available without unsolicited inline charts", await evaluate("document.querySelectorAll('.message--aqua table').length === 2 && !document.querySelector('.kpi-card,.plotly-chart,.recharts-wrapper') && Boolean(document.querySelector('.visual-result-open'))"));
+    await evaluate("document.querySelector('.visual-result-open').click()");
+    await waitFor("document.querySelector('.visual-pane .plotly-chart[data-chart-status=ready]')");
+    check("requested Plotly pane shows semantic axis labels",await evaluate("Boolean(document.querySelector('.visual-pane .xtitle')?.textContent && document.querySelector('.visual-pane .ytitle')?.textContent) && !document.querySelector('.recharts-wrapper')"));
     await screenshot("desktop-results");
+    await clickText("Close visuals");
+    await waitFor("!document.querySelector('.visual-pane')");
     await evaluate("document.querySelector('.financial-table__scroll').scrollIntoView({block:'center'})");
     await evaluate("document.querySelector('[aria-label=\"Sort by Amount\"]').click()");
     check("table sorts ascending numbers",await evaluate("document.querySelector('tbody tr td:nth-child(2)').textContent==='$27,650' && document.querySelector('th[aria-sort=ascending]')!==null"));
@@ -288,14 +293,19 @@ try {
     check("pending reply stays in original chat",await evaluate("document.querySelector('.markdown-response').textContent.includes('January') && !document.querySelector('table') && !document.querySelector('.message-birth')"));
     await evaluate("[...document.querySelectorAll('.sidebar-recents button')].find(b=>b.title==='cash flow').click()");
     check("original pending chat restores completed reply",await evaluate("document.querySelector('tbody').rows.length===6 && document.querySelectorAll('.message--user').length===1"));
-    check("line chart renders",await evaluate("Boolean(document.querySelector('.recharts-line'))"));
+    await evaluate("[...document.querySelectorAll('.visual-result-open')].at(-1).click()");
+    await waitFor("document.querySelector('.visual-pane .plotly-chart[data-chart-status=ready]')");
+    check("on-demand line chart renders in Plotly",await evaluate("(()=>{const plot=document.querySelector('.visual-pane .js-plotly-plot');return plot?.data?.[0]?.type==='scatter'&&plot.data[0].mode==='lines+markers'&&Boolean(plot.querySelector('.scatterlayer .js-line'))})()"));
+    await clickText("Close visuals");
+    await waitFor("!document.querySelector('.visual-pane')");
     await setInput("draft kept in cash flow");
     await clickText("January Review");
     await evaluate("[...document.querySelectorAll('.sidebar-recents button')].find(b=>b.title==='cash flow').click()");
     check("draft survives switching",await evaluate("document.querySelector('textarea').value==='draft kept in cash flow'"));
     await sendPrompt("key metrics");
     await evaluate("document.querySelector('textarea').form.requestSubmit()");
-    await waitFor("document.querySelectorAll('.kpi-card').length===3 && !document.querySelector('.message--forming')");
+    await waitFor("document.querySelectorAll('.message--aqua').length===2 && !document.querySelector('.message--forming')");
+    check("metrics-only legacy replies retain readable text without fabricated charts",await evaluate("[...document.querySelectorAll('.markdown-response')].at(-1)?.textContent.includes('headline figures') && !document.querySelector('.kpi-card,.plotly-chart')"));
     check("repeated send and request lock prevent duplicates",await evaluate("document.querySelectorAll('.message--user').length===2 && document.querySelectorAll('.message--aqua').length===2"));
     await evaluate("(()=>{const s=document.querySelector('.conversation__scroll'); s.scrollTop=0; s.dispatchEvent(new Event('scroll'))})()");
     await sendPrompt("explain in detail");

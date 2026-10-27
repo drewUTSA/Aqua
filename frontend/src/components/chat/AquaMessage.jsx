@@ -1,9 +1,7 @@
-import React, { lazy, Suspense, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import SafeMarkdown from "./SafeMarkdown.js";
 import FinancialTable from "../data/FinancialTable.jsx";
 import ResultMetadata from "../data/ResultMetadata.jsx";
-
-const DashboardPreview = lazy(() => import("../data/DashboardPreview.jsx"));
 
 // Every answer shows the exact SQL behind it; a refused query shows the SQL
 // that was blocked, so the user can see why.
@@ -33,7 +31,7 @@ function SqlBlock({ sql, label = "SQL" }) {
   );
 }
 
-export default function AquaMessage({ message, hidden = false, onRetry }) {
+export default function AquaMessage({ message, hidden = false, onRetry, onShowVisual }) {
   const [copyStatus, setCopyStatus] = useState("");
   const copyTimer = useRef(null);
   useEffect(() => () => window.clearTimeout(copyTimer.current), []);
@@ -90,16 +88,9 @@ export default function AquaMessage({ message, hidden = false, onRetry }) {
         {(response.tables?.length > 0 || response.visualizations?.length > 0 || response.kpis?.length > 0) && (
           <div className="response-data">
             <ResultMetadata response={response} />
-            {response.tables?.map((table) => <FinancialTable key={table.id} table={table} />)}
-            {(response.visualizations?.length > 0 || response.kpis?.length > 0) && (
-              <Suspense fallback={<p className="chart-loading">Preparing dashboard preview…</p>}>
-                <DashboardPreview
-                  visualizations={response.visualizations}
-                  tables={response.tables}
-                  kpis={response.kpis}
-                />
-              </Suspense>
-            )}
+            {response.presentationError && <p role="status">{response.presentationError}</p>}
+            {response.tables?.map((table, index) => <FinancialTable key={`${typeof table?.id === "string" ? table.id : "unavailable"}:${index}`} table={table} />)}
+            {onShowVisual && response.tables?.length > 0 && <button type="button" className="text-action visual-result-open" onClick={() => onShowVisual(message.id)}>Show visuals</button>}
           </div>
         )}
         {(response.status !== "stopped" || response.message) && <div className="response-actions">

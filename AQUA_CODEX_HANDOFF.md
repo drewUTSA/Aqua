@@ -47,7 +47,7 @@ Maintain this table or an equivalent repository progress log during implementati
 
 | Field | Verified checkpoint — October 26, 2026 |
 | --- | --- |
-| Current phase | P07 complete; P00–P07 complete and deployed |
+| Current phase | P08 in progress; P00–P07 complete and deployed |
 | Code checkpoint | `1d08364`, P07 PR #48 merged after all required checks |
 | Deployment | Durable bounded analysis live on schema 5 with tested backend/Opal assets; password login, registration, recovery and branded mail active; scheduled worker verified |
 | Last accepted design | Opal home, dual login, on-demand right visuals, complete Settings |
@@ -55,7 +55,7 @@ Maintain this table or an equivalent repository progress log during implementati
 | Phase evidence | P07 PR/main CI each passed all 25 steps; 1,243 backend tests, 236 frontend units, 103 synthetic and 39 real-DB browser checks per shell, red/blue security/proxy, encrypted backup, migration and production checks passed; see [P07 release](docs/implementation/P07_DURABLE_ANALYSIS.md) |
 | Findings/blockers | No unresolved P07 release blocker; configured legacy formatting exclusions are recorded in the evidence |
 | Review checkpoint | P07 independently reviewed, merged, deployed and verified; private data/socket volumes and activation settings preserved |
-| Next phase | P08 — Plotly and conditional visuals; await the user's next phase request |
+| Next phase | Complete the newly authorized P08 with its own tested PR/release; P09 onward remain excluded |
 
 ---
 

@@ -1,5 +1,6 @@
 import { normalizeResponse } from "./apiClient.js";
 import { workspaceResultMetadata } from "./workspaceResultMetadata.js";
+import { workspacePresentation } from "./presentationContract.js";
 
 export const isRecord = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
 export const validId = (value) => typeof value === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
@@ -29,7 +30,7 @@ export function messageRecord(value) {
     && ["user", "aqua"].includes(value.role) && text(value.content, 200000) && validId(value.request_id)
     && (value.reply_to === null || validId(value.reply_to)) && ["pending", "complete", "error", "cancelled", "interrupted", "expired"].includes(value.status)
     && typeof value.result_unavailable === "boolean");
-  let response = value.result_unavailable || value.response === null ? null : workspaceResultMetadata(normalizeResponse(value.response), value.response?.result_metadata);
+  let response = value.result_unavailable || value.response === null ? null : workspacePresentation(workspaceResultMetadata(normalizeResponse(value.response), value.response?.result_metadata), value.response?.presentation);
   if (value.role === "aqua" && !response) response = { status: !value.result_unavailable && value.status === "pending" ? "loading" : "error", sql: "", tables: [], visualizations: [], kpis: [], error: {
     code: value.result_unavailable ? "access_denied" : value.status === "pending" ? "pending" : value.status,
     message: value.result_unavailable ? "This saved result is unavailable with your current data access."

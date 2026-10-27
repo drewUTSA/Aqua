@@ -14,6 +14,7 @@ from nl2sql.pipeline import Retriever, answer_question
 from nl2sql.response import outage_response, to_response
 from nl2sql.schema import get_schema
 from nl2sql.result_metadata import metadata_for, ResultMetadataError
+from nl2sql.presentation import presentation_for
 
 
 def retriever(settings: Settings) -> Retriever | None:
@@ -87,6 +88,13 @@ def run(
         response = to_response(answer, display_for(schema))
         if metadata is not None:
             response["result_metadata"] = metadata
+            response["presentation"] = presentation_for(
+                answer,
+                response,
+                metadata,
+                context=budget.context if budget else (),
+                schema=schema,
+            )
     except LLMError:
         return (
             outage_response(
