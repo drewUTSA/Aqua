@@ -1,0 +1,138 @@
+{
+  "status": "passed",
+  "ci": {
+    "phase_pr": 48,
+    "reviewed_head": "fe06956c508af11f6f82e6bc971e94f25afa2fdc",
+    "merged_code": "1d083649322b26b13de76c148148a4ee00195480",
+    "pr": {
+      "run_id": 40431771945,
+      "steps_successful": 25,
+      "failed": 0,
+      "skipped": 0
+    },
+    "main": {
+      "run_id": 40432773968,
+      "steps_successful": 25,
+      "failed": 0,
+      "skipped": 0
+    }
+  },
+  "deployment": {
+    "status": "passed",
+    "commit": "1d083649322b26b13de76c148148a4ee00195480",
+    "schema_version": 5,
+    "backend_image": "sha256:81acee49864b4c08ba400fdc41b512b03b3dcacdafc6c7df5dc8e990247845e7",
+    "frontend_image": "sha256:d86a8f577c7744ce85145e9359880618082deaa9eb7959250585a20efce73c9f",
+    "authentication_activation": "preserved",
+    "backup_encrypted_file": "pre-p07-20261027T013844Z.pgdump.age",
+    "backup_encrypted_sha256": "e65dd757d0755e913abdf7637f1df606f53de12e946b418847fc8de11236b646",
+    "checked_utc": "2026-10-27T01:39:33.955520+00:00"
+  },
+  "public_verification": {
+    "status": "passed",
+    "checked_utc": "2026-10-27T01:39:42.413370+00:00",
+    "commit": "1d083649322b26b13de76c148148a4ee00195480",
+    "services": {
+      "backend": {
+        "container_id": "74ddd36d825f25b6a08b32b6455ae57a2a96dab3799b45d09a4c8839886e764d",
+        "image_id": "sha256:81acee49864b4c08ba400fdc41b512b03b3dcacdafc6c7df5dc8e990247845e7",
+        "healthy": true
+      },
+      "frontend": {
+        "container_id": "b05ce5994c4196661707c6b3629098b3f52222543c108a254b45c01548abc990",
+        "image_id": "sha256:d86a8f577c7744ce85145e9359880618082deaa9eb7959250585a20efce73c9f",
+        "healthy": true
+      },
+      "database": {
+        "container_id": "5d0ab1293dd015846de301c7d732933d595538118ae535e4cb7f13951bcfd427",
+        "image_id": "sha256:3645570cccdfa447589da9f57dd740faa29b30938e861289a5574b6ca6b03826",
+        "healthy": true
+      }
+    },
+    "schema_version": 5,
+    "public_statuses": {
+      "/": 200,
+      "/signin": 200,
+      "/api/health": 200,
+      "/api/auth/me": 401,
+      "/api/ready": 404,
+      "/api/v1/analysis-requests/00000000-0000-4000-8000-000000000001": 401,
+      "/api/v1/analysis-requests/00000000-0000-4000-8000-000000000001/events": 401
+    },
+    "public_asset_hashes": {
+      "/assets/index-CADnTdTB.css": "b124b254db185d9377e96601b1c9c978b13994908d30a5d7c7c72001d8bf8670",
+      "/assets/index-UcEH1IkK.js": "f85153046ed6f17a9398bb1ed0ac178ba382df89277fcbd9b9d98036db6a8d70"
+    },
+    "activation_flags_preserved": true,
+    "web_worker_enabled": false,
+    "mail_provider_key_absent_from_web": true,
+    "database_socket_isolation_preserved": true,
+    "nginx_source_matches": true,
+    "telemetry_version": "1.45.1"
+  },
+  "public_browser": {
+    "status": "passed",
+    "authenticated_account_used": false,
+    "title": "Welcome back | AQUA",
+    "password_enabled": true,
+    "email_enabled": true,
+    "registration_link": true,
+    "recovery_link": true,
+    "assets": [
+      "/assets/index-UcEH1IkK.js",
+      "/assets/index-CADnTdTB.css"
+    ],
+    "browser_cleanup": true,
+    "profile_removed": true
+  },
+  "scheduler": {
+    "status": "passed",
+    "cron_active": true,
+    "exact_managed_line": true,
+    "scheduled_statuses_after_resume": [
+      {
+        "status": "idle",
+        "utc": "2026-10-27T01:40:02.009753+00:00"
+      }
+    ]
+  },
+  "resource_rehearsal": {
+    "status": "passed",
+    "network": "none",
+    "production_config_used": false,
+    "init": true,
+    "memory_bytes": 3221225472,
+    "memory_swap_bytes": 3221225472,
+    "nano_cpus": 4000000000,
+    "pids_limit": 256,
+    "cleanup": "removed_and_absence_confirmed"
+  },
+  "cutover": {
+    "phase": "schedule_resumed",
+    "paused_utc": "2026-10-27T01:38:59.471983+00:00",
+    "writers_stopped_utc": "2026-10-27T01:38:59.742764+00:00",
+    "resumed_utc": "2026-10-27T01:39:55.882860+00:00",
+    "guard_release_verified": true,
+    "cron_restoration_proof": "Resume code verified restored cron bytes against original hash; scheduled exact managed line confirmed"
+  },
+  "backup": {
+    "label": "pre-p07",
+    "schema_version": 4,
+    "started_utc": "2026-10-27T01:39:14.965842+00:00",
+    "created_utc": "2026-10-27T01:39:15.864563+00:00",
+    "encrypted_file": "pre-p07-20261027T013844Z.pgdump.age",
+    "encrypted_sha256": "e65dd757d0755e913abdf7637f1df606f53de12e946b418847fc8de11236b646",
+    "authenticated_decryption_matches_export": true,
+    "recovery_identity_verified": true,
+    "plaintext_dump_written": false,
+    "storage": "Approved encrypted off-server local workspace folder; recovery key separately protected",
+    "limitations": "Encrypted snapshot integrity only; not a production restore or measured RPO/RTO."
+  },
+  "scope": {
+    "production_checks": "Anonymous health, assets, privacy and sign-in controls; scheduler ordinary idle invocation",
+    "live_model_calls": 0,
+    "new_dataset_grants": 0,
+    "production_restore": false,
+    "authenticated_feature_proof": "Disposable PostgreSQL with explicit fake engines; real subprocess/SQL cancellation and genuine isolated Nginx SSE proofs"
+  }
+}

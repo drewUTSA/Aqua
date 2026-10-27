@@ -1,18 +1,18 @@
-# Private application storage — current release and P04 preparation
+# Private application storage — current P07 release
 
-P03 is deployed at `c25a3332e67f644e94c6ab3b6e80155dacf7c56b`: the private
-`aqua_app` database is installed, enabled and verified at schema **2**, with
-opaque, durable sessions. See the observed [P03 release](../../docs/implementation/P03_RELEASE.md).
-P01/P02 deployment notes and the [P03 identity cutover](../../docs/ops/P03_IDENTITY_CUTOVER.md)
-describe historical releases/procedures; they do not supersede that state.
+Production is verified at code `1d08364` (PR #48), private schema **5**.
+P05 activation, P06 workspace and P07 durable analysis are complete. Password
+login, registration, recovery and account mail are enabled; mail runs in its
+separate scheduled worker while the web worker flag stays false. The existing
+database/data/socket volumes and credentials were preserved. See the completed
+[P07 release](../../docs/implementation/P07_DURABLE_ANALYSIS.md) and
+[account mail operations](../../docs/ops/P04_ACCOUNT_MAIL.md).
 
-This P04 source requires schema **3**. Its password/mail migration and deployment
-remain a new reviewed release action; preparing source does not apply it.
-Use [P04 password cutover](../../docs/ops/P04_PASSWORD_CUTOVER.md) and
-[account mail operations](../../docs/ops/P04_ACCOUNT_MAIL.md) before deployment.
-**Do not run prepare or bootstrap over the installed database.** Password method,
-registration, recovery issuance and account-mail worker flags remain disabled.
-P05's password/verification/reset browser forms are not complete.
+**Do not run prepare or bootstrap over the installed database.** Older P03/P04
+migration examples below are historical procedures for their stated schema,
+not instructions to disable activated production features or replay migrations.
+Applied migrations 0001–0005 are immutable. New migrations/recovery require
+matching reviewed software, stopped writers, verified backup and explicit gates.
 
 ## Scope and private topology
 
@@ -44,13 +44,13 @@ Budgets remain 1 GiB RAM, 2 CPUs, 128 PIDs, 32 cluster connections and 24 app-DB
 connections, with role caps 12 runtime / 2 migrator / 2 backup. Each backend
 process defaults to four pooled connections, eight waiters and a two-second
 acquisition deadline. Reconcile aggregate budgets before adding workers.
-P03 enforces durable auth budgets and a default five-session cap. Pending P04
+P03 enforces durable auth budgets and a default five-session cap. P04
 adds independent password/mail/consume budgets and two persisted global hash
 slots; no DB lease is held during Argon2. These do not replace P07/P12's wider
 work/capacity controls. The separate mail worker uses its own one-connection
 pool only after its explicit activation gate.
 
-## Existing schema-2 server: reviewed P04 migration
+## Historical schema-2 server: reviewed P04 migration
 
 Confirm the merged P04 commit and final candidate evidence, retain previous image
 IDs, collect and integrity-check a fresh encrypted schema-2 snapshot, and plan
@@ -175,8 +175,8 @@ Do not prune existing snapshots as part of this phase.
 
 ## P07 analysis migration and recovery
 
-P07 prepares additive migration `0005_analysis_lifecycle.sql`; applied migrations
-0001–0004 are immutable. The candidate runtime requires schema 5. Stop all web
+P07 adds migration `0005_analysis_lifecycle.sql`; applied migrations
+0001–0005 are immutable. The deployed runtime requires schema 5. Stop all web
 analysis dispatchers/children and hold the account-mail launcher lock before
 taking the fresh encrypted schema-4 backup and migrating. Preserve the existing
 data/socket volumes and private credentials. Restart only the tested matching
@@ -202,7 +202,7 @@ have actually run; this section does not claim a production restore or RPO/RTO.
 
 Use a trusted snapshot matching the reviewed software/schema. The example below
 targets a **schema-3 P04 snapshot and matching P04 fence**, not the currently
-deployed schema-2 database or the historical schema-1 backup. A P03 restore must
+deployed schema-5 database or the historical schema-1 backup. A P03 restore must
 use its reviewed schema-2 software/fence; do not run a fence referencing P04
 tables against an older snapshot. Verify the
 encrypted repository, restore its dump into an owner-only operator folder and
