@@ -7,6 +7,7 @@ import re
 import secrets
 import socket
 import sys
+from collections.abc import Callable
 from dataclasses import replace
 from typing import Any
 
@@ -59,7 +60,12 @@ def guard_fixture() -> None:
     psycopg.connect = psycopg.Connection.connect
 
 
-def worker(origin: str, workspace_analysis: bool = False) -> int:
+def worker(
+    origin: str,
+    workspace_analysis: bool = False,
+    *,
+    analysis_factory: Callable[[Any, Any], Any] | None = None,
+) -> int:
     """Actual app/router/session/password code; only provider and mail are fakes."""
     global WORKER_STAGE
     WORKER_STAGE = "environment"
@@ -119,7 +125,13 @@ def worker(origin: str, workspace_analysis: bool = False) -> int:
         retrieval=False,
     )
     main.app.state.settings, main.app.state.storage = settings, service
-    analysis = LifecycleFixture(service, settings) if workspace_analysis else None
+    # An explicit test-module factory extends offline feature fixtures without
+    # adding fake modes, credentials or alternate services to production code.
+    analysis = (
+        (analysis_factory or LifecycleFixture)(service, settings)
+        if workspace_analysis
+        else None
+    )
     if analysis is not None:
         from analysis.service import Analysis
 

@@ -39,6 +39,7 @@ jobs:
           python tools/checks/p05_browser_startup_test.py
           python tools/checks/p06_browser_routes_test.py
           python tools/checks/p06_browser_analysis_test.py
+          python tools/checks/test_p08_browser_fixture.py
       - name: Audit pinned runtime dependencies
         run: python -m pip_audit --no-deps --disable-pip -r tools/checks/requirements-runtime.lock
       - name: Prepare isolated test images
@@ -87,7 +88,9 @@ jobs:
           VITE_AQUA_UI_SHELL: 'opal'
         run: |
           npm audit --audit-level=low
-          npm run build
+          npm run build -- --manifest
+          mkdir -p "${{ runner.temp }}/aqua-p05/opal"
+          node checks/plotly-bundle.mjs dist > "${{ runner.temp }}/aqua-p05/opal/bundle.json"
       - name: Synthetic browser security and responsive UI journeys
         working-directory: frontend
         env:
@@ -109,13 +112,30 @@ jobs:
           export AQUA_P05_BRIDGE_EXECUTABLE="$(command -v python)"
           export AQUA_P05_BRIDGE_ARGS_JSON='["tools/checks/p05_browser_backend.py","--image","aqua-runtime:check","--workspace-analysis"]'
           node frontend/checks/p05-real-backend-browser.mjs
+      - name: Opal Plotly controls and isolated database visual lifecycle
+        timeout-minutes: 4
+        working-directory: frontend
+        env:
+          AQUA_P05_EXPECTED_SHELL: opal
+          AQUA_P08_DIST: ${{ github.workspace }}/frontend/dist
+          AQUA_P08_ARTIFACT_DIR: ${{ runner.temp }}/aqua-p08/opal
+        run: |
+          export AQUA_CHROME_EXECUTABLE="$(command -v google-chrome)"
+          test -x "$AQUA_CHROME_EXECUTABLE"
+          export AQUA_P08_BRIDGE_EXECUTABLE="$(command -v python)"
+          export AQUA_P08_BACKEND_IMAGE="$(docker image inspect aqua-runtime:check --format '{{.Id}}')"
+          export AQUA_P08_BRIDGE_ARGS_JSON="$(python -c 'import json,os; print(json.dumps(["-u","../tools/checks/p08_browser_backend.py","--image",os.environ["AQUA_P08_BACKEND_IMAGE"]]))')"
+          node checks/p08-browser.mjs
       - name: Build classic UI rollback with the current secure auth contracts
         working-directory: frontend
         env:
           VITE_AQUA_DEMO_MODE: 'false'
           VITE_AQUA_USE_MOCK: 'false'
           VITE_AQUA_UI_SHELL: legacy
-        run: npm run build
+        run: |
+          npm run build -- --manifest
+          mkdir -p "${{ runner.temp }}/aqua-p05/legacy"
+          node checks/plotly-bundle.mjs dist > "${{ runner.temp }}/aqua-p05/legacy/bundle.json"
       - name: Classic UI security, responsive and real database rate-limit journeys
         env:
           AQUA_P05_EXPECTED_SHELL: legacy
@@ -129,6 +149,20 @@ jobs:
           export AQUA_P05_BRIDGE_EXECUTABLE="$(command -v python)"
           export AQUA_P05_BRIDGE_ARGS_JSON='["tools/checks/p05_browser_backend.py","--image","aqua-runtime:check","--workspace-analysis"]'
           node frontend/checks/p05-real-backend-browser.mjs
+      - name: Classic Plotly controls and isolated database visual lifecycle
+        timeout-minutes: 4
+        working-directory: frontend
+        env:
+          AQUA_P05_EXPECTED_SHELL: legacy
+          AQUA_P08_DIST: ${{ github.workspace }}/frontend/dist
+          AQUA_P08_ARTIFACT_DIR: ${{ runner.temp }}/aqua-p08/legacy
+        run: |
+          export AQUA_CHROME_EXECUTABLE="$(command -v google-chrome)"
+          test -x "$AQUA_CHROME_EXECUTABLE"
+          export AQUA_P08_BRIDGE_EXECUTABLE="$(command -v python)"
+          export AQUA_P08_BACKEND_IMAGE="$(docker image inspect aqua-runtime:check --format '{{.Id}}')"
+          export AQUA_P08_BRIDGE_ARGS_JSON="$(python -c 'import json,os; print(json.dumps(["-u","../tools/checks/p08_browser_backend.py","--image",os.environ["AQUA_P08_BACKEND_IMAGE"]]))')"
+          node checks/p08-browser.mjs
       # Only synthetic browser evidence is retained. Never upload the checkout,
       # arbitrary temporary files, fixture pipes, credentials or runtime config.
       - name: Retain bounded browser reports after success or failure
@@ -137,6 +171,8 @@ jobs:
         with:
           name: p05-browser-evidence-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
+            ${{ runner.temp }}/aqua-p05/opal/bundle.json
+            ${{ runner.temp }}/aqua-p05/legacy/bundle.json
             ${{ runner.temp }}/aqua-p05/opal/synthetic/*.json
             ${{ runner.temp }}/aqua-p05/opal/synthetic/*.png
             ${{ runner.temp }}/aqua-p05/opal/real/*.json
@@ -145,6 +181,10 @@ jobs:
             ${{ runner.temp }}/aqua-p05/legacy/synthetic/*.png
             ${{ runner.temp }}/aqua-p05/legacy/real/*.json
             ${{ runner.temp }}/aqua-p05/legacy/real/*.png
+            ${{ runner.temp }}/aqua-p08/opal/*.json
+            ${{ runner.temp }}/aqua-p08/opal/*.png
+            ${{ runner.temp }}/aqua-p08/legacy/*.json
+            ${{ runner.temp }}/aqua-p08/legacy/*.png
           if-no-files-found: warn
           retention-days: 7
           include-hidden-files: false

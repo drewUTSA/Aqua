@@ -31,7 +31,7 @@ export async function assertLoginDelivery(check) {
     const scriptBytes=scripts.reduce((sum,entry)=>sum+entry.decodedBodySize,0);
     return scripts.length>0&&scripts.length<=3&&scriptBytes>0&&scriptBytes<=600000
       &&styles.reduce((sum,entry)=>sum+entry.decodedBodySize,0)<=80000
-      &&!resources.some(entry=>/DashboardPreview/.test(new URL(entry.name).pathname));
+      &&!resources.some(entry=>/DashboardPreview|PlotlyChart|plotly-basic/i.test(new URL(entry.name).pathname));
   })()`);
 }
 

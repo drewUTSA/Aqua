@@ -1,9 +1,16 @@
 ﻿import React, { useMemo, useState } from "react";
 import { createCsv, createTsv, formatCell, sortTableRows } from "./financialValues.js";
+import { displayTable } from "./displayTable.js";
 
 const numericTypes = ["currency", "percentage", "number"];
 
 export default function FinancialTable({ table }) {
+  const safe = displayTable(table);
+  if (!safe) return <p className="financial-table-unavailable" role="status">This result table is unavailable because its data is invalid or exceeds the display limit.</p>;
+  return <TableContents table={safe} />;
+}
+
+function TableContents({ table }) {
   const [sort, setSort] = useState(null);
   const [feedback, setFeedback] = useState("");
   const rows = useMemo(() => sortTableRows(table, sort), [sort, table]);
@@ -34,16 +41,16 @@ export default function FinancialTable({ table }) {
   };
 
   return (
-    <section className="financial-table" aria-label={table.title}>
+    <section className="financial-table" aria-label={table.title || "Results"}>
       <div className="financial-table__heading">
-        <h3>{table.title}</h3>
+        <h3>{table.title || "Results"}</h3>
         <div className="financial-table__actions">
           <button type="button" onClick={copyTable}>Copy table</button>
           <button type="button" onClick={downloadCsv}>Download CSV</button>
         </div>
       </div>
       <p className="action-feedback" role="status" aria-live="polite">{feedback}</p>
-      <div className="financial-table__scroll" tabIndex={0} role="region" aria-label={`${table.title} table, scroll for more columns`}>
+      <div className="financial-table__scroll" tabIndex={0} role="region" aria-label={`${table.title || "Results"} table, scroll for more columns`}>
         <table>
           <thead><tr>{table.columns.map((column) => (
             <th key={column.key} scope="col" data-numeric={numericTypes.includes(column.type)}

@@ -1,7 +1,8 @@
 import { operationId } from "../services/workspaceClient.js";
 
 export function emptyConversation() {
-  return { id: `draft-${operationId()}`, title: "New chat", draft: "", messages: [], messageCount: 0, updatedAt: Date.now(),
+  const id = `draft-${operationId()}`;
+  return { id, viewId: id, title: "New chat", draft: "", messages: [], messageCount: 0, updatedAt: Date.now(),
     projectId: null, archived: false, revision: null, loaded: true, olderCursor: null, operation: null };
 }
 export function initialWorkspace() {

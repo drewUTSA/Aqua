@@ -10,7 +10,7 @@ export default function ResultMetadata({ response }) {
       <p>Source <code title={value.source.id}>{value.source.id.slice(0, 12)}</code></p>
       <p>Generated <time dateTime={value.generated_at}>{new Date(value.generated_at).toLocaleString()}</time></p>
       <p>{value.source.freshness_at ? <>Source freshness <time dateTime={value.source.freshness_at}>{new Date(value.source.freshness_at).toLocaleString()}</time></> : "Source freshness is unavailable."}</p>
-      <p>Filters, aggregation and column units are unspecified.</p>
+      <p>{response.presentation?.charts?.length ? "Filters and SQL aggregation are unspecified. Proven chart units are shown with the visual." : "Filters, aggregation and column units are unspecified."}</p>
     </details>
   </div>;
 }

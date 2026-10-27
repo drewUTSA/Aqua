@@ -3,7 +3,7 @@ import { useChat } from "../../hooks/useChat.js";
 import { useWorkspace } from "../../hooks/useWorkspace.js";
 import ModelSelector from "../navigation/ModelSelector.jsx";
 import OpalSidebar from "./OpalSidebar.jsx";
-import OpalChat from "./OpalChat.jsx";
+import VisualWorkspace from "./VisualWorkspace.jsx";
 import AccountMenu from "./AccountMenu.jsx";
 import SettingsShell from "../../pages/SettingsShell.jsx";
 import OpalBackdrop from "../auth/OpalBackdrop.jsx";
@@ -82,7 +82,7 @@ function WorkspaceView({ auth, hidden, path, onNavigate, chat }) {
     {notice && <p className="workspace-notice" role="status">{notice}</p>}
     {chat.notice && <p className="workspace-notice" role="alert">{chat.notice}</p>}
     <div className="chat-route" hidden={settings} inert={settings || undefined} style={settings ? { display: "none" } : undefined}>
-      <OpalChat chat={chat} auth={auth} inputRef={inputRef} focusRequest={focus} onPrompt={prompt} shell={UI_SHELL} visible={!hidden && !settings} scrollPositions={scrollPositions.current} />
+      <VisualWorkspace chat={chat} auth={auth} inputRef={inputRef} focusRequest={focus} onPrompt={prompt} shell={UI_SHELL} visible={!hidden && !settings} scrollPositions={scrollPositions.current} />
     </div>
     {settings && <SettingsShell auth={auth} onBack={() => go("/")} onNavigate={go} />}
     </div>

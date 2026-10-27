@@ -17,8 +17,11 @@ the mail provider key stays in the separate worker environment. The public
 release check used no authenticated account, dataset grant or model request.
 P07 included no live provider-quality/load benchmark or production restore.
 
-The authorized P07 run is complete. P08 (Plotly and conditional visuals) is next
-and requires the user's next phase request. Do not start P08 through P13 automatically.
+The authorized P07 run is complete. The user has now explicitly requested P08:
+"lets get it go onto p08". Implement P08 Plotly and conditional visuals through
+its tested phase PR, required checks and server deployment using the established
+authorized workflow. Preserve P07 lifecycle, privacy and activation settings.
+P09 through P13 remain excluded. See `docs/implementation/P08_PLOTLY_VISUALS.md`.
 The default human Git checkpoint below applies outside explicitly authorized
 phase work. This checkpoint supersedes historical status statements below.
 

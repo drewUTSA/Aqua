@@ -50,9 +50,9 @@ test("financial formatting honors currency metadata and percentage points", () =
   assert.equal(formatCell(null, { type: "number" }), "—");
 });
 
-test("headline numbers use the response's currency, dollars otherwise", () => {
+test("headline numbers use explicitly declared currencies", () => {
   assert.equal(formatMetric(1364203, "currency", "CZK"), "CZK\u00a01,364,203");
-  assert.equal(formatMetric(1500, "currency"), "$1,500");
+  assert.equal(formatMetric(1500, "currency", "USD"), "$1,500");
   assert.equal(formatMetric(12.5, "percentage"), "12.5%");
   assert.equal(formatMetric(1234.56, "number"), "1,234.6");
 });
