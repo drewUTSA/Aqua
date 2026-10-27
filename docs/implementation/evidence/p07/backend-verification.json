@@ -118,7 +118,14 @@
           "exit": 0,
           "seconds": 0.024
         }
-      ]
+      ],
+      "black_checked_files": 228,
+      "black_configured_exclusions": [
+        "backend/nl2sql/config.py",
+        "backend/nl2sql/db.py"
+      ],
+      "ruff_checked_files": 230,
+      "optional_override": "config.py clean; db.py formatting-only differences retained under existing configured exclusion; no semantic defect or additional passing gate claimed"
     },
     "explicit_paths_reason": "Directory traversal under ignored .check-results can skip files; explicit argv checked every Python file."
   },

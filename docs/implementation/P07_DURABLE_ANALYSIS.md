@@ -91,11 +91,16 @@ integration cases remained real disposable-database tests.
 
 The actual installer passed repeated schema-5 migration, password/role checks,
 runtime DDL denial/recovery, memory-only synthetic export and owned cleanup.
-Final source/lock checks, explicit Black/Ruff checks on all 230 Python paths,
+Final source/lock checks, configured Black checks on 228 Python files and Ruff
+checks on all 230 Python paths,
 dependency audit, installed dependency consistency, telemetry denial/recovery,
 private access-log protection and workflow lint passed. The isolated source
 packet's missing unchanged `pg_hba.conf` was corrected before its successful
 installer rehearsal; this packaging failure did not reach a database migration.
+The existing Black configuration excludes `nl2sql/config.py` and `nl2sql/db.py`.
+A separate read-only diagnostic found formatting-only differences in the latter;
+it is not claimed as an additional passing Black gate. No runtime defect was
+found, and the tested candidate source remains unchanged.
 
 The first isolated proxy regression is now reproduced and fixed: the P06
 configuration buffered both SSE frames until upstream completion. The P07
