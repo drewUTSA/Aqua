@@ -45,17 +45,17 @@ Prepared October 16, 2026. This single file contains the approved frontend/backe
 
 Maintain this table or an equivalent repository progress log during implementation. Do not mark a phase complete based on its documentation.
 
-| Field | Verified checkpoint — October 26, 2026 |
+| Field | Verified checkpoint — P08 release |
 | --- | --- |
-| Current phase | P08 in progress; P00–P07 complete and deployed |
-| Code checkpoint | `1d08364`, P07 PR #48 merged after all required checks |
-| Deployment | Durable bounded analysis live on schema 5 with tested backend/Opal assets; password login, registration, recovery and branded mail active; scheduled worker verified |
+| Current phase | P00–P08 complete and deployed |
+| Code checkpoint | `d76be9a`, P08 PR #50 merged after required checks |
+| Deployment | Tested P08 backend/Opal images healthy on schema 5; bounded Plotly and conditional visuals live; password login, registration, recovery and branded mail remain active |
 | Last accepted design | Opal home, dual login, on-demand right visuals, complete Settings |
 | Historical verification | 47 existing frontend tests passed during audit; not a current security or backend result |
-| Phase evidence | P07 PR/main CI each passed all 25 steps; 1,243 backend tests, 236 frontend units, 103 synthetic and 39 real-DB browser checks per shell, red/blue security/proxy, encrypted backup, migration and production checks passed; see [P07 release](docs/implementation/P07_DURABLE_ANALYSIS.md) |
-| Findings/blockers | No unresolved P07 release blocker; configured legacy formatting exclusions are recorded in the evidence |
-| Review checkpoint | P07 independently reviewed, merged, deployed and verified; private data/socket volumes and activation settings preserved |
-| Next phase | Complete the newly authorized P08 with its own tested PR/release; P09 onward remain excluded |
+| Phase evidence | P08 PR/main CI each passed all 27 steps; 1,303 unique backend cases, 323 frontend cases, and per shell 103 synthetic, 39 real-DB and 35 Plotly checks passed; see [P08 release](docs/implementation/P08_PLOTLY_VISUALS.md) |
+| Findings/blockers | No unresolved P08 release blocker; later Settings/product work remains in the phase plan |
+| Review checkpoint | P08 independently reviewed, merged, deployed and verified; schema 5, private volumes, activation settings and scheduled mail worker preserved |
+| Next phase | P09 only after a new user request; P09–P13 not started |
 
 ---
 

@@ -1,8 +1,9 @@
 # P08 Plotly and conditional visuals
 
-Status: implementation in progress on `codex/p08-plotly-visuals`. No P08 code,
-image or dependency has been deployed. Production remains on P07 code `1d08364`,
-schema 5, with documentation checkout `0a3da66` until release gates pass.
+Status: P08 is complete and deployed at code checkpoint `d76be9a` (PR #50),
+schema 5. Required PR/main CI and production verification passed. The final
+release record below supersedes the pre-release preparation status; P09 requires
+a new user request and has not started.
 
 The user authorized P08 after confirming the completed P07 release. Scope is a
 lazy, bounded Plotly renderer and on-demand conversation/visual split, linked
@@ -134,13 +135,76 @@ are recorded as harness failures, not product vulnerabilities.
 Source/lock checks, Black (238 Python files with the two documented existing
 exclusions), Ruff (240), 32 standalone fixture checks, dependency audits and
 actionlint passed. The final 53-file reviewable change set passed the canonical
-redacted source scanner. Required PR/main checks and production verification
-remain pending. Intermediate builds are not release evidence.
+redacted source scanner. PR/main checks and production verification were pending
+at this pre-release stage; the final release record below supersedes that
+status. Intermediate builds are not release evidence.
 
 The tracked [verification record](evidence/p08/verification.json) contains
 sanitized counters, report hashes and immutable image identities. Detailed local
 evidence is under `.check-results/p08/`, `.check-results/p08-backend-intent/`,
 `.check-results/p08-security-audit/` and `.check-results/p08-release/`.
+
+## Final release evidence
+
+[PR #50](https://github.com/drewUTSA/Aqua/pull/50) merged at code checkpoint
+`d76be9a5e3136806cdc48dc16e11607c2286371c`. Required
+[PR CI](https://github.com/drewUTSA/Aqua/actions/runs/40443052497) and
+[merged-main CI](https://github.com/drewUTSA/Aqua/actions/runs/40444105566)
+each passed all 27 steps. The separate
+[production record](evidence/p08/production-release.json) contains sanitized
+deployment, delivery and browser evidence. The earlier
+[verification record](evidence/p08/verification.json) remains the pre-release
+local-check snapshot.
+
+Production passed verification at **10:50:14 p.m. CDT on October 26, 2026**
+(03:50:14 UTC on October 27). Only the backend and Opal frontend were recreated,
+using the exact tested immutable images:
+
+- Backend: `sha256:99827d3498aa20d997fd2811104a300c1dce11d188238259985a67b4ce6c0aff`.
+- Opal: `sha256:8ffd49a31d62e7577455f6784d772b8e1a0d9bb0195ab9b860aa62826a1d02a1`.
+
+Both are healthy at schema 5. P08 needed no migration, DDL or new private-data
+export. Database identity and private data/socket volumes were preserved, as
+were the environment and four active password-login, registration, recovery and
+account-mail flags. The provider key remains absent from the web process. The
+private worker file, scheduled cron entry and protected launcher lock were
+preserved. A passive check observed the scheduled worker naturally idle at
+03:51:02 UTC, with cron active and the exact managed line/lock intact; the probe
+triggered no mail.
+
+Eight bounded public route checks passed: `/`, `/signin` and `/api/health`
+returned 200; unauthenticated account/chat and fixed analysis-request/event
+probes returned 401; public `/api/ready` returned 404. All five origin files
+match the frozen tested frontend. Four public hashed assets match their origin
+bytes, including the lazy Plotly engine. Public HTML is the exact origin HTML
+plus one pre-existing 367-byte Cloudflare Web Analytics script insertion, whose
+SHA-256 is `2765a11d900a367f5d9d2bb378ddeef7eb25852fe48aa9b2bbd2824f9cb7a284`.
+Removing only those pinned bytes yields the exact origin hash; the raw public
+HTML hash differs. Cloudflare documents this
+[automatic script injection](https://developers.cloudflare.com/web-analytics/faq/).
+
+Two initial attempts safely rolled back to healthy P07. The first reported only
+a generic redacted deployment/verification failure; the instrumented second
+confirmed a public-asset hash mismatch. Diagnosis identified that the verifier
+expected public HTML without the existing edge insertion; only the ignored
+operator verifier changed.
+Twelve HTML-byte checks (including ten rejection cases), 15 offline
+deployment/rollback scenarios and privacy cases passed, followed by independent
+review. No product or Cloudflare setting was
+changed to accommodate the verifier.
+
+A fresh anonymous Chrome check loaded the new JS/CSS, showed enabled email and
+password fields plus registration/recovery links, and made no initial Plotly
+engine request. Its screenshot was reviewed; the browser and profile were
+cleaned up. No authenticated account, dataset grant, live model/analytical
+request or new mail recipient was used. Isolated actual-database Plotly journeys
+above establish the chart interactions; the public check establishes delivery
+and the unauthenticated entry flow.
+
+Local production evidence is in
+`.check-results/p08-release/production-deployment.json` and
+`.check-results/p08-release/public-browser.json`. P00–P08 are complete and live.
+P09 Settings requires a new user request; P09 through P13 have not started.
 
 ## Deployment and recovery
 

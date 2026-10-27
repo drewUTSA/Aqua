@@ -1,0 +1,197 @@
+{
+  "phase": "P08",
+  "status": "complete_and_deployed",
+  "code_checkpoint": "d76be9a5e3136806cdc48dc16e11607c2286371c",
+  "implementation_pr": "https://github.com/drewUTSA/Aqua/pull/50",
+  "backend_image": "sha256:99827d3498aa20d997fd2811104a300c1dce11d188238259985a67b4ce6c0aff",
+  "frontend_image": "sha256:8ffd49a31d62e7577455f6784d772b8e1a0d9bb0195ab9b860aa62826a1d02a1",
+  "checked_utc": "2026-10-27T03:50:14.726857+00:00",
+  "schema_version": 5,
+  "migration": "none",
+  "new_private_export": false,
+  "ci": {
+    "implementation_pr": {
+      "url": "https://github.com/drewUTSA/Aqua/actions/runs/40443052497",
+      "run_id": 40443052497,
+      "job_id": 121987686338,
+      "head_sha": "105c78546ae97d43fc67412f15a93d30f559824f",
+      "status": "passed",
+      "steps_passed": 27,
+      "failed": 0,
+      "skipped": 0
+    },
+    "merged_main": {
+      "url": "https://github.com/drewUTSA/Aqua/actions/runs/40444105566",
+      "run_id": 40444105566,
+      "job_id": 121991123017,
+      "head_sha": "d76be9a5e3136806cdc48dc16e11607c2286371c",
+      "status": "passed",
+      "steps_passed": 27,
+      "failed": 0,
+      "skipped": 0
+    }
+  },
+  "deployment": {
+    "activation_and_environment_preserved": true,
+    "authenticated_request": false,
+    "backend_image": "sha256:99827d3498aa20d997fd2811104a300c1dce11d188238259985a67b4ce6c0aff",
+    "checked_utc": "2026-10-27T03:50:14.726857+00:00",
+    "commit": "d76be9a5e3136806cdc48dc16e11607c2286371c",
+    "database_identity_and_volumes_preserved": true,
+    "exact_images_healthy": true,
+    "frontend_image": "sha256:8ffd49a31d62e7577455f6784d772b8e1a0d9bb0195ab9b860aa62826a1d02a1",
+    "index_html_transform": {
+      "kind": "cloudflare_web_analytics_beacon",
+      "origin_sha256": "c15c59377d84f6dfc14e1c151b59dd5df97d5df5e5fece1b19cc3b432ba88af1",
+      "pinned_script_sha256": "2765a11d900a367f5d9d2bb378ddeef7eb25852fe48aa9b2bbd2824f9cb7a284",
+      "public_sha256": "34c05f89b875f32347327ed3ed7c3b66390ecb0d8b91cd2d1ac345b86109a2c5",
+      "removed_bytes": 367,
+      "script_count": 1,
+      "verified_public_origin_sha256": "c15c59377d84f6dfc14e1c151b59dd5df97d5df5e5fece1b19cc3b432ba88af1"
+    },
+    "migration": "none",
+    "nginx_source_matches": true,
+    "origin_asset_hashes": {
+      "assets/AQUA_V2_Final_static-cJJYBiOn.svg": "a610bf95498d5bbc765cf49879bc98ee9a33f385cdf88452622a6871ae825648",
+      "assets/index-5CBnWypE.js": "d5042b7b8f0a0ca79a20eed157fe924c8bbebcbd52baf8bfa9ea8e1db3a49b5c",
+      "assets/index-vQHI7jLB.css": "f2e2ed49ec45b755455828bf6be6889a1f653888db650c8a0420cc6210d7361d",
+      "assets/plotly-basic.min-BtqLa9Ln.js": "049bcf4c11f2487d891350f744d91cdd80e3e0929aedabe2a782c3a8713e6040",
+      "index.html": "c15c59377d84f6dfc14e1c151b59dd5df97d5df5e5fece1b19cc3b432ba88af1"
+    },
+    "provider_key_absent_from_web": true,
+    "provider_or_analytical_request": false,
+    "public_asset_bytes": 3898499,
+    "public_asset_hashes": {
+      "assets/AQUA_V2_Final_static-cJJYBiOn.svg": "a610bf95498d5bbc765cf49879bc98ee9a33f385cdf88452622a6871ae825648",
+      "assets/index-5CBnWypE.js": "d5042b7b8f0a0ca79a20eed157fe924c8bbebcbd52baf8bfa9ea8e1db3a49b5c",
+      "assets/index-vQHI7jLB.css": "f2e2ed49ec45b755455828bf6be6889a1f653888db650c8a0420cc6210d7361d",
+      "assets/plotly-basic.min-BtqLa9Ln.js": "049bcf4c11f2487d891350f744d91cdd80e3e0929aedabe2a782c3a8713e6040",
+      "index.html": "34c05f89b875f32347327ed3ed7c3b66390ecb0d8b91cd2d1ac345b86109a2c5"
+    },
+    "public_statuses": {
+      "/": 200,
+      "/api/auth/me": 401,
+      "/api/health": 200,
+      "/api/ready": 404,
+      "/api/v1/analysis-requests/00000000-0000-4000-8000-000000000001": 401,
+      "/api/v1/analysis-requests/00000000-0000-4000-8000-000000000001/events": 401,
+      "/api/v1/chats": 401,
+      "/signin": 200
+    },
+    "rollback": "not_needed",
+    "scheduler_unchanged": true,
+    "schema_version": 5,
+    "status": "passed",
+    "worker_private_file_unchanged": true
+  },
+  "public_browser": {
+    "status": "passed",
+    "authenticated_account_used": false,
+    "title": "Welcome back | AQUA",
+    "password_enabled": true,
+    "email_enabled": true,
+    "registration_link": true,
+    "recovery_link": true,
+    "assets": [
+      "/assets/index-5CBnWypE.js",
+      "/assets/index-vQHI7jLB.css"
+    ],
+    "chart_engine_requested_at_signin": false,
+    "browser_cleanup": true,
+    "profile_removed": true
+  },
+  "scheduled_worker": {
+    "status": "passed",
+    "cron_active": true,
+    "exact_managed_line": true,
+    "launcher_lock_protected": true,
+    "statuses_after_deployment": [
+      {
+        "status": "idle",
+        "utc": "2026-10-27T03:51:02.160054+00:00"
+      }
+    ],
+    "mail_triggered_by_probe": false
+  },
+  "prior_deployment_attempts": {
+    "attempts": [
+      {
+        "backend_image": "sha256:99827d3498aa20d997fd2811104a300c1dce11d188238259985a67b4ce6c0aff",
+        "category": "deployment_or_verification_redacted",
+        "checked_utc": "2026-10-27T03:36:04.190372+00:00",
+        "commit": "d76be9a5e3136806cdc48dc16e11607c2286371c",
+        "frontend_image": "sha256:8ffd49a31d62e7577455f6784d772b8e1a0d9bb0195ab9b860aa62826a1d02a1",
+        "production_changed": true,
+        "rollback": "previous_images_healthy_schema5_preserved",
+        "status": "failed"
+      },
+      {
+        "backend_image": "sha256:99827d3498aa20d997fd2811104a300c1dce11d188238259985a67b4ce6c0aff",
+        "category": "deployment_or_verification_redacted",
+        "checked_utc": "2026-10-27T03:44:34.955915+00:00",
+        "commit": "d76be9a5e3136806cdc48dc16e11607c2286371c",
+        "failure_code": "public_asset_hash_mismatch",
+        "failure_kind": "ReleaseError",
+        "failure_stage": "verify",
+        "frontend_image": "sha256:8ffd49a31d62e7577455f6784d772b8e1a0d9bb0195ab9b860aa62826a1d02a1",
+        "production_changed": true,
+        "rollback": "previous_images_healthy_schema5_preserved",
+        "status": "failed"
+      }
+    ],
+    "diagnosis": {
+      "status": "passed",
+      "observed_release": "healthy_P07_rollback",
+      "origin_bytes": 672,
+      "public_bytes": 1039,
+      "only_change": "one_existing_Cloudflare_Web_Analytics_script_and_its_LF",
+      "addition_bytes": 367,
+      "addition_sha256": "2765a11d900a367f5d9d2bb378ddeef7eb25852fe48aa9b2bbd2824f9cb7a284",
+      "origin_sha256": "68f2a237facba7db92add58db83aa032310fcd38eebf824296f8bc6f1c18ea47",
+      "public_sha256": "edf3a19160c68cc47c0f4ee50b0830630fb1c34e9b9ef1f6f7c1d4896cfb868f",
+      "cloudflare_configuration_changed": false,
+      "official_reference": "https://developers.cloudflare.com/web-analytics/faq/"
+    },
+    "resolution": "Correct operator HTML verification for one exact pinned pre-existing Cloudflare Analytics insertion; preserve strict source bytes and all other public asset hashes.",
+    "product_source_changed_for_resolution": false
+  },
+  "verification_scope": {
+    "production": "Anonymous health, authorization denials, exact public asset bytes, sign-in controls and passive scheduled-worker status observation.",
+    "authenticated_production_requests": false,
+    "analytical_or_model_requests": false,
+    "provider_actions": false,
+    "cloudflare_configuration_changed": false,
+    "private_database_recreated": false,
+    "isolated_feature_evidence": "verification.json"
+  },
+  "local_evidence_hashes": {
+    "production-deployment.json": "c241a49f8d8f815c1051ccab1d32ab9db00666783c990f0b22957d01aa4c3d97",
+    "public-browser.json": "2ac879fa599751a2fad750a657a23a3b4186901799cb0e8641f6dd3376ed3b9a",
+    "schedule-proof.json": "456c6b7ac11a594c9e1eac9bffd23e6888b379061d10c2d893d06e002b254003",
+    "deployment-attempts.json": "e2cd8d99216d847ff413a4c2720afa75ce7682c0d83c894b619f182cfce929f4",
+    "pr-ci.json": "d33802a66b28cee9dc7946968afe64e152320017f1c4334ed02664d0d053a332",
+    "main-ci.json": "32e0df241b8f8d69dd94932c12b00d728a2446a0cc5288c803162a888350b17e"
+  },
+  "next_phase": "P09 requires a new user request; P09 through P13 have not started.",
+  "operator_verification": {
+    "status": "passed",
+    "syntax": "passed",
+    "independent_review": "passed",
+    "offline": {
+      "deployment_and_rollback_scenarios": 15,
+      "redacted_argument_shapes": 3,
+      "closed_exception_kind_cases": 5,
+      "public_index_byte_cases": 12,
+      "html_accept_cases": 2,
+      "html_reject_cases": 10,
+      "real_commands": 0,
+      "real_http": 0
+    },
+    "unchanged_P07_public_baseline": "exact_origin_after_removing_only_one_pinned_existing_367_byte_Cloudflare_addition",
+    "helper_sha256": {
+      "deploy.py": "15c266bceccdd8060d5781e683565a6108e4cbd10ae677c546f9aa213d1547aa",
+      "postdeploy.py": "07b6d94e813cca504b71d9daace3600b1622184c176d3f53a2edeb3526443ef6",
+      "helper_selftest.py": "e6000281e0002f9b9842c7e0fecfe6f8dd9edfc24f8a56c1d007010ff01efb76"
+    }
+  }
+}

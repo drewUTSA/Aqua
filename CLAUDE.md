@@ -2,28 +2,28 @@
 
 Instructions for coding agents working in this repository. Read this file before making changes.
 
-Latest verified checkpoint (October 26 local / October 27 UTC): P00 through P07 are
-complete and deployed. P07 code is `1d08364` (PR #48); required PR/main CI each
-passed all 25 steps. The tested backend/Opal images are healthy on private
-schema 5, and Cloudflare serves their exact tested assets. Durable analysis,
-bounded follow-up context, progress, server cancellation and exact numeric
-result metadata passed isolated feature/security/browser gates. The approved
-fresh encrypted backup, migration, preserved database volumes, public checks
-and resumed scheduled worker were verified. See
-`docs/implementation/P07_DURABLE_ANALYSIS.md`.
+Latest verified checkpoint: P00 through P08 are complete and deployed. P08 code
+checkpoint is `d76be9a` (PR #50); required PR/main CI each passed all 27 steps.
+The tested backend/Opal images are healthy on schema 5, with verified origin
+and public assets. Public HTML differs only by the pinned, pre-existing
+Cloudflare Analytics insertion documented in the release evidence. Bounded
+lazy Plotly, the conditional visual pane, linked result/table controls,
+compatible zoom, keyboard resizing and mobile navigation passed isolated
+functional/security/browser gates. See
+`docs/implementation/P08_PLOTLY_VISUALS.md` for final release evidence and
+`docs/implementation/P07_DURABLE_ANALYSIS.md` for preserved lifecycle history.
 
-Password login, registration, recovery and encrypted branded mail remain active;
-the mail provider key stays in the separate worker environment. The public
-release check used no authenticated account, dataset grant or model request.
-P07 included no live provider-quality/load benchmark or production restore.
+Password login, registration, recovery and encrypted branded mail remain active.
+P08 required no database migration; the private database/socket volumes,
+scheduled worker, worker-only provider environment, cron and launcher lock were
+preserved. The public verification used no authenticated account, dataset grant
+or model request. No live provider-quality/load benchmark or production restore
+is claimed.
 
-The authorized P07 run is complete. The user has now explicitly requested P08:
-"lets get it go onto p08". Implement P08 Plotly and conditional visuals through
-its tested phase PR, required checks and server deployment using the established
-authorized workflow. Preserve P07 lifecycle, privacy and activation settings.
-P09 through P13 remain excluded. See `docs/implementation/P08_PLOTLY_VISUALS.md`.
-The default human Git checkpoint below applies outside explicitly authorized
-phase work. This checkpoint supersedes historical status statements below.
+The authorized P08 run is complete. P09 through P13 require a new user request
+and have not started. The default human Git checkpoint below applies outside
+explicitly authorized phase work. This checkpoint supersedes historical status
+statements below.
 
 The user explicitly authorized direct server access and routine server updates
 after required checks pass. A dedicated key-backed Windows SSH alias,
@@ -64,7 +64,7 @@ The server runs the app with docker-compose. Code changes are made locally, push
 | Concern | Choice |
 |---|---|
 | Backend language | Python 3.12 (not 3.14; the ML stack does not fully support 3.14 yet) |
-| API | FastAPI on 127.0.0.1:8000; public hostnames enter nginx on 127.0.0.1:5173. P07 code `1d08364` (PR #48) is deployed with schema 5 and verified public assets |
+| API | FastAPI on 127.0.0.1:8000; public hostnames enter nginx on 127.0.0.1:5173. P08 code checkpoint `d76be9a` (PR #50) is deployed with schema 5 and verified public delivery |
 | Sign-in | Canonical UUID accounts with revocable digest-only sessions, Google and password sign-in. Password login/registration/recovery and branded mail are active; the scheduler runs a separate worker and the web worker flag stays false |
 | Frontend | React 19 with Vite. Production: a static build served by nginx on port 5173, which forwards `/api` to the backend and rate-limits questions. Development: `npm run dev` forwards API calls but is not the production rate-limit boundary |
 | Analytical database | PostgreSQL on Tiger Cloud free service (TimescaleDB, pgvector, pgvectorscale); unchanged in P02 |
