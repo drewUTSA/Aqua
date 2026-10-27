@@ -23,13 +23,15 @@ def test_duplicate_inflight_submission_returns_same_ids_without_duplicate_work(
 
     monkeypatch.setattr(__import__("main").app.state, "workspace_query", blocking)
     body = world.body("Once only")
+    first = a.post("/api/v1/chats", json=body)
+    assert first.status_code == 202
     with ThreadPoolExecutor(max_workers=1) as worker:
-        first = worker.submit(a.post, "/api/v1/chats", json=body)
+        work = worker.submit(world.analysis.tick)
         assert entered.wait(3)
         try:
             duplicate = a.post("/api/v1/chats", json=body)
             assert duplicate.status_code == 202, duplicate.text
-            assert duplicate.json()["request"]["state"] == "pending"
+            assert duplicate.json()["request"]["state"] == "running"
             assert (
                 a.post(
                     "/api/v1/chats", json={**body, "question": "Changed"}
@@ -38,8 +40,9 @@ def test_duplicate_inflight_submission_returns_same_ids_without_duplicate_work(
             )
         finally:
             release.set()
-        completed = first.result(timeout=3)
-    assert completed.status_code == 201
+        assert work.result(timeout=3)
+    completed = a.get("/api/v1/analysis-requests/" + first.json()["request"]["id"])
+    assert completed.status_code == 200
     assert completed.json()["request"]["id"] == duplicate.json()["request"]["id"]
     assert len(world.calls) == 1
 
@@ -76,6 +79,9 @@ def test_late_completion_does_not_restore_deleted_or_revoked_content(
 
     monkeypatch.setattr(__import__("main").app.state, "workspace_query", racing)
     response = a.post("/api/v1/chats", json=world.body())
+    assert response.status_code == 202
+    assert world.analysis.tick()
+    response = a.get("/api/v1/analysis-requests/" + response.json()["request"]["id"])
     assert (
         response.status_code == {"delete": 404, "revoke": 403, "logout": 401}[race]
     ), response.text
@@ -112,15 +118,16 @@ def test_explicit_retry_uses_original_input_but_creates_only_one_new_assistant_a
     path = f"/api/v1/chats/{saved['chat']['id']}/messages/{saved['input_message']['id']}/retries"
     body = {"client_request_id": str(uuid4())}
     retry = a.post(path, json=body)
-    assert retry.status_code == 200, retry.text
+    assert retry.status_code == 202, retry.text
     assert retry.json()["input_message"]["id"] == saved["input_message"]["id"]
     assert retry.json()["assistant_message"]["id"] != saved["assistant_message"]["id"]
     assert retry.json()["chat"]["message_count"] == 3
     assert a.post(path, json=body).json() == retry.json()
+    assert world.analysis.tick()
     assert len(world.calls) == 1
 
 
-def test_order_is_reserved_before_out_of_order_model_completion(world, monkeypatch):
+def test_order_is_reserved_while_earlier_execution_is_still_running(world, monkeypatch):
     a, _ = world.client()
     saved = world.submit(a)
     entered, release = threading.Event(), threading.Event()
@@ -133,15 +140,19 @@ def test_order_is_reserved_before_out_of_order_model_completion(world, monkeypat
 
     monkeypatch.setattr(__import__("main").app.state, "workspace_query", run)
     path = f"/api/v1/chats/{saved['chat']['id']}/messages"
+    earlier = a.post(path, json=world.body("Earlier"))
+    assert earlier.status_code == 202
     with ThreadPoolExecutor(max_workers=1) as worker:
-        earlier = worker.submit(a.post, path, json=world.body("Earlier"))
+        running = worker.submit(world.analysis.tick)
         assert entered.wait(3)
         try:
             later = a.post(path, json=world.body("Later"))
-            assert later.status_code == 200
+            assert later.status_code == 202
+            assert not world.analysis.tick()  # One real execution slot per owner.
         finally:
             release.set()
-        assert earlier.result(timeout=3).status_code == 200
+        assert running.result(timeout=3)
+    assert world.analysis.tick()
     page = a.get(path).json()["items"]
     assert [item["sequence"] for item in page] == [1, 2, 3, 4, 5, 6]
     assert page[2]["content"] == "Earlier" and page[4]["content"] == "Later"

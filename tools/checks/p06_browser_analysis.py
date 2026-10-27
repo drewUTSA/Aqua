@@ -16,6 +16,7 @@ class AnalysisFixture:
         self.owner: str | None = None
         self.retired = False
         self.executions = 0
+        self.max_executions = 8
         self.attempts: dict[str, int] = {}
 
     def control(self, item: dict[str, Any]) -> dict[str, Any]:
@@ -72,7 +73,7 @@ class AnalysisFixture:
             or not session.can_query
             or model not in {"ollama", "gemini"}
             or len(question) > 2000
-            or self.executions >= 8
+            or self.executions >= self.max_executions
         ):
             raise AssertionError("fixture_analysis_boundary_failed")
         # Prove the web submission released its private DB lease before work.

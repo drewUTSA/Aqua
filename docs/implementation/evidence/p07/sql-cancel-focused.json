@@ -1,0 +1,19 @@
+{
+  "run": "aqua-check-4ddc4fc907dc5f874a49a3a9",
+  "source_sha256": "ab75a0358e2b5389b37826cac82bb23e27afc4b95656c21494504320f1999ee3",
+  "fixtures": {
+    "bank": {
+      "passed": 7,
+      "sql_cancel_cases": 1
+    },
+    "pagila": {
+      "passed": 7,
+      "sql_cancel_cases": 1
+    }
+  },
+  "proof": "Actual Linux ProcessEngine and detached PostgreSQL: fixed readonly pg_sleep active before cancellation; query inactive and child reaped before engine returned. Unique application_name, exact fixture DSN allowlist, bounded polling and cleanup.",
+  "provider_calls": 0,
+  "production_access": false,
+  "cleanup": "removed_and_absence_confirmed",
+  "scope": "Pinned P06 dependencies with current P07 source overlay; root final candidate-image matrix required."
+}

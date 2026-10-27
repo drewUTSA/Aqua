@@ -3,28 +3,21 @@ turns requests into pipeline calls and pipeline results into JSON."""
 
 import logging
 from contextlib import asynccontextmanager
-from collections.abc import Awaitable, Callable
-from dataclasses import replace
-from typing import Any, Literal
+from collections.abc import Awaitable, Callable, AsyncIterator
+from typing import Any, Literal, Self
 
 from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.exception_handlers import http_exception_handler
 from fastapi.responses import JSONResponse, Response
 from fastapi.exceptions import RequestValidationError
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from auth.router import router as auth_router
 from auth.password_router import router as password_router
-from auth.security import UserSession, get_settings, require_database_access
-from nl2sql.cache import AnswerCache, scoped_cache_key
-from nl2sql.cache_scope import request_scope
-from nl2sql.errors import ContextDenied
+from auth.security import UserSession, require_database_access
+from nl2sql.cache import AnswerCache
 from nl2sql.config import Settings, load_settings
-from nl2sql.db import DatabaseError
-from nl2sql.display import display_for
-from nl2sql.llm import LLMError
 from nl2sql.pipeline import Retriever, answer_question
-from nl2sql.response import outage_response, to_response
 from nl2sql.schema import get_schema
 
 from storage.config import load_storage_settings
@@ -34,14 +27,40 @@ from workspace.router import router as workspace_router
 from workspace.errors import WorkspaceError, failure as workspace_failure
 from workspace.boundary import PREFIXES as WORKSPACE_PREFIXES, WorkspaceBodyLimit
 from workspace.access_logging import install as private_workspace_access_logging
+from analysis.router import router as analysis_router
+from analysis.dependencies import get_analysis
+from analysis.service import Analysis
+from nl2sql.query_service import run as run_query
+from storage.pool import StorageUnavailable
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     app.state.storage.open()
+    service = getattr(app.state, "analysis", None)
+    if service is None and app.state.storage.settings.enabled:
+        from auth.config import load_auth_policy
+
+        configured = app.state.settings
+        # The dispatcher checks schema readiness and retries independently.
+        # A storage outage must not prevent the liveness route from starting.
+        if len(configured.session_secret) >= 32:
+            service = Analysis(
+                app.state.storage,
+                load_auth_policy(configured),
+                configured.session_secret,
+                configured,
+            )
+            app.state.analysis = service
+    if service is not None:
+        service.start()
     try:
         yield
     finally:
+        service = getattr(app.state, "analysis", None)
+        if service is not None:
+            service.close()
+            app.state.analysis = None
         app.state.storage.close()
 
 
@@ -55,6 +74,7 @@ app.include_router(auth_router)
 app.include_router(password_router)
 app.include_router(readiness_router)
 app.include_router(workspace_router)
+app.include_router(analysis_router)
 app.state.storage = Storage(load_storage_settings())
 app.add_middleware(WorkspaceBodyLimit)
 
@@ -79,6 +99,7 @@ async def safe_request_validation(
     if request.url.path.startswith(
         (
             "/api/v1/chats",
+            "/api/v1/analysis-requests",
             "/api/v1/projects",
             "/api/v1/me/saved-prompts",
             "/api/v1/starter-prompts",
@@ -176,103 +197,57 @@ def models():
 class QueryRequest(BaseModel):
     # Whitespace is trimmed first, so a blank question fails min_length
     # and FastAPI answers 422 before the model is called.
-    model_config = ConfigDict(str_strip_whitespace=True)
+    model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
 
     question: str = Field(min_length=1, max_length=2000)
     # An id from /api/models. Left out, the server default (LLM_PROVIDER)
     # is used; anything else is a 422.
     model: Literal["ollama", "gemini"] | None = None
 
+    @model_validator(mode="after")
+    def safe_text(self) -> Self:
+        if "\x00" in self.question:
+            raise ValueError("query_text_invalid")
+        try:
+            self.question.encode("utf-8")
+        except UnicodeError:
+            raise ValueError("query_text_invalid") from None
+        return self
+
 
 @app.post("/api/query", response_model=None)
 def query(
-    request: QueryRequest,
+    body: QueryRequest,
     session: UserSession = Depends(require_database_access),
-    configured: Settings = Depends(get_settings),
+    service: Analysis = Depends(get_analysis),
 ) -> dict[str, Any] | JSONResponse:
-    """Answer a question with SQL, rows and the SQL that produced them.
-
-    A plain def (not async): FastAPI runs it in a worker thread, so a
-    slow model call does not hold up other requests. Rejected or failed
-    queries return 200 with status "error" so the UI can show the SQL and
-    a safe diagnostic; an unreachable model or database returns 503.
-    Logs contain failure categories, never raw provider/database exceptions.
-    """
-    provider = request.model or configured.llm_provider
-    if provider == "gemini" and not configured.gemini_api_key:
-        body = outage_response(
-            "model_not_configured", "Gemini is not set up on this server."
-        )
-        body["error"]["retryable"] = False  # asking again will not help
-        return JSONResponse(status_code=400, content=body)
-    settings = replace(configured, llm_provider=provider)
+    """Legacy final JSON uses the same durable admission/deadline supervisor."""
     try:
-        # Authorization, retrieval, execution and cache identity use the same
-        # server settings even if an operator replaces app state during runtime.
-        retriever = RETRIEVER if configured == SETTINGS else _retriever(settings)
-        schema = get_schema(settings)
-        scope = request_scope(
-            session.user["id"],
-            settings,
-            schema.to_prompt(),
-            grant_version=session.grant_version,
-            auth_epoch=session.auth_epoch,
-        )
-        key = scoped_cache_key(
-            request.question,
-            scope,
-            provider,
-            _model_name(provider, settings),
-            retriever is not None,
-            settings.answer_size_rules,
-            settings.llm_fallback,
-            settings.gemini_fallback_models,
-            settings.ollama_model,
-            settings.ollama_think,
-            settings.gemini_embed_model,
-        )
-        answer = ANSWER_CACHE.get(key)
-        if answer is None:
-            answer = answer_question(
-                request.question, settings, schema, retriever=retriever
-            )
-            ANSWER_CACHE.put(key, answer)
-        else:
-            log.info("answer cache hit (%s)", provider)
-    except LLMError:
-        log.warning(
-            "query_service_failure category=model_unavailable provider=%s", provider
-        )
-        return JSONResponse(
-            status_code=503,
-            content=outage_response(
-                "model_unavailable", "The language model is not reachable right now."
-            ),
-        )
-    except DatabaseError:
-        log.warning("query_service_failure category=database_unavailable")
-        return JSONResponse(
-            status_code=503,
-            content=outage_response(
-                "database_unavailable", "The database is not reachable right now."
-            ),
-        )
-    except ContextDenied:
-        log.warning("query_context_denied")
-        return JSONResponse(
-            status_code=503,
-            content=outage_response(
-                "database_unavailable", "The authorized dataset context is unavailable."
-            ),
-        )
-    return to_response(answer, display_for(schema))
+        result, status = service.legacy(session, body.question, body.model)
+    except WorkspaceError as error:
+        return workspace_failure(error)
+    except StorageUnavailable:
+        return workspace_failure(WorkspaceError("service_unavailable", 503))
+    return result if status == 200 else JSONResponse(status_code=status, content=result)
 
 
 def workspace_query(
     question: str, model: str, session: UserSession, configured: Settings
 ) -> dict[str, Any] | JSONResponse:
-    """The durable wrapper shares the legacy query safety/cache implementation."""
-    return query(QueryRequest(question=question, model=model), session, configured)
+    """Pure safety-service seam for offline contract tests; never an HTTP bypass."""
+    result, status = run_query(
+        question,
+        model,
+        configured,
+        session.user["id"],
+        session.grant_version,
+        session.auth_epoch,
+        cache=ANSWER_CACHE,
+        schema_reader=get_schema,
+        answerer=answer_question,
+        retriever_factory=_retriever,
+    )
+    return result if status == 200 else JSONResponse(status_code=status, content=result)
 
 
 app.state.workspace_query = workspace_query

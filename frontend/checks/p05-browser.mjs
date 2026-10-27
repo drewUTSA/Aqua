@@ -10,6 +10,7 @@ import { fileURLToPath } from "node:url";
 import { createHash } from "node:crypto";
 import { BrowserPipe } from "./p05-browser-pipe.mjs";
 import { workspaceJourneys, pendingWorkspaceJourney } from "./p06-browser-checks.mjs";
+import { analysisJourneys } from "./p07-browser-checks.mjs";
 import { makeFixture, GOOGLE_STUB, EMAIL_A, EMAIL_B, PASSWORD, VERIFY_PROOF, RESET_PROOF } from "./p05-browser-fixture.mjs";
 import { EXPECTED_SHELL, assertShell, assertLoginDelivery, capturePerformance, assertEssentialControls, assertSafeAreaStyles, enlargeText, captureControlBounds } from "./p05-shell-browser-checks.mjs";
 
@@ -172,6 +173,7 @@ try {
     staticRequests++;
     if (staticRequests > MAX_REQUESTS || performance.now() - started > MAX_MS || request.method !== "GET") { response.writeHead(503); response.end(); return; }
     const pathname = new URL(request.url, "http://127.0.0.1").pathname;
+    if (/^\/api\/v1\/analysis-requests\/[0-9a-f-]{36}\/events$/.test(pathname)) { fixture.streamAnalysis(request, response); return; }
     if (pathname.startsWith("/api/")) { response.writeHead(500); response.end(); return; }
     const data = files.get(pathname) || (!path.extname(pathname) ? files.get("/index.html") : null);
     if (!data) { response.writeHead(pathname === "/favicon.ico" ? 204 : 404); response.end(); return; }
@@ -210,6 +212,9 @@ try {
       if (requestCount > MAX_REQUESTS || performance.now() - started > MAX_MS) { await cdp.send("Fetch.failRequest", { requestId, errorReason: "BlockedByClient" }, targetSession); return; }
       if (url.origin === origin && url.pathname.startsWith("/api/")) {
         if (++apiRequests > MAX_API) { await reply(503, {}); return; }
+        if (/^\/api\/v1\/analysis-requests\/[0-9a-f-]{36}\/events$/.test(url.pathname) && request.method === "GET") {
+          await cdp.send("Fetch.continueRequest", { requestId }, targetSession); return;
+        }
         await fixture.route(request, reply); return;
       }
       if (url.origin === origin && request.method === "GET") { await cdp.send("Fetch.continueRequest", { requestId }, targetSession); return; }
@@ -242,6 +247,7 @@ try {
   await check("password works during stalled Google configuration", "location.pathname==='/'&&Boolean(document.querySelector('.opal-workspace:not([hidden])'))");
   fixture.google = "ready"; await fixture.release("google");
   await workspaceJourneys({ check, click, clickText, fill, waitFor, evaluate, navigate, screenshot, fixture });
+  await analysisJourneys({ check, click, clickText, fill, waitFor, evaluate, navigate, screenshot, fixture, viewport });
   await check("chat-only entry has complete composer and no empty visuals", "Boolean(document.querySelector('.opal-composer textarea'))&&Boolean(document.querySelector('[aria-label=\"Send message\"]'))&&!document.querySelector('[role=separator],.visual-pane,[aria-label=Visuals]')");
   await viewport(1440, 980); await screenshot("home-desktop-1440x980"); await captureFonts("workspace");
   performanceSamples.push(await capturePerformance(evaluate, "desktop-workspace"));
@@ -490,7 +496,7 @@ try {
   assert.equal(fixture.forbiddenCalls, 0, "unexpected_fixture_api_call"); assert.equal(consoleLeaks, 0, "sensitive_console_value");
   assert.equal(runtimeErrors, 0, "uncaught_browser_error"); assert.equal(protocolFailures.length, 0, "interception_failure");
   assert.equal(external.length, 0, "unexpected_external_request_attempt"); assert.ok(apiRequests <= MAX_API && requestCount <= MAX_REQUESTS);
-  results.push({ check: "all traffic bounded and intercepted; no external calls or console bearer leak", passed: true });
+  results.push({ check: "all traffic bounded to loopback fixtures; no external calls or console bearer leak", passed: true });
   await writeFile(path.join(artifacts, "browser-version.json"), JSON.stringify({ browser: version.product }, null, 2) + "\n");
   await writeFile(path.join(artifacts, "font-diagnostics.json"), JSON.stringify(fonts, null, 2) + "\n");
 } catch (error) {
@@ -500,6 +506,7 @@ try {
   if (sessionId) await screenshot("failure-current-view").catch(() => {});
 } finally {
   clearTimeout(deadline);
+  fixture.closeAnalysisStreams?.();
   if (cdp) await cdp.stop();
   if (!failure && cdp?.cleanupFailure) failure = "browser_cleanup_failed";
   server?.closeAllConnections(); if (server?.listening) await new Promise((resolve) => server.close(resolve));

@@ -55,13 +55,19 @@ def test_latest_messages_arrive_in_order_and_older_pages_do_not_fetch_everything
     saved = world.submit(a, "First question")
     chat_id = saved["chat"]["id"]
     for number in range(4):
+        # This is a history pagination check across separate accepted windows.
+        with world.storage.transaction() as conn:
+            conn.execute(
+                "UPDATE app.analysis_admission SET expires_at=clock_timestamp()-interval '1 second'"
+            )
         assert (
             a.post(
                 f"/api/v1/chats/{chat_id}/messages",
                 json=world.body(f"Question {number}"),
             ).status_code
-            == 200
+            == 202
         )
+        assert world.analysis.tick()
     page = a.get(f"/api/v1/chats/{chat_id}/messages?limit=3").json()
     assert [item["sequence"] for item in page["items"]] == [8, 9, 10]
     seen = [item["id"] for item in page["items"]]

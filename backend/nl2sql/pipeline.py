@@ -25,6 +25,7 @@ from nl2sql.execute import DEFAULT_MAX_ROWS, QueryError, execute
 from nl2sql.generate import Attempt, Example, generate_sql
 from nl2sql.schema import Schema
 from nl2sql.validate import UnsafeQueryError, validate_sql
+from nl2sql.control import stage
 
 log = logging.getLogger(__name__)
 
@@ -131,10 +132,12 @@ def answer_question(
     if not question:
         raise ValueError("Question is empty.")
 
+    stage("retrieval")
     context, used_retrieval = build_context(question, schema, retriever)
     size = answer_size(question) if settings.answer_size_rules else AnswerSize("open")
     previous: Attempt | None = None
     for attempt in range(1, MAX_ATTEMPTS + 1):
+        stage("generating")
         generation = generate_sql(
             question,
             context.schema_text,
@@ -152,7 +155,9 @@ def answer_question(
             "size": size,
         }
         try:
+            stage("validating")
             query = validate_sql(generation.sql, allowed_tables=schema.allowed_tables)
+            stage("executing")
             result = execute(query, settings, max_rows=max_rows)
         except UnsafeQueryError as exc:
             error, code, fixable = (

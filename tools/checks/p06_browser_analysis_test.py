@@ -8,9 +8,44 @@ from p06_browser_analysis import AnalysisFixture, FIXTURE_EMAIL
 
 
 class AnalysisControls(unittest.TestCase):
+    def test_larger_operation_budget_requires_explicit_fixture_mode(self) -> None:
+        from p05_browser_protocol import request_limit
+
+        self.assertEqual(request_limit(), 256)
+        self.assertEqual(request_limit(False), 256)
+        self.assertEqual(request_limit(True), 400)
+        self.assertEqual(request_limit("true"), 256)
+
+    def test_static_browser_bridge_uses_polling_without_opening_a_stream(self) -> None:
+        import base64
+
+        client = Mock()
+        response = dispatch(
+            {
+                "id": "stream",
+                "kind": "request",
+                "method": "GET",
+                "path": "/api/v1/analysis-requests/00000000-0000-4000-8000-000000000001/events",
+            },
+            client,
+            Mock(),
+            lambda: False,
+            [],
+        )
+        self.assertEqual(response["status"], 503)
+        self.assertIn(b"fixture_polling_only", base64.b64decode(response["bodyBase64"]))
+        client.request.assert_not_called()
+
     def test_default_fixture_refuses_all_analysis_controls_without_work(self) -> None:
         storage = Mock()
-        for kind in ("workspace_grant", "workspace_revoke", "workspace_stats"):
+        for kind in (
+            "workspace_grant",
+            "workspace_revoke",
+            "workspace_stats",
+            "workspace_release",
+            "workspace_restart",
+            "workspace_recover_analysis_rate",
+        ):
             with self.assertRaisesRegex(ValueError, "not_enabled"):
                 dispatch(
                     {"id": "fixture", "kind": kind}, None, storage, lambda: False, []

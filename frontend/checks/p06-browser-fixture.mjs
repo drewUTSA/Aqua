@@ -1,17 +1,20 @@
 import { randomUUID } from "node:crypto";
+import { analysisFixture } from "./p07-browser-fixture.mjs";
 
 // Disposable intercepted contract fixture. Production authorization is tested
 // independently against actual FastAPI/PostgreSQL, never inferred from this UI double.
 export function workspaceFixture(fixture) {
+  const analysis = analysisFixture(fixture);
   const owners = new Map();
   const owner = () => { if (!owners.has(fixture.email)) owners.set(fixture.email, { chats: new Map(), projects: new Map(), prompts: new Map(), operations: new Map() }); return owners.get(fixture.email); };
   const now = () => new Date().toISOString();
   return async function route(call, reply) {
     const { url, method, body, headers } = call, path = url.pathname;
-    if (!/^\/api\/v1\/(chats|projects|me\/saved-prompts|starter-prompts)(\/|$)/.test(path)) return false;
+    if (!/^\/api\/v1\/(chats|projects|me\/saved-prompts|starter-prompts|analysis-requests)(\/|$)/.test(path)) return false;
     if (!fixture.email) { await reply(401, {}); return true; }
     if (method !== "GET" && headers["x-csrf-token"] !== "fixture-session-csrf") { await reply(403, {}); return true; }
     const data = owner(), json = async (status, value) => { await reply(status, value); return true; };
+    if (path.startsWith("/api/v1/analysis-requests/")) return analysis.route(call, reply);
     if (path === "/api/v1/starter-prompts") return json(200, { items: [
       { id: "loans", title: "Loans currently in debt", prompt: "How many loans are currently in debt?" },
       { id: "districts", title: "Compare districts", prompt: "Which 5 districts have the highest average salary?" },
@@ -52,6 +55,7 @@ export function workspaceFixture(fixture) {
       const requestId = randomUUID(), input = inputId ? record.messages.find((item) => item.id === inputId) : { id: randomUUID(), chat_id: record.chat.id,
         sequence: record.messages.length + 1, role: "user", content: body.question, request_id: requestId, reply_to: null, model_id: body.model || "fixture-model", status: "complete", response: null, result_unavailable: false, created_at: now() };
       if (!input) return json(404, {}); if (!inputId) record.messages.push(input);
+      if (input.content?.startsWith("P07 ")) return json(202, analysis.submit(data, record, input, body, requestId));
       const captured = fixture.queryMessage;
       const finish = async () => {
         const response = { status: "success", message: captured, sql: "SELECT 1 AS synthetic_value", model: "fixture-model", tables: [], visualizations: [], kpis: [] };

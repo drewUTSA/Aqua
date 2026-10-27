@@ -61,6 +61,29 @@ are separate modules/files.
 
 ## Locks and evidence
 
+P07 adds metadata SSE timing through actual nginx, with a fixed two-frame fake
+upstream and the existing bounded proxy exercise. The old configuration must
+fail the progressive-delivery assertion; the new configuration must deliver
+the first frame before upstream completion while preserving submission limits,
+status/cancel availability and recovery. No provider or production target is
+used. The actual-database CDP bridge deliberately returns a fixed 503 for its
+stream route because static response fulfillment cannot test progressive SSE;
+those browser journeys verify polling/cancellation instead. Separate backend
+stream tests cover authorization, replay, lifetime and slow consumers.
+
+The explicitly opted-in analysis browser fixture permits only its fixed
+synthetic owner/dataset, at most 24 fake starts, one active fake and a 30-second
+hold. Closed release/restart/clock controls cannot select an owner, job, DSN or
+provider. Default browser mode grants no dataset and has no analysis controls.
+The opt-in lifecycle run permits at most 400 total bridge operations including
+closed controls within 300 seconds; default auth-only mode keeps 256 operations.
+The parent and worker enforce the same ceiling, and neither changes runtime or
+production rate limits. Each case declares its clock steps and fake start cap.
+The browser's separate 512-request transport bound also counts static reloads
+and polling; it does not increase the private bridge's operation allowance.
+Fixture clock steps are recorded; unexpected 429s are failures, not retries
+that silently bypass a real limit. No live provider call is allowed.
+
 `requirements-runtime.lock` pins the observed Linux/Python 3.12 runtime graph,
 with the certifi security patch. Every accepted distribution has a published
 PyPI SHA-256 hash. `pip --require-hashes --no-deps` verifies artifacts and
@@ -103,7 +126,7 @@ containers have the same 1 GiB/two-core/256-process ceiling, dropped capabilitie
 read-only roots and exact-ID cleanup as the backend runner. No host volumes,
 ports or Docker socket are mounted. Client and proxy share only a network-none
 namespace: HTTP is limited to 127.0.0.1:5173 and the fake upstream at :8000.
-The probe stops at 100 requests, under 5/second, at most four callers and 55
+The probe stops at 120 requests, under 5/second, at most four callers and 55
 seconds; individual responses time out at two seconds. It records admission
 counters, header/route churn, separate buckets, body limits, concurrent calls and
 cooldown recovery. Post-run resource samples are not peak-load measurements.

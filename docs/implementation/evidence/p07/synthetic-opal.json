@@ -1,0 +1,451 @@
+{
+  "status": "passed",
+  "checked_utc": "2026-10-27T00:50:30.457Z",
+  "mode": "production_build_synthetic_api_browser",
+  "expected_shell": "opal",
+  "checks": [
+    {
+      "check": "login defers the chart chunk and bounds initial script delivery",
+      "passed": true
+    },
+    {
+      "check": "labeled autofill-friendly dual login",
+      "passed": true
+    },
+    {
+      "check": "password visibility toggle exposes state",
+      "passed": true
+    },
+    {
+      "check": "rejected credentials are generic and password clears",
+      "passed": true
+    },
+    {
+      "check": "operator-selected opal shell is rendered",
+      "passed": true
+    },
+    {
+      "check": "password works during stalled Google configuration",
+      "passed": true
+    },
+    {
+      "check": "New chat creates no empty server rows",
+      "passed": true
+    },
+    {
+      "check": "unsubmitted draft remains reachable after new-chat navigation",
+      "passed": true
+    },
+    {
+      "check": "personal prompt application is literal and never submits analysis",
+      "passed": true
+    },
+    {
+      "check": "saved prompt rename and pin are server confirmed",
+      "passed": true
+    },
+    {
+      "check": "selecting saved history preserves its unsent draft",
+      "passed": true
+    },
+    {
+      "check": "reload restores submitted history but does not upload an old unsent draft",
+      "passed": true
+    },
+    {
+      "check": "late first response preserves the independently opened canonical draft and source draft",
+      "passed": true
+    },
+    {
+      "check": "confirmed deletion fences a held first response and preserves only its unsent text",
+      "passed": true
+    },
+    {
+      "check": "late authorized history cannot restore SQL after grant loss",
+      "passed": true
+    },
+    {
+      "check": "late authorized submission cannot restore results after grant loss",
+      "passed": true
+    },
+    {
+      "check": "project grouping and recents select the same owned chat and canonical title",
+      "passed": true
+    },
+    {
+      "check": "archived chats remain explicitly browsable",
+      "passed": true
+    },
+    {
+      "check": "chat deletion removes its readable history and result",
+      "passed": true
+    },
+    {
+      "check": "live metadata advances the UI before stream closure without showing SQL or a fabricated percentage",
+      "passed": true
+    },
+    {
+      "check": "320 pixel active analysis keeps progress and cancellation controls reachable without horizontal overflow",
+      "passed": true
+    },
+    {
+      "check": "cancel acknowledgement stays requested until authoritative server termination",
+      "passed": true
+    },
+    {
+      "check": "confirmed cancellation retains the newer draft and creates no result",
+      "passed": true
+    },
+    {
+      "check": "reload reconnects by saved request ID with GET and restores one canonical result",
+      "passed": true
+    },
+    {
+      "check": "lost cancellation response never claims server cancellation",
+      "passed": true
+    },
+    {
+      "check": "event failure falls back to bounded saved-status polling and confirms terminal cancellation",
+      "passed": true
+    },
+    {
+      "check": "a late authorized status snapshot cannot restore SQL after confirmed grant loss",
+      "passed": true
+    },
+    {
+      "check": "workspace precision metadata renders exact values and truncation while withholding rounded visuals",
+      "passed": true
+    },
+    {
+      "check": "table sort orders exact numeric strings numerically and preserves their original digits",
+      "passed": true
+    },
+    {
+      "check": "actual table CSV action exports exact positive and negative values without rounding or a formula bypass",
+      "passed": true
+    },
+    {
+      "check": "chat-only entry has complete composer and no empty visuals",
+      "passed": true
+    },
+    {
+      "check": "account menu Escape restores trigger focus",
+      "passed": true
+    },
+    {
+      "check": "IME Enter does not submit",
+      "passed": true
+    },
+    {
+      "check": "Shift+Enter preserves multiline input",
+      "passed": true
+    },
+    {
+      "check": "saved chat-title search has an accessible bounded input",
+      "passed": true
+    },
+    {
+      "check": "saved title search retains the matching conversation",
+      "passed": true
+    },
+    {
+      "check": "hostile search is literal and cannot select or submit a conversation",
+      "passed": true
+    },
+    {
+      "check": "clearing local search restores titles without losing the draft",
+      "passed": true
+    },
+    {
+      "check": "Settings return preserves draft without new conversation",
+      "passed": true
+    },
+    {
+      "check": "Settings return preserves conversation scroll",
+      "passed": true
+    },
+    {
+      "check": "failed query preserves recoverable draft",
+      "passed": true
+    },
+    {
+      "check": "pending logout retains hidden inert account draft",
+      "passed": true
+    },
+    {
+      "check": "pending logout keeps the same private workspace locked during Privacy",
+      "passed": true
+    },
+    {
+      "check": "pending logout survives Terms and Back without remounting or revealing a draft",
+      "passed": true
+    },
+    {
+      "check": "failed logout preserves locked draft",
+      "passed": true
+    },
+    {
+      "check": "failed logout keeps the same private workspace locked during Privacy",
+      "passed": true
+    },
+    {
+      "check": "failed logout survives Terms and Back without remounting or revealing a draft",
+      "passed": true
+    },
+    {
+      "check": "failed logout returns to an explicit retry after legal navigation",
+      "passed": true
+    },
+    {
+      "check": "confirmed logout and account switch discard old private state",
+      "passed": true
+    },
+    {
+      "check": "other account cannot see the previous account's saved prompts",
+      "passed": true
+    },
+    {
+      "check": "pending data access still permits private workspace CRUD without analysis",
+      "passed": true
+    },
+    {
+      "check": "signed-in no-dataset account cannot submit a query",
+      "passed": true
+    },
+    {
+      "check": "no-dataset account can reach own Settings",
+      "passed": true
+    },
+    {
+      "check": "Google failure does not block password and duplicate submit makes one POST",
+      "passed": true
+    },
+    {
+      "check": "registration asks only for email before ownership proof",
+      "passed": true
+    },
+    {
+      "check": "403 requires manual email-only resubmit with a fresh challenge",
+      "passed": true
+    },
+    {
+      "check": "registration response stays generic",
+      "passed": true
+    },
+    {
+      "check": "throttling disables premature retry and hides diagnostic",
+      "passed": true
+    },
+    {
+      "check": "Retry-After is honored without automatic email replay",
+      "passed": true
+    },
+    {
+      "check": "verification proof is removed from URL DOM cookies and storage",
+      "passed": true
+    },
+    {
+      "check": "verification completion does not auto-login or show an invalid-link CTA",
+      "passed": true
+    },
+    {
+      "check": "same-document verification link is consumed without persistence",
+      "passed": true
+    },
+    {
+      "check": "used verification proof receives recovery state",
+      "passed": true
+    },
+    {
+      "check": "missing reset proof has no password submission",
+      "passed": true
+    },
+    {
+      "check": "reset proof is removed from URL DOM cookies and storage",
+      "passed": true
+    },
+    {
+      "check": "reset completion returns to sign-in without auto-login",
+      "passed": true
+    },
+    {
+      "check": "wrong-purpose proof fails with safe recovery state",
+      "passed": true
+    },
+    {
+      "check": "untrusted return destinations and fragments are discarded",
+      "passed": true
+    },
+    {
+      "check": "URL and storage cannot select a shell or bypass real sign-in",
+      "passed": true
+    },
+    {
+      "check": "operator-selected opal shell is rendered",
+      "passed": true
+    },
+    {
+      "check": "supported Google callback reaches canonical workspace",
+      "passed": true
+    },
+    {
+      "check": "hostile output cannot execute or create external active elements",
+      "passed": true
+    },
+    {
+      "check": "confirmed logout clears private state in the other real tab",
+      "passed": true
+    },
+    {
+      "check": "other-tab account switch never reuses old account conversation",
+      "passed": true
+    },
+    {
+      "check": "held reset permits reproducing old-session foreground revalidation",
+      "passed": true
+    },
+    {
+      "check": "ambiguous reset response keeps this tab out of its workspace",
+      "passed": true
+    },
+    {
+      "check": "reset attempt clears other-tab private draft even on ambiguous response",
+      "passed": true
+    },
+    {
+      "check": "cross-tab notifications carry only bounded event metadata",
+      "passed": true
+    },
+    {
+      "check": "ambiguous reset has exactly one explicit POST across both tabs",
+      "passed": true
+    },
+    {
+      "check": "1024 pixel intermediate workspace keeps composer and account actions reachable",
+      "passed": true
+    },
+    {
+      "check": "768 pixel intermediate workspace keeps composer and account actions reachable",
+      "passed": true
+    },
+    {
+      "check": "workspace styles reserve all four safe-area insets",
+      "passed": true
+    },
+    {
+      "check": "mobile drawer contains keyboard focus",
+      "passed": true
+    },
+    {
+      "check": "mobile drawer Escape returns focus",
+      "passed": true
+    },
+    {
+      "check": "small mobile viewport keeps typed composer and send action unobscured",
+      "passed": true
+    },
+    {
+      "check": "200 percent workspace text keeps composer and account menu visible and operable",
+      "passed": true
+    },
+    {
+      "check": "200 percent workspace text preserves draft across reachable Settings",
+      "passed": true
+    },
+    {
+      "check": "200 percent active conversation keeps draft composer and send action reachable",
+      "passed": true
+    },
+    {
+      "check": "320 CSS pixel home has no page overflow",
+      "passed": true
+    },
+    {
+      "check": "forced colors and reduced motion preserve essential controls",
+      "passed": true
+    },
+    {
+      "check": "forced colors light uses a visible arrow mask",
+      "passed": true
+    },
+    {
+      "check": "forced colors light keeps header action glyphs visible",
+      "passed": true
+    },
+    {
+      "check": "forced colors light preserves disabled arrow contrast",
+      "passed": true
+    },
+    {
+      "check": "forced colors dark uses a visible arrow mask",
+      "passed": true
+    },
+    {
+      "check": "forced colors dark keeps header action glyphs visible",
+      "passed": true
+    },
+    {
+      "check": "forced colors dark preserves disabled arrow contrast",
+      "passed": true
+    },
+    {
+      "check": "login defers the chart chunk and bounds initial script delivery",
+      "passed": true
+    },
+    {
+      "check": "320 CSS pixel sign-in has no page overflow",
+      "passed": true
+    },
+    {
+      "check": "200 percent text preserves page reflow",
+      "passed": true
+    },
+    {
+      "check": "200 percent text keeps sign-in reachable",
+      "passed": true
+    },
+    {
+      "check": "unknown route has recovery navigation",
+      "passed": true
+    },
+    {
+      "check": "public policy remains readable signed out",
+      "passed": true
+    },
+    {
+      "check": "all traffic bounded to loopback fixtures; no external calls or console bearer leak",
+      "passed": true
+    }
+  ],
+  "loaded_assets": [
+    {
+      "name": "/assets/AQUA_V2_Final_static-cJJYBiOn.svg",
+      "sha256": "a610bf95498d5bbc765cf49879bc98ee9a33f385cdf88452622a6871ae825648"
+    },
+    {
+      "name": "/assets/DashboardPreview-uywU362x.js",
+      "sha256": "8208f5b4c1c879ba0f160a1932df55c6af6421ace8bf08535ee32a5cf1da914b"
+    },
+    {
+      "name": "/assets/index-CADnTdTB.css",
+      "sha256": "b124b254db185d9377e96601b1c9c978b13994908d30a5d7c7c72001d8bf8670"
+    },
+    {
+      "name": "/assets/index-UcEH1IkK.js",
+      "sha256": "f85153046ed6f17a9398bb1ed0ac178ba382df89277fcbd9b9d98036db6a8d70"
+    },
+    {
+      "name": "/index.html",
+      "sha256": "68f2a237facba7db92add58db83aa032310fcd38eebf824296f8bc6f1c18ea47"
+    }
+  ],
+  "cleanup": "browser_stopped_loopback_closed_temporary_profile_removed",
+  "limitations": [
+    "Synthetic intercepted API and GIS contracts; no actual backend, Google, email, database or production-origin validation.",
+    "400% reflow represented by a 320 CSS-pixel viewport; 200% text doubles computed text sizes.",
+    "Small viewport models keyboard-constrained space; it is not an actual mobile OS keyboard test.",
+    "Navigation timings are local observations, not production performance guarantees; initial delivery byte limits are deterministic.",
+    "Keyboard and semantic assertions are not a complete screen-reader or contrast audit.",
+    "Screenshots require human/agent visual review; saving them alone is not visual approval."
+  ]
+}

@@ -9,7 +9,7 @@ os.environ["APP_STORAGE_ENABLED"] = "true"
 storage = Storage(load_storage_settings())
 try:
     storage.open()
-    assert storage.readiness()["schema_version"] == 4
+    assert storage.readiness()["schema_version"] == 5
     with storage.transaction() as conn:
         assert conn.execute("SHOW listen_addresses").fetchone() == ("",)
     try:

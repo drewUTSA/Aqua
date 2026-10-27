@@ -42,15 +42,17 @@ export function finishSubmission(state, recordId, clientId, result, canReadResul
   // canonical ID may already hold newer text or another in-flight operation.
   const destination = result.chat.id !== recordId ? state.records[result.chat.id] : null;
   const summary = destination?.revision > result.chat.revision ? destination : result.chat;
-  const pending = result.request.state === "pending" || result.request.state === "running";
+  const pending = ["pending", "queued", "running", "cancelling"].includes(result.request.state);
+  const lifecycle = Number.isSafeInteger(result.request.version);
   const messages = [...current.messages, ...(destination?.messages || [])].filter((message) => message.optimisticOperation !== clientId);
   const draft = destination?.draft || current.draft;
+  const recover = !destination?.operation && !messages.some((message) => message.role === "aqua" && message.sequence > result.assistant.sequence);
   const record = { ...current, ...destination, ...summary, loaded: true, messages: maskSavedResults(mergeMessages(messages, [result.input, result.assistant]), canReadResults),
-    draft: !draft && result.assistant.response?.status === "error" ? current.operation.prompt : draft,
-    operation: destination?.operation || (pending ? { ...current.operation, busy: false, uncertain: true } : null) };
-  if (state.activeId !== recordId && state.activeId !== record.id && !record.operation) { record.messages = []; record.loaded = false; }
+    draft: !draft && recover && result.assistant.response?.status === "error" ? current.operation.prompt : draft,
+    operation: destination?.operation || (pending && !lifecycle ? { ...current.operation, busy: false, uncertain: true } : null) };
+  if (state.activeId !== recordId && state.activeId !== record.id && !pending && !record.operation) { record.messages = []; record.loaded = false; }
   const records = { ...state.records }; delete records[recordId]; records[record.id] = record;
-  const retainPending = pending && destination?.operation;
+  const retainPending = pending && !lifecycle && destination?.operation;
   if (retainPending || destination?.draft && current.draft && destination.draft !== current.draft) records[recordId] = { ...current,
     title: retainPending ? "Pending saved request" : "Recovered unsent draft", draft: current.draft || current.operation.prompt,
     messages: [], messageCount: 0, revision: null, projectId: null, loaded: true, olderCursor: null,

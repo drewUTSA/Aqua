@@ -173,6 +173,31 @@ and this PC being available. Before public launch, agree targets, monitor missed
 backups and preserve recovery access independent of the PC/site.
 Do not prune existing snapshots as part of this phase.
 
+## P07 analysis migration and recovery
+
+P07 prepares additive migration `0005_analysis_lifecycle.sql`; applied migrations
+0001–0004 are immutable. The candidate runtime requires schema 5. Stop all web
+analysis dispatchers/children and hold the account-mail launcher lock before
+taking the fresh encrypted schema-4 backup and migrating. Preserve the existing
+data/socket volumes and private credentials. Restart only the tested matching
+backend/frontend images, verify readiness and public assets, and then resume
+the unchanged scheduled mail worker. A failed migration rolls back its DDL;
+after schema 5 commits, use a compatible forward fix or maintenance instead of
+restarting the schema-4 image. Never drop data to roll back code.
+
+The recovery-only fence detects schema-4/5 workspace tables. It preserves
+completed saved conversations/results, interrupts queued/running/cancelling
+requests, refunds each request reservation and separate job-content charge
+once, purges job context/legacy responses, invalidates stream leases and retains
+spent analytical admission budgets. All old web children must already be stopped
+before physical reservations are cleared. Repeating the fence must not change
+the byte accounting again. It is never a normal production deployment step.
+
+The disposable restore test covers these invariants, sessions, password/mail
+fences, preserved anti-spam budgets and backup/runtime role separation. See
+[P07 evidence](../../docs/implementation/P07_DURABLE_ANALYSIS.md) for which gates
+have actually run; this section does not claim a production restore or RPO/RTO.
+
 ## Non-destructive recovery drill with matching software/schema
 
 Use a trusted snapshot matching the reviewed software/schema. The example below

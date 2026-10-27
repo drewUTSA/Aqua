@@ -13,6 +13,8 @@ import json
 import threading
 import time
 
+from p07_proxy_stream import respond as stream_response, verify as stream_verify
+
 
 def probe(baseline: bool = False) -> dict:
     calls: Counter = Counter()
@@ -30,6 +32,8 @@ def probe(baseline: bool = False) -> dict:
 
         def answer(self):
             calls[self.path] += 1
+            if stream_response(self):
+                return
             self.send_response(200)
             self.end_headers()
             self.wfile.write(b'{"synthetic":true}')
@@ -123,8 +127,17 @@ def probe(baseline: bool = False) -> dict:
             ("PATCH", "/api/v1/chats/synthetic-chat"),
             ("DELETE", "/api/v1/chats/synthetic-chat?revision=1"),
             ("GET", "/api/v1/me/saved-prompts"),
+            ("GET", "/api/v1/analysis-requests/synthetic-request"),
+            ("POST", "/api/v1/analysis-requests/synthetic-request/cancel"),
         ):
             assert request(path, method=method)["status"] == 200
+        with pace:
+            time.sleep(max(0, 0.21 - (time.monotonic() - last)))
+            if sent >= 120 or time.monotonic() - start >= 55:
+                raise RuntimeError("exercise budget exceeded")
+            sent += 1
+            last = time.monotonic()
+        stream = stream_verify()
         # Auth has a separate budget. Logout and health remain usable during abuse.
         auth = [request("/api/auth/google") for _ in range(7)]
         assert any(r["status"] == 429 for r in auth)
@@ -238,6 +251,8 @@ def probe(baseline: bool = False) -> dict:
             "private_readiness_boundary": "passed",
             "shared_workspace_question_budget": "passed",
             "personal_metadata_outside_question_budget": "passed",
+            "analysis_metadata_outside_question_budget": "passed",
+            "progressive_metadata_stream": stream,
             "challenge_bootstrap_budget": "passed",
             "password_route_budgets": "passed",
             "password_waves": password_waves,

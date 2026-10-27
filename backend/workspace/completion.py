@@ -89,7 +89,12 @@ def execute(
 
 
 def finish(
-    conn: Connection, session: UserSession, request_id: str, response: dict
+    conn: Connection,
+    session: UserSession,
+    request_id: str,
+    response: dict,
+    *,
+    expected_states: tuple[str, ...] = ("pending",),
 ) -> None:
     owner = session.user["id"]
     request = one(
@@ -98,7 +103,7 @@ def finish(
         (owner, request_id),
     )
     chat_row(conn, owner, str(request["chat_id"]), lock=True)
-    if request["state"] != "pending":
+    if request["state"] not in expected_states:
         return
     size = conn.execute(
         "SELECT octet_length(%s::jsonb::text)", (Jsonb(response),)
@@ -122,8 +127,8 @@ def finish(
         (owner, request["chat_id"], request_id, Jsonb(response)),
     )
     conn.execute(
-        "UPDATE app.analysis_requests SET state=%s,reserved_bytes=0,finished_at=clock_timestamp() WHERE user_id=%s AND id=%s AND state='pending'",
-        (state, owner, request_id),
+        "UPDATE app.analysis_requests SET state=%s,reserved_bytes=0,finished_at=clock_timestamp() WHERE user_id=%s AND id=%s AND state=ANY(%s)",
+        (state, owner, request_id, list(expected_states)),
     )
     conn.execute(
         "UPDATE app.messages SET status=%s WHERE user_id=%s AND chat_id=%s AND id=%s AND request_id=%s",

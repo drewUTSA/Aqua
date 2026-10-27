@@ -38,6 +38,24 @@ class Routes(unittest.TestCase):
             with self.subTest(method=method):
                 self.assertFalse(workspace_route(path, method))
 
+    def test_analysis_monitoring_and_cancel_have_no_mutable_query_authority(
+        self,
+    ) -> None:
+        prefix = f"/api/v1/analysis-requests/{ID}"
+        for path, method in [
+            (prefix, "GET"),
+            (prefix + "/events", "GET"),
+            (prefix + "/cancel", "POST"),
+        ]:
+            self.assertTrue(workspace_route(path, method))
+        for path, method in [
+            (prefix, "POST"),
+            (prefix + "/cancel", "GET"),
+            (prefix + "/events?owner=foreign", "GET"),
+            (prefix + "?model=gemini", "GET"),
+        ]:
+            self.assertFalse(workspace_route(path, method))
+
 
 if __name__ == "__main__":
     unittest.main()

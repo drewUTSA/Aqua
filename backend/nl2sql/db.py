@@ -16,6 +16,7 @@ import sys
 import psycopg
 
 from nl2sql.config import Settings, load_settings
+from nl2sql.control import remaining
 
 # Give up quickly if the database is unreachable rather than hanging a
 # request; the server is a cloud service, so 10 seconds is generous.
@@ -44,7 +45,7 @@ def connect(settings: Settings) -> psycopg.Connection:
     if not settings.database_url:
         raise DatabaseError("DATABASE_URL is not set. Copy .env.example to .env and fill it in.")
     try:
-        conn = psycopg.connect(settings.database_url, connect_timeout=CONNECT_TIMEOUT_SECONDS)
+        conn = psycopg.connect(settings.database_url, connect_timeout=max(1,int(remaining(CONNECT_TIMEOUT_SECONDS))))
     except psycopg.Error as exc:
         raise DatabaseError(f"Could not connect to the database: {_redact(str(exc))}") from exc
     # Every transaction on this connection is READ ONLY, so a write is

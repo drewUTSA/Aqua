@@ -8,6 +8,7 @@ from auth.security import UserSession, require_database_access
 from nl2sql.cache import AnswerCache, cache_key
 from nl2sql.pipeline import Answer
 from nl2sql.schema import Schema
+from legacy_contract_fixture import install
 
 OK = Answer(question="q", sql="SELECT 1", columns=["n"], rows=[(1,)])
 FAILED = Answer(question="q", sql="SELECT nope", error="no", error_code="query_failed")
@@ -74,6 +75,7 @@ def api(monkeypatch: pytest.MonkeyPatch):
         {"id": "00000000-0000-4000-8000-000000000001", "email": "cache-test@gmail.com"},
         "csrf",
     )
+    install(monkeypatch)
     yield TestClient(main.app), asked
     main.app.dependency_overrides.pop(require_database_access, None)
 

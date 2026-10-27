@@ -1,21 +1,12 @@
 ﻿import React, { useMemo, useState } from "react";
-import { createCsv, createTsv, formatCell } from "./financialValues.js";
+import { createCsv, createTsv, formatCell, sortTableRows } from "./financialValues.js";
 
 const numericTypes = ["currency", "percentage", "number"];
 
 export default function FinancialTable({ table }) {
   const [sort, setSort] = useState(null);
   const [feedback, setFeedback] = useState("");
-  const rows = useMemo(() => {
-    if (!sort) return table.rows;
-    return [...table.rows].sort((left, right) => {
-      const a = left[sort.key], b = right[sort.key];
-      if (a == null || b == null) return a == null ? (b == null ? 0 : 1) : -1;
-      const comparison = typeof a === "number" && typeof b === "number"
-        ? a - b : String(a).localeCompare(String(b), undefined, { numeric: true });
-      return sort.direction === "asc" ? comparison : -comparison;
-    });
-  }, [sort, table.rows]);
+  const rows = useMemo(() => sortTableRows(table, sort), [sort, table]);
   const updateSort = (key) => setSort((current) => current?.key === key
     ? { key, direction: current.direction === "asc" ? "desc" : "asc" } : { key, direction: "asc" });
   const copyTable = async () => {

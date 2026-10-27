@@ -1,0 +1,183 @@
+{
+  "status": "passed",
+  "backend_image": "sha256:81acee49864b4c08ba400fdc41b512b03b3dcacdafc6c7df5dc8e990247845e7",
+  "matrix": {
+    "unique_tests": 1243,
+    "passed_in_at_least_one_fixture": 1243,
+    "fixtures": [
+      {
+        "dataset": "bank",
+        "passed": 1224,
+        "fixture_specific_skips": 19,
+        "pytest_seconds": 49.98,
+        "failures": 0
+      },
+      {
+        "dataset": "pagila",
+        "passed": 1231,
+        "fixture_specific_skips": 12,
+        "pytest_seconds": 51.48,
+        "failures": 0
+      }
+    ],
+    "total_runner_seconds": 109,
+    "cleanup": "removed_and_absence_confirmed",
+    "remaining_ids": []
+  },
+  "restore": {
+    "status": "passed",
+    "dump_bytes": 95659,
+    "dump_sha256": "863da1d395083efa02c1c885f75b1e3bb389f7fab3b7516a94fabe084bf0bf7a",
+    "rows_and_privileges": "preserved",
+    "restored_session_fence": "applied",
+    "restored_hash_and_mail_fence": "applied",
+    "restored_recipient_budget": "preserved_with_runtime_backup_privileges",
+    "dump_storage": "memory_only",
+    "restored_workspace_history": "preserved_and_pending_fenced",
+    "restored_analysis_lifecycle": "interrupted_context_purged_streams_closed",
+    "restored_analysis_admission": "preserved"
+  },
+  "installer": {
+    "run": "aqua-storage-check-5de6ff16b2d68e3a27a3ae26",
+    "status": "passed",
+    "bootstrap": {
+      "status": "bootstrapped",
+      "database": "aqua_app",
+      "public_database_port": false,
+      "schema_migrated": false
+    },
+    "backup_export": {
+      "status": "passed",
+      "bytes": 92712,
+      "sha256": "0fd5f72467b56d528c7c5c807f49a4c42e4bd33b4fb1756248dfb99a2c9345d2",
+      "storage": "memory_only"
+    },
+    "repeated_migration": "passed",
+    "password_auth": "passed",
+    "runtime_ddl_denial_and_recovery": "passed",
+    "network_disabled": true,
+    "no_tcp_port": true,
+    "real_data_accessed": false,
+    "cleanup": "removed_and_absence_confirmed",
+    "elapsed_seconds": 6
+  },
+  "runtime_proof": {
+    "image": "sha256:81acee49864b4c08ba400fdc41b512b03b3dcacdafc6c7df5dc8e990247845e7",
+    "manifest_raw_sha256": "7c3845a001d7695804c0d30e75b89cc07f14643623bac09450be8c897b3a7558",
+    "source_files": 112,
+    "normalization": "CRLF-to-LF only for comparison; original manifest verified RAW",
+    "frozen_raw_mismatch": [],
+    "source_normalized_mismatch": [],
+    "image_normalized_mismatch": [],
+    "image_files": 110,
+    "status": "passed"
+  },
+  "privacy": {
+    "status": "passed",
+    "network": "none",
+    "ordinary_access_log": "retained",
+    "private_workspace_access_log": "suppressed",
+    "real_data_accessed": false
+  },
+  "telemetry": {
+    "cases": [
+      {
+        "case": "single",
+        "combined_characters": 8193,
+        "normal_header_recovery": "passed",
+        "parser_entered": false
+      },
+      {
+        "case": "combined",
+        "combined_characters": 8193,
+        "normal_header_recovery": "passed",
+        "parser_entered": false
+      }
+    ],
+    "exact_boundary_checks": 2,
+    "limitations": "Offline propagation only; no live endpoint or CPU benchmark.",
+    "maximum_header_bytes": 8193,
+    "package": "opentelemetry-api",
+    "status": "passed",
+    "version": "1.45.1"
+  },
+  "source": {
+    "status": "passed",
+    "files_scanned": 253,
+    "findings": [],
+    "python_style": {
+      "explicit_python_files": 230,
+      "checks": [
+        {
+          "name": "black",
+          "exit": 0,
+          "seconds": 0.624
+        },
+        {
+          "name": "ruff",
+          "exit": 0,
+          "seconds": 0.024
+        }
+      ]
+    },
+    "explicit_paths_reason": "Directory traversal under ignored .check-results can skip files; explicit argv checked every Python file."
+  },
+  "dependency_checks": {
+    "lock": "direct requirement ranges satisfied",
+    "pip_check": "No broken requirements found",
+    "pip_audit": "No known vulnerabilities found",
+    "runtime_lock_image_hash_verified": true
+  },
+  "initial_failures": {
+    "matrix": {
+      "bank": {
+        "passed": 1197,
+        "failed": 27,
+        "skipped": 19,
+        "seconds": 52.6
+      },
+      "pagila": {
+        "passed": 1204,
+        "failed": 27,
+        "skipped": 12,
+        "seconds": 54.07
+      }
+    },
+    "causes": [
+      "One-connection/one-waiter auth fixture saturated by two startup dispatcher readers.",
+      "Focused auth/query tests patched process-local schema/provider functions which cannot reach an isolated child."
+    ],
+    "correction": "Two test fixture files only: retain one connection with four bounded waiters; use existing pure query-service adapter while real identity/CSRF/current-grant dependencies and original assertions remain intact. Independent actual Analysis legacy/budget/process tests unchanged.",
+    "affected_rerun": {
+      "unique_tests": 30,
+      "bank_passed": 30,
+      "bank_seconds": 3.07,
+      "pagila_passed": 30,
+      "pagila_seconds": 3.14,
+      "restore": "passed",
+      "cleanup": "removed_and_absence_confirmed"
+    },
+    "installer_packaging": "First installer attempt stopped before DB work because stage lacked tracked ops/appdb/pg_hba.conf; exact local RAW bytes restored; retry passed. Initial cleanup confirmed."
+  },
+  "source_changes": {
+    "runtime_changed": false,
+    "test_files": [
+      "backend/tests/auth/conftest.py",
+      "backend/tests/auth/_durable_route_helpers.py"
+    ]
+  },
+  "check_exit_codes": {
+    "backend-final": 0,
+    "storage-rerun": 0,
+    "privacy": 0,
+    "telemetry": 0,
+    "pip-check": 0,
+    "source-final": 0,
+    "lock-final": 0,
+    "dependency-audit": 0,
+    "runtime-source-proof-final": 0
+  },
+  "production_changed": false,
+  "real_data_accessed": false,
+  "evidence_root": "/srv/bank-ai/.check-results/p07-release-20261026/backend-gates-81acee-01"
+}

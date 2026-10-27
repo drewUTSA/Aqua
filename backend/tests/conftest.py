@@ -7,7 +7,7 @@ install()
 
 import pytest  # noqa: E402 - safety guard must precede application imports
 
-pytest_plugins = ("workspace_fixtures",)
+pytest_plugins = ("workspace_fixtures", "p07_security_fixture")
 
 from nl2sql.config import load_settings  # noqa: E402
 from nl2sql.db import connect  # noqa: E402

@@ -20,6 +20,7 @@ from typing import Any
 import httpx
 
 from nl2sql.config import Settings
+from nl2sql.control import CURRENT
 
 log = logging.getLogger(__name__)
 
@@ -105,6 +106,9 @@ def complete(
     chain = fallback_chain(settings)
     last_error: LLMError | None = None
     for index, (provider, model) in enumerate(chain):
+        budget = CURRENT.get()
+        if budget:
+            budget.provider()
         # A test client is a stand-in for the first provider (an httpx client
         # for Ollama, an SDK stand-in for Gemini), so it serves that provider.
         step_client = client if provider == chain[0][0] else None
@@ -168,51 +172,9 @@ def _complete_ollama(
     json_schema: dict[str, Any] | None,
     client: httpx.Client | None,
 ) -> Completion:
-    messages = [{"role": "user", "content": prompt}]
-    if system:
-        messages.insert(0, {"role": "system", "content": system})
+    from nl2sql.provider_ollama import complete as call
 
-    options = THINKING_OPTIONS if settings.ollama_think else NON_THINKING_OPTIONS
-    body: dict[str, Any] = {
-        "model": settings.ollama_model,
-        "messages": messages,
-        "stream": False,
-        "think": settings.ollama_think,
-        "options": {**options, "seed": SEED, "num_ctx": NUM_CTX},
-    }
-    if json_schema is not None:
-        body["format"] = json_schema
-
-    url = f"{settings.ollama_base_url}/api/chat"
-    owns_client = client is None
-    if owns_client:
-        client = httpx.Client(timeout=TIMEOUT)
-    try:
-        response = client.post(url, json=body)
-        response.raise_for_status()
-        data = response.json()
-    except httpx.TimeoutException as exc:
-        raise LLMError("Ollama took too long to respond.") from exc
-    except httpx.HTTPStatusError as exc:
-        # Ollama explains errors in the body, e.g. a model that isn't pulled.
-        raise LLMError(f"Ollama returned HTTP {exc.response.status_code}.") from None
-    except httpx.RequestError:
-        raise LLMError("Cannot connect to Ollama.") from None
-    except ValueError as exc:
-        raise LLMError("Ollama returned a reply that is not JSON.") from exc
-    finally:
-        if owns_client:
-            client.close()
-
-    message = data.get("message") or {}
-    text = (message.get("content") or "").strip()
-    if not text:
-        raise LLMError("Ollama returned no answer.")
-    return Completion(
-        text=text,
-        thinking=(message.get("thinking") or "").strip(),
-        model=data.get("model", settings.ollama_model),
-    )
+    return call(prompt, settings, system, json_schema, client)
 
 
 def _complete_gemini(
@@ -222,77 +184,6 @@ def _complete_gemini(
     json_schema: dict[str, Any] | None,
     client: Any,
 ) -> Completion:
-    """Gemini API through the google-genai SDK.
+    from nl2sql.provider_gemini import complete as call
 
-    Gemma models on the API take neither a system instruction nor a JSON
-    schema, so for them the rules go at the top of the prompt and
-    generate.extract_sql reads the SQL out of a code fence instead.
-    Temperature is left at the API default, which Google recommends for
-    current Gemini models.
-    """
-    if not settings.gemini_api_key:
-        raise LLMError("GEMINI_API_KEY is not set, so Gemini cannot be used.")
-    from google.genai import errors, types  # Ollama-only setups never load it
-
-    model = settings.gemini_model
-    # No tools are passed, so automatic function calling only adds a
-    # warning to every call's log; switch it off.
-    config: dict[str, Any] = {
-        "seed": SEED,
-        "automatic_function_calling": types.AutomaticFunctionCallingConfig(
-            disable=True
-        ),
-    }
-    contents = prompt
-    if model.lower().startswith("gemma"):
-        if system:
-            contents = f"{system}\n\n{prompt}"
-    else:
-        if system:
-            config["system_instruction"] = system
-        if json_schema is not None:
-            config["response_mime_type"] = "application/json"
-            config["response_json_schema"] = json_schema
-
-    if client is None:
-        from google import genai
-
-        client = genai.Client(
-            api_key=settings.gemini_api_key,
-            http_options=types.HttpOptions(
-                timeout=GEMINI_TIMEOUT_MS,
-                retry_options=types.HttpRetryOptions(
-                    attempts=GEMINI_ATTEMPTS,
-                    initial_delay=GEMINI_RETRY_DELAY_S,
-                    max_delay=GEMINI_RETRY_MAX_DELAY_S,
-                    http_status_codes=GEMINI_RETRY_CODES,
-                ),
-            ),
-        )
-    try:
-        response = client.models.generate_content(
-            model=model,
-            contents=contents,
-            config=types.GenerateContentConfig(**config),
-        )
-    except errors.APIError as exc:
-        raise LLMError(
-            f"Gemini returned HTTP {exc.code}.",
-            transient=exc.code in FALLBACK_CODES,
-        ) from exc
-    except httpx.TimeoutException as exc:
-        raise LLMError("Gemini took too long to respond.", transient=True) from exc
-    except httpx.HTTPError:
-        raise LLMError("Cannot reach the Gemini API.", transient=True) from None
-
-    text = (response.text or "").strip()
-    if not text:
-        # Provider finish text may echo submitted/private content; use a fixed hint.
-        # An empty reply (a safety or recitation stop) may not repeat on
-        # another model, so let the chain move on.
-        raise LLMError("Gemini returned no answer.", transient=True)
-    return Completion(
-        text=text,
-        thinking="",
-        model=getattr(response, "model_version", None) or model,
-    )
+    return call(prompt, settings, system, json_schema, client)

@@ -1,0 +1,59 @@
+{
+  "status": "passed",
+  "schema_version": 5,
+  "backend_image_id": "sha256:81acee49864b4c08ba400fdc41b512b03b3dcacdafc6c7df5dc8e990247845e7",
+  "bridge_source": "/srv/bank-ai/.check-results/p07-release-20261026/source-final-v2",
+  "source_manifest_sha256": "815650b03b9987131f80d0c0a51a0b21881bfe4900ec03a067379e2dacd188db",
+  "frontend_unit_cases": 236,
+  "harness_only_change": {
+    "file": "frontend/checks/p05-real-backend-browser.mjs",
+    "maximum_network_requests": 512,
+    "backend_opt_in_operations": 400,
+    "product_source_unchanged": true,
+    "dist_unchanged": true
+  },
+  "variants": {
+    "opal": {
+      "dist": "dist-opal-final-r2",
+      "manifest": "dist-opal-final-r2-manifest.json",
+      "manifest_sha256": "e3fff15192f72471174d92add8a57fe7db0a8b433ba62e8cae18df26f920549b",
+      "synthetic": {
+        "report": "synthetic-opal-final-r2/report.json",
+        "report_sha256": "6cf15722d6fb38b4127488f22681be406930ff3a9e3a9df00a3a2ba65cecced9",
+        "checks": 103,
+        "elapsed_seconds": 19.37,
+        "exact_asset_set_equal": true,
+        "cleanup_verified": true
+      },
+      "actual": {
+        "report": "actual-opal-final-r3/report.json",
+        "report_sha256": "f95b292eed4656914cb6d4e5a0d5253e5c635576dbcb97f2e59e151e40eb9248",
+        "checks": 39,
+        "elapsed_seconds": 99.94,
+        "exact_asset_set_equal": true,
+        "cleanup_verified": true
+      }
+    },
+    "legacy": {
+      "dist": "dist-legacy-final-r2",
+      "manifest": "dist-legacy-final-r2-manifest.json",
+      "manifest_sha256": "e6e90d0e3caf3f79b34d778c56ea2747ab5aca4aff994277d7a4d815895ab018",
+      "synthetic": {
+        "report": "synthetic-legacy-final-r2/report.json",
+        "report_sha256": "02f27f6976379252397a7bb5b01337e9e22f917dcd54ecf0635592fbcbe99c61",
+        "checks": 103,
+        "elapsed_seconds": 30.63,
+        "exact_asset_set_equal": true,
+        "cleanup_verified": true
+      },
+      "actual": {
+        "report": "actual-legacy-final-r3/report.json",
+        "report_sha256": "f4383290a94232f198c2295970b61372ba5de40a90e28c3d75ff4358c62b218f",
+        "checks": 39,
+        "elapsed_seconds": 103.98,
+        "exact_asset_set_equal": true,
+        "cleanup_verified": true
+      }
+    }
+  }
+}

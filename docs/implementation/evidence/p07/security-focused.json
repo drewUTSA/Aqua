@@ -1,0 +1,39 @@
+{
+  "run": "aqua-check-f28535e607d95bb4eb9108af",
+  "source_sha256": "0db98a9ff4d31f7810a48feb452f469b0a545266f58a718ee9dc5bf4495bfe14",
+  "fixtures": {
+    "bank": {
+      "passed": 63,
+      "independent_security": 37,
+      "pure_api_cache_units": 26
+    },
+    "pagila": {
+      "passed": 63,
+      "independent_security": 37,
+      "pure_api_cache_units": 26
+    }
+  },
+  "ruff": "pass_14_files",
+  "black": "pass_14_files",
+  "owned_file_sha256": {
+    "backend/tests/test_p07_security_admission.py": "65f40b9efe52954edb0595872c6fe66073d2658ed5036cd5a2b00a0864bc6d9f",
+    "backend/tests/test_p07_security_context.py": "4a112f99c966c8b55a416983f30bf5053fe5f0e8e6dc6d57c5d9718761cb9a5f",
+    "backend/tests/test_p07_security_detection.py": "1e85c111af53bcc6e78d3ca0799b3235703daddba692ee06c3b62d0f08ee5ffb",
+    "backend/tests/test_p07_security_fencing.py": "5534d600a6eaf08284a5e9e64027d54898f5b03bbb36eb24de8d1a91e32bf0a4",
+    "backend/tests/test_p07_security_lifecycle.py": "aae7018e9051f04029af1fb493fc972d34efd5eac0c3005a03e66d865e32d009",
+    "backend/tests/test_p07_security_process.py": "6306c9e102a789b85c9e5febeaef0efb5be9396ba162cea939a7ecced45602f5",
+    "backend/tests/test_p07_security_sql_cancel.py": "31781ddc50fb908973fab997ffeee3a039acf9344f5c9373f9fe748fb62a911e",
+    "backend/tests/test_p07_security_transport.py": "40e27a7aeb974065d7fe241bc8e291c571f672388cd6f0ddd017529ef5c76961",
+    "backend/tests/test_api.py": "9697c419990538600eef9d7d2028826cbff73d5d9ca483330c544159f9106489",
+    "backend/tests/test_cache.py": "d6e6b5dd07b8ab4a3c19f881dfdcee1727aee977f0d10f6e16a6150789aaaa75",
+    "backend/tests/p07_security_fixture.py": "88ac38595ad2e90aba6060eced087032b38747412b7c75dbba33db202d171c6b",
+    "backend/tests/p07_sql_cancel_child.py": "c6af73747b57e910cf0bdad74f74b38d66f3f4d946de47f184fe6c22722a5238",
+    "backend/tests/legacy_contract_fixture.py": "6ff7cde7aff264c004385c1b90c744394828940c71dfaef1ad12495cae2919f7",
+    "backend/tests/conftest.py": "fa74510749bf2b6407f9f1570317505f25c70b44e1a2a04ff738472d62375990"
+  },
+  "cleanup": "removed_and_absence_confirmed",
+  "provider_calls": 0,
+  "production_access": false,
+  "scope": "Pinned P06 dependencies plus P07 source overlay. Subsequent canonical GET JSON date encoding/test-only proc proof fixes await root full candidate runtime matrix.",
+  "pure_fixture_note": "Existing API/cache units override only get_analysis with shared workspace_query adapter; actual service admission/lifecycle/security cases use real private fixture DB and injected bounded engine."
+}

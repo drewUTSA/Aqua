@@ -14,6 +14,7 @@ from nl2sql.db import DatabaseError
 from nl2sql.llm import LLMError
 from nl2sql.pipeline import Answer
 from nl2sql.schema import Schema
+from legacy_contract_fixture import install
 
 client = TestClient(main.app)
 
@@ -27,12 +28,13 @@ def set_settings(monkeypatch, settings):
 
 
 @pytest.fixture(autouse=True)
-def authenticated_query_contract():
+def authenticated_query_contract(monkeypatch):
     """Keep query-contract tests focused; test_auth checks the real auth gate."""
     main.app.dependency_overrides[require_database_access] = lambda: UserSession(
         {"id": "00000000-0000-4000-8000-000000000001", "email": "query-test@gmail.com"},
         "test-csrf",
     )
+    install(monkeypatch)
     yield
     main.app.dependency_overrides.pop(require_database_access, None)
 

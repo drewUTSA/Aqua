@@ -18,11 +18,11 @@ from p05_browser_protocol import (
     GOOGLE_SUBJECT,
     MAIL_ORIGIN,
     MAX_BODY,
-    MAX_REQUESTS,
     MAX_SECONDS,
     MIGRATOR,
     emit,
     message,
+    request_limit,
 )
 
 WORKER_STAGE = "before_start"
@@ -100,7 +100,8 @@ def worker(origin: str, workspace_analysis: bool = False) -> int:
     from storage.config import StorageSettings
     from storage.migrate import apply
     from storage.pool import Storage
-    from p06_browser_analysis import AnalysisFixture, DATASET
+    from p06_browser_analysis import DATASET
+    from p07_browser_analysis import LifecycleFixture
 
     WORKER_STAGE = "migration"
     with psycopg.connect(MIGRATOR, autocommit=True, connect_timeout=2) as conn:
@@ -118,9 +119,33 @@ def worker(origin: str, workspace_analysis: bool = False) -> int:
         retrieval=False,
     )
     main.app.state.settings, main.app.state.storage = settings, service
-    analysis = AnalysisFixture(service, settings) if workspace_analysis else None
+    analysis = LifecycleFixture(service, settings) if workspace_analysis else None
     if analysis is not None:
-        main.app.state.workspace_query = analysis.answer
+        from analysis.service import Analysis
+
+        runtime = Analysis(
+            service,
+            load_auth_policy(settings),
+            settings.session_secret,
+            settings,
+            engine=analysis,
+        )
+        main.app.state.analysis = runtime
+
+        def restart_analysis() -> None:
+            previous = main.app.state.analysis
+            previous.close()
+            analysis.reopen()
+            main.app.state.analysis = Analysis(
+                service,
+                load_auth_policy(settings),
+                settings.session_secret,
+                settings,
+                engine=analysis,
+                start=True,
+            )
+
+        analysis.restart = restart_analysis
     policy = MailPolicy(
         enabled=True, key=secrets.token_bytes(32), public_origin=MAIL_ORIGIN
     )
@@ -170,12 +195,12 @@ def worker(origin: str, workspace_analysis: bool = False) -> int:
             main.app, base_url=origin, raise_server_exceptions=True
         ) as client:
             readiness = service.readiness()
-            if readiness.get("schema_version") != 4:
+            if readiness.get("schema_version") != 5:
                 raise RuntimeError("fixture_schema_invalid")
             emit(
                 {
                     "kind": "ready",
-                    "schema_version": 4,
+                    "schema_version": 5,
                     "origin": origin,
                     "mail_origin": MAIL_ORIGIN,
                     "google_email": GOOGLE_EMAIL,
@@ -184,7 +209,7 @@ def worker(origin: str, workspace_analysis: bool = False) -> int:
                     "workspace_analysis_fixture": workspace_analysis,
                     "network": "none",
                     "database_transport": "private_unix_socket",
-                    "max_requests": MAX_REQUESTS,
+                    "max_requests": request_limit(workspace_analysis),
                     "max_seconds": MAX_SECONDS,
                     "body_bytes_max": MAX_BODY,
                     "capabilities": {
@@ -196,7 +221,7 @@ def worker(origin: str, workspace_analysis: bool = False) -> int:
                     "mail_origin_override": "fixture-only canonical HTTPS mailbox links; app Origin is exact supplied loopback",
                 }
             )
-            for _ in range(MAX_REQUESTS):
+            for _ in range(request_limit(workspace_analysis)):
                 item = message()
                 if item is None:
                     return 0
