@@ -27,7 +27,8 @@ def test_failed_foreign_writes_spend_shared_budget_then_cooldown_recovers(world)
             "UPDATE app.workspace_admission SET expires_at=now()-interval '1 second' WHERE user_id=%s",
             (owner,),
         )
-    assert a.post("/api/v1/chats", json=world.body()).status_code == 201
+    assert a.post("/api/v1/chats", json=world.body()).status_code == 202
+    assert world.analysis.tick()
     assert len(world.calls) == 1
 
 
@@ -59,7 +60,7 @@ def test_account_byte_cap_denies_before_model_and_releases_after_delete(world):
         ).status_code
         == 204
     )
-    assert a.post("/api/v1/chats", json=world.body()).status_code == 201
+    assert a.post("/api/v1/chats", json=world.body()).status_code == 202
 
 
 def test_oversized_result_has_safe_saved_error_and_no_unbounded_payload(
@@ -71,9 +72,8 @@ def test_oversized_result_has_safe_saved_error_and_no_unbounded_payload(
         "workspace_query",
         lambda *args: {**GOOD, "message": "x" * 262145},
     )
-    response = a.post("/api/v1/chats", json=world.body())
-    assert response.status_code == 201
-    assert response.json()["response"]["error"]["code"] == "result_too_large"
+    response = world.submit(a)
+    assert response["response"]["error"]["code"] == "result_too_large"
     with world.storage.transaction() as conn:
         assert conn.execute(
             "SELECT max(octet_length(response::text))<1024 FROM app.visual_results WHERE user_id=%s",
@@ -121,7 +121,7 @@ def test_global_logical_byte_cap_is_shared_across_accounts_and_recovers(world):
         conn.execute(
             "UPDATE app.workspace_totals SET content_bytes=(SELECT sum(content_bytes) FROM app.workspace_usage) WHERE singleton"
         )
-    assert a.post("/api/v1/chats", json=world.body()).status_code == 201
+    assert a.post("/api/v1/chats", json=world.body()).status_code == 202
 
 
 def test_project_and_prompt_count_caps_fail_without_creating_extra_rows(world):

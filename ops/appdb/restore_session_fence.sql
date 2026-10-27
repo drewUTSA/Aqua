@@ -11,19 +11,38 @@ DELETE FROM app.password_hash_slots;
 UPDATE app.account_mail SET state='expired',ciphertext=decode(repeat('00',30),'hex'),
  lease_id=NULL,lease_expires_at=NULL WHERE state IN ('pending','sending');
 UPDATE app.account_mail_control SET lease_id=NULL,lease_expires_at=NULL WHERE singleton;
--- Schema-3 backups remain restorable. P06 never resumes a web request from a
--- restored pending row or makes a second provider call automatically.
+-- Older backups remain restorable. Recovery never resumes an analysis or
+-- repeats a model call. Saved completed conversation results stay intact.
 DO $$
 BEGIN
  IF to_regclass('app.analysis_requests') IS NOT NULL THEN
   UPDATE app.workspace_totals SET content_bytes=GREATEST(0,content_bytes-
-   (SELECT COALESCE(sum(reserved_bytes),0) FROM app.analysis_requests WHERE state='pending')) WHERE singleton;
+   (SELECT COALESCE(sum(reserved_bytes),0) FROM app.analysis_requests WHERE state IN ('pending','queued','running','cancelling'))) WHERE singleton;
   UPDATE app.workspace_usage u SET content_bytes=GREATEST(0,u.content_bytes-r.bytes)
    FROM (SELECT user_id,sum(reserved_bytes) AS bytes FROM app.analysis_requests
-         WHERE state='pending' GROUP BY user_id) r WHERE u.user_id=r.user_id;
+         WHERE state IN ('pending','queued','running','cancelling') GROUP BY user_id) r WHERE u.user_id=r.user_id;
   UPDATE app.messages SET status='interrupted' WHERE status='pending';
   UPDATE app.analysis_requests SET state='interrupted',reserved_bytes=0,finished_at=now()
-   WHERE state='pending';
+   WHERE state IN ('pending','queued','running','cancelling');
+ END IF;
+ IF to_regclass('app.analysis_jobs') IS NOT NULL THEN
+  -- Job context/legacy response bytes are separate from result reservations.
+  UPDATE app.workspace_totals SET content_bytes=GREATEST(0,content_bytes-
+   (SELECT COALESCE(sum(content_bytes),0) FROM app.analysis_jobs)) WHERE singleton;
+  UPDATE app.workspace_usage u SET content_bytes=GREATEST(0,u.content_bytes-r.bytes)
+   FROM (SELECT user_id,sum(content_bytes) AS bytes FROM app.analysis_jobs
+         GROUP BY user_id) r WHERE u.user_id=r.user_id;
+  UPDATE app.analysis_jobs SET state='interrupted',stage='interrupted',
+   version=version+1,lease_token=lease_token+1,finished_at=now()
+   WHERE state IN ('queued','running','cancelling');
+  UPDATE app.analysis_jobs SET question='',context='[]',response=NULL,
+   content_bytes=0,session_digest=decode(repeat('00',32),'hex'),
+   lease_owner=NULL,lease_until=NULL,physical_until=NULL;
+  -- This is safe only after old web processes/children have been stopped.
+  DELETE FROM app.analysis_streams;
+  -- Pre-recovery progress must not replay as a current running operation.
+  DELETE FROM app.analysis_events;
+  -- Preserve spent admission budgets; recovery must not mint fresh model work.
  END IF;
 END;
 $$;

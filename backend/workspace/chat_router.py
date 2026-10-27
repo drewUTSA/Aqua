@@ -19,6 +19,8 @@ from workspace.contracts import (
 from workspace.dependencies import Session, Service, Page, Revision, perform
 from workspace.service import Workspace
 from workspace.errors import WorkspaceError, failure
+from analysis.dependencies import get_analysis
+from auth.security import get_store
 
 router = APIRouter()
 
@@ -119,11 +121,11 @@ def submit(
     input_id: str | None = None,
 ) -> Any:
     def run():
-        result, status = service.submit(
+        settings = get_settings(request)
+        analysis = get_analysis(request, settings, get_store(request, settings))
+        result, status = analysis.enqueue(
             session,
             body,
-            request.app.state.workspace_query,
-            get_settings(request),
             chat_id=chat_id,
             input_id=input_id,
         )

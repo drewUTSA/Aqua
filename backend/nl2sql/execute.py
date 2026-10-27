@@ -21,6 +21,7 @@ from nl2sql.db import connect
 from nl2sql.errors import diagnostic, query_code
 from nl2sql.relations import physical_tables
 from nl2sql.validate import UnsafeQueryError
+from nl2sql.control import CURRENT, remaining
 
 # Most rows any query may return. Enough for any table a person would
 # read in the panel; stops "list all customers" pulling a whole table.
@@ -114,6 +115,13 @@ def execute(
             # The validator already qualifies approved tables with public.
             # This is transaction-local, never a change to roles or hosted storage.
             conn.execute("SET LOCAL search_path = pg_catalog")
+            if CURRENT.get():
+                milliseconds = max(1, int(remaining(10) * 1000))
+                conn.execute(
+                    "SELECT set_config('statement_timeout',%s,true)",
+                    (str(milliseconds),),
+                )
+                conn.execute("SET LOCAL lock_timeout = '1s'")
             cursor = conn.execute(probe_sql)
             rows = cursor.fetchall()
         except psycopg.Error as exc:

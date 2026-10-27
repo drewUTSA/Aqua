@@ -1,0 +1,19 @@
+{
+  "status": "passed_exact_asset_and_nginx_hashes_and_116_request_proxy_per_image",
+  "images": [
+    {
+      "shell": "opal",
+      "image_id": "sha256:d86a8f577c7744ce85145e9359880618082deaa9eb7959250585a20efce73c9f",
+      "archive_sha256": "f69fabf3e2257a0a5e3821c5f32e36385481b41beac1e075b987f3661771ddbd",
+      "base_image_id": "sha256:78eba557e860481c32194b44380336f491d05a790cc9c66af3482232c4ed6997"
+    },
+    {
+      "shell": "legacy",
+      "image_id": "sha256:5fcd5b541e37695427a8d07a7b2fd135dd9d497e63754954f92550af62118034",
+      "archive_sha256": "ab8223274ba39fe5f6a6580add52645803030eee71a8d2dfa563bc11ab9f24d0",
+      "base_image_id": "sha256:78eba557e860481c32194b44380336f491d05a790cc9c66af3482232c4ed6997"
+    }
+  ],
+  "live_services_changed": false,
+  "deployed": false
+}

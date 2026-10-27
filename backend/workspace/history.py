@@ -170,6 +170,9 @@ def delete_chat(conn: Connection, owner: str, chat_id: str, revision: int) -> No
     current = chat_row(conn, owner, chat_id, lock=True)
     if current["revision"] != revision:
         raise WorkspaceError("revision_conflict", 409)
+    from analysis.lifecycle import deleted
+
+    deleted(conn, owner, chat_id)
     size = conn.execute(
         "SELECT COALESCE(sum(octet_length(content)),0) FROM app.messages WHERE user_id=%s AND chat_id=%s",
         (owner, chat_id),

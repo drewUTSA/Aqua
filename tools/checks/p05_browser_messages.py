@@ -21,7 +21,14 @@ def dispatch(
 ) -> dict[str, Any]:
     identifier = item["id"]
     kind = item.get("kind")
-    if kind in {"workspace_grant", "workspace_revoke", "workspace_stats"}:
+    if kind in {
+        "workspace_grant",
+        "workspace_revoke",
+        "workspace_stats",
+        "workspace_release",
+        "workspace_restart",
+        "workspace_recover_analysis_rate",
+    }:
         if analysis is None:
             raise ValueError("fixture_analysis_not_enabled")
         return analysis.control(item)
@@ -102,6 +109,21 @@ def dispatch(
     body = base64.b64decode(item.get("bodyBase64", ""), validate=True)
     if len(body) > MAX_BODY:
         raise ValueError("fixture_body_limit")
+    if re.fullmatch(r"/api/v1/analysis-requests/[0-9a-fA-F-]{36}/events", path):
+        # CDP static response fulfillment is intentionally polling-only. It
+        # cannot prove a progressive stream or process cancellation meanwhile.
+        # Genuine stream behavior is tested separately through ASGI and nginx.
+        return {
+            "id": identifier,
+            "status": 503,
+            "headers": [
+                ["Content-Type", "application/json"],
+                ["Cache-Control", "no-store"],
+            ],
+            "bodyBase64": base64.b64encode(
+                b'{"error":{"code":"fixture_polling_only","message":"Use status polling in this fixture."}}'
+            ).decode(),
+        }
     # Browser cookies are the only cookie authority. TestClient must not merge
     # a previous browser/tab's jar into a later request with no Cookie header.
     client.cookies.clear()

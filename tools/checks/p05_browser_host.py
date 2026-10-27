@@ -6,7 +6,7 @@ import signal
 import subprocess
 from typing import Any
 
-from p05_browser_protocol import MAX_LINE, MAX_REQUESTS, MAX_SECONDS, emit, message
+from p05_browser_protocol import MAX_LINE, MAX_SECONDS, emit, message, request_limit
 from p05_browser_resources import Resources
 
 
@@ -32,7 +32,7 @@ def close_worker(child: subprocess.Popen[bytes]) -> bool:
 
 
 def host(origin: str, image: str, workspace_analysis: bool = False) -> int:
-    """Run <=256 messages for <=300 seconds; always remove owned resources."""
+    """Bound all operations/lifetime; lifecycle mode explicitly allows 400."""
     name = "aqua-p05-browser-" + secrets.token_hex(12)
     resources = Resources(name)
     child: subprocess.Popen[bytes] | None = None
@@ -42,7 +42,8 @@ def host(origin: str, image: str, workspace_analysis: bool = False) -> int:
         "status": "failed",
         "network": "none",
         "database_transport": "private_unix_socket",
-        "schema_version": 4,
+        "schema_version": 5,
+        "max_operations": request_limit(workspace_analysis),
         "real_data_accessed": False,
         "provider_calls": 0,
         "workspace_analysis_fixture": workspace_analysis,
@@ -81,14 +82,14 @@ def host(origin: str, image: str, workspace_analysis: bool = False) -> int:
         )
         assert child.stdout is not None and child.stdin is not None
         ready = json.loads(child.stdout.readline(MAX_LINE + 1))
-        if ready.get("kind") != "ready" or ready.get("schema_version") != 4:
+        if ready.get("kind") != "ready" or ready.get("schema_version") != 5:
             if ready.get("kind") == "error":
                 report["worker_error"] = {
                     key: ready.get(key) for key in ("category", "stage", "module")
                 }
             raise RuntimeError("fixture_worker_not_ready")
         emit(ready)
-        for _ in range(MAX_REQUESTS):
+        for _ in range(request_limit(workspace_analysis)):
             item = message()
             if item is None or item.get("kind") == "finish":
                 final_id = item["id"] if item is not None else "finish"

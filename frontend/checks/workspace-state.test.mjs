@@ -98,3 +98,13 @@ test("confirmed canonical deletion fences a held first-submit response without l
   assert.equal(JSON.stringify(late).includes("DELETED_SECRET"), false);
   assert.equal(openConversation(late, { id: "deleted" }), late);
 });
+
+test("an old failed first response cannot restore its prompt over a newer canonical operation", () => {
+  const state = initialWorkspace(), source = state.activeId; state.records[source].operation = { clientId: "first", prompt: "Old failed question" };
+  const opened = openConversation(state, { id: "canonical", revision: 4, title: "Newer canonical title" });
+  opened.records.canonical.operation = { clientId: "newer", busy: true };
+  const result = { chat: { id: "canonical", revision: 1 }, request: { state: "error", version: 3 },
+    input: { id: "input", role: "user", sequence: 1 }, assistant: { id: "reply", role: "aqua", sequence: 2, response: { status: "error" } } };
+  const next = finishSubmission(opened, source, "first", result);
+  assert.equal(next.records.canonical.draft, ""); assert.equal(next.records.canonical.operation.clientId, "newer"); assert.equal(next.records.canonical.title, "Newer canonical title");
+});

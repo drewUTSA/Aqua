@@ -47,7 +47,7 @@ Maintain this table or an equivalent repository progress log during implementati
 
 | Field | Verified checkpoint — October 26, 2026 |
 | --- | --- |
-| Current phase | P06 complete; P00–P06 merged and the authorized activation/P06 run finished |
+| Current phase | P07 in progress; P00–P06 complete and deployed |
 | Code checkpoint | `6872e41`, P06 PR #46 merged after P05 activation PR #45 |
 | Deployment | Persistent private workspace live on schema 4 with tested backend/Opal assets; password login, registration, recovery and branded mail active; scheduled worker verified |
 | Last accepted design | Opal home, dual login, on-demand right visuals, complete Settings |
@@ -55,7 +55,7 @@ Maintain this table or an equivalent repository progress log during implementati
 | Phase evidence | P06 PR/main CI passed all 25 steps; backend, unit, both-shell browser, red/blue proxy, encrypted backup, migration and controlled production gates passed; see [P06 release](docs/implementation/P06_PERSISTENT_WORKSPACE.md) and [activation](docs/implementation/P05_PRODUCTION_ACTIVATION.md) |
 | Findings/blockers | No unresolved P05 activation or P06 release blocker |
 | Review checkpoint | P06 independently reviewed, merged, deployed and verified; private data/socket volumes and activation settings preserved |
-| Next phase | P07 is next, has not started, and is outside this completed run |
+| Next phase | Complete the newly authorized P07 with its own tests, PR and release; P08 onward remain excluded |
 
 ---
 

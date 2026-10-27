@@ -18,6 +18,13 @@ MAX_LINE = 65536
 MAX_BODY = 16384
 MAX_REQUESTS = 256
 MAX_SECONDS = 300
+
+
+def request_limit(workspace_analysis: bool = False) -> int:
+    """Only the explicit lifecycle exercise gets its reviewed larger allowance."""
+    return 400 if workspace_analysis is True else MAX_REQUESTS
+
+
 PATHS = {
     "/api/health",
     "/api/models",

@@ -27,7 +27,9 @@ async function ensureArtifacts() {
   await mkdir(artifacts, { recursive: true });
   if ((await lstat(artifacts)).isSymbolicLink()) throw new Error("artifact_directory_symlink_rejected");
 }
-const MAX_MS = 240000, MAX_BODY = 16384, MAX_REQUESTS = 400;
+// P07 adds bounded status polling and reloads. This includes static requests;
+// the independent backend fixture still caps opt-in operations at 400.
+const MAX_MS = 240000, MAX_BODY = 16384, MAX_REQUESTS = 512;
 const analysisFixture = process.env.AQUA_P06_ANALYSIS_FIXTURE === "true";
 const EMAIL = "p05-browser-reader@example.test";
 const PASSWORD = "Synthetic orbital meadow password 27";
@@ -39,7 +41,7 @@ const apiOutcomes = [];
 const abortedNetworkRequests = new Set();
 let browser, bridge, cdp, profile, server, origin, sessionId, deadline, failure = null, failureDiagnostic = null, firstAccountWorkspace = null;
 let requests = 0, apiRequests = 0, external = 0, consoleLeaks = 0, bridgeCleanup = null;
-let navigating = false, canceled = 0, staticCount = 0, fixtureClockSteps = 0;
+let navigating = false, canceled = 0, staticCount = 0, fixtureClockSteps = 0, analysisClockSteps = 0;
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const quote = JSON.stringify;
 
@@ -146,7 +148,7 @@ try {
   await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve)); origin = `http://127.0.0.1:${server.address().port}`;
   bridge = new FixtureBridge(executable, argv, origin);
   const ready = await bridge.ready;
-  assert.equal(ready.schema_version, 4, "schema4_fixture_required");
+  assert.equal(ready.schema_version, 5, "schema5_fixture_required");
   assert.equal(ready.origin, origin, "exact_loopback_origin_required");
   assert.equal(ready.dataset_grants, 0, "ungranted_fixture_account_required");
   assert.equal(ready.workspace_analysis_fixture === true, analysisFixture, "explicit_analysis_fixture_mode_required");
@@ -212,7 +214,9 @@ try {
   firstAccountWorkspace = await actualPersonalWorkspace({ check, click, clickText, fill, waitFor, evaluate, navigate, rawRequest, screenshot, csrf: session.csrf_token });
   const query = await rawRequest("POST", "/api/query", { question: "Synthetic dataset-denial check" }, { "X-CSRF-Token": session.csrf_token });
   assert.equal(query.status, 403, "real_dataset_permission_denial"); results.push({ check: "actual API rejects a query from a no-dataset account", passed: true });
-  if (analysisFixture) firstAccountWorkspace.chatId = await actualAnalysisWorkspace({ check, click, clickText, fill, waitFor, evaluate, navigate, rawRequest, bridge, screenshot, csrf: session.csrf_token });
+  if (analysisFixture) firstAccountWorkspace.chatId = await actualAnalysisWorkspace({ check, click, clickText, fill, waitFor, evaluate, navigate, rawRequest, bridge, screenshot, csrf: session.csrf_token,
+    recoverAnalysisRates: async () => { await bridge.send("workspace_recover_analysis_rate"); analysisClockSteps++; },
+    queryCount: () => apiOutcomes.filter((call) => call.method === "POST" && /^\/api\/v1\/chats(?:\/[^/]+\/messages(?:\/[^/]+\/retries)?)?$/.test(call.path)).length });
   await click(".workspace-header [aria-label='Account menu']"); await clickText("Settings", "[role=menuitem]");
   await check("actual signed-in account can reach its own Settings", `document.querySelector('.settings-shell').textContent.includes(${quote(EMAIL)})`);
   await screenshot("actual-password-account-settings"); await clickText("Back to workspace");
@@ -324,7 +328,7 @@ if (!failure && (!backendRemoved || !backendPassed)) failure = "backend_cleanup_
 // Only explicitly sanitized bridge cleanup fields are persisted. Mail payloads,
 // cookies, credentials, CSRF values and proof links never enter the report.
 const report = { status: failure ? "failed" : "passed", failure, checked_utc: new Date().toISOString(), mode: "real_fastapi_disposable_postgres_browser",
-  expected_shell: EXPECTED_SHELL, analysis_fixture: analysisFixture, browser_diagnostic: failureDiagnostic ?? cdp?.diagnostic ?? null, bridge_diagnostic: bridge?.diagnostic ?? null, loadedAssets, results, screenshots, performanceSamples, observations: { requests, apiRequests, external_attempts: external, consoleLeaks, browserErrors, protocolErrors, canceled, explicit_fixture_admission_clock_steps: fixtureClockSteps, apiOutcomes },
+  expected_shell: EXPECTED_SHELL, analysis_fixture: analysisFixture, browser_diagnostic: failureDiagnostic ?? cdp?.diagnostic ?? null, bridge_diagnostic: bridge?.diagnostic ?? null, loadedAssets, results, screenshots, performanceSamples, observations: { requests, apiRequests, external_attempts: external, consoleLeaks, browserErrors, protocolErrors, canceled, explicit_fixture_admission_clock_steps: fixtureClockSteps, explicit_fixture_analysis_clock_steps: analysisClockSteps, apiOutcomes },
   cleanup: { browser_stopped: !browser || cdp?.stopped === true, temporary_profile_removed: Boolean(profile), loopback_closed: !server?.listening, backend_status: bridgeCleanup?.status ?? null, backend_resources_removed: backendRemoved, backend_report: backendReport },
   elapsed_seconds: Math.round((performance.now() - started) / 10) / 100,
   limitations: ["Real FastAPI/auth/database code against synthetic disposable fixtures; no deployed origin or production data validation.", "Google verifier and email sender are synthetic test adapters; no Google or email provider contacted.", "No analytical database or AI model is exercised."] };

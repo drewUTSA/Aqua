@@ -19,6 +19,7 @@ from typing import Any
 import httpx
 
 from nl2sql.config import Settings
+from nl2sql.control import CURRENT, remaining
 
 EMBED_DIMENSIONS = 768
 
@@ -49,6 +50,16 @@ def _client(settings: Settings) -> Any:
         raise EmbeddingError("GEMINI_API_KEY is not set, so nothing can be embedded.")
     from google import genai  # imported here so the app starts without it
 
+    if CURRENT.get():
+        from google.genai import types
+
+        return genai.Client(
+            api_key=settings.gemini_api_key,
+            http_options=types.HttpOptions(
+                timeout=max(1, int(remaining(15) * 1000)),
+                retry_options=types.HttpRetryOptions(attempts=1),
+            ),
+        )
     return genai.Client(api_key=settings.gemini_api_key)
 
 
@@ -60,12 +71,25 @@ def embed(
     `client` exists for tests, which pass a stand-in that never reaches
     the network. Raises EmbeddingError for any API or network failure.
     """
+
+    owns_client = client is None
+    client = client or _client(settings)
+    try:
+        return _embed(texts, settings, client)
+    finally:
+        if owns_client:
+            client.close()
+
+
+def _embed(texts: Sequence[str], settings: Settings, client: Any) -> list[list[float]]:
     from google.genai import errors, types
 
-    client = client or _client(settings)
     config = types.EmbedContentConfig(output_dimensionality=EMBED_DIMENSIONS)
     vectors: list[list[float]] = []
     for start in range(0, len(texts), BATCH_SIZE):
+        budget = CURRENT.get()
+        if budget:
+            budget.provider("retrieval")
         batch = texts[start : start + BATCH_SIZE]
         contents = [types.Content(parts=[types.Part(text=text)]) for text in batch]
         try:

@@ -409,3 +409,28 @@ passed again. The sealed final evidence supersedes baseline counts in
 actual checkout before human review. See
 `docs/implementation/P05_ROLLBACK.md` for the requirement/evidence matrix and
 frontend-only deployment procedure. Human commit/push/PR and rollout remain gated.
+
+### P07 durable analysis and execution authority — 2026-10-26
+
+Use the existing private PostgreSQL database for bounded queued work, monotonic
+lease tokens and conditional terminal commits. Keep one intake-to-finish deadline
+across provider fallback, repair and SQL. A disconnect only detaches the observer;
+it never retries model work. Explicit cancellation must reach the owned process
+and active SQL, and capacity is released only after confirmed termination or a
+conservative remote execution bound. An unconfirmed local exit quarantines its
+slot. Expired running work becomes interrupted and requires explicit retry.
+
+Protect the legacy query route through the same admission and execution service.
+Select bounded follow-up questions and validated SQL server-side before the new
+message sequence; exclude prior rows and internal reasoning. Authority is checked
+throughout active work and replay. Stream only bounded lifecycle metadata and
+reconcile by owned status reads when streaming fails. Disable cross-job cache
+reuse until its isolation and benefit warrant a separate measured change.
+
+Preserve the legacy final response shape while adding bounded provenance and
+exact numeric sidecars to workspace results. Unknown metadata stays unknown.
+Render and export exact cells as validated strings, and withhold visuals that
+would change their values. Plotly remains P08. See
+`docs/implementation/P07_DURABLE_ANALYSIS.md` for limits, evidence and migration
+recovery constraints. User authorization covers the tested phase PR/release;
+schema-5 deployment still requires fresh encrypted backup and green release gates.

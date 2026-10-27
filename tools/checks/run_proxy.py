@@ -76,6 +76,14 @@ def run(
             "/tmp/proxy_probe.py",
             data=(ROOT / "tools/checks/proxy_probe.py").read_bytes(),
         )
+        docker(
+            "exec",
+            "-i",
+            client,
+            "tee",
+            "/tmp/p07_proxy_stream.py",
+            data=(ROOT / "tools/checks/p07_proxy_stream.py").read_bytes(),
+        )
         command = ["exec", client, "python", "-B", "/tmp/proxy_probe.py"]
         if baseline:
             command.append("--baseline")

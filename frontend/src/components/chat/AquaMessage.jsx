@@ -1,6 +1,7 @@
 import React, { lazy, Suspense, useEffect, useRef, useState } from "react";
 import SafeMarkdown from "./SafeMarkdown.js";
 import FinancialTable from "../data/FinancialTable.jsx";
+import ResultMetadata from "../data/ResultMetadata.jsx";
 
 const DashboardPreview = lazy(() => import("../data/DashboardPreview.jsx"));
 
@@ -54,7 +55,7 @@ export default function AquaMessage({ message, hidden = false, onRetry }) {
       <article className={`message message--aqua${hidden ? " message--forming" : ""}`} data-message-id={message.id} aria-hidden={hidden || undefined} inert={hidden || undefined}>
         <div className="message__bubble message__bubble--aqua aqua-loading">
           <span className="status-mark" aria-hidden="true">AQUA</span>
-          <span>AQUA is thinking…</span>
+          <span>{message.historical ? "Analysis status is shown below." : "AQUA is thinking…"}</span>
         </div>
       </article>
     );
@@ -88,6 +89,7 @@ export default function AquaMessage({ message, hidden = false, onRetry }) {
         <SqlBlock sql={response.sql} />
         {(response.tables?.length > 0 || response.visualizations?.length > 0 || response.kpis?.length > 0) && (
           <div className="response-data">
+            <ResultMetadata response={response} />
             {response.tables?.map((table) => <FinancialTable key={table.id} table={table} />)}
             {(response.visualizations?.length > 0 || response.kpis?.length > 0) && (
               <Suspense fallback={<p className="chart-loading">Preparing dashboard preview…</p>}>

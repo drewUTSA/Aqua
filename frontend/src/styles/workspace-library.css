@@ -16,3 +16,7 @@
 .workspace-editor :focus-visible, .workspace-history-controls :focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
 .workspace-editor [role=alert] { color: #f6c9bc; }
 @media (forced-colors: active) { .workspace-editor, .workspace-request-notice { border: 1px solid CanvasText; } }
+.analysis-status { display:flex; gap:12px; justify-content:space-between; align-items:center; padding:12px 16px; margin:12px auto; width:min(100%, 760px); border:1px solid var(--opal-border, #ccc); border-radius:12px; box-sizing:border-box; font-size:14px; }
+.analysis-status p { margin:4px 0 0; }
+.analysis-status button { color:inherit; background:transparent; border:1px solid currentColor; border-radius:8px; padding:8px 12px; cursor:pointer; flex-shrink:0; }
+@media (max-width:640px) { .analysis-status { align-items:flex-start; flex-direction:column; } }

@@ -2,6 +2,9 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { listModels, listMessages, submitQuestion, updateChat, deleteChat, operationId } from "../services/aquaClient.js";
 import { changeRecord, emptyConversation, failSubmission, finishHistory, finishSubmission, initialWorkspace, maskSavedResults, openConversation, removeConversation } from "./workspaceState.js";
 import { useWorkspaceLists } from "./useWorkspaceLists.js";
+import { useAnalysisRequests } from "./useAnalysisRequests.js";
+import { acceptAnalysis, progressAnalysis, activeAnalysis, analysisRequests } from "./workspaceAnalysisState.js";
+import { terminalAnalysis } from "../services/workspaceContract.js";
 
 export function useWorkspace({ canQuery, canReadResults = canQuery, csrfToken, onAuthFailure, suspended = false }) {
   const [state, setState] = useState(initialWorkspace), [models, setModels] = useState([]), [selectedModelId, setModelId] = useState("");
@@ -11,6 +14,20 @@ export function useWorkspace({ canQuery, canReadResults = canQuery, csrfToken, o
   const onError = useCallback((error) => { update((previous) => ({ ...previous, notice: error.message || "AQUA could not complete this action." }));
     if ([401, 403].includes(error.status)) access.current.onAuthFailure?.(); }, [update]);
   const library = useWorkspaceLists({ csrfToken, onError, enabled: !suspended });
+  const onAnalysis = useCallback((snapshot) => {
+    messageEpoch.current.set(snapshot.chat.id, (messageEpoch.current.get(snapshot.chat.id) || 0) + 1);
+    const prior = current.current.records[snapshot.chat.id]?.analyses?.[snapshot.request.id];
+    update((previous) => acceptAnalysis(previous, snapshot, access.current.canReadResults));
+    if (terminalAnalysis(snapshot.request.state) && !terminalAnalysis(prior?.state)) void library.refreshChats();
+  }, [update, library.refreshChats]);
+  const onProgress = useCallback((event) => update((previous) => progressAnalysis(previous, event)), [update]);
+  const onObservationError = useCallback((error, id) => {
+    if ([403, 404].includes(error.status)) update((previous) => ({ ...previous, records: Object.fromEntries(Object.entries(previous.records).map(([chatId, item]) =>
+      [chatId, item.messages.some((message) => message.requestId === id) ? { ...item, messages: maskSavedResults(item.messages, false) } : item])) }));
+    onError(error);
+  }, [update, onError]);
+  const lifecycle = useAnalysisRequests({ jobs: analysisRequests(state), enabled: !suspended && canReadResults, csrfToken,
+    onSnapshot: onAnalysis, onProgress, onError: onObservationError });
   useEffect(() => { alive.current = true; return () => { alive.current = false; for (const entry of requests.current.values()) entry.abort();
     for (const entry of reads.current) entry.abort(); requests.current.clear(); }; }, []);
   useEffect(() => { const controller = new AbortController();
@@ -53,7 +70,8 @@ export function useWorkspace({ canQuery, canReadResults = canQuery, csrfToken, o
     try { const result = await submitQuestion(operation.submission, { csrfToken: access.current.csrfToken, signal: controller.signal });
       if (controller.signal.aborted || !alive.current) return;
       messageEpoch.current.set(result.chat.id, (messageEpoch.current.get(result.chat.id) || 0) + 1);
-      update((previous) => finishSubmission(previous, recordId, operation.clientId, result, access.current.canReadResults)); void library.refreshChats();
+      update((previous) => { const saved = finishSubmission(previous, recordId, operation.clientId, result, access.current.canReadResults);
+        return Number.isSafeInteger(result.request.version) ? acceptAnalysis(saved, result, access.current.canReadResults) : saved; }); void library.refreshChats();
     } catch (error) { if (!alive.current) return;
       const uncertain = !error.status || error.status >= 500;
       update((previous) => failSubmission(previous, recordId, operation, uncertain));
@@ -61,7 +79,7 @@ export function useWorkspace({ canQuery, canReadResults = canQuery, csrfToken, o
     } finally { if (requests.current.get(recordId) === controller) requests.current.delete(recordId); }
   }, [update, library.refreshChats, onError]);
   const submit = (raw) => { const item = current.current.records[current.current.activeId], prompt = raw.trim();
-    if (!prompt || prompt.length > 2000 || item.operation || !access.current.canQuery || !selectedModelId) return null;
+    if (!prompt || prompt.length > 2000 || item.operation || analysisRequests({ ...current.current, records: { [item.id]: item } }).length || !access.current.canQuery || !selectedModelId) return null;
     if (requests.current.size >= 4) { onError(new Error("Wait for another open request to finish before asking another question.")); return null; }
     const clientId = operationId(), userId = `local-${clientId}`, operation = { clientId, prompt,
       submission: { client_request_id: clientId, question: prompt, model: selectedModelId, ...(item.id.startsWith("draft-")
@@ -72,9 +90,9 @@ export function useWorkspace({ canQuery, canReadResults = canQuery, csrfToken, o
   const retry = (messageId) => { const item = current.current.records[current.current.activeId];
     if (item.operation) { if (!item.operation.busy) void run(item.id, item.operation); return; }
     const reply = item.messages.find((message) => message.id === messageId), input = item.messages.find((message) => message.id === reply?.replyTo);
-    if (!input || !reply?.response?.error?.retryable) return;
-    const clientId = operationId(); void run(item.id, { clientId, prompt: input.content,
-      submission: { chatId: item.id, retryInputId: input.id, client_request_id: clientId } }); };
+    if (!reply?.replyTo || !reply?.response?.error?.retryable || analysisRequests({ ...current.current, records: { [item.id]: item } }).length) return;
+    const clientId = operationId(); void run(item.id, { clientId, prompt: input?.content || "",
+      submission: { chatId: item.id, retryInputId: reply.replyTo, client_request_id: clientId } }); };
   const mutateChat = async (item, values, remove = false) => {
     if (!item?.revision || requests.current.has(item.id)) return false;
     const controller = new AbortController(); reads.current.add(controller);
@@ -87,8 +105,11 @@ export function useWorkspace({ canQuery, canReadResults = canQuery, csrfToken, o
     } catch (error) { if (error.name !== "AbortError") onError(error); return false; } finally { reads.current.delete(controller); }
   };
   const conversations = library.chats.items.map((summary) => ({ ...current.current.records[summary.id], ...summary }));
+  const analysis = activeAnalysis(active), running = Boolean(analysis && !terminalAnalysis(analysis.state));
   return { durable: true, ...library, conversations, activeConversationId: state.activeId, active, messages: maskSavedResults(active.messages, canReadResults), draft: active.draft,
-    pending: Boolean(active.operation?.busy), waiting: Boolean(active.operation?.busy), uncertain: Boolean(active.operation?.uncertain), notice: state.notice,
+    pending: Boolean(active.operation?.busy || running), submitting: Boolean(active.operation?.busy), waiting: Boolean(active.operation?.busy), uncertain: Boolean(active.operation?.uncertain), notice: state.notice,
+    analysis, analysisConnection: analysis ? lifecycle.connections[analysis.id] : null, reconnectAnalysis: lifecycle.reconnect,
+    cancelAnalysis: analysis?.cancellable && !analysis.cancelRequested && analysis.state !== "cancelling" ? () => lifecycle.cancel(analysis.id) : null,
     models, selectedModelId, setModelId, faqs: library.starters, submit, retry, startConversation, selectConversation,
     drafts: Object.values(state.records).filter((item) => item.draft.trim()),
     stop: () => requests.current.get(current.current.activeId)?.abort(),

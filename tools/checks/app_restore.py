@@ -69,6 +69,34 @@ UPDATE app.workspace_totals SET content_bytes=content_bytes+2048 WHERE singleton
 COMMIT;
 """,
     )
+    # Schema-5 recovery fences active physical leases without replaying work.
+    # These are fixture-only records; their counters are deliberately explicit.
+    sql(
+        "aqua_app",
+        b"""
+BEGIN;
+SET LOCAL ROLE aqua_app_runtime;
+UPDATE app.analysis_requests SET state='running'
+ WHERE id='30000000-0000-4000-8000-000000000002';
+INSERT INTO app.analysis_jobs(id,user_id,request_id,session_digest,auth_epoch,dataset_key,grant_version,question,model,context,context_digest,content_bytes,state,stage,deadline_at,lease_token,lease_owner,lease_until,physical_until,response) VALUES
+ ('30000000-0000-4000-8000-000000000002','00000000-0000-0000-0000-000000000001','30000000-0000-4000-8000-000000000002',decode(repeat('ab',32),'hex'),0,'synthetic',1,'Active synthetic input','ollama','[]',decode(repeat('aa',32),'hex'),64,'running','generating',clock_timestamp()+interval '60 seconds',7,'50000000-0000-4000-8000-000000000001',clock_timestamp()+interval '15 seconds',clock_timestamp()+interval '65 seconds',NULL),
+ ('30000000-0000-4000-8000-000000000003','00000000-0000-0000-0000-000000000001',NULL,decode(repeat('ab',32),'hex'),0,'synthetic',1,'Queued synthetic input','ollama','[]',decode(repeat('aa',32),'hex'),64,'queued','queued',clock_timestamp()+interval '60 seconds',0,NULL,NULL,NULL,NULL),
+ ('30000000-0000-4000-8000-000000000004','00000000-0000-0000-0000-000000000001',NULL,decode(repeat('ab',32),'hex'),0,'synthetic',1,'','ollama','[]',decode(repeat('aa',32),'hex'),64,'complete','complete',clock_timestamp()+interval '60 seconds',1,NULL,NULL,NULL,'{"status":"success","message":"Legacy synthetic response"}');
+INSERT INTO app.analysis_streams(id,user_id,request_id,expires_at,hard_expires_at) VALUES
+ ('60000000-0000-4000-8000-000000000001','00000000-0000-0000-0000-000000000001','30000000-0000-4000-8000-000000000002',clock_timestamp()+interval '5 seconds',clock_timestamp()+interval '60 seconds');
+UPDATE app.analysis_jobs SET version=3,last_event_sequence=2 WHERE id='30000000-0000-4000-8000-000000000002';
+INSERT INTO app.analysis_events(user_id,request_id,sequence,version,state,stage) VALUES
+ ('00000000-0000-0000-0000-000000000001','30000000-0000-4000-8000-000000000002',1,2,'queued','queued'),
+ ('00000000-0000-0000-0000-000000000001','30000000-0000-4000-8000-000000000002',2,3,'running','generating');
+INSERT INTO app.analysis_admission(scope,units,expires_at) VALUES
+ ('recovery-fixture-budget',3,clock_timestamp()+interval '1 hour');
+UPDATE app.workspace_usage SET content_bytes=content_bytes+192 WHERE user_id='00000000-0000-0000-0000-000000000001';
+UPDATE app.workspace_totals SET content_bytes=content_bytes+192 WHERE singleton;
+COMMIT;
+""",
+    )
+    admission_sql = b"SELECT scope,units,expires_at FROM app.analysis_admission WHERE scope='recovery-fixture-budget';"
+    admission_expected = sql("aqua_app", admission_sql)
     dump = docker(
         "exec",
         "-e",
@@ -119,6 +147,7 @@ COMMIT;
         "2",
         "3",
         "4",
+        "5",
         "t|f",
     ], observed
     denied = False
@@ -142,6 +171,7 @@ COMMIT;
         b"SELECT count(*) FROM app.password_hash_slots; SELECT count(*) FROM app.account_mail WHERE state IN ('pending','sending'); SELECT state,ciphertext=decode(repeat('00',30),'hex') FROM app.account_mail WHERE id='f4d6b61d-11be-4510-bca3-0521dd724aaa'; SELECT lease_id IS NULL AND lease_expires_at IS NULL FROM app.account_mail_control WHERE singleton;",
     ).decode().splitlines() == ["0", "0", "expired|t", "t"]
     assert sql("aqua_restore", recipient_sql) == recipient_expected
+    assert sql("aqua_restore", admission_sql) == admission_expected
     workspace_sql = b"SELECT state,reserved_bytes FROM app.analysis_requests WHERE user_id='00000000-0000-0000-0000-000000000001' ORDER BY id; SELECT content_bytes FROM app.workspace_usage WHERE user_id='00000000-0000-0000-0000-000000000001'; SELECT count(*) FROM app.visual_results WHERE user_id='00000000-0000-0000-0000-000000000001' AND response->>'message'='Completed synthetic answer'; SELECT status FROM app.messages WHERE id='20000000-0000-4000-8000-000000000004';"
     workspace_expected = ["complete|0", "interrupted|0", "1024", "1", "interrupted"]
     assert (
@@ -156,6 +186,17 @@ COMMIT;
     assert (
         sql("aqua_restore", workspace_sql).decode().splitlines() == workspace_expected
     )
+    lifecycle_sql = b"SELECT state,stage,lease_token,content_bytes,question='',context='[]',response IS NULL,lease_owner IS NULL,lease_until IS NULL,physical_until IS NULL FROM app.analysis_jobs WHERE user_id='00000000-0000-0000-0000-000000000001' ORDER BY id; SELECT count(*) FROM app.analysis_streams WHERE user_id='00000000-0000-0000-0000-000000000001'; SELECT count(*) FROM app.analysis_events WHERE user_id='00000000-0000-0000-0000-000000000001';"
+    lifecycle_expected = [
+        "interrupted|interrupted|8|0|t|t|t|t|t|t",
+        "interrupted|interrupted|1|0|t|t|t|t|t|t",
+        "complete|complete|1|0|t|t|t|t|t|t",
+        "0",
+        "0",
+    ]
+    assert (
+        sql("aqua_restore", lifecycle_sql).decode().splitlines() == lifecycle_expected
+    )
     # Recovery fences are repeatable without refunding the reservation twice.
     sql(
         "aqua_restore",
@@ -166,6 +207,10 @@ COMMIT;
     assert (
         sql("aqua_restore", workspace_sql).decode().splitlines() == workspace_expected
     )
+    assert (
+        sql("aqua_restore", lifecycle_sql).decode().splitlines() == lifecycle_expected
+    )
+    assert sql("aqua_restore", admission_sql) == admission_expected
     assert recipient_expected.decode().splitlines()[-1] == "t|f"
     return {
         "status": "passed",
@@ -177,4 +222,6 @@ COMMIT;
         "restored_recipient_budget": "preserved_with_runtime_backup_privileges",
         "dump_storage": "memory_only",
         "restored_workspace_history": "preserved_and_pending_fenced",
+        "restored_analysis_lifecycle": "interrupted_context_purged_streams_closed",
+        "restored_analysis_admission": "preserved",
     }

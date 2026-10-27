@@ -1,3 +1,5 @@
+import { exactCell, canonicalNumeric, compareExactNumeric } from "../../services/precisionCells.js";
+
 export function formatCell(value, column, table = {}) {
   if (value == null) return "\u2014";
   if (column.type === "currency" && typeof value === "number") {
@@ -21,6 +23,17 @@ export function formatCell(value, column, table = {}) {
   return String(value);
 }
 
+export function sortTableRows(table, sort) {
+  if (!sort) return table.rows;
+  return [...table.rows].sort((left, right) => {
+    const a = left[sort.key], b = right[sort.key];
+    if (a == null || b == null) return a == null ? (b == null ? 0 : 1) : -1;
+    const precise = exactCell(table, left, sort.key) || exactCell(table, right, sort.key) ? compareExactNumeric(a, b) : null;
+    const comparison = precise ?? (typeof a === "number" && typeof b === "number" ? a - b : String(a).localeCompare(String(b), undefined, { numeric: true }));
+    return sort.direction === "asc" ? comparison : -comparison;
+  });
+}
+
 function spreadsheetText(value) {
   const text = value == null ? "" : String(value);
   // Some spreadsheet importers ignore leading control/format characters. Test
@@ -29,19 +42,19 @@ function spreadsheetText(value) {
   return typeof value !== "number" && /^[=+\-@]/.test(significant) ? `'${text}` : text;
 }
 
-export function safeCsvCell(value) {
+export function safeCsvCell(value, exact = false) {
   // Preserve real negative numbers. Text cannot select a spreadsheet formula.
-  const safe = spreadsheetText(value);
+  const safe = exact && canonicalNumeric(value) ? value : spreadsheetText(value);
   return `"${safe.replaceAll('"', '""')}"`;
 }
 
 /** One clipboard cell: delimiters inside data cannot create executable cells. */
-export function safeTsvCell(value) {
+export function safeTsvCell(value, exact = false) {
   // Clipboard consumers differ in their quoting support. Flatten row/column
   // controls first; CSV remains the lossless multiline export format.
   const flattened = typeof value === "number" ? value
     : (value == null ? "" : String(value)).replace(/[\u0000-\u001f\u007f-\u009f\u2028\u2029]/gu, " ");
-  const safe = spreadsheetText(flattened);
+  const safe = exact && canonicalNumeric(value) ? value : spreadsheetText(flattened);
   return safe.includes('"') ? `"${safe.replaceAll('"', '""')}"` : safe;
 }
 
@@ -51,7 +64,7 @@ export function createTsv(table, rows = table.rows) {
     table.columns.map((column) => safeTsvCell(column.label)).join("\t"),
     ...rows.map((row) => table.columns.map((column) => {
       const value = row[column.key];
-      return safeTsvCell(typeof value === "number" ? value : formatCell(value, column, table));
+      return safeTsvCell(typeof value === "number" ? value : formatCell(value, column, table), exactCell(table, row, column.key));
     }).join("\t"))
   ].join("\n");
 }
@@ -59,7 +72,7 @@ export function createTsv(table, rows = table.rows) {
 export function createCsv(table, rows = table.rows) {
   return `\uFEFF${[
     table.columns.map((column) => safeCsvCell(column.label)).join(","),
-    ...rows.map((row) => table.columns.map((column) => safeCsvCell(row[column.key])).join(","))
+    ...rows.map((row) => table.columns.map((column) => safeCsvCell(row[column.key], exactCell(table, row, column.key))).join(","))
   ].join("\r\n")}`;
 }
 

@@ -1,0 +1,23 @@
+{
+  "red_process_sha256": "714bbe316cfaf2b0a36e90e91a1e9c69e81b230a99ea7c8135a6bc75ce5afeb3",
+  "blue_process_sha256": "183dd873140bbea610bbf79119d099408f5b83bbb8433c61b025f7b6bcb92db7",
+  "finding": "unconfirmed_child_discarded_from_process_tracking",
+  "baseline": "saved pre-fix P07 source snapshot",
+  "external_calls": 0,
+  "status": "expected_finding_reproduced",
+  "runner_exit_code": 1,
+  "checks": [
+    {
+      "dataset": "bank",
+      "expected_tracking_assertion_failed": true
+    },
+    {
+      "dataset": "pagila",
+      "expected_tracking_assertion_failed": true
+    }
+  ],
+  "cleanup": "removed_and_absence_confirmed",
+  "remaining_ids": [],
+  "network": "none",
+  "host_ports": false
+}

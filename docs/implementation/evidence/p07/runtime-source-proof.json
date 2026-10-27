@@ -1,0 +1,11 @@
+{
+  "image": "sha256:81acee49864b4c08ba400fdc41b512b03b3dcacdafc6c7df5dc8e990247845e7",
+  "manifest_raw_sha256": "7c3845a001d7695804c0d30e75b89cc07f14643623bac09450be8c897b3a7558",
+  "source_files": 112,
+  "normalization": "CRLF-to-LF only for comparison; original manifest verified RAW",
+  "frozen_raw_mismatch": [],
+  "source_normalized_mismatch": [],
+  "image_normalized_mismatch": [],
+  "image_files": 110,
+  "status": "passed"
+}

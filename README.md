@@ -1,23 +1,26 @@
 # Aqua
 Ask a database a question in plain English. Get back data, a readable summary and the exact SQL that produced it.
 
-Current checkpoint (October 26, 2026): P05 issue closure is complete at code
-checkpoint `8a5c71d`, including [repair PR #43](https://github.com/drewUTSA/Aqua/pull/43).
-Required PR and merged-main checks passed. The Opal frontend and patched P04
-backend are healthy; private storage remains at schema 3 with all
-password/registration/recovery/mail/worker activation flags disabled.
+Current checkpoint (October 26, 2026): P05 production activation and P06 are
+complete and live at code `6872e41`, private schema 4. Password login,
+registration, recovery and encrypted AQUA-branded mail are active; delivery
+runs in its separate bounded scheduled worker. Chats, messages, recents,
+projects and personal prompts persist in the private application database.
+Required PR/main checks and controlled production verification passed. See
+[activation evidence](docs/implementation/P05_PRODUCTION_ACTIVATION.md) and
+[P06 evidence](docs/implementation/P06_PERSISTENT_WORKSPACE.md).
 
-P06 is ready to start and has not started. See the
-[final repair and deployment record](docs/implementation/P05_CI_CLOSURE.md)
-and [earlier release evidence](docs/implementation/P05_RELEASE_READINESS.md).
-The [approved phased specification](docs/planning/AQUA_CODEX_HANDOFF.md)
-covers the remaining work. Verification: [check runner guide](tools/checks/README.md).
+P07 is now authorized and in progress, with no P07 deployment yet. It adds
+durable bounded analysis, follow-up context, progress and server cancellation;
+see [the P07 record](docs/implementation/P07_DURABLE_ANALYSIS.md). Plotly and
+complete Settings follow in P08/P09. The [approved phased specification](AQUA_CODEX_HANDOFF.md)
+governs the order. Verification: [check runner guide](tools/checks/README.md).
 
 ## Private application storage and identity
 
 The application PostgreSQL is separate from the hosted analytical database. It has no network, TCP listener or published port. Backend/migration jobs attach only the private Unix socket, with distinct runtime, owner, migrator and backup privileges. nginx refuses public readiness; liveness stays independent of databases/models. P03's canonical UUID accounts, opaque digest-only sessions, one-use Google challenges, durable revocation, grants and session caps are deployed. Legacy signed cookies require fresh authentication.
 
-P04 source requires explicit schema 3. Its backend adds email-first registration, fresh-password verification, password login, reset/session fencing, bounded Argon2id work, an offline common-password corpus and encrypted account mail with reserved recovery/security capacity. All password/signup/recovery/mail flags default off. P05 supplies the user-facing password forms and approved Opal shell; full activation also requires a reviewed worker/delivery journey. Owned chats, Plotly and Settings remain later phases.
+P04 introduced email-first registration, fresh-password verification, password login, reset/session fencing, bounded Argon2id work, an offline common-password corpus and encrypted account mail with reserved recovery/security capacity. Activation flags remain off by default for new installations; this production installation completed the reviewed P05 activation. P06 requires schema 4; the P07 candidate requires the separately reviewed schema-5 migration before it can start.
 
 Frontend presentation is selected at build time: `AQUA_UI_SHELL=opal` (default) or
 `legacy` for Docker/Compose, and `VITE_AQUA_UI_SHELL` for direct Vite builds.

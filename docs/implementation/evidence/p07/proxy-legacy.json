@@ -1,0 +1,283 @@
+{
+  "status": "passed",
+  "network": "none",
+  "config_sha256": "c794c0d70a04dc71b94fce2426ade1a6f122a08da8a94f516b15e3028a68f6fb",
+  "nginx_image": "sha256:5fcd5b541e37695427a8d07a7b2fd135dd9d497e63754954f92550af62118034",
+  "tests_image": "sha256:b847dc793be6cc8aa48f081807043ebd0b1fd4d19a1032b7fdb9c3e99e94d34f",
+  "cleanup": "removed_and_absence_confirmed",
+  "remaining_ids": [],
+  "elapsed_seconds": 39.87,
+  "exercise": {
+    "mode": "blue_retest",
+    "status": "passed",
+    "requests": 116,
+    "admitted_work": 51,
+    "query_statuses": [
+      {
+        "status": 200,
+        "retry_after": null,
+        "cache_control": "no-store"
+      },
+      {
+        "status": 200,
+        "retry_after": null,
+        "cache_control": "no-store"
+      },
+      {
+        "status": 200,
+        "retry_after": null,
+        "cache_control": "no-store"
+      },
+      {
+        "status": 200,
+        "retry_after": null,
+        "cache_control": "no-store"
+      },
+      {
+        "status": 200,
+        "retry_after": null,
+        "cache_control": "no-store"
+      },
+      {
+        "status": 200,
+        "retry_after": null,
+        "cache_control": "no-store"
+      },
+      {
+        "status": 429,
+        "retry_after": "12",
+        "cache_control": "no-store"
+      },
+      {
+        "status": 429,
+        "retry_after": "12",
+        "cache_control": "no-store"
+      },
+      {
+        "status": 429,
+        "retry_after": "12",
+        "cache_control": "no-store"
+      },
+      {
+        "status": 429,
+        "retry_after": "12",
+        "cache_control": "no-store"
+      },
+      {
+        "status": 429,
+        "retry_after": "12",
+        "cache_control": "no-store"
+      },
+      {
+        "status": 429,
+        "retry_after": "12",
+        "cache_control": "no-store"
+      }
+    ],
+    "auth_statuses": [
+      {
+        "status": 200,
+        "retry_after": null,
+        "cache_control": "no-store"
+      },
+      {
+        "status": 200,
+        "retry_after": null,
+        "cache_control": "no-store"
+      },
+      {
+        "status": 200,
+        "retry_after": null,
+        "cache_control": "no-store"
+      },
+      {
+        "status": 200,
+        "retry_after": null,
+        "cache_control": "no-store"
+      },
+      {
+        "status": 429,
+        "retry_after": "12",
+        "cache_control": "no-store"
+      },
+      {
+        "status": 429,
+        "retry_after": "12",
+        "cache_control": "no-store"
+      },
+      {
+        "status": 429,
+        "retry_after": "12",
+        "cache_control": "no-store"
+      }
+    ],
+    "concurrent_wave": [
+      {
+        "status": 200,
+        "retry_after": null,
+        "cache_control": "no-store"
+      },
+      {
+        "status": 200,
+        "retry_after": null,
+        "cache_control": "no-store"
+      },
+      {
+        "status": 429,
+        "retry_after": "12",
+        "cache_control": "no-store"
+      },
+      {
+        "status": 429,
+        "retry_after": "12",
+        "cache_control": "no-store"
+      }
+    ],
+    "recovery": "passed",
+    "private_readiness_boundary": "passed",
+    "shared_workspace_question_budget": "passed",
+    "personal_metadata_outside_question_budget": "passed",
+    "analysis_metadata_outside_question_budget": "passed",
+    "progressive_metadata_stream": {
+      "status": "passed",
+      "frames": 2,
+      "bytes": 113,
+      "first_frame_seconds": 0.001,
+      "upstream_complete_seconds": 1.002,
+      "payload": "fixed_synthetic_metadata_only"
+    },
+    "challenge_bootstrap_budget": "passed",
+    "password_route_budgets": "passed",
+    "password_waves": {
+      "password-login": [
+        {
+          "status": 200,
+          "retry_after": null,
+          "cache_control": "no-store"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "cache_control": "no-store"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "cache_control": "no-store"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "cache_control": "no-store"
+        },
+        {
+          "status": 429,
+          "retry_after": "12",
+          "cache_control": "no-store"
+        },
+        {
+          "status": 429,
+          "retry_after": "12",
+          "cache_control": "no-store"
+        }
+      ],
+      "registrations": [
+        {
+          "status": 200,
+          "retry_after": null,
+          "cache_control": "no-store"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "cache_control": "no-store"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "cache_control": "no-store"
+        },
+        {
+          "status": 429,
+          "retry_after": "12",
+          "cache_control": "no-store"
+        },
+        {
+          "status": 429,
+          "retry_after": "12",
+          "cache_control": "no-store"
+        },
+        {
+          "status": 429,
+          "retry_after": "12",
+          "cache_control": "no-store"
+        }
+      ],
+      "password-reset-requests": [
+        {
+          "status": 200,
+          "retry_after": null,
+          "cache_control": "no-store"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "cache_control": "no-store"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "cache_control": "no-store"
+        },
+        {
+          "status": 429,
+          "retry_after": "12",
+          "cache_control": "no-store"
+        },
+        {
+          "status": 429,
+          "retry_after": "12",
+          "cache_control": "no-store"
+        },
+        {
+          "status": 429,
+          "retry_after": "12",
+          "cache_control": "no-store"
+        }
+      ],
+      "email-verifications": [
+        {
+          "status": 200,
+          "retry_after": null,
+          "cache_control": "no-store"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "cache_control": "no-store"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "cache_control": "no-store"
+        },
+        {
+          "status": 200,
+          "retry_after": null,
+          "cache_control": "no-store"
+        },
+        {
+          "status": 429,
+          "retry_after": "12",
+          "cache_control": "no-store"
+        },
+        {
+          "status": 429,
+          "retry_after": "12",
+          "cache_control": "no-store"
+        }
+      ]
+    },
+    "duration_seconds": 36.76
+  }
+}

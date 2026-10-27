@@ -11,8 +11,9 @@ def test_atomic_first_submit_replay_conflict_and_restart_history(world):
     a, owner = world.client()
     body = world.body("Loan count")
     first = a.post("/api/v1/chats", json=body)
-    assert first.status_code == 201, first.text
-    saved = first.json()
+    assert first.status_code == 202, first.text
+    assert world.analysis.tick()
+    saved = a.get("/api/v1/analysis-requests/" + first.json()["request"]["id"]).json()
     repeat = a.post("/api/v1/chats", json=body)
     assert repeat.status_code == 200 and repeat.json() == saved
     conflict = a.post("/api/v1/chats", json={**body, "question": "Different"})

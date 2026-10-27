@@ -12,6 +12,7 @@ import main
 
 from auth import router, security
 from storage.pool import Storage
+from legacy_contract_fixture import install
 
 
 from _auth_test_helpers import CLIENT_ID, EMAIL, ORIGIN, SUBJECT
@@ -61,6 +62,9 @@ def durable_browser(storage, monkeypatch):
     )
     monkeypatch.setattr(main.app.state, "settings", settings)
     monkeypatch.setattr(main.app.state, "storage", storage)
+    # Dataset/model tests patch the shared query service in this process;
+    # authentication and current-dataset authorization remain real DB work.
+    install(monkeypatch)
     claims = {
         "iss": "https://accounts.google.com",
         "sub": SUBJECT,

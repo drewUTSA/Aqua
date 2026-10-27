@@ -4,6 +4,7 @@ from workspace.errors import WorkspaceError, failure
 from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
 PREFIXES = (
+    "/api/v1/analysis-requests",
     "/api/v1/chats",
     "/api/v1/projects",
     "/api/v1/me/saved-prompts",
@@ -18,7 +19,7 @@ class WorkspaceBodyLimit:
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
         if (
             scope["type"] != "http"
-            or not scope.get("path", "").startswith(PREFIXES)
+            or not scope.get("path", "").startswith((*PREFIXES, "/api/query"))
             or scope["method"] not in {"POST", "PATCH", "PUT"}
         ):
             await self.app(scope, receive, send)

@@ -48,6 +48,12 @@ try:
         assert client.post(
             "/api/v1/chats/search", json={"search": canary}
         ).status_code in {401, 403, 503}
+        prefix = "/api/v1/analysis-requests/00000000-0000-4000-8000-000000000001"
+        for suffix in ("", "/events"):
+            assert client.get(
+                prefix + suffix, params={"cursor": canary}
+            ).status_code in {401, 403, 422, 503}
+        assert client.post(prefix + "/cancel", json={}).status_code in {401, 403, 503}
 finally:
     child.terminate()
     try:
@@ -64,6 +70,7 @@ assert len(output) <= 32768, "isolated_runtime_log_bound_failed"
 assert b"GET /api/health HTTP/1.1" in output, "ordinary_access_log_missing"
 assert b"PRIVATE_WORKSPACE_RUNTIME_CANARY" not in output, "private_access_log_leak"
 assert b"/api/v1/chats" not in output, "workspace_access_log_not_suppressed"
+assert b"/api/v1/analysis-requests" not in output, "analysis_access_log_not_suppressed"
 print(
     json.dumps(
         {

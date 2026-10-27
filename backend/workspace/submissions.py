@@ -55,7 +55,7 @@ def begin(
         )
         if original is None:
             raise WorkspaceError("not_found")
-        if original["state"] != "interrupted" and (
+        if original["state"] not in {"interrupted", "cancelled", "expired"} and (
             original["state"] != "error"
             or not original.get("response", {}).get("error", {}).get("retryable")
         ):

@@ -12,16 +12,16 @@ verified. See `docs/implementation/P06_PERSISTENT_WORKSPACE.md`.
 Password login, registration, recovery and encrypted branded mail remain active;
 three P05 controlled inbox receipts were verified. The provider key stays in the
 separate worker environment. See `docs/implementation/P05_PRODUCTION_ACTIVATION.md`.
-This supersedes older status statements below. P07 has not started and is outside
-the completed authorized run.
+This supersedes older status statements below. The user has now requested P07;
+its implementation is in progress on `codex/p07-durable-analysis`.
 
-Current authorized run (October 26): the user requested end-to-end production
-email/password activation with AQUA-branded mail and completion of P06, and
-confirmed that P07–P13 are excluded. Continue through separate tested PRs,
-required checks and server deployment for that scope. The private application
-migration requires its own backup and disposable-fixture verification; shared
+Current authorized run (October 26): after completing activation and P06, the
+user said “lets go on too p7.” Continue P07 through its tested phase PR,
+required checks and server deployment using the previously authorized direct
+server workflow. P08–P13 remain outside this run. The private application
+migration requires a fresh backup and disposable-fixture verification; shared
 analytical DDL and broader Google/data approvals remain excluded. See
-`docs/implementation/P05_PRODUCTION_ACTIVATION.md` for the activation record.
+`docs/implementation/P07_DURABLE_ANALYSIS.md` for current scope and evidence.
 The default human Git checkpoint below remains for work outside this run.
 
 The user explicitly authorized direct server access and routine server updates
@@ -63,11 +63,11 @@ The server runs the app with docker-compose. Code changes are made locally, push
 | Concern | Choice |
 |---|---|
 | Backend language | Python 3.12 (not 3.14; the ML stack does not fully support 3.14 yet) |
-| API | FastAPI on 127.0.0.1:8000; both public hostnames enter nginx on 127.0.0.1:5173. P04 PR #41 is deployed at 067fb5a with schema 3; P05 rollback/navigation follow-up passed both shell variants' local gates and awaits human PR, with copy/hash guards verifying checkout identity; not deployed |
-| Sign-in | Google Identity Services with canonical UUID accounts and revocable digest-only sessions is deployed; P04 password APIs are deployed with all five new password/mail flags off; P05 supplies the browser journeys before activation |
+| API | FastAPI on 127.0.0.1:8000; public hostnames enter nginx on 127.0.0.1:5173. P06 code `6872e41` is deployed with schema 4; P07 candidate release gates are pending |
+| Sign-in | Canonical UUID accounts with revocable digest-only sessions, Google and password sign-in. Password login/registration/recovery and branded mail are active; the scheduler runs a separate worker and the web worker flag stays false |
 | Frontend | React 19 with Vite. Production: a static build served by nginx on port 5173, which forwards `/api` to the backend and rate-limits questions. Development: `npm run dev` forwards API calls but is not the production rate-limit boundary |
 | Analytical database | PostgreSQL on Tiger Cloud free service (TimescaleDB, pgvector, pgvectorscale); unchanged in P02 |
-| Application database | Private PostgreSQL 17 is active at schema 3, socket only, network none and separate roles. Applied migrations 0001–0003 are immutable |
+| Application database | Private PostgreSQL 17 is active at schema 4, socket only, network none and separate roles. Applied migrations 0001–0004 are immutable; P07 adds reviewed migration 0005 |
 | Sample data | Pagila (Postgres port of Sakila) |
 | LLM | Gemini API with the free `gemini-3.5-flash-lite` by default (`LLM_PROVIDER=gemini`). When it is out of quota or down: Ollama (`qwen3`) on Ben's server over Tailscale, then `gemma-4-26b-a4b-it`. Model names read from env |
 | Embeddings | `gemini-embedding-2` at 768 dimensions, stored in pgvector in the `retrieval` schema (Phase 4) |

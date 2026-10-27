@@ -1,0 +1,9 @@
+{
+  "status": "failed",
+  "expected_failure": "nginx_buffered_metadata_progress",
+  "observed": true,
+  "config_sha256": "9245bd8883a248eea5c781b56c23378b382ee6efa2ad9b078b21cc26ce0dee90",
+  "cleanup": "removed_and_absence_confirmed",
+  "remaining_ids": [],
+  "scope": "Synthetic network-none old configuration; deliberately failing baseline, never a release pass."
+}

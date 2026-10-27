@@ -9,6 +9,13 @@ services:
     env_file:
       - .env
     restart: unless-stopped
+    # Two bounded analysis children share this service with account APIs.
+    # Keep aggregate resources finite; the private DB has its own budget.
+    init: true
+    mem_limit: 3g
+    memswap_limit: 3g
+    cpus: 4
+    pids_limit: 256
     healthcheck:
       test:
         - CMD

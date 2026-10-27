@@ -13,6 +13,8 @@ class WorkspaceError(Exception):
 
 
 MESSAGES = {
+    "analysis_busy": "All analysis slots are busy. Try again shortly.",
+    "analysis_rate_limited": "The analysis allowance is temporarily exhausted. Try again in a minute.",
     "session_invalid": "Sign in to continue.",
     "retry_unavailable": "This saved answer cannot be retried. Check its current state.",
     "chat_archived": "Unarchive this chat before adding another message.",
