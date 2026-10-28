@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { emptyVisualView, finishVisualView, matchingVisualReply, visualIntent, visualResult, visualToken } from "../services/visualResults.js";
 
 /** IDs and interaction state only. Authorized chat messages own every payload. */
-export function useVisualResults(chat, allowed) {
+export function useVisualResults(chat, allowed, initialView = "chart") {
   const key = chat.active?.viewId || chat.activeConversationId;
   const [views, setViews] = useState({});
   const current = useRef(views); current.current = views;
@@ -18,8 +18,9 @@ export function useVisualResults(chat, allowed) {
     if (!allowed || !view.pending) return;
     const reply = matchingVisualReply(view.pending, chat.messages, chat.active?.analyses);
     if (!reply) return;
-    const next = finishVisualView(view, reply, visualResult(reply, chat.messages));
-    if (next !== view) change(() => next);
+    const completed = visualResult(reply, chat.messages);
+    const next = finishVisualView(view, reply, completed);
+    if (next !== view) change(() => ({ ...next, mode: !view.selected && initialView === "table" && completed?.intent !== "explicit" ? "table" : next.mode }));
   }, [allowed, key, chat.messages, chat.active?.analyses, view]);
 
   const begin = (question, retryId = null) => {
@@ -49,7 +50,7 @@ export function useVisualResults(chat, allowed) {
   return { view, open, result, selected, change, chat: { ...chat, submit, retry },
     show: (id) => { const item = chat.messages.find((message) => message.id === id);
       const value = visualResult(item, chat.messages); if (!allowed || !value) return;
-      change((previous) => ({ ...previous, selected: id, open: true, expanded: false, mode: value.descriptor ? "chart" : "table" })); },
+      change((previous) => ({ ...previous, selected: id, open: true, expanded: false, mode: value.descriptor && (initialView !== "table" || value.intent === "explicit") ? "chart" : "table" })); },
     close: () => change((previous) => ({ ...previous, open: false, expanded: false, tab: "conversation",
       pending: previous.pending ? { ...previous.pending, dismissed: true } : null })) };
 }

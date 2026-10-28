@@ -7,7 +7,7 @@ const reasons = { precision_limit: "Exact values are preserved in the table. Cha
   invalid_axis: "These axes cannot be charted reliably. Use the result table.", ambiguous_units: "The measures have unspecified or incompatible units. Use the result table.",
   no_rows: "No rows matched this request.", scalar_result: "This result contains a single value.", unsupported_shape: "This result is available as a table." };
 
-export default function VisualPane({ visuals, shell, owner, suspended, hidden, canExpand }) {
+export default function VisualPane({ visuals, shell, owner, suspended, hidden, canExpand, preferences, chartTheme }) {
   const { result, view, change, selected } = visuals;
   const scroll = useRef(null), positions = useRef(new Map());
   const [activated, setActivated] = useState(!hidden);
@@ -35,15 +35,16 @@ export default function VisualPane({ visuals, shell, owner, suspended, hidden, c
       {view.pending?.intent !== "text" && view.pending && <p role="status">Updating visual{result ? ". Showing the previous result until the update is ready." : "…"}</p>}
       {failure && <p role="status">Couldn’t update the visual.{result ? " Showing the previous result." : " Check the conversation for details."}
         <button type="button" disabled={visuals.chat.pending} onClick={retry}>Retry visual update</button></p>}
-      {result && <><p className="visual-pane__question">{result.question}</p><ResultMetadata response={result.response} />
+      {result && <><p className="visual-pane__question">{result.question}</p><ResultMetadata response={result.response} preferences={preferences?.account} />
         {result.response.presentationError && <p role="status">{result.response.presentationError}</p>}
         {contextChanged && <p role="status">Chart context changed. Zoom was reset for the new query, period, axes or units.</p>}
         {!result.descriptor && <p>{reasons[result.reason] || "Use the result table for this response."}</p>}
         {result.descriptor && <p className="visual-pane__context">{result.descriptor.x.kind === "datetime" ? "Time axis: UTC. " : result.descriptor.x.kind === "date" ? "Calendar dates; no timezone conversion. " : result.descriptor.x.kind === "calendar" ? "Calendar periods in order; absent periods are not filled or spaced as elapsed time. " : "Categories in result order. "}
           Units: {result.descriptor.series.map((series) => `${series.label}: ${series.unit || "unspecified"}`).join("; ")}. Missing values remain gaps. All {result.descriptor.input_rows} returned rows; no additional chart aggregation or sampling.</p>}
-        {result.descriptor && activated && !suspended && <div hidden={view.mode !== "chart"}><PlotlyChart key={owner} descriptor={result.descriptor} table={result.table} theme={shell}
+        {result.descriptor && activated && !suspended && <div hidden={view.mode !== "chart"}><PlotlyChart key={owner} descriptor={result.descriptor} table={result.table} theme={chartTheme || shell} preferences={preferences?.account}
+          devicePreferences={preferences?.device} revisionKey={selected?.id}
           onTableView={() => change((previous) => ({ ...previous, mode: "table" }))} /></div>}
-        {(!result.descriptor || view.mode === "table" || suspended) && <FinancialTable table={result.table} />}
+        {(!result.descriptor || view.mode === "table" || suspended) && <FinancialTable table={result.table} preferences={preferences?.account} />}
       </>}
       {!result && !view.pending && <p>No selected visual. Choose a result in this conversation.</p>}
     </div>

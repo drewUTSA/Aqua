@@ -1,0 +1,690 @@
+{
+  "schema_version": 1,
+  "phase": "P09",
+  "status": "local_checks_passed_release_pending",
+  "generated_utc": "2026-10-28T21:24:59.503Z",
+  "application_schema_version": 5,
+  "backend": {
+    "image": "sha256:5ff0cb141a3399f95458cc20fcadfbe66577e750702fd74ba6238716d7c99897",
+    "source_archive_sha256": "719f0719c34d8ae9f720d1612c76b2f65f960587a44f5c1062e603cbbe94991d",
+    "summary_sha256": "a0d319fc360058879aa5b48a58a76753aaa93333e6a1329165b7c369edcc1dc7",
+    "runtime_files": 119,
+    "checks": {
+      "source": {
+        "status": "passed",
+        "seconds": 0.06
+      },
+      "lock": {
+        "status": "passed",
+        "seconds": 0.04
+      },
+      "black": {
+        "status": "passed",
+        "seconds": 0.62
+      },
+      "ruff": {
+        "status": "passed",
+        "seconds": 0.03
+      },
+      "dependency-audit": {
+        "status": "passed",
+        "seconds": 1.46
+      },
+      "p05_browser_cleanup_test": {
+        "status": "passed",
+        "seconds": 0.07
+      },
+      "p05_browser_startup_test": {
+        "status": "passed",
+        "seconds": 0.06
+      },
+      "p06_browser_routes_test": {
+        "status": "passed",
+        "seconds": 0.03
+      },
+      "p06_browser_analysis_test": {
+        "status": "passed",
+        "seconds": 0.06
+      },
+      "test_p08_browser_fixture": {
+        "status": "passed",
+        "seconds": 0.06
+      },
+      "candidate-build": {
+        "status": "passed",
+        "seconds": 0.93
+      },
+      "runtime-bytes": {
+        "status": "passed"
+      },
+      "telemetry": {
+        "status": "passed"
+      },
+      "privacy": {
+        "status": "passed"
+      },
+      "backend": {
+        "status": "passed",
+        "seconds": 115.28
+      },
+      "storage": {
+        "status": "passed",
+        "seconds": 6.31
+      },
+      "proxy": {
+        "status": "passed",
+        "seconds": 39.83
+      }
+    },
+    "unique_tests": 1385,
+    "all_cases_covered": true,
+    "restore": {
+      "status": "passed",
+      "preferences": "values_schema_and_revision_preserved",
+      "sessions_and_pending_work_fenced": true,
+      "dump_storage": "memory_only"
+    },
+    "disposable_installer": "passed",
+    "isolated_proxy": "passed",
+    "owned_resource_cleanup": "removed_and_absence_confirmed",
+    "existing_running_containers_unchanged": true
+  },
+  "frontend": {
+    "unit_tests": 399,
+    "unit_failures": 0,
+    "focused_post_suite_harness_tests": [],
+    "verified_build_input_hashes": {
+      "frontend/package-lock.json": "613b5c54c993cc93bdc403e5e63e935f09c424dc0e88fc6750b9f7c1eb38d490",
+      "frontend/package.json": "b9d604369bd68db1e8fbad4e31171e8c3dc54f445a370b72351b9c9a8d8c17a6",
+      "frontend/vite.config.js": "d6749bf16452e5a9167bcbcb8610d0b6615594b7f598692735e4fde7adb60ec3",
+      "frontend/checks/analysis-client.test.mjs": "94ffd337966948cce98df341def5e9b11f76055f7413a21c75029c15b7632484",
+      "frontend/checks/analysis-observer.test.mjs": "b3e80fcd2a6970697ad939272449b1b2e7a8129140f62e1420657919afafaff1",
+      "frontend/checks/analysis-state.test.mjs": "762d1263e9a83f1bc8d723017cb0a215d131bd169b95bb8eebf0387865a3aa40",
+      "frontend/checks/api-client.test.mjs": "c87a648efbe770769721ffca15545ca6da131ee9a29b2552e066ce1c4f28bf79",
+      "frontend/checks/aqua-client.test.mjs": "416904954cdcaf593d5e7450ae711be2fa2426fb6a4f23c02d853d3c0d9487dc",
+      "frontend/checks/auth-form-policy.test.mjs": "89e3df3830ea8b5dbdce4c2d3bed86ddfc1e75b309cd560687131990cbd6ec3e",
+      "frontend/checks/auth-transport.test.mjs": "45d67b7c576ff774134d50f550abedeca162707df6db05182278860fa5162640",
+      "frontend/checks/data.test.mjs": "4fc2c9adc6ea815b0a11d14edc7ca49eb14ae7f5a55a3ca348313f75703e00d5",
+      "frontend/checks/financial-format.test.mjs": "a20ebb6e5bb73c20576ff933491c4a20518e09612b4c1d8974626a319ffda47a",
+      "frontend/checks/financial-table.test.mjs": "cb4b86ff48044d78c8df1c8a53479d7cab3d7d5bd0b8a085f54da2be818f0460",
+      "frontend/checks/p05-browser-bridge.test.mjs": "a9b2bcb29573b8035db9294c29805115bfb95a027ae7db85ac3a802eb64812da",
+      "frontend/checks/p05-browser-pipe.test.mjs": "766bacdb4f7a1103009fe072eb3210c69e6f9ecde4ad6cebc11f584f568f44cd",
+      "frontend/checks/p08-security.test.mjs": "5e2562946f5060095b1ee0f21ba413058740c607c7200b83057458be00dd605b",
+      "frontend/checks/p09-browser-diagnostics.test.mjs": "52a504674a4609d3b63a0d624f771e260db9a9d7d1bdb63857d28f3a5e97dd4a",
+      "frontend/checks/p09-preference-fixture.test.mjs": "c81e0e57797ec6c6bbb033b4d3ce33aadac30aac5c3bcce61059e454eef81502",
+      "frontend/checks/password-auth-client.test.mjs": "dd0efadd839c5ef44824b7ee08bca7f93804adab4fd59d10d544b5976804b452",
+      "frontend/checks/plotly-controller.test.mjs": "5d8898e9ea802bac3cf996f53e8bd676e1b388acc3e1e495b14c923bac2cea52",
+      "frontend/checks/plotly-renderer.test.mjs": "cb5b22cbb9a62c9ec77a9c1e5bfe9ec4646c2919e5e2070124620f1222d3478b",
+      "frontend/checks/preference-presentation.test.mjs": "52e13abc7bff8c829251a36535865824b0a186887fe0c602e201d5492114e244",
+      "frontend/checks/preferences-render.test.mjs": "df893440f5967c38b7a29640502a35124029d82850a098b3407542c1700c0a2f",
+      "frontend/checks/preferences-schema.test.mjs": "12b71c7b48140e0b9e19616c2a819c45a80406431ce787501af5a600c0c0daeb",
+      "frontend/checks/preferences-state.test.mjs": "cbcc1a834d8ffbc7c7fb7dec1dca6e0dfafb52e2eda862c20d17bc629bd514c2",
+      "frontend/checks/query-transport.test.mjs": "a36a5f72b1d0d71f9f9f198e0aae8017e424c6c4ac943227b459ef71bba81b0e",
+      "frontend/checks/routes.test.mjs": "30db72dd1000d342fae526664a02bc29fe00295628d56d09d14ff81bea555ee0",
+      "frontend/checks/safe-markdown.test.mjs": "aaac2975664722b23c38092636c7effa89826db4589c27765c357898d728ee54",
+      "frontend/checks/shell-config.test.mjs": "34713a2826717014e899f74607bc2d1f6bfed3811c209ca1b28f51977ea47767",
+      "frontend/checks/visual-results.test.mjs": "504794b09d9de80bdbf6f5fdf334dc106d9331f622d5ffeb83a595b8956c8cda",
+      "frontend/checks/workspace-client.test.mjs": "a5c92cca35017f5b4867a6f6d73e62b7689edc0a240e944ae1c8c3ef0be179d7",
+      "frontend/checks/workspace-result-metadata.test.mjs": "7f5801b36723e705262eea9f624ffb9c5e55e037f17f2af86e4f56c5ed73a887",
+      "frontend/checks/workspace-state.test.mjs": "2506094a1797d8e3e2ef9a96268f33d4e5b2fdf53c9052431e81f0b3fb413a02",
+      "frontend/src/App.jsx": "7d62b0e51fadf9fe226d4571ff68ceb633cdfb528148afb753b87ae2a8970420",
+      "frontend/src/assets/models/AQUA_V2_Final.glb": "e9dfb0d9210ea53a980e8cafc54005eff094075e1ead3d92b153c894336aee4d",
+      "frontend/src/assets/models/AQUA_V2_Final_static.svg": "a610bf95498d5bbc765cf49879bc98ee9a33f385cdf88452622a6871ae825648",
+      "frontend/src/assets/models/Aqua_logo.glb": "4b09dc47d42dc93b2492d49713f3a9c022bfb06437dbb1d0ba43a7d15346257c",
+      "frontend/src/assets/models/Aqua_logo_static.svg": "b9b2df7ef81e4dd19dfd3dc2deb1047a15eec02151382624463a77374798b6dd",
+      "frontend/src/assets/models/Chatbar.glb": "594742d13df02126c84406ead8475d6384a84bcedf4935d9fdd5c4d548f04683",
+      "frontend/src/assets/opal/auth/chart.svg": "5630b303a2d1b5639c0816f2d769f85989eaf2dd904827f3ad51aab67898b095",
+      "frontend/src/assets/opal/auth/chat.svg": "ebf9da6a9ae4aec340941fde0a4bdd63231efe56163676b854098491a93d30bf",
+      "frontend/src/assets/opal/auth/clock.svg": "254f3e5df918b6279c7d1294cb8f159cc775105e26d5e082fb1b82554dc46b7a",
+      "frontend/src/assets/opal/auth/mark.svg": "3179997aefac07e91349321b290bc413970f9f5095e6fa5223b82bf7be385cc9",
+      "frontend/src/assets/opal/auth/speck-0.svg": "c3447ce233285d6cbf250049274481eac4c83eed9d679ca7b723db947913cc6d",
+      "frontend/src/assets/opal/auth/speck-1.svg": "fea2fac34998dca11fddc160698da8b8ea36292b1b614f6cac6ce82e0ca578d2",
+      "frontend/src/assets/opal/auth/speck-2.svg": "7701cd40a2e8f47063bf94c127ee68b856d08a406c6f6f15ccbec4ee31760fb8",
+      "frontend/src/assets/opal/auth/speck-3.svg": "8d188f5f988df1597a85f78412a400a441203df5bb27e947140121ae86b7e040",
+      "frontend/src/assets/opal/auth/speck-4.svg": "6e076f6d0c28863b46d22fe0423f87f9a2e0e9a84967487c0177e71c3d0fa8c8",
+      "frontend/src/assets/opal/auth/speck-5.svg": "f5133c458e15f57dd106e3c3ba85e443d55958bfa307699d691d6557b8a6fc7c",
+      "frontend/src/assets/opal/auth/speck-6.svg": "477455e776c54404ff2253e8114b8a18f9b8587982ac93c3ebb94cdfe3cc4a48",
+      "frontend/src/assets/opal/workspace/imgAccountMenuTrigger.svg": "382205e314fdb4637291613de542bed6bb07abaf0ba8200790c4b0faf8072faa",
+      "frontend/src/assets/opal/workspace/imgAccountMenuTrigger1.svg": "47edcda205a3b979104e4f973e8361545b6610db498997988f72feaff3fab918",
+      "frontend/src/assets/opal/workspace/imgAmbientSpeck.svg": "c3447ce233285d6cbf250049274481eac4c83eed9d679ca7b723db947913cc6d",
+      "frontend/src/assets/opal/workspace/imgAmbientSpeck1.svg": "fea2fac34998dca11fddc160698da8b8ea36292b1b614f6cac6ce82e0ca578d2",
+      "frontend/src/assets/opal/workspace/imgAmbientSpeck2.svg": "7701cd40a2e8f47063bf94c127ee68b856d08a406c6f6f15ccbec4ee31760fb8",
+      "frontend/src/assets/opal/workspace/imgAmbientSpeck3.svg": "8d188f5f988df1597a85f78412a400a441203df5bb27e947140121ae86b7e040",
+      "frontend/src/assets/opal/workspace/imgAmbientSpeck4.svg": "6e076f6d0c28863b46d22fe0423f87f9a2e0e9a84967487c0177e71c3d0fa8c8",
+      "frontend/src/assets/opal/workspace/imgAmbientSpeck5.svg": "f5133c458e15f57dd106e3c3ba85e443d55958bfa307699d691d6557b8a6fc7c",
+      "frontend/src/assets/opal/workspace/imgAmbientSpeck6.svg": "477455e776c54404ff2253e8114b8a18f9b8587982ac93c3ebb94cdfe3cc4a48",
+      "frontend/src/assets/opal/workspace/imgAquaConceptMark.svg": "4bd2203087c762ce43ca145970896be6861884e4287f842deb4a7aaffe1a5f90",
+      "frontend/src/assets/opal/workspace/imgAquaConceptMark1.svg": "6c4a17cca17fa9111de7684c2a78a58b8681ff1f86f0a8920f3a50406fa903e0",
+      "frontend/src/assets/opal/workspace/imgIconArrow.svg": "e6e7714429231b5d730807848719fa13fd9389fcd3e628c9d63163259aac2774",
+      "frontend/src/assets/opal/workspace/imgIconChart.svg": "5630b303a2d1b5639c0816f2d769f85989eaf2dd904827f3ad51aab67898b095",
+      "frontend/src/assets/opal/workspace/imgIconChat.svg": "4a7af72f5e79da122633521147033baa9450d33c6734002d59e711dafc4803c7",
+      "frontend/src/assets/opal/workspace/imgIconChevron.svg": "f0d3fab8e6d6576f1aa5d56e2e7b5cbbb0daf29c6af46756631a5e79351be17c",
+      "frontend/src/assets/opal/workspace/imgIconChevron1.svg": "45e83b2defd75ff473c6c8dfa973c2fc1859796c5c63ee214cc97c4edbff406c",
+      "frontend/src/assets/opal/workspace/imgIconCollapse.svg": "4ccc997cafa05a59f5c2ae66a2587bcbe683b983fa0bc881e3fcdc1a14c3a311",
+      "frontend/src/assets/opal/workspace/imgIconFolder.svg": "c3772fb704296ea0e358e76316913693f4a5e2f612dcd6feba26c03661c797fb",
+      "frontend/src/assets/opal/workspace/imgIconGlobe.svg": "bab1b5faefd964a62304ebb476ec2bfbfeed2fa5a4819ba9b2f2f1382be4177f",
+      "frontend/src/assets/opal/workspace/imgIconPlus.svg": "99bcafb942c2f53720c9099bed4bc3338e517431181235b44f4a6512e5c4c06c",
+      "frontend/src/assets/opal/workspace/imgIconSearch.svg": "d5cb3b6093eb8cc79fc40bbd34aa2cabf9d25b77a2601957c910f950fe096718",
+      "frontend/src/components/aqua/AquaLogo3D.jsx": "43f6ab804dd8655f9f9e393f983d668b38b6688a45af43979bc0fea42f6ae626",
+      "frontend/src/components/aqua/AquaLogoFallback.jsx": "57d62f416e718e150bf638c4ee5607fec1d68ed854fb4248f52952d613e136f9",
+      "frontend/src/components/aqua/Chatbar3D.jsx": "d8d5144f6c25c47978fc26aa80291cd1bf6bcd1b891b877c786af46f101cdb51",
+      "frontend/src/components/aqua/ModelErrorBoundary.jsx": "0eaaf6d0776539dc31d64109a5bc7bca0d42e0de27bc52f66aacb8c976a4eaaa",
+      "frontend/src/components/aqua/ModelSupport.jsx": "6e2c33612fbf38db4228194617e4f61be66a31dc4932bdc74f2d335e8eeae21a",
+      "frontend/src/components/aqua/WaterSparkles.jsx": "682b65e52081d29e8d32bfa35ad0dbd9ef4c2368f80768e07f23707c71f2adae",
+      "frontend/src/components/aqua/model.css": "47b7b4561a66bbd0d39d1d2e7f78fc61a103f60f9dcd1dde31187c8de6659641",
+      "frontend/src/components/aqua/water-sparkles.css": "d04949fb3035c2b564654097792f005883a2acb8f805dd1cfeb28822aa8b64e4",
+      "frontend/src/components/auth/AccountProfile.jsx": "6b69c5d588784e8d9cc0ede2150cba5a01eda6a8a1130e8297f148088f327176",
+      "frontend/src/components/auth/GoogleSignInButton.jsx": "dad1789c70689fe2d7c006e2486395d41b7d0ecef89a6b2085e430e83aca0d54",
+      "frontend/src/components/auth/OpalBackdrop.jsx": "0655f537fdf3226e6e5adf3ab69a59577ce8c975c9cded6fcc88cbb372ce6438",
+      "frontend/src/components/auth/SignInPanel.jsx": "964c4104254f9340d1b1188a6037c1e8231b11f82e527d6a63cfd28f5cebed3b",
+      "frontend/src/components/auth/authFormPolicy.js": "1cde99e0cd0fda0f8794322c6dffb845f1f10183da1a89675baa858442a7b446",
+      "frontend/src/components/chat/AnalysisStatus.jsx": "695b5fb57b2adfa50fc8554b6b762ac480eef6b75054851a76ac573dd7dfe295",
+      "frontend/src/components/chat/AquaMessage.jsx": "ffdfe6f5de3c42741aea9a9fa3bc8ce8466169acd375af1e2bbe5afb8e16daa1",
+      "frontend/src/components/chat/ChatInput.jsx": "c820ec721f0d328287d9fdfa08c55227978d156c32794c1a8b465f9dd6009ed9",
+      "frontend/src/components/chat/ChatShell.jsx": "549159f0f6d9018a260ef66a5ba9a6aa68dbe3ff9783862ee764dc7c3dbf3354",
+      "frontend/src/components/chat/Conversation.jsx": "5a180eb9f3610536917602fcd15233a81d28161ab21567945abedd0e98d30109",
+      "frontend/src/components/chat/MessageBirthLayer.jsx": "197ef1b705d7ac79d81f4bd05dffd1d5f62e3a325d5775e66ed913ad5d78da17",
+      "frontend/src/components/chat/SafeMarkdown.js": "7cefc2d99175963c5a7a13c105843b8804f2575d85682e295b3f790940d4a275",
+      "frontend/src/components/chat/ThinkingBubbles.jsx": "806deeb4ba06797932b14e0994d74aacd01f2b41249fbaf6f649d876979737a0",
+      "frontend/src/components/chat/UserMessage.jsx": "d50ea42c336ec57742492b326bdcfdce772848f86a072b481e70927e8a322dfb",
+      "frontend/src/components/data/FinancialTable.jsx": "c2494cb4f4d2aaf5e0a1e9f13820d1b8c817dd4c2be727aeed8dd2f82c52cf3c",
+      "frontend/src/components/data/PlotlyChart.css": "d97fa983b0b0ea48af70a695d50014e950195abb4058a3eb0087692d1f126271",
+      "frontend/src/components/data/PlotlyChart.jsx": "15cc98129f69e2bc4365ef80b2b52a93095660b999d0ec12ac571c0fa4dcde9a",
+      "frontend/src/components/data/ResultMetadata.jsx": "f1ec1f94548b59daff663505bbf7c5d301234f0772a1b32f290764217a073e25",
+      "frontend/src/components/data/displayTable.js": "5fbd85e9fd9e73fc3d64ca2a9df11a190b73b9fded2ad038cec5212db48819ae",
+      "frontend/src/components/data/financialValues.js": "1b8048d55185b4ede544b989365dc3cddc32b11ec7b683af9e143278098c905d",
+      "frontend/src/components/data/plotlyController.js": "97c7e70a1751fc0bd34cbb0f0f7f28b7b55e5c5d9c438ae7c043ba36fe2646c2",
+      "frontend/src/components/data/plotlyEngine.js": "8d64f6c7d226f8f17762349b33770d19c6ac3a2eee689bc4bb0efb6adfbe5bae",
+      "frontend/src/components/navigation/LocalLink.jsx": "909c8e8685b8925b50e2edad711414fa14db3f9d9a2bb1e4a065749deb6286c3",
+      "frontend/src/components/navigation/ModelSelector.jsx": "907c70e7ddac98a680c9ca983e0253265f3b55ebde648dcb595d1b545c9dafcb",
+      "frontend/src/components/navigation/Sidebar.jsx": "cf6f60be449fcca5bcb423e756ac032f073d5059d804120adeb9d8621998a4d0",
+      "frontend/src/components/workspace/AccountMenu.jsx": "ef3a01f339dc2d3e76aa2628cd98e5cbcf2f502703b1c02f9b94af16fb5aebd6",
+      "frontend/src/components/workspace/ControlIcon.jsx": "ab48822cfebbe072878df826a1333f8f72cec6af58cf4348e7146eb46af67f0c",
+      "frontend/src/components/workspace/OpalChat.jsx": "5e200d5b9e390a195e916c3da8ea41045a4e447168bf4c1ace9e7f40d2490327",
+      "frontend/src/components/workspace/OpalSidebar.jsx": "dfdd5e79cee19c56057ca91a499d5fad8f83d978277eaffd13eeaab15e87a301",
+      "frontend/src/components/workspace/VisualPane.jsx": "fe7e69ed1ef194ffbb3c4bce90c9f9ce79e3908a00668c561237278d37d24042",
+      "frontend/src/components/workspace/VisualWorkspace.jsx": "c1e0a64107996f9828a042e96634cafa6edf5775c18f41f00d9950b6a468e650",
+      "frontend/src/components/workspace/Workspace.jsx": "ac8d63afefa42bd0b5807af436e362f1ec9b4f7a581c268850cc85cc9d99d401",
+      "frontend/src/components/workspace/WorkspaceEditor.jsx": "2ab1da0fcd7eef3ac398abd2bfde9db021518bb9c4e4a90e46561a8456aff000",
+      "frontend/src/components/workspace/WorkspaceLibrary.jsx": "d90fc7801592eb7cfcaadf03f308a2ab86d32b840ed3a6272f3d909211ceb6b5",
+      "frontend/src/hooks/useAnalysisRequests.js": "7e9bb6c0a5a16b0df21a7e2d98206050aece982ebcb738b8c076361ce293e73c",
+      "frontend/src/hooks/useChat.js": "a4266bfd4fabeb19505ebcd7fc18b0f833bdb0e368a2cad0acf4f3eb871b4742",
+      "frontend/src/hooks/useGoogleAuth.js": "aae0b60fc500cd45edb123315bdd2ea7135bea4dd466f5bff4aed8cc7efebd2b",
+      "frontend/src/hooks/useReducedMotion.js": "825046296532d39fcaf5c0c4790b17970b7463ee50544c435db72a49a4cd6195",
+      "frontend/src/hooks/useVisualResults.js": "f220811d3d09103a754e89f4c931cec65a95faa8579c7f0b8de232bbba4bc6a9",
+      "frontend/src/hooks/useWorkspace.js": "56c6a36c32c63fcbffdcaaee81c813c33bafeaed060d9e3fc2abfdaf73393c9a",
+      "frontend/src/hooks/useWorkspaceLists.js": "967647e42cccf06f98683c96beb73b9f9b3c707ff34f0e75950ef10ca3913db2",
+      "frontend/src/hooks/workspaceAnalysisState.js": "0aa451181356397c32af9df6205cf8e7d048197e1cf20167f89feb8341e31a59",
+      "frontend/src/hooks/workspaceState.js": "3dcbc472ebd40eedfdd887d12bed25b056b42e1bdd3f08ee19517365237a4aa6",
+      "frontend/src/main.jsx": "7626f6666b0baa4d6baf409f0b5b9afda38620543858e0c88099e32de7f77619",
+      "frontend/src/mocks/aiModels.js": "627d8cc8c7086c4a645e8d069a296284c28c221bd0606e47aee88989d565ae36",
+      "frontend/src/mocks/mockResponses.js": "55ff0a36c553ff99a1d5cbab851f599d438d7a77be59815aade2e27a44c81aeb",
+      "frontend/src/mocks/navigation.js": "aa1dd64be5dcab42df775c50eb98b26c59b43c94642540a03e3e32629a5eadeb",
+      "frontend/src/pages/AuthPage.jsx": "5842be76a04efbc683703883c0212425e2aa452674209b3e240f2289e695b0f8",
+      "frontend/src/pages/LegalPage.jsx": "6638eb0253a6b6266652b627a3efcdb4ad39e790a2184baa1f985d8a04eb57e1",
+      "frontend/src/pages/SettingsShell.jsx": "07d90276cfb0cefd0511d3f55bca684ac7ef977c511dfd99c34fd5f7941edf8a",
+      "frontend/src/pages/SignInPage.jsx": "fd87b2a386fc3961d197be5dd8de160e765989726a4a9b9d6a7533520d15d916",
+      "frontend/src/services/analysisClient.js": "30c1e6394240f6441c81f942dc10c3393f86d012cc5648d69f23dce5f48aa1da",
+      "frontend/src/services/analysisObserver.js": "bbe2051a6873dae7aea5c259f560f7932713cc451a5b56bc01715e3bf3ace24e",
+      "frontend/src/services/analysisPresentation.js": "f506a5b2248b1a8af344625c3bac3d18c4dd4e5d6fdb2e83562a5373f5f5822a",
+      "frontend/src/services/analysisProtocol.js": "d654ce6bd12770d8e1f5d3091640918670bcf01899e86eef52406a94724e33e7",
+      "frontend/src/services/apiClient.js": "8aa19ae3bf30457684b218dd379d569a1073ada287cab56618e398ce69659e81",
+      "frontend/src/services/aquaClient.js": "40b328d6aea3449b557e25663f8fb4a9f3c81996b064c23af2ac9a826a4fcf50",
+      "frontend/src/services/authClient.js": "2df4f84834f5db9970509b1a453acc052dce2bafe7b704d505deb3d469f451ba",
+      "frontend/src/services/googleIdentity.js": "b60aadf6a4e00471bf9120cf505dd2186fde606e16416e098b670074adc6bc16",
+      "frontend/src/services/mockClient.js": "ac85edf04d2ba46b6620e54b082a4a51970b5ea3cba906eb05f4f90a13972dfd",
+      "frontend/src/services/passwordAuthClient.js": "c2208c0870d428c5f81fe611307a8f52fdcc670798304d01f00fcbfb5de9acf9",
+      "frontend/src/services/plotlyFigure.js": "9f33c7dd694bb9d364e54bdfcbc972de907947c619c7159b8c003342768469ed",
+      "frontend/src/services/precisionCells.js": "1396ab272b042fe0737c520e43cd10259cf09d3425c613cd6f0943715f437007",
+      "frontend/src/services/preferenceFormatting.js": "78913f9e445e3478f5d61f78ae0a10b5d5f418ab6d3268f4a02d8115b8db1f8b",
+      "frontend/src/services/presentationContract.js": "b2f09e0e43cbed412aa1ba4b5e089bf0765303c0786f1c17324226e4efac9f0f",
+      "frontend/src/services/routes.js": "4c0f804d88d52c4a747cb4e433cadccb8b45efa22a76c6012749c26b03e52c3a",
+      "frontend/src/services/runtimeConfig.js": "1d7a2c38aea28b3503aca579b8d89bd8363eded0074209d789a6697d911d6b55",
+      "frontend/src/services/shellConfig.js": "0b0fe800e9e4e8e94ec07d8018f8d29eefcf3047596587f9963796b0b8f10d2f",
+      "frontend/src/services/visualResults.js": "3166ae45cb7f7f0ccb07b59b5475182fcad4a46ce18f08a52a46c9467cb01ce7",
+      "frontend/src/services/workspaceClient.js": "57061836d00829d8f9c2a25e62a18956b99d8984cc8a77918ec121056533635b",
+      "frontend/src/services/workspaceContract.js": "690fe0d0c03f1e527fb45e000c5e074e84b75050654d24dec42802dc899711fe",
+      "frontend/src/services/workspaceResultMetadata.js": "61b3707ae861092a6604818cf8e9ce26d10af55f4a2113eeb3a0c45ab2164a71",
+      "frontend/src/settings/PreferenceDialog.jsx": "16c51a39e28feab27eb6673164e05883d3e37fecaf4012a9ee784895f314571f",
+      "frontend/src/settings/PreferenceTransfers.jsx": "2256bd5fc9b7d8a7e17a3cad0b8dc261c9677d83138ca03bf7c9c03f35fe9eff",
+      "frontend/src/settings/PreferencesProvider.jsx": "a4c0f964907d8f2403ce4bad684c943d148dbde6ca01a2a7676936373c3aca83",
+      "frontend/src/settings/SettingsControl.jsx": "20fe8410bfbeef5559c52f76a75e256f9f2905413f293acb2653c2141431d96f",
+      "frontend/src/settings/SettingsInformation.jsx": "895900c105d62d0c6692e5da9da24f24e341fbd7ef1166c6686309c68615e613",
+      "frontend/src/settings/controls.js": "88a1369966a6ce84b5bc9dff3f3fe92c353e9134dc023d306a9e099aca65442a",
+      "frontend/src/settings/deviceStore.js": "de48be2b1be367db2b3715294ce20a350123a6a07139401595f58b143c898719",
+      "frontend/src/settings/preferenceClient.js": "c5b732344c48b6755015dc90b6f50e971d344523bc4cd02f2aba615ef755783f",
+      "frontend/src/settings/preferenceState.js": "a37b4915b9b323630b65ecfcefcc6b5d442a523d83aa2f1249b737395c53fba1",
+      "frontend/src/settings/schema.js": "344bb4b58c2e2846e0d239b76be169945b43d9bba5c06d7475ab5c68b9aaf701",
+      "frontend/src/settings/strictJson.js": "50f1cfc44cf9b5c2118d3edde22d5e6dc494f0d0de9bc0f3a53f36dc5f95ee16",
+      "frontend/src/styles/animations.css": "38fc4261924daf495635d414097f02bc093f45dccd1a8d9d9c6e9383abb9b493",
+      "frontend/src/styles/auth-page.css": "c5a802323b7dd97a6edf7b01e0d49f611c05f909ca0451a6c56908669460ed52",
+      "frontend/src/styles/auth.css": "05b7166fbf606dba8efb7f7f1d5c56b75e2b127faad850a3877c036d26b23ee5",
+      "frontend/src/styles/global.css": "fed6cee2936bbb96702ea76a192e0431ed1e2156c0e056eeff0bc9271910bec6",
+      "frontend/src/styles/legacy-workspace.css": "aa6ec57217f0b7af9dd049ef15c80d24092d64ff4501f1457ebf57072ff76e54",
+      "frontend/src/styles/legal-page.css": "a9980009b1c02dcdb60e2645fcafc0392386f6c817a0e7f86a39c5f00cdab098",
+      "frontend/src/styles/preferences.css": "c9718637bf9ba4979d265a2a85585a25b844d1223dade28a33a59ecf3a9b140f",
+      "frontend/src/styles/settings.css": "ede319dcd8b06dfc6dd8c3e57de63c635c7e73d217de1c913a80e2a02e122d96",
+      "frontend/src/styles/sidebar-search.css": "56139cdc78274fc49155a171114d9f7d34862712130fbc94f13bef6a6c4e7805",
+      "frontend/src/styles/sidebar.css": "1ce7d64c3bcd4680b59e3c16b4773247a6b7ff9c786404caced05d3d84888194",
+      "frontend/src/styles/signin-page.css": "113e864cbaaeb2006ca1d8ecea21bd827e2ce58566f7ed305ec5127c81a59060",
+      "frontend/src/styles/tokens.css": "1b5d6587206bf0df328fe6d7331bc53cc6fbd108120d3b2e6038c3d21e3b4795",
+      "frontend/src/styles/visual-workspace.css": "9292214a19ad6fe125d7a9a4e8adee2e45bd52ed308e1359cbecc7578bfabd50",
+      "frontend/src/styles/workspace-library.css": "96b189811cbc3699a78249e6fe49cfd04fc6421dc6fab270a908d305188c32e6",
+      "frontend/src/styles/workspace.css": "ecae89070561a54d1f0f1aee1503df68cba8ade7500d14bf94fdc1d270becd94"
+    },
+    "builds": {
+      "opal": {
+        "status": "passed",
+        "bundle": {
+          "status": "passed",
+          "initial": {
+            "files": [
+              {
+                "file": "assets/index-CWgYAHmc.css",
+                "bytes": 69998,
+                "gzip_bytes": 14568
+              },
+              {
+                "file": "assets/index-Cf3kY1oB.js",
+                "bytes": 564222,
+                "gzip_bytes": 176168
+              }
+            ],
+            "bytes": 634220,
+            "gzip_bytes": 190736
+          },
+          "engine": {
+            "file": "assets/plotly-basic.min-CBfOoNid.js",
+            "bytes": 1211596,
+            "gzip_bytes": 404237,
+            "sha256": "396b459df2df0536bb063e6d01ff8473f6b0995a6391c3ad3b1d2f6509a2d21c",
+            "initial": false
+          },
+          "manifest_sha256": "378c2c1b370d65d13338f7fab4d17a1bd6234e0ec18eefb9f61a1f282ea9ab9e"
+        }
+      },
+      "legacy": {
+        "status": "passed",
+        "bundle": {
+          "status": "passed",
+          "initial": {
+            "files": [
+              {
+                "file": "assets/index-BxoF4NMz.js",
+                "bytes": 564224,
+                "gzip_bytes": 176169
+              },
+              {
+                "file": "assets/index-CWgYAHmc.css",
+                "bytes": 69998,
+                "gzip_bytes": 14568
+              }
+            ],
+            "bytes": 634222,
+            "gzip_bytes": 190737
+          },
+          "engine": {
+            "file": "assets/plotly-basic.min-D28xalWp.js",
+            "bytes": 1211596,
+            "gzip_bytes": 404238,
+            "sha256": "8ec6e16d24e6d92e4718fcecc4d67404bdec92e7af80ce0f2bb959b848fd9a93",
+            "initial": false
+          },
+          "manifest_sha256": "f2e31d69ee66d96a6b52cb2be7da5b3ec7d4232072ed499f59ef151ffdc840c7"
+        }
+      }
+    }
+  },
+  "browser": {
+    "legacy": {
+      "synthetic": {
+        "status": "passed",
+        "cases": 103,
+        "report_sha256": "bac821793f181b07cbd80361f4deb52a7b13821373307f2306ef9d00f1b78eec",
+        "observed_seconds": 26.96,
+        "asset_set_sha256": "ea45175d986e7923c46bfe1e9bd7db922819209ecdf59e72d9e02811e967fa61",
+        "observations": {
+          "requestCount": 456,
+          "apiRequests": 318,
+          "staticRequests": 143,
+          "external_attempts": 0,
+          "consoleLeaks": 0,
+          "runtimeErrors": 0,
+          "forbidden_api_calls": 0
+        },
+        "cleanup": "browser_profile_loopback_and_owned_fixtures_removed"
+      },
+      "workspace": {
+        "status": "passed",
+        "cases": 39,
+        "report_sha256": "4ada5008ab2d6f4d74d32118a0bb8c7648266f0543926a14dc548f4344fcb343",
+        "observed_seconds": 107.1,
+        "asset_set_sha256": "ea45175d986e7923c46bfe1e9bd7db922819209ecdf59e72d9e02811e967fa61",
+        "observations": {
+          "requests": 401,
+          "apiRequests": 305,
+          "external_attempts": 0,
+          "consoleLeaks": 0
+        },
+        "cleanup": "browser_profile_loopback_and_owned_fixtures_removed"
+      },
+      "settings": {
+        "status": "passed",
+        "cases": 41,
+        "report_sha256": "5ccc74cc5f400ef9a645e031250cfd1e33ffa0d7930089c26956b55df14ba058",
+        "observed_seconds": 28.3,
+        "asset_set_sha256": "ea45175d986e7923c46bfe1e9bd7db922819209ecdf59e72d9e02811e967fa61",
+        "observations": {
+          "requests": 85,
+          "api_requests": 55,
+          "external_attempts": 0,
+          "console_leaks": 0,
+          "runtime_errors": 0,
+          "maximum_paused_requests": 9
+        },
+        "cleanup": "browser_profile_loopback_and_owned_fixtures_removed",
+        "appearance": {
+          "combinations": 128,
+          "minimum_select_text_contrast": 14.64845708722105,
+          "minimum_enabled_button_text_contrast": 6.991986463688356,
+          "minimum_label_text_contrast": 14.64845708722105,
+          "minimum_breadcrumb_text_contrast": 14.680549772941458,
+          "sidebar_input_cases": 128,
+          "minimum_sidebar_input_text_contrast": 12.192772416906621,
+          "minimum_control_height": 44,
+          "minimum_control_width": 114.15625,
+          "system_theme_media_cases": 2,
+          "forced_colors_and_reduced_motion": true
+        },
+        "mobile": {
+          "width_css_pixels": 320,
+          "actual_control_text_scale": 2,
+          "categories_reachable": 9
+        },
+        "accessibility_tree": {
+          "settings_heading": true,
+          "named_category_navigation": true,
+          "named_comboboxes": 5,
+          "save_and_cancel_named": true
+        },
+        "actual_provider_calls": 0,
+        "fake_jobs_started": 0
+      },
+      "visuals": {
+        "status": "passed",
+        "cases": 37,
+        "report_sha256": "f2a678423427056037d50e5e212f3c56f6e0f81d5e068e4a019f5ec5dd9ed9f5",
+        "observed_seconds": 30.8,
+        "asset_set_sha256": "ea45175d986e7923c46bfe1e9bd7db922819209ecdf59e72d9e02811e967fa61",
+        "observations": {
+          "requests": 121,
+          "api_requests": 92,
+          "external_attempts": 0,
+          "console_leaks": 0,
+          "runtime_errors": 0,
+          "maximum_paused_requests": 9
+        },
+        "cleanup": "browser_profile_loopback_and_owned_fixtures_removed",
+        "actual_provider_calls": 0,
+        "fake_jobs_started": 12
+      }
+    },
+    "opal": {
+      "settings": {
+        "status": "passed",
+        "cases": 41,
+        "report_sha256": "d97d475a1f067761ebc446a3da0c4a72c3d4de1f396856433552e3abfffd7999",
+        "observed_seconds": 27.5,
+        "asset_set_sha256": "29b142121e0d0a90220f923ff31ff8acdc3c742118a72447befdcc3faba5ac93",
+        "observations": {
+          "requests": 81,
+          "api_requests": 55,
+          "external_attempts": 0,
+          "console_leaks": 0,
+          "runtime_errors": 0,
+          "maximum_paused_requests": 8
+        },
+        "cleanup": "browser_profile_loopback_and_owned_fixtures_removed",
+        "appearance": {
+          "combinations": 128,
+          "minimum_select_text_contrast": 15.38320828520069,
+          "minimum_enabled_button_text_contrast": 6.991986463688356,
+          "minimum_label_text_contrast": 15.38320828520069,
+          "minimum_breadcrumb_text_contrast": 14.680549772941458,
+          "sidebar_input_cases": 128,
+          "minimum_sidebar_input_text_contrast": 13.164787538876705,
+          "minimum_control_height": 44,
+          "minimum_control_width": 114.15625,
+          "system_theme_media_cases": 2,
+          "forced_colors_and_reduced_motion": true
+        },
+        "mobile": {
+          "width_css_pixels": 320,
+          "actual_control_text_scale": 2,
+          "categories_reachable": 9
+        },
+        "accessibility_tree": {
+          "settings_heading": true,
+          "named_category_navigation": true,
+          "named_comboboxes": 5,
+          "save_and_cancel_named": true
+        },
+        "actual_provider_calls": 0,
+        "fake_jobs_started": 0
+      },
+      "synthetic": {
+        "status": "passed",
+        "cases": 103,
+        "report_sha256": "70f5174d737d6e22fdba5f2c4dd5e79d346e7cef74148f9c21ba24081a8eb0e8",
+        "observed_seconds": 18.32,
+        "asset_set_sha256": "29b142121e0d0a90220f923ff31ff8acdc3c742118a72447befdcc3faba5ac93",
+        "observations": {
+          "requestCount": 442,
+          "apiRequests": 318,
+          "staticRequests": 129,
+          "external_attempts": 0,
+          "consoleLeaks": 0,
+          "runtimeErrors": 0,
+          "forbidden_api_calls": 0
+        },
+        "cleanup": "browser_profile_loopback_and_owned_fixtures_removed"
+      },
+      "workspace": {
+        "status": "passed",
+        "cases": 39,
+        "report_sha256": "fb6549120e1ac2a48c223c5bb8f50a11b24b5973f967f244155a6ef11392d88a",
+        "observed_seconds": 104.1,
+        "asset_set_sha256": "29b142121e0d0a90220f923ff31ff8acdc3c742118a72447befdcc3faba5ac93",
+        "observations": {
+          "requests": 392,
+          "apiRequests": 309,
+          "external_attempts": 0,
+          "consoleLeaks": 0
+        },
+        "cleanup": "browser_profile_loopback_and_owned_fixtures_removed"
+      },
+      "visuals": {
+        "status": "passed",
+        "cases": 37,
+        "report_sha256": "ecf2781d45a3e4ea96af7b1d864542caa724a21a9c1485946c10dff85778e0c9",
+        "observed_seconds": 30.1,
+        "asset_set_sha256": "29b142121e0d0a90220f923ff31ff8acdc3c742118a72447befdcc3faba5ac93",
+        "observations": {
+          "requests": 117,
+          "api_requests": 92,
+          "external_attempts": 0,
+          "console_leaks": 0,
+          "runtime_errors": 0,
+          "maximum_paused_requests": 8
+        },
+        "cleanup": "browser_profile_loopback_and_owned_fixtures_removed",
+        "actual_provider_calls": 0,
+        "fake_jobs_started": 12
+      }
+    }
+  },
+  "prior_failed_attempts": [
+    {
+      "shell": "opal",
+      "gate": "settings",
+      "category": "narrow_viewport_content_overflow",
+      "report_sha256": "d14815c2418a25558bfd1c1620b3909666e86188705d0cf40d1228fe79ee2cfe"
+    },
+    {
+      "shell": "opal",
+      "gate": "settings",
+      "category": "historical_setup_failure_cause_unavailable",
+      "report_sha256": "2396b8fd2acc7bdbac5d114ee500ebe38d74ec4dae5000f7210099e0d0111d2b"
+    },
+    {
+      "shell": "opal",
+      "gate": "settings",
+      "category": "narrow_viewport_content_overflow",
+      "report_sha256": "51f4c8264d9c0cdf57637a204f12d5a5dbbe4ad1648b3220c9a848ca55a52df5"
+    },
+    {
+      "shell": "opal",
+      "gate": "settings",
+      "category": "narrow_viewport_content_overflow",
+      "report_sha256": "afaf76ae5581dffe1a50254c871a4d5d483d4d6bc6ce9fb48b79a7a71f176953"
+    },
+    {
+      "shell": "opal",
+      "gate": "settings",
+      "category": "narrow_viewport_content_overflow",
+      "report_sha256": "844bbb2e50cfa6bb5f245602c3ef410452b7262d3642569cc331afb0a37de45b"
+    },
+    {
+      "shell": "opal",
+      "gate": "settings",
+      "category": "read_only_ax_method_missing_from_test_allowlist",
+      "report_sha256": "40f1fc81f9ac9da13d1a42ba0f6094d0bb2d0592482dfbde35ba604e2bbc88c8"
+    },
+    {
+      "shell": "opal",
+      "gate": "settings",
+      "category": "native_dialog_reverse_tab_left_modal",
+      "report_sha256": "e2ba8751201c164c98b2484a11eb887740a597211208a368d0372735704eea3e"
+    }
+  ],
+  "screenshots": [
+    {
+      "file": "screenshots/legacy-settings-desktop.png",
+      "bytes": 186586,
+      "sha256": "d9d471488acca3e947bb04b34d7a0d7045d2b3f4d2b63d8f7f5098a479e2d597",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/legacy-settings-light-increased.png",
+      "bytes": 214522,
+      "sha256": "af23b516f87b83b6adf0b8b8d090dec3ff861d80fadd7719417af994fc8b4a57",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/legacy-settings-320-double-text.png",
+      "bytes": 41314,
+      "sha256": "10542d31d755c85aca055f040da9ae8fb4c24542ef9859fc0c29ed007054b9ff",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/legacy-desktop-actual-plotly.png",
+      "bytes": 158032,
+      "sha256": "28fc2eeec632e5b130b0387c176f4b85b2d2f0423b33e16da2aaa1b6c7adcdf2",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/opal-settings-desktop.png",
+      "bytes": 187533,
+      "sha256": "77562b7e122c1ca77da16258474b387ff8dafb6d0dd0d5e70bcf7de96b44f5f7",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/opal-settings-light-increased.png",
+      "bytes": 196437,
+      "sha256": "0ad1b836dced59861419743205d9f279a86b41e7a7022c3e0f9a69aa6291ee86",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/opal-settings-320-double-text.png",
+      "bytes": 41318,
+      "sha256": "5754590cc713135e760ab0c0dad5f17efc0f2237d21e8909a11b2b156fb4606d",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/opal-desktop-actual-plotly.png",
+      "bytes": 141502,
+      "sha256": "1259882d808f75498fb9124eceb1b8c25d198fe1fe08cb9883b40322aa9a3fc8",
+      "content": "fixed_synthetic_fixture_only"
+    }
+  ],
+  "visual_review": "reviewed_by_root",
+  "findings_fixed_and_retested": [
+    {
+      "finding": "Undo action overwrote its snapshot metadata and broke Settings rendering.",
+      "correction": "Separate undoDraft callback from undo metadata.",
+      "evidence": [
+        "actual provider render regression",
+        "actual Settings browser gate"
+      ]
+    },
+    {
+      "finding": "Unknown write readback could silently rebase a conflicting unsaved draft.",
+      "correction": "Require explicit conflict reload or review before another write.",
+      "evidence": [
+        "four deterministic state regressions",
+        "actual stale-revision browser gate"
+      ]
+    },
+    {
+      "finding": "Optional sidebar visual order differed from keyboard and accessibility-tree order.",
+      "correction": "Render optional sections in preference order with stable keys.",
+      "evidence": [
+        "actual sidebar DOM render regressions"
+      ]
+    },
+    {
+      "finding": "Native reverse Tab could move focus outside the preference modal.",
+      "correction": "Wrap ordinary Tab and Shift+Tab within visible enabled dialog controls.",
+      "evidence": [
+        "retained failing actual keyboard report",
+        "passing actual modal keyboard and focus-return checks"
+      ]
+    },
+    {
+      "finding": "Light presets exposed hardcoded header, input and placeholder colors.",
+      "correction": "Use the scoped theme text, muted and surface tokens.",
+      "evidence": [
+        "128 preset computed contrast checks",
+        "selected light/increased synthetic screenshot"
+      ]
+    },
+    {
+      "finding": "Native input minimum widths and the header flex item overflowed narrow Settings at doubled text size.",
+      "correction": "Allow measured search/file-picker grids and header content to shrink and wrap while retaining the native controls.",
+      "evidence": [
+        "retained numeric overflow reports",
+        "all nine category reflow checks at 320 CSS pixels and doubled actual control text"
+      ]
+    },
+    {
+      "finding": "Verification scratch tmpfs hid the image dependency lock.",
+      "correction": "Hash the immutable runtime without shadowing its installed lock.",
+      "evidence": [
+        "offline helper regression",
+        "exact-image byte proof"
+      ]
+    }
+  ],
+  "release_gates": {
+    "required_pr_ci": "pending",
+    "merged_main_ci": "pending",
+    "production_verification": "pending",
+    "phase_complete_claimed": false
+  },
+  "limitations": [
+    "All browser/API/database rows and accounts are disposable synthetic fixtures.",
+    "No production backup/restore, real email, real analytical query or live AI provider was exercised.",
+    "Automated keyboard/AX/contrast checks are bounded evidence, not a complete assistive-technology audit.",
+    "No private records, tokens, raw responses, absolute workstation paths or credential files are included."
+  ]
+}

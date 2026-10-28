@@ -1,5 +1,6 @@
 """Cap JSON bytes before FastAPI parses a workspace mutation body."""
 
+import json
 from workspace.errors import WorkspaceError, failure
 from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
@@ -8,6 +9,7 @@ PREFIXES = (
     "/api/v1/chats",
     "/api/v1/projects",
     "/api/v1/me/saved-prompts",
+    "/api/v1/me/preferences",
     "/api/v1/starter-prompts",
 )
 
@@ -32,12 +34,17 @@ class WorkspaceBodyLimit:
             await failure(WorkspaceError("invalid_request", 415))(scope, receive, send)
             return
         body = bytearray()
+        limit = (
+            65536
+            if scope.get("path", "").startswith("/api/v1/me/preferences")
+            else 16384
+        )
         while True:
             event = await receive()
             if event["type"] == "http.disconnect":
                 return
             chunk = event.get("body", b"")
-            if len(body) + len(chunk) > 16384:
+            if len(body) + len(chunk) > limit:
                 await failure(WorkspaceError("invalid_request", 413))(
                     scope, receive, send
                 )
@@ -46,6 +53,14 @@ class WorkspaceBodyLimit:
             if not event.get("more_body", False):
                 break
         delivered = False
+        if scope.get("path", "").startswith("/api/v1/me/preferences"):
+            try:
+                json.loads(body, object_pairs_hook=unique_object)
+            except (ValueError, UnicodeError, RecursionError):
+                await failure(WorkspaceError("invalid_request", 422))(
+                    scope, receive, send
+                )
+                return
 
         async def bounded_receive() -> Message:
             nonlocal delivered
@@ -55,3 +70,13 @@ class WorkspaceBodyLimit:
             return {"type": "http.request", "body": bytes(body), "more_body": False}
 
         await self.app(scope, bounded_receive, send)
+
+
+def unique_object(pairs: list[tuple]) -> dict:
+    """Ambiguous duplicate keys must not acquire last-wins save semantics."""
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError("duplicate_preference_key")
+        result[key] = value
+    return result

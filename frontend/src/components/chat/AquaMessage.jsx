@@ -31,7 +31,7 @@ function SqlBlock({ sql, label = "SQL" }) {
   );
 }
 
-export default function AquaMessage({ message, hidden = false, onRetry, onShowVisual }) {
+export default function AquaMessage({ message, hidden = false, onRetry, onShowVisual, preferences }) {
   const [copyStatus, setCopyStatus] = useState("");
   const copyTimer = useRef(null);
   useEffect(() => () => window.clearTimeout(copyTimer.current), []);
@@ -87,9 +87,9 @@ export default function AquaMessage({ message, hidden = false, onRetry, onShowVi
         <SqlBlock sql={response.sql} />
         {(response.tables?.length > 0 || response.visualizations?.length > 0 || response.kpis?.length > 0) && (
           <div className="response-data">
-            <ResultMetadata response={response} />
+            <ResultMetadata response={response} preferences={preferences?.account} />
             {response.presentationError && <p role="status">{response.presentationError}</p>}
-            {response.tables?.map((table, index) => <FinancialTable key={`${typeof table?.id === "string" ? table.id : "unavailable"}:${index}`} table={table} />)}
+            {response.tables?.map((table, index) => <FinancialTable key={`${typeof table?.id === "string" ? table.id : "unavailable"}:${index}`} table={table} preferences={preferences?.account} />)}
             {onShowVisual && response.tables?.length > 0 && <button type="button" className="text-action visual-result-open" onClick={() => onShowVisual(message.id)}>Show visuals</button>}
           </div>
         )}

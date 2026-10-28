@@ -8,6 +8,22 @@ ID = "c5fbc248-64cb-4f08-b2be-e38df9d7b331"
 
 
 class Routes(unittest.TestCase):
+    def test_preferences_has_only_current_owner_get_put_without_query_authority(
+        self,
+    ) -> None:
+        for method in ("GET", "PUT"):
+            self.assertTrue(workspace_route("/api/v1/me/preferences", method))
+        for path, method in [
+            ("/api/v1/me/preferences", "POST"),
+            ("/api/v1/me/preferences", "PATCH"),
+            ("/api/v1/me/preferences", "DELETE"),
+            ("/api/v1/me/preferences?owner_id=forged", "GET"),
+            ("/api/v1/me/preferences?revision=1", "PUT"),
+            (f"/api/v1/users/{ID}/preferences", "GET"),
+        ]:
+            with self.subTest(path=path, method=method):
+                self.assertFalse(workspace_route(path, method))
+
     def test_owned_workspace_methods_and_queries_are_forwardable(self) -> None:
         for path, method in [
             ("/api/v1/chats", "GET"),

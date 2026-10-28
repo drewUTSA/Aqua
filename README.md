@@ -15,7 +15,11 @@ controlled production health/asset verification passed. See
 [P07 durable analysis](docs/implementation/P07_DURABLE_ANALYSIS.md) and
 [activation](docs/implementation/P05_PRODUCTION_ACTIVATION.md).
 
-P09 Settings is next and requires a new user request; P09 onward has not started.
+P09 Settings is implemented and locally verified in the October 28 review
+candidate: 1,385 backend cases, 399 frontend tests and all eight browser gates
+passed. The authorized Git/CI release workflow and PR/main CI remain pending. See
+[P09 Settings and preferences](docs/implementation/P09_SETTINGS_PREFERENCES.md).
+P10 through P13 have not started.
 The [approved phased specification](AQUA_CODEX_HANDOFF.md) governs the order.
 Verification: [check runner guide](tools/checks/README.md).
 

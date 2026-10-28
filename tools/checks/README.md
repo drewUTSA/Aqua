@@ -175,3 +175,28 @@ owned resources; an ownership mismatch blocks cleanup and reports the run ID.
 Run only trusted code with Docker access. The proxy additionally checks that
 public readiness aliases produce no backend work. This is a bounded isolated
 exercise, not a production flood or a full penetration-test certification.
+
+## P09 Settings browser checks
+
+CI runs `frontend/checks/p09-browser.mjs` against each shell's production build,
+before the Opal build is replaced by the legacy build. From `frontend/`, set
+`AQUA_P05_EXPECTED_SHELL` to `opal` or `legacy`, `AQUA_P09_DIST` to the absolute
+build directory, `AQUA_P09_ARTIFACT_DIR` to a dedicated synthetic-evidence directory,
+and `AQUA_CHROME_EXECUTABLE` / `AQUA_P09_BRIDGE_EXECUTABLE` to absolute Chrome and
+Python executables. Set `AQUA_P09_BRIDGE_ARGS_JSON` to the JSON argument list
+`["-u","../tools/checks/p08_browser_backend.py","--image","sha256:..."]`, replacing
+the final value with the actual `docker image inspect aqua-runtime:check --format
+'{{.Id}}'` result, then run `node checks/p09-browser.mjs`. This exercises actual
+Settings controls, account/device saves, conflicts, safe imports, presets and
+responsive behavior for a synthetic account without an analytical grant. The
+fixture retains the existing numeric traffic/resource ceilings, uses zero model
+jobs or external providers, and verifies exact-resource cleanup. Only bounded
+synthetic JSON reports and PNGs enter the artifact retention allowlist.
+
+Both P08 visual gates also set `AQUA_P09_VISUAL_PREFERENCES=table`. The optional
+helper saves and reloads the fixture owner's Table preference before running
+the existing chart journeys, proving that explicit chart requests still win.
+An empty value keeps ordinary P08 behavior; other values fail closed. The helper
+does not increase P08 fake-job or transport limits. These isolated checks do not
+claim a production deployment, a live-provider run or passed PR/main CI before
+those gates actually execute.

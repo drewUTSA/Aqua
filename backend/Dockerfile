@@ -13,6 +13,7 @@ COPY --chown=1000:1000 backend/nl2sql/retrieval/*.py ./nl2sql/retrieval/
 COPY --chown=1000:1000 backend/storage/*.py ./storage/
 COPY --chown=1000:1000 backend/workspace/*.py ./workspace/
 COPY --chown=1000:1000 backend/analysis/*.py ./analysis/
+COPY --chown=1000:1000 backend/preferences/*.py ./preferences/
 COPY --chown=1000:1000 backend/migrations/*.sql ./migrations/
 USER 1000:1000
 CMD ["uvicorn", "main:app", "--host", "127.0.0.1", "--port", "8000"]

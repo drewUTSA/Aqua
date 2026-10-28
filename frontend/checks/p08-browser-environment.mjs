@@ -18,6 +18,17 @@ function configured(name) {
   return path.resolve(value);
 }
 
+export function setupDiagnostic(error, ctx) {
+  const token = (value, pattern = /^[a-zA-Z0-9_]{1,96}$/) => typeof value === 'string' && value.length <= 96 && pattern.test(value) ? value : null;
+  const diagnostic = ctx?.cdp?.diagnostic;
+  const bridge = ctx?.bridge?.diagnostic;
+  return { category: token(error?.message, /^[a-z0-9_]{1,96}$/) || token(error?.name) || 'setup_failed', stage: token(ctx?.stage) || 'configuration',
+    browser: diagnostic ? { reason: token(diagnostic.reason), stage: token(diagnostic.stage), method: token(diagnostic.method, /^[A-Za-z]+\.[A-Za-z]+$/), pending_count: Number.isSafeInteger(diagnostic.pending_count) ? diagnostic.pending_count : null } : null,
+    bridge: bridge ? { kind: token(bridge.kind), category: token(bridge.category), stage: token(bridge.stage), module: token(bridge.module, /^[a-zA-Z0-9_.]{1,96}$/) } : null,
+    cleanup: ctx?.cleanup ? { browser_stopped: ctx.cleanup.browser_stopped === true, profile_removed: ctx.cleanup.profile_removed === true, loopback_closed: ctx.cleanup.loopback_closed === true, backend_resources_removed: ctx.cleanup.backend_resources_removed === true,
+      backend_status: token(ctx.cleanup.backend?.status), backend_cleanup: token(ctx.cleanup.backend?.cleanup), remaining_resources: Array.isArray(ctx.cleanup.backend?.remaining_ids) ? ctx.cleanup.backend.remaining_ids.length : null } : null };
+}
+
 export async function openP08Browser() {
   const ctx = { started: performance.now(), stage: "configuration", results: [], screenshots: [], assets: [], external: 0, requests: 0, api: 0,
     errors: [], protocolDiagnostics: [], runtimeErrors: 0, consoleLeaks: 0, navigating: false, pending: 0, maximumPending: 0, secrets: new Set() };
@@ -130,5 +141,10 @@ export async function openP08Browser() {
     await ctx.cdp.send("Page.addScriptToEvaluateOnNewDocument", { source: "window.google={accounts:{id:{initialize(){},disableAutoSelect(){},renderButton(){}}}};" });
     await ctx.cdp.send("Emulation.setDeviceMetricsOverride", { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
     return ctx;
-  } catch (error) { await ctx.close(); throw error; }
+  } catch (error) {
+    try { await ctx.close(); } catch { /* Preserve the first fixed setup category. */ }
+    const diagnostic = setupDiagnostic(error, ctx), failure = new Error(diagnostic.category);
+    failure.setupDiagnostic = diagnostic;
+    throw failure;
+  }
 }

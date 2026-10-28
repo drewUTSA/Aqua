@@ -2,13 +2,17 @@ import React, { useEffect, useId, useMemo, useRef, useState } from "react";
 import { buildPlotlyFigure } from "../../services/plotlyFigure.js";
 import { createPlotlyController } from "./plotlyController.js";
 import { loadPlotlyEngine } from "./plotlyEngine.js";
+import { useReducedMotion } from "../../hooks/useReducedMotion.js";
 import "./PlotlyChart.css";
 
-export default function PlotlyChart({ descriptor, table, theme = "opal", onTableView }) {
+export default function PlotlyChart({ descriptor, table, theme = "opal", preferences, devicePreferences, revisionKey, onTableView }) {
   const node = useRef(null), controller = useRef(null), description = useId();
   const [status, setStatus] = useState("loading"), [mode, setMode] = useState("zoom");
   const [controlBusy, setControlBusy] = useState(false);
-  const figure = useMemo(() => buildPlotlyFigure(descriptor, table, { theme }), [descriptor, table, theme]);
+  const reduced = useReducedMotion();
+  const animate = !!devicePreferences && devicePreferences.chart_motion === "system" && devicePreferences.motion !== "reduce" && !reduced;
+  const textScale = devicePreferences?.text_scale;
+  const figure = useMemo(() => buildPlotlyFigure(descriptor, table, { theme, preferences, revisionKey, animate, textScale }), [descriptor, table, theme, preferences, revisionKey, animate, textScale]);
   useEffect(() => {
     if (!figure || !node.current) return;
     const owner = createPlotlyController({ node: node.current, loadEngine: loadPlotlyEngine, onStatus: setStatus });
@@ -27,7 +31,8 @@ export default function PlotlyChart({ descriptor, table, theme = "opal", onTable
     <section className="plotly-chart" aria-label={descriptor?.title || "Result chart"} data-chart-status={unavailable ? "unavailable" : status}>
       <p className="plotly-chart__description" id={description}>
         {unavailable ? "Chart unavailable. The result table contains the accessible data."
-          : "Chart overview. Use the result table for every value, sorting and export. Long labels are shortened; hover and the table keep the full text. Drag to zoom; controls choose zoom, pan or reset."}
+          : preferences?.expanded_summaries === false ? "Chart overview. The result table provides every value and the text alternative."
+            : "Chart overview. Use the result table for every value, sorting and export. Long labels are shortened; hover and the table keep the full text. Drag to zoom; controls choose zoom, pan or reset."}
       </p>
       {!unavailable && <div className="plotly-chart__controls" role="group" aria-label="Chart controls">
         <button type="button" aria-pressed={mode === "zoom"} disabled={status !== "ready" || controlBusy} onClick={() => void control("zoom")}>Zoom</button>

@@ -7,7 +7,7 @@ import arrow from "../../assets/opal/workspace/imgIconArrow.svg";
 import chart from "../../assets/opal/workspace/imgIconChart.svg";
 import legacyMark from "../../assets/models/AQUA_V2_Final_static.svg?url";
 
-export default function OpalChat({ chat, auth, inputRef, focusRequest, onPrompt, shell = "opal", visible = true, scrollPositions, onShowVisual, visualsHidden = false }) {
+export default function OpalChat({ chat, auth, inputRef, focusRequest, onPrompt, preferences, shell = "opal", visible = true, scrollPositions, onShowVisual, visualsHidden = false }) {
   const active = chat.messages.length > 0 || (chat.durable && chat.active.messageCount > 0);
   const legacy = shell === "legacy";
   return <main className={`opal-chat${active ? " opal-chat--active" : ""}${visualsHidden ? " opal-chat--visual-hidden" : ""}`}>
@@ -17,14 +17,14 @@ export default function OpalChat({ chat, auth, inputRef, focusRequest, onPrompt,
       {chat.durable && <div className="workspace-history-controls"><button type="button" disabled={chat.pending || chat.active.historyLoading} onClick={chat.refresh}>Refresh saved chat</button>
         {chat.active.olderCursor && <button type="button" disabled={chat.pending || chat.active.historyLoading} onClick={chat.loadOlder}>Load older messages</button>}
         {chat.active.historyLoading && <span role="status">Loading messages…</span>}</div>}
-      <Conversation key={chat.active?.viewId || chat.activeConversationId} messages={chat.messages} pending={chat.durable ? chat.submitting : chat.pending} waiting={chat.waiting} onRetry={chat.retry} onShowVisual={onShowVisual} suspended={!visible}
+      <Conversation key={chat.active?.viewId || chat.activeConversationId} messages={chat.messages} preferences={preferences} pending={chat.durable ? chat.submitting : chat.pending} waiting={chat.waiting} onRetry={chat.retry} onShowVisual={onShowVisual} suspended={!visible}
         position={scrollPositions?.get(chat.activeConversationId)} onPositionChange={(position) => scrollPositions?.set(chat.activeConversationId, position)} /></>}
     {chat.durable && !active && chat.active.historyLoading && <p role="status">Loading saved conversation…</p>}
     {chat.durable && chat.uncertain && <div className="workspace-request-notice" role="status"><p>This request may still be processing. Stopping this browser request does not cancel work on the server.</p>
       <button type="button" disabled={chat.pending || !auth.canQuery} onClick={chat.checkSaved}>Check saved request</button></div>}
     {chat.durable && !chat.submitting && <AnalysisStatus request={chat.analysis} connection={chat.analysisConnection} onReconnect={chat.reconnectAnalysis} />}
-    <Composer chat={chat} auth={auth} inputRef={inputRef} focusRequest={focusRequest} active={active} />
-    {!legacy && !active && auth.canQuery && <div className="opal-suggestions" aria-label="Suggested starting points">
+    <Composer chat={chat} auth={auth} preferences={preferences} inputRef={inputRef} focusRequest={focusRequest} active={active} />
+    {!legacy && !active && auth.canQuery && preferences?.account.suggestions !== false && <div className="opal-suggestions" aria-label="Suggested starting points">
       {chat.faqs.slice(0, 3).map((faq) =>
         <button type="button" key={faq.id} onClick={() => onPrompt(faq.prompt)}><span><img src={chart} alt="" />{faq.title}</span><small>Use this starter question.</small></button>)}
     </div>}
@@ -32,7 +32,7 @@ export default function OpalChat({ chat, auth, inputRef, focusRequest, onPrompt,
   </main>;
 }
 
-function Composer({ chat, auth, inputRef, focusRequest, active }) {
+function Composer({ chat, auth, preferences, inputRef, focusRequest, active }) {
   const ownRef = useRef(null), id = useId();
   const textarea = inputRef || ownRef;
   useEffect(() => { if (focusRequest) textarea.current?.focus({ preventScroll: true }); }, [focusRequest, textarea]);
@@ -46,7 +46,8 @@ function Composer({ chat, auth, inputRef, focusRequest, active }) {
     <textarea ref={textarea} id={id} rows={2} value={chat.draft} maxLength={auth.demoMode ? 10000 : 2000}
       disabled={!auth.canQuery} placeholder="Ask a question about your financial data…" aria-describedby={`${id}-hint`}
       onChange={(event) => chat.setDraft(event.target.value)} onKeyDown={(event) => {
-        if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing && event.keyCode !== 229) {
+        const modified = preferences?.device.send_shortcut === "modified_enter";
+        if (event.key === "Enter" && !event.shiftKey && (modified ? event.ctrlKey || event.metaKey : !event.ctrlKey && !event.metaKey) && !event.nativeEvent.isComposing && event.keyCode !== 229) {
           event.preventDefault(); event.currentTarget.form.requestSubmit();
         }
       }} />
@@ -60,5 +61,5 @@ function Composer({ chat, auth, inputRef, focusRequest, active }) {
         onClick={chat.pending ? stop : undefined}>{chat.pending ? <span className="opal-stop" aria-hidden="true" /> : <><img src={arrow} alt="" /><span className="opal-send__contrast-icon" aria-hidden="true" style={{ maskImage: `url("${arrow}")` }} /></>}</button></div>
   </form><p className="composer-hint" id={`${id}-hint`}>{!auth.canQuery ? "Data access is pending approval." : chat.active?.archived ? "Restore this archived chat before sending another question."
     : serverPending ? "Analysis continues on the server. Cancellation is confirmed by saved status."
-      : `${chat.pending ? "Stop ends this browser’s wait; server work may continue. " : ""}Enter to ${active ? "send" : "ask"} · Shift + Enter for a new line`}</p></div>;
+      : `${chat.pending ? "Stop ends this browser’s wait; server work may continue. " : ""}${preferences?.device.send_shortcut === "modified_enter" ? "Ctrl/Cmd + Enter" : "Enter"} to ${active ? "send" : "ask"} · ${preferences?.device.send_shortcut === "modified_enter" ? "Enter" : "Shift + Enter"} for a new line`}</p></div>;
 }

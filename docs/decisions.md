@@ -434,3 +434,44 @@ would change their values. Plotly remains P08. See
 `docs/implementation/P07_DURABLE_ANALYSIS.md` for limits, evidence and migration
 recovery constraints. User authorization covers the tested phase PR/release;
 schema-5 deployment still requires fresh encrypted backup and green release gates.
+
+### P09 finite preferences and separate persistence scopes — 2026-10-28
+
+**Decision.** Replace the Settings placeholder with the accepted nine-category
+structure and a finite presentation schema. Reuse `app.user_preferences` at
+schema 5 for closed account snapshots with expected-revision compare-and-swap;
+store bounded device choices separately under an owner-specific browser key.
+Account/device writes remain independently confirmed, with explicit partial
+failure and conflict recovery. Keep saved values, editable draft and effective
+preview distinct. Appearance changes never rerun analysis or alter authority.
+
+**Alternatives.** Unrestricted CSS/themes or arbitrary imported key/value maps;
+automatic saves on every control change; one pretend atomic browser/server save;
+last-writer-wins account updates; a new preference database or duplicated global
+limiter; enabling future account/privacy/notification controls as UI-only toggles.
+
+**Reasoning.** Finite Opal/light/system and Pearl/Sage/Slate/Amber presets support
+reviewable text/focus/control combinations without executing imported content.
+Only reviewed English interface and US/UK regional formats are advertised; a
+bounded timezone menu does not relabel or convert source currency. Device text,
+motion, contrast, layout and input choices should not silently overwrite another
+device. Shared 60/account/minute workspace admission bounds existing records
+across sessions/workers; it can throttle Settings during heavy workspace activity
+and is not a measured capacity claim. A lost response must be reconciled with an
+authoritative revision before retry; routine authentication refresh must not
+silently rebase a dirty draft over newer device/account changes.
+
+Portable JSON is versioned, at most 64 KiB and allowlisted on both client and
+server. Duplicate/escaped-duplicate keys, excessive nesting, protected keys and
+unsupported choices reject the whole proposal before preview. Import requires
+comparison, Apply to draft and later Save. Export uses last-confirmed saved
+values, optionally includes device values and excludes identity, credentials,
+instructions, conversations, result data, consent and permission state. Future
+or unknown stored choices are preserved read-only rather than dropped on write.
+
+Server-unsupported model/style/language/instruction preferences and operational
+account/security, notification and private-data actions remain explicitly
+unavailable. P10/P11 must implement their actual services before enabling them.
+No migration, new dependency or secret is required. This records an implementation
+choice; final canonical/browser/security gates, phase review and any production
+release are recorded separately in `implementation/P09_SETTINGS_PREFERENCES.md`.

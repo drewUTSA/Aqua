@@ -8,10 +8,12 @@ import ControlIcon from "./ControlIcon.jsx";
 import WorkspaceLibrary from "./WorkspaceLibrary.jsx";
 import WorkspaceEditor from "./WorkspaceEditor.jsx";
 import "../../styles/sidebar-search.css";
-export default function OpalSidebar({ chat, auth, onNewChat, onSelect, onPrompt, onNavigate, onClose }) {
+export default function OpalSidebar({ chat, auth, preferences, onNewChat, onSelect, onPrompt, onNavigate, onClose }) {
   const searchId = useId();
   const [search, setSearch] = useState("");
   const [editing, setEditing] = useState(null);
+  const [showAll, setShowAll] = useState(false);
+  const sections = preferences?.sidebar_sections || ["projects", "recents", "prompts"];
   useEffect(() => { if (chat.durable) setSearch(chat.filters.search); }, [chat.filters?.search, chat.durable]);
   // Visit-local titles are already scoped to the mounted account. Literal
   // matching never submits a query, searches message bodies, or persists text.
@@ -22,12 +24,15 @@ export default function OpalSidebar({ chat, auth, onNewChat, onSelect, onPrompt,
     <div className="opal-brand"><img src={mark} alt="" /><span>AQUA</span><button type="button" className="icon-button" onClick={onClose} aria-label="Close navigation"><ControlIcon asset={collapse} /></button></div>
     <button type="button" className="new-chat" onClick={onNewChat}><img src={plus} alt="" />New chat</button>
     <div className="opal-sidebar__scroll">
-      <section><h2>{chat.durable ? "Starter questions" : "Frequent questions"}</h2>{chat.faqs.map((faq) => <button type="button" key={faq.id} disabled={!auth.canQuery} onClick={() => onPrompt(faq.prompt)}><img src={chatIcon} alt="" /><span>{faq.title}</span></button>)}</section>
       {chat.durable && chat.drafts.length > 0 && <section aria-label="Unsent drafts"><h2>Drafts in this visit</h2>
         {chat.drafts.map((item) => <button type="button" key={item.id} aria-pressed={item.id === chat.activeConversationId} onClick={() => onSelect(item.id)}>Draft · {item.title}</button>)}
         <p className="sidebar-note">Unsent text is kept in this page only.</p></section>}
-      {chat.durable && <WorkspaceLibrary chat={chat} onPrompt={onPrompt} />}
-      <section><h2>{chat.durable && chat.filters.archived ? "Archived chats" : "Recent chats"}{!chat.durable && <span className="sr-only">in this visit</span>}</h2>
+      {/* DOM order is also keyboard and assistive-technology reading order. */}
+      {sections.map((section) => <React.Fragment key={section}>
+        {section === "prompts" && <><section><h2>{chat.durable ? "Starter questions" : "Frequent questions"}</h2>{chat.faqs.map((faq) => <button type="button" key={faq.id} disabled={!auth.canQuery} onClick={() => onPrompt(faq.prompt)}><img src={chatIcon} alt="" /><span>{faq.title}</span></button>)}</section>
+          {chat.durable && <WorkspaceLibrary chat={chat} section="prompts" onPrompt={onPrompt} />}</>}
+        {section === "projects" && chat.durable && <WorkspaceLibrary chat={chat} section="projects" onPrompt={onPrompt} />}
+        {section === "recents" && <section><h2>{chat.durable && chat.filters.archived ? "Archived chats" : "Recent chats"}{!chat.durable && <span className="sr-only">in this visit</span>}</h2>
         <p className="sidebar-note">{chat.durable ? "Submitted conversations are saved to your account." : "Stored for this visit only."}</p>
         <form className="sidebar-search" onSubmit={(event) => { event.preventDefault(); if (chat.durable) chat.filter({ search: search.trim() }); }}>
           <label htmlFor={searchId}>{chat.durable ? "Search chat titles" : "Search chats in this visit"}</label>
@@ -41,13 +46,15 @@ export default function OpalSidebar({ chat, auth, onNewChat, onSelect, onPrompt,
         </form>
         {chat.durable && <div className="workspace-library-row"><button type="button" onClick={() => chat.filter({ archived: !chat.filters.archived })}>{chat.filters.archived ? "Show active chats" : "Show archived chats"}</button>
           <button type="button" disabled={chat.chats.loading} onClick={() => chat.refreshChats()}>Latest chats</button></div>}
-        {matches.map((conversation) => <div className="workspace-library-row" key={conversation.id}><button type="button"
+        {(showAll ? matches : matches.slice(0, preferences?.recents_count || 10)).map((conversation) => <div className="workspace-library-row" key={conversation.id}><button type="button"
           aria-current={conversation.id === chat.activeConversationId ? "page" : undefined} onClick={() => onSelect(conversation.id)}><img src={chatIcon} alt="" /><span>{conversation.title}</span></button>
           {chat.durable && <button type="button" aria-label={`Edit chat ${conversation.title}`} onClick={() => setEditing(conversation)}>Edit</button>}</div>)}
         {!recent.length && <p className="sidebar-note">Your conversations will appear here.</p>}
         {recent.length > 0 && !matches.length && <p className="sidebar-note">No chats match this search.</p>}
+        {matches.length > (preferences?.recents_count || 10) && <button type="button" onClick={() => setShowAll((value) => !value)}>{showAll ? "Show fewer chats" : "See all chats on this page"}</button>}
         {chat.durable && chat.chats.cursor && <button type="button" disabled={chat.chats.loading} onClick={chat.moreChats}>More chats</button>}
-      </section>
+      </section>}
+      </React.Fragment>)}
     </div>
     {editing && <WorkspaceEditor kind="chat" item={editing} projects={chat.projects.items} onClose={() => setEditing(null)}
       onSave={(values) => chat.mutateChat(editing, values)} onDelete={() => chat.mutateChat(editing, {}, true)} />}

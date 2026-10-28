@@ -1,22 +1,24 @@
 import { exactCell, canonicalNumeric, compareExactNumeric } from "../../services/precisionCells.js";
+import { dateOptions, numberOptions } from "../../services/preferenceFormatting.js";
 
-export function formatCell(value, column, table = {}) {
+export function formatCell(value, column, table = {}, preferences) {
   if (value == null) return "\u2014";
+  const { locale, digits } = numberOptions(preferences, column.fractionDigits ?? (column.type === "currency" && (column.currency || table.currency) ? 0 : column.type === "percentage" ? 1 : 2));
   if (column.type === "currency" && typeof value === "number") {
     const currency = column.currency || table.currency;
-    if (!currency) return new Intl.NumberFormat("en-US", {
-      maximumFractionDigits: column.fractionDigits ?? 2
+    if (!currency) return new Intl.NumberFormat(locale, {
+      maximumFractionDigits: digits
     }).format(value);
-    return new Intl.NumberFormat("en-US", {
+    return new Intl.NumberFormat(locale, {
       style: "currency", currency,
-      maximumFractionDigits: column.fractionDigits ?? 0
+      maximumFractionDigits: digits
     }).format(value);
   }
   if (column.type === "percentage" && typeof value === "number") {
-    return `${new Intl.NumberFormat("en-US", { maximumFractionDigits: 1 }).format(value)}%`;
+    return `${new Intl.NumberFormat(locale, { maximumFractionDigits: digits }).format(value)}%`;
   }
   if (column.type === "number" && typeof value === "number") {
-    return new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 }).format(value);
+    return new Intl.NumberFormat(locale, { maximumFractionDigits: digits }).format(value);
   }
   if (column.type === "date" && typeof value === "string") {
     // Timestamp text carries source precision and offset; never truncate it to
@@ -25,9 +27,9 @@ export function formatCell(value, column, table = {}) {
     if (!parts || Number(parts[1]) === 0) return value;
     const date = new Date(`${value}T12:00:00Z`);
     if (date.getUTCFullYear() !== Number(parts[1]) || date.getUTCMonth() + 1 !== Number(parts[2]) || date.getUTCDate() !== Number(parts[3])) return value;
-    return new Intl.DateTimeFormat("en-US", {
-      month: "short", day: "numeric", year: "numeric", timeZone: "UTC"
-    }).format(date);
+    if (!preferences) return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" }).format(date);
+    const format = dateOptions(preferences, true);
+    return new Intl.DateTimeFormat(format.locale, format.options).format(date);
   }
   return String(value);
 }

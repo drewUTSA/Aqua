@@ -17,6 +17,17 @@ function fixture(t, options = {}) {
   return { child, client, requests, reply: (value) => child.stdio[4].write(encode(value)) };
 }
 
+test("the exact read-only accessibility-tree method is bounded and other Accessibility methods stay denied", async (t) => {
+  const { client, requests, reply } = fixture(t, { session: () => "synthetic-session" });
+  const tree = client.send("Accessibility.getFullAXTree");
+  assert.equal(requests.length, 1);
+  assert.equal(requests[0].method, "Accessibility.getFullAXTree");
+  reply({ id: requests[0].id, sessionId: "synthetic-session", result: { nodes: [] } });
+  assert.deepEqual(await tree, { nodes: [] });
+  await assert.rejects(client.send("Accessibility.setUnknownCapability"), { message: "browser_protocol_method_rejected" });
+  assert.equal(requests.length, 1, "no unreviewed method reaches the browser transport");
+});
+
 test("cold startup gets one bounded allowance; later commands retain seven seconds", async (t) => {
   t.mock.timers.enable({ apis: ["setTimeout"] });
   const { client, requests, reply } = fixture(t);
