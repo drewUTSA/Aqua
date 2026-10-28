@@ -15,6 +15,9 @@ UPDATE app.account_mail_control SET lease_id=NULL,lease_expires_at=NULL WHERE si
 -- repeats a model call. Saved completed conversation results stay intact.
 DO $$
 BEGIN
+ IF to_regclass('app.account_action_proofs') IS NOT NULL THEN
+  UPDATE app.account_action_proofs SET consumed_at=now() WHERE consumed_at IS NULL;
+ END IF;
  IF to_regclass('app.analysis_requests') IS NOT NULL THEN
   UPDATE app.workspace_totals SET content_bytes=GREATEST(0,content_bytes-
    (SELECT COALESCE(sum(reserved_bytes),0) FROM app.analysis_requests WHERE state IN ('pending','queued','running','cancelling'))) WHERE singleton;

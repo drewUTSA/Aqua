@@ -1,26 +1,23 @@
 # Aqua
 Ask a database a question in plain English. Get back data, a readable summary and the exact SQL that produced it.
 
-Current checkpoint: P00 through P09 Settings are complete and live at
-`05accec` (PR #52, `Phase9 Settings`), private schema 5. Analysis retains P07's durable requests,
-owned progress, server cancellation and exact numeric values. Requested visuals
-now open a bounded lazy Plotly pane with linked table/chart controls, compatible
-zoom, keyboard resizing and mobile navigation.
+Current checkpoint: P00 through P09 are complete and live at
+`7c0caae` (PR #53, `Phase9 Homepage`), private schema 5. The home page uses
+Projects/Recents, conditional New Chat, one bottom account menu and one composer
+model chooser. Answers share the page canvas and the composer compacts after
+the first question. Durable requests, cancellation, exact values, optional
+Plotly visuals and all nine Settings categories remain available.
 
-Password login, registration, recovery and encrypted AQUA-branded mail remain
-active. P08 required no migration; the private database/socket volumes,
-scheduled worker and existing data were preserved. Required PR/main checks and
-controlled production health/asset verification passed. See
-[P08 release evidence](docs/implementation/P08_PLOTLY_VISUALS.md),
-[P07 durable analysis](docs/implementation/P07_DURABLE_ANALYSIS.md) and
-[activation](docs/implementation/P05_PRODUCTION_ACTIVATION.md).
+Both required CI runs and controlled frontend-only production verification
+passed. Database volumes, backend, authentication, encrypted branded mail and
+the scheduled worker were preserved. See [homepage evidence](docs/implementation/P09_HOMEPAGE_SIMPLIFICATION.md)
+and [Settings](docs/implementation/P09_SETTINGS_PREFERENCES.md).
 
-P09 Settings passed 1,385 backend cases, 399 frontend tests, both builds, eight
-browser gates, required PR/main CI and controlled production verification. See
-[P09 Settings and preferences](docs/implementation/P09_SETTINGS_PREFERENCES.md).
-The separately requested homepage simplification is under verification. P10a
-foundations are being prepared in isolation; P10 is incomplete and P11–P13 have
-not started.
+P10a account foundation passed 1,440 backend cases, 455 frontend tests, both
+builds and ten browser gates (568 checks). Profile edits and read-only sign-in
+method/session reviews save separately from preferences. The candidate awaits
+required CI and a verified private schema-6 release. P10b is separate; P10
+remains incomplete and P11–P13 have not started.
 The [approved phased specification](AQUA_CODEX_HANDOFF.md) governs the order.
 Verification: [check runner guide](tools/checks/README.md).
 

@@ -80,7 +80,7 @@ def test_subject_is_case_sensitive_and_email_change_keeps_canonical_account(stor
         {**IDENTITY, "sub": IDENTITY["sub"].lower(), "email": "case.fixture@gmail.com"},
     )
     assert first.user["id"] == changed.user["id"] != different.user["id"]
-    assert changed.user["email"] == "changed.fixture@gmail.com"
+    assert changed.user["email"] == EMAIL
 
 
 @pytest.mark.parametrize(

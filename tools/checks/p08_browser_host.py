@@ -21,7 +21,7 @@ def host(origin: str, image: str) -> int:
         "run": name,
         "status": "failed",
         "network": "none",
-        "schema_version": 5,
+        "schema_version": 6,
         "max_operations": MAX_OPERATIONS,
         "max_seconds": MAX_SECONDS,
         "real_data_accessed": False,
@@ -65,7 +65,7 @@ def host(origin: str, image: str) -> int:
         ready = json.loads(child.stdout.readline(MAX_LINE + 1))
         if (
             ready.get("kind") != "ready"
-            or ready.get("schema_version") != 5
+            or ready.get("schema_version") != 6
             or ready.get("workspace_analysis_fixture") is not True
         ):
             if ready.get("kind") == "error":

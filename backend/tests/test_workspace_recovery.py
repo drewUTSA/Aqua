@@ -15,7 +15,7 @@ def test_schema3_backup_accepts_conditional_workspace_restore_fence(app_database
         "SELECT to_regclass('app.analysis_requests')"
     ).fetchone() == (None,)
     app_database.execute("RESET ROLE")
-    assert apply(app_database) == 5
+    assert apply(app_database) == 6
 
 
 def test_old_pending_record_retires_without_new_model_call_or_double_refund(

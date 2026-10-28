@@ -1,6 +1,7 @@
 import React from "react";
 import LocalLink from "../components/navigation/LocalLink.jsx";
 import { usePreferences } from "./PreferencesProvider.jsx";
+import AccountFoundation from "./AccountFoundation.jsx";
 
 export default function SettingsInformation({ category, auth, onNavigate }) {
   const { draft } = usePreferences();
@@ -14,12 +15,7 @@ export default function SettingsInformation({ category, auth, onNavigate }) {
   if (category === "notifications") return <aside className="settings-information"><p>In-app analysis status, errors, session expiry and save feedback remain available.</p>
     <p>Browser notifications, optional email subscriptions, sounds, preview settings and quiet hours are unavailable in this release. No preference import or reset requests permission or subscribes you.</p>
     <button type="button" disabled>Notification subscriptions unavailable</button></aside>;
-  if (category === "account") return <aside className="settings-information"><h3>Your current account</h3>
-    <p>{auth.user?.name || "AQUA account"}</p><p>{auth.user?.email || "Demo account"}</p>
-    <p>{auth.canQuery ? "Your account has access to the configured analytical data." : "Signing in does not grant access to analytical data. Ask your administrator about access."}</p>
-    <p>Profile changes, sign-in method management, reauthentication and session management will be available with the account security release.</p>
-    <button type="button" disabled>Account security controls unavailable</button>
-    <p>Current sign-out is available from the account menu.</p></aside>;
+  if (category === "account") return <AccountFoundation auth={auth} />;
   if (category === "region") {
     const zone = draft.account.timezone === "device" ? Intl.DateTimeFormat().resolvedOptions().timeZone : draft.account.timezone;
     const options = { dateStyle: draft.account.date_style, timeStyle: "short", timeZone: zone,

@@ -39,6 +39,8 @@ class AuthPolicy:
     login_peer_limit: int = 10
     login_global_limit: int = 30
     login_account_limit: int = 5
+    action_global_limit: int = 30
+    action_account_limit: int = 5
     max_admission_keys: int = 2048
     cleanup_batch: int = 64
 
@@ -57,6 +59,8 @@ class AuthPolicy:
             self.login_peer_limit,
             self.login_global_limit,
             self.login_account_limit,
+            self.action_global_limit,
+            self.action_account_limit,
         )
         if any(type(v) is not int or not lo <= v <= hi for v, lo, hi in limits):
             raise ValueError("authentication_policy_invalid")

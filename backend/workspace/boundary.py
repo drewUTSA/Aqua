@@ -8,8 +8,7 @@ PREFIXES = (
     "/api/v1/analysis-requests",
     "/api/v1/chats",
     "/api/v1/projects",
-    "/api/v1/me/saved-prompts",
-    "/api/v1/me/preferences",
+    "/api/v1/me",
     "/api/v1/starter-prompts",
 )
 
@@ -53,7 +52,7 @@ class WorkspaceBodyLimit:
             if not event.get("more_body", False):
                 break
         delivered = False
-        if scope.get("path", "").startswith("/api/v1/me/preferences"):
+        if scope.get("path", "").startswith("/api/v1/me"):
             try:
                 json.loads(body, object_pairs_hook=unique_object)
             except (ValueError, UnicodeError, RecursionError):

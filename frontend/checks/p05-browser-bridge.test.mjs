@@ -9,7 +9,7 @@ const terminal = (id = "finish", passed = false) => ({
   report: { run: RUN, status: passed ? "passed" : "failed", step: "worker_start", cleanup: "removed_and_absence_confirmed", remaining_ids: [], ...(passed ? {} : { failure: "fixture_operation_failed_details_redacted" }) },
 });
 const emit = (value) => `process.stdout.write(${JSON.stringify(JSON.stringify(value) + "\n")});`;
-const ready = emit({ kind: "ready", schema_version: 5 });
+const ready = emit({ kind: "ready", schema_version: 6 });
 
 function fixture(t, source) {
   // A disposable local Node subprocess exercises actual pipe framing without
@@ -47,7 +47,7 @@ test("startup exception diagnostics omit raw text and preserve following cleanup
 
 test("bridge matches real request IDs and receives final cleanup before child close", { timeout: 5000 }, async (t) => {
   const bridge = fixture(t, ready + `process.stdin.on('data', chunk => {const item=JSON.parse(chunk);const reply=item.kind==='finish'?${JSON.stringify(terminal(null, true))}:{status:200};reply.id=item.id;process.stdout.write(JSON.stringify(reply)+String.fromCharCode(10),()=>{if(item.kind==='finish')process.exit(0)});});`);
-  assert.equal((await bridge.ready).schema_version, 5);
+  assert.equal((await bridge.ready).schema_version, 6);
   assert.equal((await bridge.send("request", { path: "/api/auth/me" })).status, 200);
   const finished = await bridge.send("finish");
   await bridge.closed;

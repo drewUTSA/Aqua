@@ -30,7 +30,7 @@ def admit(
     rows are removed in batches; a hard key cap denies new keys without evicting
     a currently enforced budget. No external provider call occurs under this lock.
     """
-    if operation not in {"challenge", "login", "account"}:
+    if operation not in {"challenge", "login", "account", "action"}:
         raise AuthDenied("authentication_operation_invalid")
     counters = []
     if operation in {"challenge", "login"}:
@@ -46,8 +46,13 @@ def admit(
                 getattr(policy, operation + "_peer_limit"),
             ),
         ]
-    else:
+    elif operation == "account":
         counters = [("login:account", _key(account_id), policy.login_account_limit)]
+    else:
+        counters = [
+            ("action:global", _key("all"), policy.action_global_limit),
+            ("action:account", _key(account_id), policy.action_account_limit),
+        ]
     conn.execute("SELECT pg_advisory_xact_lock(%s)", (LOCK,))
     instant = conn.execute("SELECT clock_timestamp()").fetchone()[0]
     conn.execute(

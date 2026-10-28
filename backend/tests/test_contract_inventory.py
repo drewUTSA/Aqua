@@ -51,6 +51,10 @@ def test_current_http_surface_is_explicit():
         ("/api/v1/me/saved-prompts/{item_id}/uses", "POST"),
         ("/api/v1/me/preferences", "GET"),
         ("/api/v1/me/preferences", "PUT"),
+        ("/api/v1/me", "GET"),
+        ("/api/v1/me", "PATCH"),
+        ("/api/v1/me/methods", "GET"),
+        ("/api/v1/me/sessions", "GET"),
         ("/api/v1/starter-prompts", "GET"),
     }
     for path in ("/openapi.json", "/docs", "/docs/oauth2-redirect", "/redoc"):

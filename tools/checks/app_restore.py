@@ -105,6 +105,59 @@ COMMIT;
     )
     preferences_sql = b"SELECT schema_version,revision,values FROM app.user_preferences WHERE user_id='00000000-0000-0000-0000-000000000001';"
     preferences_expected = sql("aqua_app", preferences_sql)
+    # P10a recovery retains canonical metadata/method tombstones and provenance,
+    # while the clone's independent fence invalidates every outstanding proof.
+    # These deterministic digests/identities are synthetic and never log in.
+    account_target = (
+        hashlib.sha256(b'["aqua-account-action-v1","sessions_revoke_all",null]')
+        .hexdigest()
+        .encode()
+    )
+    sql(
+        "aqua_app",
+        b"""
+BEGIN;
+SET LOCAL ROLE aqua_app_runtime;
+UPDATE app.users SET display_name='Synthetic app profile',profile_revision=9,
+ picture='https://lh3.googleusercontent.com/synthetic-recovery'
+ WHERE id='00000000-0000-0000-0000-000000000001';
+INSERT INTO app.user_emails(user_id,address,email_key,verified_at,verification_method,is_primary)
+ VALUES('00000000-0000-0000-0000-000000000001','recovery@example.invalid','recovery@example.invalid',now(),'email',true);
+INSERT INTO app.password_credentials(user_id,encoded_hash,policy_version)
+ VALUES('00000000-0000-0000-0000-000000000001','synthetic-not-an-authentication-hash-0001',1);
+INSERT INTO app.external_identities(id,user_id,provider,issuer,subject,is_active,inactive_at,revision,observed_email_key,email_authoritative) VALUES
+ ('71000000-0000-4000-8000-000000000001','00000000-0000-0000-0000-000000000001','google','https://accounts.google.com','synthetic-recovery-active',true,NULL,2,'observed@example.invalid',false),
+ ('71000000-0000-4000-8000-000000000002','00000000-0000-0000-0000-000000000001','google','https://accounts.google.com','synthetic-recovery-tombstone',false,now(),4,'retired@example.invalid',false);
+INSERT INTO app.dataset_grants(user_id,dataset_key,revoked_at,approval_kind,approval_identity_id,approval_evidence)
+ VALUES('00000000-0000-0000-0000-000000000001','synthetic-recovery-provenance',now(),'google_subject','71000000-0000-4000-8000-000000000002','synthetic-recovery-tombstone');
+INSERT INTO app.auth_challenges(id,user_id,session_id,purpose,secret_digest,binding_digest,account_operation,account_target_digest,account_auth_epoch,created_at,expires_at,consumed_at)
+ SELECT '72000000-0000-4000-8000-000000000001',user_id,id,'reauth',decode(repeat('fa',32),'hex'),decode(repeat('fb',32),'hex'),'sessions_revoke_all',decode('TARGET_DIGEST','hex'),0,now(),now()+interval '300 seconds',now()
+ FROM app.sessions WHERE token_digest=decode(repeat('ab',32),'hex');
+INSERT INTO app.auth_challenges(id,user_id,session_id,purpose,secret_digest,binding_digest,account_operation,account_target_digest,account_auth_epoch,created_at,expires_at)
+ SELECT '72000000-0000-4000-8000-000000000002',user_id,id,'reauth',decode(repeat('fd',32),'hex'),decode(repeat('fe',32),'hex'),'sessions_revoke_all',decode('TARGET_DIGEST','hex'),0,now(),now()+interval '300 seconds'
+ FROM app.sessions WHERE token_digest=decode(repeat('ab',32),'hex');
+INSERT INTO app.account_action_proofs(id,user_id,session_id,challenge_id,secret_digest,auth_epoch,operation,target_digest,method,external_identity_id,created_at,expires_at)
+ SELECT '73000000-0000-4000-8000-000000000001',user_id,id,'72000000-0000-4000-8000-000000000001',decode(repeat('fc',32),'hex'),0,'sessions_revoke_all',decode('TARGET_DIGEST','hex'),'google','71000000-0000-4000-8000-000000000001',now(),now()+interval '240 seconds'
+ FROM app.sessions WHERE token_digest=decode(repeat('ab',32),'hex');
+COMMIT;
+""".replace(b"TARGET_DIGEST", account_target),
+    )
+    account_sql = b"""
+SELECT display_name,picture,profile_revision FROM app.users WHERE id='00000000-0000-0000-0000-000000000001';
+SELECT address,email_key,verified_at,verification_method,is_primary FROM app.user_emails WHERE user_id='00000000-0000-0000-0000-000000000001' ORDER BY id;
+SELECT id,issuer,subject,is_active,inactive_at,revision,observed_email_key,email_authoritative FROM app.external_identities WHERE user_id='00000000-0000-0000-0000-000000000001' ORDER BY id;
+SELECT encoded_hash,policy_version,changed_at FROM app.password_credentials WHERE user_id='00000000-0000-0000-0000-000000000001';
+SELECT dataset_key,permission,version,granted_at,revoked_at,approval_kind,approval_identity_id,approval_evidence FROM app.dataset_grants WHERE user_id='00000000-0000-0000-0000-000000000001' ORDER BY dataset_key;
+SELECT id,user_id,session_id,secret_digest,binding_digest,account_operation,account_target_digest,account_auth_epoch,created_at,expires_at FROM app.auth_challenges WHERE id IN ('72000000-0000-4000-8000-000000000001','72000000-0000-4000-8000-000000000002') ORDER BY id;
+SELECT id,user_id,session_id,challenge_id,secret_digest,auth_epoch,operation,target_digest,method,external_identity_id,password_changed_at,created_at,expires_at FROM app.account_action_proofs WHERE id='73000000-0000-4000-8000-000000000001';
+SELECT has_table_privilege('aqua_app_runtime','app.account_action_proofs','UPDATE'),has_table_privilege('aqua_app_backup','app.account_action_proofs','UPDATE');
+"""
+    account_expected = sql("aqua_app", account_sql)
+    proof_fence_sql = b"""
+SELECT count(*),bool_and(consumed_at IS NOT NULL) FROM app.auth_challenges WHERE id IN ('72000000-0000-4000-8000-000000000001','72000000-0000-4000-8000-000000000002');
+SELECT count(*),bool_and(consumed_at IS NOT NULL) FROM app.account_action_proofs WHERE id='73000000-0000-4000-8000-000000000001';
+"""
+    assert sql("aqua_app", proof_fence_sql).decode().splitlines() == ["2|f", "1|f"]
     dump = docker(
         "exec",
         "-e",
@@ -156,8 +209,11 @@ COMMIT;
         "3",
         "4",
         "5",
+        "6",
         "t|f",
     ], observed
+    assert sql("aqua_restore", account_sql) == account_expected
+    assert sql("aqua_restore", proof_fence_sql).decode().splitlines() == ["2|f", "1|f"]
     denied = False
     try:
         sql("aqua_restore", b"SET ROLE aqua_app_backup; DELETE FROM app.users;")
@@ -181,6 +237,9 @@ COMMIT;
     assert sql("aqua_restore", recipient_sql) == recipient_expected
     assert sql("aqua_restore", admission_sql) == admission_expected
     assert sql("aqua_restore", preferences_sql) == preferences_expected
+    assert sql("aqua_restore", account_sql) == account_expected
+    assert sql("aqua_restore", proof_fence_sql).decode().splitlines() == ["2|t", "1|t"]
+    assert sql("aqua_app", proof_fence_sql).decode().splitlines() == ["2|f", "1|f"]
     workspace_sql = b"SELECT state,reserved_bytes FROM app.analysis_requests WHERE user_id='00000000-0000-0000-0000-000000000001' ORDER BY id; SELECT content_bytes FROM app.workspace_usage WHERE user_id='00000000-0000-0000-0000-000000000001'; SELECT count(*) FROM app.visual_results WHERE user_id='00000000-0000-0000-0000-000000000001' AND response->>'message'='Completed synthetic answer'; SELECT status FROM app.messages WHERE id='20000000-0000-4000-8000-000000000004';"
     workspace_expected = ["complete|0", "interrupted|0", "1024", "1", "interrupted"]
     assert (
@@ -220,6 +279,8 @@ COMMIT;
         sql("aqua_restore", lifecycle_sql).decode().splitlines() == lifecycle_expected
     )
     assert sql("aqua_restore", admission_sql) == admission_expected
+    assert sql("aqua_restore", account_sql) == account_expected
+    assert sql("aqua_restore", proof_fence_sql).decode().splitlines() == ["2|t", "1|t"]
     assert recipient_expected.decode().splitlines()[-1] == "t|f"
     return {
         "status": "passed",
@@ -234,4 +295,7 @@ COMMIT;
         "restored_analysis_lifecycle": "interrupted_context_purged_streams_closed",
         "restored_analysis_admission": "preserved",
         "restored_preferences": "values_schema_and_revision_preserved",
+        "restored_account_profile_methods": "profile_revision_primary_credentials_and_identity_tombstones_preserved",
+        "restored_account_provenance": "derived_grant_identity_binding_and_revocation_preserved",
+        "restored_account_action_proofs": "challenge_proof_bindings_preserved_consumption_fenced_repeatably",
     }

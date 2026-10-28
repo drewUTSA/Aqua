@@ -45,17 +45,17 @@ Prepared October 16, 2026. This single file contains the approved frontend/backe
 
 Maintain this table or an equivalent repository progress log during implementation. Do not mark a phase complete based on its documentation.
 
-| Field | October 28 P09 implementation checkpoint |
+| Field | October 28 P10a implementation checkpoint |
 | --- | --- |
-| Current phase | P00–P09 Settings complete and deployed; requested P09 homepage supplement in verification |
-| Code checkpoint | Main `05accec31da7d257ca5f1ffb7bd4897eac70d8b5` (PR #52, `Phase9 Settings`); all Git operations authorized through remaining phases |
-| Deployment | P09 Settings live on schema 5 at October 28 21:58:59 UTC; private storage, active authentication and branded mail worker preserved |
-| Last accepted design | Opal home, dual login, on-demand right visuals, complete Settings |
+| Current phase | P00–P09 complete and deployed; P10a account foundation passed isolated gates and awaits CI/private-schema release |
+| Code checkpoint | Main `7c0caae8ac0d5fa1c74866bd898d317c1fc984ea` (PR #53, `Phase9 Homepage`); all Git operations authorized through remaining phases |
+| Deployment | P09 homepage live on schema 5 at October 28 23:10:19 UTC; frontend-only cutover preserved backend, private storage, active authentication and mail worker |
+| Last accepted design | Opal home, dual login, on-demand right visuals, complete Settings and simplified Projects/Recents |
 | Historical verification | 47 existing frontend tests passed during audit; not a current security or backend result |
-| Phase evidence | P09 isolated gates, PR/main CI and controlled production verification passed; see [P09 Settings](docs/implementation/P09_SETTINGS_PREFERENCES.md) and portable release record |
-| Findings/blockers | No unresolved P09 Settings release blocker; homepage supplement must pass its own current-source browser/CI/release gates |
-| Review checkpoint | Settings merged/deployed; homepage is a separate reviewable change. Use short phase titles and retain the same security gates |
-| Next phase | P10a foundation is being prepared in an isolated directory; P10 is incomplete and P11–P13 have not started |
+| Phase evidence | P09 Settings and homepage PR/main CI and release checks passed; P10a passed 1,440 backend cases, 455 frontend tests and 568 browser checks, with 26 screenshots reviewed |
+| Findings/blockers | No unresolved P09 release blocker. P10a still requires PR/main CI, fresh encrypted backup, stopped writers and verified schema-6 release/recovery |
+| Review checkpoint | `Phase10 Accounts` is separate from `Phase9 Homepage`; short titles and the same security gates remain required |
+| Next phase | P10b security actions are being prepared separately; P10 is incomplete and P11–P13 have not started |
 
 ---
 

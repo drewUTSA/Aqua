@@ -207,12 +207,12 @@ def worker(
             main.app, base_url=origin, raise_server_exceptions=True
         ) as client:
             readiness = service.readiness()
-            if readiness.get("schema_version") != 5:
+            if readiness.get("schema_version") != 6:
                 raise RuntimeError("fixture_schema_invalid")
             emit(
                 {
                     "kind": "ready",
-                    "schema_version": 5,
+                    "schema_version": 6,
                     "origin": origin,
                     "mail_origin": MAIL_ORIGIN,
                     "google_email": GOOGLE_EMAIL,

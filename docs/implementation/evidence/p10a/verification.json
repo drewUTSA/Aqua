@@ -1,0 +1,864 @@
+{
+  "schema_version": 1,
+  "phase": "P10a Account foundation",
+  "status": "local_checks_passed_release_pending",
+  "generated_utc": "2026-10-28T23:11:35.954Z",
+  "application_schema_version": 6,
+  "historical_baseline": {
+    "phase": "P09 Settings and Homepage",
+    "classification": "historical_only",
+    "can_satisfy_homepage_gates": false,
+    "can_satisfy_p10a_gates": false
+  },
+  "backend": {
+    "image": "sha256:a3b2fd374ad987202d2c79b02df1517c702106c468e422c7128b86e30b2c0b43",
+    "source_archive_sha256": "bb6bfb1af75f213e3e1c5d332c2ed57e39f125dd87ee81bf275ad6234c916235",
+    "summary_sha256": "8f17927397bb1534969f25653b50c18fc7615e1cb313f6f03c40abfda4b5247f",
+    "runtime_files": 126,
+    "checks": {
+      "source": {
+        "status": "passed",
+        "seconds": 0.05
+      },
+      "lock": {
+        "status": "passed",
+        "seconds": 0.04
+      },
+      "black": {
+        "status": "passed",
+        "seconds": 0.63
+      },
+      "ruff": {
+        "status": "passed",
+        "seconds": 0.02
+      },
+      "dependency-audit": {
+        "status": "passed",
+        "seconds": 1.66
+      },
+      "p05_browser_cleanup_test": {
+        "status": "passed",
+        "seconds": 0.07
+      },
+      "p05_browser_startup_test": {
+        "status": "passed",
+        "seconds": 0.07
+      },
+      "p06_browser_routes_test": {
+        "status": "passed",
+        "seconds": 0.03
+      },
+      "p06_browser_analysis_test": {
+        "status": "passed",
+        "seconds": 0.06
+      },
+      "test_p08_browser_fixture": {
+        "status": "passed",
+        "seconds": 0.06
+      },
+      "candidate-build": {
+        "status": "passed",
+        "seconds": 0.95
+      },
+      "runtime-bytes": {
+        "status": "passed"
+      },
+      "telemetry": {
+        "status": "passed"
+      },
+      "privacy": {
+        "status": "passed"
+      },
+      "backend": {
+        "status": "passed",
+        "seconds": 128.23
+      },
+      "storage": {
+        "status": "passed",
+        "seconds": 6.41
+      },
+      "proxy": {
+        "status": "passed",
+        "seconds": 39.8
+      }
+    },
+    "unique_tests": 1440,
+    "all_cases_covered": true,
+    "restore": {
+      "status": "passed",
+      "preferences": "values_schema_and_revision_preserved",
+      "sessions_and_pending_work_fenced": true,
+      "dump_storage": "memory_only"
+    },
+    "disposable_installer": "passed",
+    "isolated_proxy": "passed",
+    "owned_resource_cleanup": "removed_and_absence_confirmed",
+    "existing_running_containers_unchanged": true
+  },
+  "frontend": {
+    "unit_tests": 455,
+    "unit_failures": 0,
+    "runtime_dependency_audit": {
+      "status": "passed",
+      "scope": "locked_runtime_dependencies",
+      "registry": "https://registry.npmjs.org",
+      "checked_utc": "2026-10-28T22:51:57.159Z",
+      "lock_sha256": "613b5c54c993cc93bdc403e5e63e935f09c424dc0e88fc6750b9f7c1eb38d490",
+      "report_sha256": "51c6f859f0a7c5ea091543000c8a88f7cee1e6553bbbd063aca53b5c538fe545",
+      "attestation_sha256": "f59f9746025ace16b4805f9781bebb07af9d55b9aa03eb7df3508c114e53ef4e",
+      "vulnerabilities": 0,
+      "dependency_count": 169
+    },
+    "focused_post_suite_harness_tests": [],
+    "verified_build_input_hashes": {
+      "frontend/package-lock.json": "613b5c54c993cc93bdc403e5e63e935f09c424dc0e88fc6750b9f7c1eb38d490",
+      "frontend/package.json": "b9d604369bd68db1e8fbad4e31171e8c3dc54f445a370b72351b9c9a8d8c17a6",
+      "frontend/vite.config.js": "d6749bf16452e5a9167bcbcb8610d0b6615594b7f598692735e4fde7adb60ec3",
+      "frontend/checks/account-client.test.mjs": "883df31efd45d459890444ca2f135e96dd7d7c5061f8bf96f59ca89cde40802f",
+      "frontend/checks/account-render.test.mjs": "0635c71dc8d6a2eb3e09059b3198e344bbdd6bc278cbe4c5331019ee4eea089d",
+      "frontend/checks/account-state.test.mjs": "3ade4512f3965735ffa8681f90567393980697a67c41a611c6aa1dd7fbe2ec8f",
+      "frontend/checks/analysis-client.test.mjs": "94ffd337966948cce98df341def5e9b11f76055f7413a21c75029c15b7632484",
+      "frontend/checks/analysis-fixture.mjs": "6225618cb67dc2870fdbb9a2cb553a58883631a81fe9cd294ce5bee2c775e780",
+      "frontend/checks/analysis-observer.test.mjs": "b3e80fcd2a6970697ad939272449b1b2e7a8129140f62e1420657919afafaff1",
+      "frontend/checks/analysis-state.test.mjs": "762d1263e9a83f1bc8d723017cb0a215d131bd169b95bb8eebf0387865a3aa40",
+      "frontend/checks/api-client.test.mjs": "c87a648efbe770769721ffca15545ca6da131ee9a29b2552e066ce1c4f28bf79",
+      "frontend/checks/aqua-client.test.mjs": "416904954cdcaf593d5e7450ae711be2fa2426fb6a4f23c02d853d3c0d9487dc",
+      "frontend/checks/auth-form-policy.test.mjs": "89e3df3830ea8b5dbdce4c2d3bed86ddfc1e75b309cd560687131990cbd6ec3e",
+      "frontend/checks/auth-page-review.mjs": "662bfbeda536bcce54dc68f8edd278dd75a28f4e115b0305ebfe2fe788d5ebce",
+      "frontend/checks/auth-transport.test.mjs": "45d67b7c576ff774134d50f550abedeca162707df6db05182278860fa5162640",
+      "frontend/checks/browser-review.mjs": "6b70d3fe98f85579ade8aee614ff233c7239b772013f109c36d8cd9e8f2ceebc",
+      "frontend/checks/content-safety-browser.mjs": "aa91c1cd7cf1160ee46105a164d6dbc1b475975f308f143c7ad44b534c6b3d98",
+      "frontend/checks/data.test.mjs": "4fc2c9adc6ea815b0a11d14edc7ca49eb14ae7f5a55a3ca348313f75703e00d5",
+      "frontend/checks/financial-format.test.mjs": "a20ebb6e5bb73c20576ff933491c4a20518e09612b4c1d8974626a319ffda47a",
+      "frontend/checks/financial-table.test.mjs": "cb4b86ff48044d78c8df1c8a53479d7cab3d7d5bd0b8a085f54da2be818f0460",
+      "frontend/checks/homepage-browser-actions.mjs": "c6f8a87c73df95f0ed744596c3fcb277699b6d0f2b6500f472226de1a5876ce2",
+      "frontend/checks/homepage-browser-actions.test.mjs": "ce6b894233dfb09ee1fa2b119175daff42da818599ee6eef0eb3a65b15e2b695",
+      "frontend/checks/homepage-browser-checks.mjs": "cdc3c5779b0a904398171cf51958a6f215bbd171de0c2c260f090fd1977909a4",
+      "frontend/checks/p05-browser-bridge.mjs": "f0f5ca91eb75707e5ca0fef33bf9da5f524668e46ebe9df79936537457e30e06",
+      "frontend/checks/p05-browser-bridge.test.mjs": "717792913c8daead78e09d6ee554202174d8a06384843b910661886cdedbda72",
+      "frontend/checks/p05-browser-fixture.mjs": "fa2c06cf3ee6bb84bab29eab04f28feb30143be3d75665ffc4125a6fdf574757",
+      "frontend/checks/p05-browser-pipe.mjs": "0ca297a4b1a3d992fcd11f3239b0d12bf5a21fdfa65563362f42c0d3416bec70",
+      "frontend/checks/p05-browser-pipe.test.mjs": "766bacdb4f7a1103009fe072eb3210c69e6f9ecde4ad6cebc11f584f568f44cd",
+      "frontend/checks/p05-browser.mjs": "faa3fb2f5cd8477757118802a941fb92cf480c2cec8918809e613aff715a04e6",
+      "frontend/checks/p05-real-backend-browser.mjs": "5f76058ce78b5f7325b7425685fb5d1d9a823d930b5bc6a4ae8bfa31b004f5a0",
+      "frontend/checks/p05-shell-browser-checks.mjs": "eddc0fbd0a90ccd7fc69797567bf2515f5f362df6fc5ae361aeb02f5b43f8dd7",
+      "frontend/checks/p06-analysis-browser-checks.mjs": "28017f04a375605cdd2167f00cd7b67637990aff6aa14183d98d330e8484077b",
+      "frontend/checks/p06-browser-checks.mjs": "54162010747cb3f263b407d1180da96d2cb88ce9df2194a5ceea23465e9d130d",
+      "frontend/checks/p06-browser-fixture.mjs": "3ae095364c1b381ef839601ce9a4f804131bf6f9e8770c447e5fdaf5593f1d7a",
+      "frontend/checks/p06-real-browser-checks.mjs": "9f91827f531abdc6a12227610a4a70fe23d5747a33039f583963daa20f1ac1dd",
+      "frontend/checks/p07-browser-checks.mjs": "127ababe5b89156e5e6ed78c03092beeb68e0e33321789d7b55ab7c1d7c6f72c",
+      "frontend/checks/p07-browser-fixture.mjs": "11141aff2fb91d2cd3c7b5ea59f5ff37919b32a5ffc9efa23289868e9acbfac9",
+      "frontend/checks/p07-real-browser-checks.mjs": "4c8a1b78a019dc2d7ab5fee5980615fb16652a1d3645adf51d37de78b033a822",
+      "frontend/checks/p08-browser-checks.mjs": "115693ae14fc23ff3ba90d0dcc2d0fb35c53d611ab067400621bc943044a0aa4",
+      "frontend/checks/p08-browser-environment.mjs": "176340ee9a96981d851350808305f96ed0f6e37349f32a75287d9734afe0009d",
+      "frontend/checks/p08-browser.mjs": "ff4ea35bf05fd502aac649be676bd403fab7154cc11c6e97a3eea0c00861bf1f",
+      "frontend/checks/p08-security.test.mjs": "5e2562946f5060095b1ee0f21ba413058740c607c7200b83057458be00dd605b",
+      "frontend/checks/p09-appearance-checks.mjs": "f3816dde0950dff5dbe5e3c3bb2fb068e7936ad3dbb4019f53e10956844b150a",
+      "frontend/checks/p09-browser-checks.mjs": "7b42b67a531afddbd771aac5c394c3b5cdc7526bca0cf64555b8c1e3796cb2d7",
+      "frontend/checks/p09-browser-diagnostics.test.mjs": "c415c5459198792ad22a4d1b286ee748aaf2bf68e237724c1b96690273558415",
+      "frontend/checks/p09-browser.mjs": "3d2e8ae1f647e206d44097810f5f75385e9bb482fe7dc8c23272671feafb20e4",
+      "frontend/checks/p09-preference-fixture.mjs": "d0d91eaf33c03c6145b105e60deea902b9f7ab907330339042eca9ba6cb94e11",
+      "frontend/checks/p09-preference-fixture.test.mjs": "0a1e221b253bccf75be5256741d1b46b2dbf09c796aa59a3d0248e20141380db",
+      "frontend/checks/p09-visual-preference-checks.mjs": "4fdaedcddda09634574e3a7bda608a71ad0bfbddaf89c275ebd2e9d47d49a9fa",
+      "frontend/checks/p10a-account-browser-checks.mjs": "2e7a034421b4147eaa496cca57171876ade6457a9d8c7d9e5e56f07be0c709ea",
+      "frontend/checks/p10a-account-browser.mjs": "f07ee4014d212863f86c3ba9d44df0e87f923bd31416ff4b73e8bf47a1c4763a",
+      "frontend/checks/password-auth-client.test.mjs": "dd0efadd839c5ef44824b7ee08bca7f93804adab4fd59d10d544b5976804b452",
+      "frontend/checks/plotly-bundle.mjs": "91c8d15876b6825e1ebca2d208bf63385a6f90aae1a119a7d0c52b07533adfaf",
+      "frontend/checks/plotly-controller.test.mjs": "5d8898e9ea802bac3cf996f53e8bd676e1b388acc3e1e495b14c923bac2cea52",
+      "frontend/checks/plotly-fixture.mjs": "7996994119dee7021fcc4836ab0ccca72aed73c36d5103420a8a17edb2494e4e",
+      "frontend/checks/plotly-renderer.test.mjs": "cb5b22cbb9a62c9ec77a9c1e5bfe9ec4646c2919e5e2070124620f1222d3478b",
+      "frontend/checks/preference-presentation.test.mjs": "1637dadf8630b8d35ea1eace477051c6084da23f1b1e5568743529e305c7847b",
+      "frontend/checks/preferences-render.test.mjs": "ed91caa2208fab5bee83409a022a14c917e7ba99332404e530166b374a833c04",
+      "frontend/checks/preferences-schema.test.mjs": "6814e29a727fc0e1864fa03ecf1fe6d5a5f696afbc4bdf790162eb9ef554b226",
+      "frontend/checks/preferences-state.test.mjs": "d193d5bde5a302fe1b0cc1f64640368b0cfdd767b540b620a5a358b48abee026",
+      "frontend/checks/query-transport.test.mjs": "a36a5f72b1d0d71f9f9f198e0aae8017e424c6c4ac943227b459ef71bba81b0e",
+      "frontend/checks/refined-menus.test.mjs": "c3cf86465250777f6ab2baf5b562443925c9f15d8f3b991122414af17b900236",
+      "frontend/checks/refined-sidebar-state.test.mjs": "b724163edb63fa9369efc5609f63a92054d482ceaab1f8b1095a49cd466391fd",
+      "frontend/checks/routes.test.mjs": "30db72dd1000d342fae526664a02bc29fe00295628d56d09d14ff81bea555ee0",
+      "frontend/checks/safe-markdown.test.mjs": "aaac2975664722b23c38092636c7effa89826db4589c27765c357898d728ee54",
+      "frontend/checks/shell-config.test.mjs": "34713a2826717014e899f74607bc2d1f6bfed3811c209ca1b28f51977ea47767",
+      "frontend/checks/visual-results.test.mjs": "504794b09d9de80bdbf6f5fdf334dc106d9331f622d5ffeb83a595b8956c8cda",
+      "frontend/checks/workspace-client.test.mjs": "a5c92cca35017f5b4867a6f6d73e62b7689edc0a240e944ae1c8c3ef0be179d7",
+      "frontend/checks/workspace-result-metadata.test.mjs": "7f5801b36723e705262eea9f624ffb9c5e55e037f17f2af86e4f56c5ed73a887",
+      "frontend/checks/workspace-state.test.mjs": "2506094a1797d8e3e2ef9a96268f33d4e5b2fdf53c9052431e81f0b3fb413a02",
+      "frontend/src/App.jsx": "7d62b0e51fadf9fe226d4571ff68ceb633cdfb528148afb753b87ae2a8970420",
+      "frontend/src/assets/models/AQUA_V2_Final.glb": "e9dfb0d9210ea53a980e8cafc54005eff094075e1ead3d92b153c894336aee4d",
+      "frontend/src/assets/models/AQUA_V2_Final_static.svg": "a610bf95498d5bbc765cf49879bc98ee9a33f385cdf88452622a6871ae825648",
+      "frontend/src/assets/models/Aqua_logo.glb": "4b09dc47d42dc93b2492d49713f3a9c022bfb06437dbb1d0ba43a7d15346257c",
+      "frontend/src/assets/models/Aqua_logo_static.svg": "b9b2df7ef81e4dd19dfd3dc2deb1047a15eec02151382624463a77374798b6dd",
+      "frontend/src/assets/models/Chatbar.glb": "594742d13df02126c84406ead8475d6384a84bcedf4935d9fdd5c4d548f04683",
+      "frontend/src/assets/opal/auth/chart.svg": "5630b303a2d1b5639c0816f2d769f85989eaf2dd904827f3ad51aab67898b095",
+      "frontend/src/assets/opal/auth/chat.svg": "ebf9da6a9ae4aec340941fde0a4bdd63231efe56163676b854098491a93d30bf",
+      "frontend/src/assets/opal/auth/clock.svg": "254f3e5df918b6279c7d1294cb8f159cc775105e26d5e082fb1b82554dc46b7a",
+      "frontend/src/assets/opal/auth/mark.svg": "3179997aefac07e91349321b290bc413970f9f5095e6fa5223b82bf7be385cc9",
+      "frontend/src/assets/opal/auth/speck-0.svg": "c3447ce233285d6cbf250049274481eac4c83eed9d679ca7b723db947913cc6d",
+      "frontend/src/assets/opal/auth/speck-1.svg": "fea2fac34998dca11fddc160698da8b8ea36292b1b614f6cac6ce82e0ca578d2",
+      "frontend/src/assets/opal/auth/speck-2.svg": "7701cd40a2e8f47063bf94c127ee68b856d08a406c6f6f15ccbec4ee31760fb8",
+      "frontend/src/assets/opal/auth/speck-3.svg": "8d188f5f988df1597a85f78412a400a441203df5bb27e947140121ae86b7e040",
+      "frontend/src/assets/opal/auth/speck-4.svg": "6e076f6d0c28863b46d22fe0423f87f9a2e0e9a84967487c0177e71c3d0fa8c8",
+      "frontend/src/assets/opal/auth/speck-5.svg": "f5133c458e15f57dd106e3c3ba85e443d55958bfa307699d691d6557b8a6fc7c",
+      "frontend/src/assets/opal/auth/speck-6.svg": "477455e776c54404ff2253e8114b8a18f9b8587982ac93c3ebb94cdfe3cc4a48",
+      "frontend/src/assets/opal/workspace/imgAccountMenuTrigger.svg": "382205e314fdb4637291613de542bed6bb07abaf0ba8200790c4b0faf8072faa",
+      "frontend/src/assets/opal/workspace/imgAccountMenuTrigger1.svg": "47edcda205a3b979104e4f973e8361545b6610db498997988f72feaff3fab918",
+      "frontend/src/assets/opal/workspace/imgAmbientSpeck.svg": "c3447ce233285d6cbf250049274481eac4c83eed9d679ca7b723db947913cc6d",
+      "frontend/src/assets/opal/workspace/imgAmbientSpeck1.svg": "fea2fac34998dca11fddc160698da8b8ea36292b1b614f6cac6ce82e0ca578d2",
+      "frontend/src/assets/opal/workspace/imgAmbientSpeck2.svg": "7701cd40a2e8f47063bf94c127ee68b856d08a406c6f6f15ccbec4ee31760fb8",
+      "frontend/src/assets/opal/workspace/imgAmbientSpeck3.svg": "8d188f5f988df1597a85f78412a400a441203df5bb27e947140121ae86b7e040",
+      "frontend/src/assets/opal/workspace/imgAmbientSpeck4.svg": "6e076f6d0c28863b46d22fe0423f87f9a2e0e9a84967487c0177e71c3d0fa8c8",
+      "frontend/src/assets/opal/workspace/imgAmbientSpeck5.svg": "f5133c458e15f57dd106e3c3ba85e443d55958bfa307699d691d6557b8a6fc7c",
+      "frontend/src/assets/opal/workspace/imgAmbientSpeck6.svg": "477455e776c54404ff2253e8114b8a18f9b8587982ac93c3ebb94cdfe3cc4a48",
+      "frontend/src/assets/opal/workspace/imgAquaConceptMark.svg": "4bd2203087c762ce43ca145970896be6861884e4287f842deb4a7aaffe1a5f90",
+      "frontend/src/assets/opal/workspace/imgAquaConceptMark1.svg": "6c4a17cca17fa9111de7684c2a78a58b8681ff1f86f0a8920f3a50406fa903e0",
+      "frontend/src/assets/opal/workspace/imgIconArrow.svg": "e6e7714429231b5d730807848719fa13fd9389fcd3e628c9d63163259aac2774",
+      "frontend/src/assets/opal/workspace/imgIconChart.svg": "5630b303a2d1b5639c0816f2d769f85989eaf2dd904827f3ad51aab67898b095",
+      "frontend/src/assets/opal/workspace/imgIconChat.svg": "4a7af72f5e79da122633521147033baa9450d33c6734002d59e711dafc4803c7",
+      "frontend/src/assets/opal/workspace/imgIconChevron.svg": "f0d3fab8e6d6576f1aa5d56e2e7b5cbbb0daf29c6af46756631a5e79351be17c",
+      "frontend/src/assets/opal/workspace/imgIconChevron1.svg": "45e83b2defd75ff473c6c8dfa973c2fc1859796c5c63ee214cc97c4edbff406c",
+      "frontend/src/assets/opal/workspace/imgIconCollapse.svg": "4ccc997cafa05a59f5c2ae66a2587bcbe683b983fa0bc881e3fcdc1a14c3a311",
+      "frontend/src/assets/opal/workspace/imgIconFolder.svg": "c3772fb704296ea0e358e76316913693f4a5e2f612dcd6feba26c03661c797fb",
+      "frontend/src/assets/opal/workspace/imgIconGlobe.svg": "bab1b5faefd964a62304ebb476ec2bfbfeed2fa5a4819ba9b2f2f1382be4177f",
+      "frontend/src/assets/opal/workspace/imgIconPlus.svg": "99bcafb942c2f53720c9099bed4bc3338e517431181235b44f4a6512e5c4c06c",
+      "frontend/src/assets/opal/workspace/imgIconSearch.svg": "d5cb3b6093eb8cc79fc40bbd34aa2cabf9d25b77a2601957c910f950fe096718",
+      "frontend/src/components/aqua/AquaLogo3D.jsx": "43f6ab804dd8655f9f9e393f983d668b38b6688a45af43979bc0fea42f6ae626",
+      "frontend/src/components/aqua/AquaLogoFallback.jsx": "57d62f416e718e150bf638c4ee5607fec1d68ed854fb4248f52952d613e136f9",
+      "frontend/src/components/aqua/Chatbar3D.jsx": "d8d5144f6c25c47978fc26aa80291cd1bf6bcd1b891b877c786af46f101cdb51",
+      "frontend/src/components/aqua/ModelErrorBoundary.jsx": "0eaaf6d0776539dc31d64109a5bc7bca0d42e0de27bc52f66aacb8c976a4eaaa",
+      "frontend/src/components/aqua/ModelSupport.jsx": "6e2c33612fbf38db4228194617e4f61be66a31dc4932bdc74f2d335e8eeae21a",
+      "frontend/src/components/aqua/WaterSparkles.jsx": "682b65e52081d29e8d32bfa35ad0dbd9ef4c2368f80768e07f23707c71f2adae",
+      "frontend/src/components/aqua/model.css": "47b7b4561a66bbd0d39d1d2e7f78fc61a103f60f9dcd1dde31187c8de6659641",
+      "frontend/src/components/aqua/water-sparkles.css": "d04949fb3035c2b564654097792f005883a2acb8f805dd1cfeb28822aa8b64e4",
+      "frontend/src/components/auth/AccountProfile.jsx": "6b69c5d588784e8d9cc0ede2150cba5a01eda6a8a1130e8297f148088f327176",
+      "frontend/src/components/auth/GoogleSignInButton.jsx": "dad1789c70689fe2d7c006e2486395d41b7d0ecef89a6b2085e430e83aca0d54",
+      "frontend/src/components/auth/OpalBackdrop.jsx": "0655f537fdf3226e6e5adf3ab69a59577ce8c975c9cded6fcc88cbb372ce6438",
+      "frontend/src/components/auth/SignInPanel.jsx": "964c4104254f9340d1b1188a6037c1e8231b11f82e527d6a63cfd28f5cebed3b",
+      "frontend/src/components/auth/authFormPolicy.js": "1cde99e0cd0fda0f8794322c6dffb845f1f10183da1a89675baa858442a7b446",
+      "frontend/src/components/chat/AnalysisStatus.jsx": "695b5fb57b2adfa50fc8554b6b762ac480eef6b75054851a76ac573dd7dfe295",
+      "frontend/src/components/chat/AquaMessage.jsx": "ffdfe6f5de3c42741aea9a9fa3bc8ce8466169acd375af1e2bbe5afb8e16daa1",
+      "frontend/src/components/chat/ChatInput.jsx": "c820ec721f0d328287d9fdfa08c55227978d156c32794c1a8b465f9dd6009ed9",
+      "frontend/src/components/chat/ChatShell.jsx": "549159f0f6d9018a260ef66a5ba9a6aa68dbe3ff9783862ee764dc7c3dbf3354",
+      "frontend/src/components/chat/Conversation.jsx": "5a180eb9f3610536917602fcd15233a81d28161ab21567945abedd0e98d30109",
+      "frontend/src/components/chat/MessageBirthLayer.jsx": "197ef1b705d7ac79d81f4bd05dffd1d5f62e3a325d5775e66ed913ad5d78da17",
+      "frontend/src/components/chat/SafeMarkdown.js": "7cefc2d99175963c5a7a13c105843b8804f2575d85682e295b3f790940d4a275",
+      "frontend/src/components/chat/ThinkingBubbles.jsx": "806deeb4ba06797932b14e0994d74aacd01f2b41249fbaf6f649d876979737a0",
+      "frontend/src/components/chat/UserMessage.jsx": "d50ea42c336ec57742492b326bdcfdce772848f86a072b481e70927e8a322dfb",
+      "frontend/src/components/data/FinancialTable.jsx": "c2494cb4f4d2aaf5e0a1e9f13820d1b8c817dd4c2be727aeed8dd2f82c52cf3c",
+      "frontend/src/components/data/PlotlyChart.css": "d97fa983b0b0ea48af70a695d50014e950195abb4058a3eb0087692d1f126271",
+      "frontend/src/components/data/PlotlyChart.jsx": "15cc98129f69e2bc4365ef80b2b52a93095660b999d0ec12ac571c0fa4dcde9a",
+      "frontend/src/components/data/ResultMetadata.jsx": "f1ec1f94548b59daff663505bbf7c5d301234f0772a1b32f290764217a073e25",
+      "frontend/src/components/data/displayTable.js": "5fbd85e9fd9e73fc3d64ca2a9df11a190b73b9fded2ad038cec5212db48819ae",
+      "frontend/src/components/data/financialValues.js": "1b8048d55185b4ede544b989365dc3cddc32b11ec7b683af9e143278098c905d",
+      "frontend/src/components/data/plotlyController.js": "97c7e70a1751fc0bd34cbb0f0f7f28b7b55e5c5d9c438ae7c043ba36fe2646c2",
+      "frontend/src/components/data/plotlyEngine.js": "8d64f6c7d226f8f17762349b33770d19c6ac3a2eee689bc4bb0efb6adfbe5bae",
+      "frontend/src/components/navigation/LocalLink.jsx": "909c8e8685b8925b50e2edad711414fa14db3f9d9a2bb1e4a065749deb6286c3",
+      "frontend/src/components/navigation/ModelSelector.jsx": "43d15efa3cc957cd1077a48491a42c213c94791fe8c82be6cfd653a2610a3360",
+      "frontend/src/components/navigation/Sidebar.jsx": "cf6f60be449fcca5bcb423e756ac032f073d5059d804120adeb9d8621998a4d0",
+      "frontend/src/components/navigation/menuPolicy.js": "9fbd65042f8933c140567373d8b91d5eaa59e5a39e47e9ca3ec06c64b441cb56",
+      "frontend/src/components/navigation/useMenuSurface.js": "01f3b8118e56231f19b8bb1ae6516ede3ecc01bdbd3d1696d19fc47ddb74481f",
+      "frontend/src/components/workspace/AccountMenu.jsx": "a527171cd70934cc4eb82bfffd6f8830ebfc13d36596a4bd9a088176a0310047",
+      "frontend/src/components/workspace/ControlIcon.jsx": "ab48822cfebbe072878df826a1333f8f72cec6af58cf4348e7146eb46af67f0c",
+      "frontend/src/components/workspace/OpalChat.jsx": "96cde29044b8af7b7ecec36eb89e7a955f49795d5a20927b7b6be9428d2b08a0",
+      "frontend/src/components/workspace/OpalSidebar.jsx": "0ea9495ff4a95b4de7c0fcfd49182dcca815d97f9e4d11dbf1183015185424f1",
+      "frontend/src/components/workspace/PromptLibraryDialog.jsx": "cdb537c5c43c207c50c0ab772827be141c222be2aff8455f1e045b5f01a2e092",
+      "frontend/src/components/workspace/SidebarActionMenu.jsx": "865c256f0d541a02bcf7df2fc7b5e014f82bf4e787fd604bb4cd25b5eb20f8a2",
+      "frontend/src/components/workspace/SidebarChatRow.jsx": "b93eea400b44d34449f263fe3e47f40b5c1e14b21eff7b9bf8b6e2d7bc786ab9",
+      "frontend/src/components/workspace/SidebarProjects.jsx": "db415f2f0840dee08838f8ea01d8723ff07b28c7e52022ce9bbe15453211276d",
+      "frontend/src/components/workspace/SidebarRecents.jsx": "c452a2f99b2d14cfce7d4e27fdf4e2822764ee5fa0d7eae3a0b1fea6fb4e2416",
+      "frontend/src/components/workspace/SidebarRecentsDialogs.jsx": "33ab233e27642f4a6a187b06e402345263d31f8f2b7cb189a92c906fc08309db",
+      "frontend/src/components/workspace/SidebarRecordDialog.jsx": "9cf21be4c910a54c5817b21767e5a33578362519619c9c68f149ceee2b279716",
+      "frontend/src/components/workspace/VisualPane.jsx": "fe7e69ed1ef194ffbb3c4bce90c9f9ce79e3908a00668c561237278d37d24042",
+      "frontend/src/components/workspace/VisualWorkspace.jsx": "c1e0a64107996f9828a042e96634cafa6edf5775c18f41f00d9950b6a468e650",
+      "frontend/src/components/workspace/Workspace.jsx": "9a70d03a625059f484e4db10b5efc8475e2abd45d9031f774496e42f4e46d63e",
+      "frontend/src/components/workspace/WorkspaceEditor.jsx": "91aeb748dc65a31b966fa63ab6b23d9fe36f942314fa727906ce93ea273d5431",
+      "frontend/src/components/workspace/WorkspaceLibrary.jsx": "2cbbb42d5e726aff904918ee1d5dc08a1d3525dca4b35ab94389c02ed1157364",
+      "frontend/src/components/workspace/sidebarState.js": "a688449e613c9fba491b39bca11dc5b5070a1c9c839b999c04d262776c66e45a",
+      "frontend/src/components/workspace/useProjectChats.js": "78d7683878db6384a8d20e30c08ceeb8b153bca0259e36f6a7473b3e9a534fe1",
+      "frontend/src/hooks/useAnalysisRequests.js": "7e9bb6c0a5a16b0df21a7e2d98206050aece982ebcb738b8c076361ce293e73c",
+      "frontend/src/hooks/useChat.js": "a4266bfd4fabeb19505ebcd7fc18b0f833bdb0e368a2cad0acf4f3eb871b4742",
+      "frontend/src/hooks/useGoogleAuth.js": "aae0b60fc500cd45edb123315bdd2ea7135bea4dd466f5bff4aed8cc7efebd2b",
+      "frontend/src/hooks/useReducedMotion.js": "825046296532d39fcaf5c0c4790b17970b7463ee50544c435db72a49a4cd6195",
+      "frontend/src/hooks/useVisualResults.js": "f220811d3d09103a754e89f4c931cec65a95faa8579c7f0b8de232bbba4bc6a9",
+      "frontend/src/hooks/useWorkspace.js": "2dc5ba7ccf6cae6e6231c34e4052dcee3a79944f719a6c6a4f66e1beccaac2c2",
+      "frontend/src/hooks/useWorkspaceLists.js": "5ab063c7542af46bd0ca6c5aa9d68ba78ddabae40c1b8746309c01e2c06dae33",
+      "frontend/src/hooks/workspaceAnalysisState.js": "0aa451181356397c32af9df6205cf8e7d048197e1cf20167f89feb8341e31a59",
+      "frontend/src/hooks/workspaceState.js": "3dcbc472ebd40eedfdd887d12bed25b056b42e1bdd3f08ee19517365237a4aa6",
+      "frontend/src/main.jsx": "7626f6666b0baa4d6baf409f0b5b9afda38620543858e0c88099e32de7f77619",
+      "frontend/src/mocks/aiModels.js": "627d8cc8c7086c4a645e8d069a296284c28c221bd0606e47aee88989d565ae36",
+      "frontend/src/mocks/mockResponses.js": "55ff0a36c553ff99a1d5cbab851f599d438d7a77be59815aade2e27a44c81aeb",
+      "frontend/src/mocks/navigation.js": "aa1dd64be5dcab42df775c50eb98b26c59b43c94642540a03e3e32629a5eadeb",
+      "frontend/src/pages/AuthPage.jsx": "5842be76a04efbc683703883c0212425e2aa452674209b3e240f2289e695b0f8",
+      "frontend/src/pages/LegalPage.jsx": "6638eb0253a6b6266652b627a3efcdb4ad39e790a2184baa1f985d8a04eb57e1",
+      "frontend/src/pages/SettingsShell.jsx": "07d90276cfb0cefd0511d3f55bca684ac7ef977c511dfd99c34fd5f7941edf8a",
+      "frontend/src/pages/SignInPage.jsx": "fd87b2a386fc3961d197be5dd8de160e765989726a4a9b9d6a7533520d15d916",
+      "frontend/src/services/analysisClient.js": "30c1e6394240f6441c81f942dc10c3393f86d012cc5648d69f23dce5f48aa1da",
+      "frontend/src/services/analysisObserver.js": "bbe2051a6873dae7aea5c259f560f7932713cc451a5b56bc01715e3bf3ace24e",
+      "frontend/src/services/analysisPresentation.js": "f506a5b2248b1a8af344625c3bac3d18c4dd4e5d6fdb2e83562a5373f5f5822a",
+      "frontend/src/services/analysisProtocol.js": "d654ce6bd12770d8e1f5d3091640918670bcf01899e86eef52406a94724e33e7",
+      "frontend/src/services/apiClient.js": "8aa19ae3bf30457684b218dd379d569a1073ada287cab56618e398ce69659e81",
+      "frontend/src/services/aquaClient.js": "40b328d6aea3449b557e25663f8fb4a9f3c81996b064c23af2ac9a826a4fcf50",
+      "frontend/src/services/authClient.js": "2df4f84834f5db9970509b1a453acc052dce2bafe7b704d505deb3d469f451ba",
+      "frontend/src/services/googleIdentity.js": "b60aadf6a4e00471bf9120cf505dd2186fde606e16416e098b670074adc6bc16",
+      "frontend/src/services/mockClient.js": "ac85edf04d2ba46b6620e54b082a4a51970b5ea3cba906eb05f4f90a13972dfd",
+      "frontend/src/services/passwordAuthClient.js": "c2208c0870d428c5f81fe611307a8f52fdcc670798304d01f00fcbfb5de9acf9",
+      "frontend/src/services/plotlyFigure.js": "9f33c7dd694bb9d364e54bdfcbc972de907947c619c7159b8c003342768469ed",
+      "frontend/src/services/precisionCells.js": "1396ab272b042fe0737c520e43cd10259cf09d3425c613cd6f0943715f437007",
+      "frontend/src/services/preferenceFormatting.js": "0f175e2df6568bba02df42e8c164f31e8268bbf2f9ae977963cfac7c17ef3e58",
+      "frontend/src/services/presentationContract.js": "b2f09e0e43cbed412aa1ba4b5e089bf0765303c0786f1c17324226e4efac9f0f",
+      "frontend/src/services/routes.js": "4c0f804d88d52c4a747cb4e433cadccb8b45efa22a76c6012749c26b03e52c3a",
+      "frontend/src/services/runtimeConfig.js": "1d7a2c38aea28b3503aca579b8d89bd8363eded0074209d789a6697d911d6b55",
+      "frontend/src/services/shellConfig.js": "0b0fe800e9e4e8e94ec07d8018f8d29eefcf3047596587f9963796b0b8f10d2f",
+      "frontend/src/services/visualResults.js": "3166ae45cb7f7f0ccb07b59b5475182fcad4a46ce18f08a52a46c9467cb01ce7",
+      "frontend/src/services/workspaceClient.js": "57061836d00829d8f9c2a25e62a18956b99d8984cc8a77918ec121056533635b",
+      "frontend/src/services/workspaceContract.js": "690fe0d0c03f1e527fb45e000c5e074e84b75050654d24dec42802dc899711fe",
+      "frontend/src/services/workspaceResultMetadata.js": "61b3707ae861092a6604818cf8e9ce26d10af55f4a2113eeb3a0c45ab2164a71",
+      "frontend/src/settings/AccountFoundation.jsx": "347aa7f3f89f1ac85842defd410bd36ec73ad7d1faa6dd70dba3c2fdd4ff6270",
+      "frontend/src/settings/PreferenceDialog.jsx": "7ad10c961ab0a48ba2c580520581909528d410faeebdeaeb4354458c0a947656",
+      "frontend/src/settings/PreferenceTransfers.jsx": "5f785f0852e860f2510629c8fe6fc2d68e02bef93c796d6a110a9b88051aefd3",
+      "frontend/src/settings/PreferencesProvider.jsx": "48192f147ae002c705782b1a1c152a0337dafaafbbceeec221630eb948de89ad",
+      "frontend/src/settings/SettingsControl.jsx": "72bbab75824eb33dba4695d722965f3136fd846a0d6f9fdce95a792e3e742771",
+      "frontend/src/settings/SettingsInformation.jsx": "f13946f280a8f89028df81cba0d84c26a7a4db5bf0ed6dac4a3301e32a946036",
+      "frontend/src/settings/accountClient.js": "fafeac4788b01abbecc049b6779672cc54ccbc21e97b121fb08899655abe60eb",
+      "frontend/src/settings/accountContract.js": "50e549f7fc28d46364ff40c88e81b5b4eedd36a8b362721afdfc053c68961356",
+      "frontend/src/settings/accountState.js": "d52def43b7edb720cbb73ed0571c3240d0cf5b3476ae5967a40ca2b8db0371fa",
+      "frontend/src/settings/controls.js": "6ff6c3c1fd1c4aa18a0ac7b558e197dc3226cc3a542428e1262a3dea227bb86e",
+      "frontend/src/settings/deviceStore.js": "b3fd92d593157fb6592b24d6c832d17a2b898ede8ce172ba7f6cc226c0e7c7c3",
+      "frontend/src/settings/preferenceClient.js": "e7318d514154ffe893527781397906c88242c8e54293a4599bd65af13d957cb9",
+      "frontend/src/settings/preferenceState.js": "37feb527306b26e922ec798890ac1397451b51e8e7c43d47bb5c6ea8f85ec19b",
+      "frontend/src/settings/schema.js": "b58cef5d4ed5770f5eef01e04dc9c0caa4a16e7942b17ccaa8902af7a12a5d09",
+      "frontend/src/settings/strictJson.js": "7cf9144f812505e59cbcd7a2589b1150fcae0801550ab0d293602612ec3e474b",
+      "frontend/src/styles/account-foundation.css": "f44f026f85a5278654bf01f713d35655424ed9436dd386ec090ce8dc8d4ea6aa",
+      "frontend/src/styles/animations.css": "38fc4261924daf495635d414097f02bc093f45dccd1a8d9d9c6e9383abb9b493",
+      "frontend/src/styles/auth-page.css": "c5a802323b7dd97a6edf7b01e0d49f611c05f909ca0451a6c56908669460ed52",
+      "frontend/src/styles/auth.css": "05b7166fbf606dba8efb7f7f1d5c56b75e2b127faad850a3877c036d26b23ee5",
+      "frontend/src/styles/dialogs.css": "5cf48900be473d3b1419ad99e701bd8cabfca57c6245a7edc301753987abcb6d",
+      "frontend/src/styles/global.css": "fed6cee2936bbb96702ea76a192e0431ed1e2156c0e056eeff0bc9271910bec6",
+      "frontend/src/styles/homepage.css": "3ffb97bd25f24d1e008886c0ccc1271fbe306ea1dd8e70a8c7012dbcb08dfc8d",
+      "frontend/src/styles/legacy-workspace.css": "bb2b9859fa9ab9a5e8bdb5d3b1b5899066bc19e2fd8478d6d1dff58d616adc49",
+      "frontend/src/styles/legal-page.css": "a9980009b1c02dcdb60e2645fcafc0392386f6c817a0e7f86a39c5f00cdab098",
+      "frontend/src/styles/menus-refined.css": "d38916a58e71b00fb95366cefe311ac4aac1323963c47120a862da67a6fe1a44",
+      "frontend/src/styles/preferences.css": "11b954bad5cad8bee670157feeb37fdda12e89b137c0c23d64c7f12b6646124b",
+      "frontend/src/styles/settings.css": "c594fecd6d6f207c4aad45d203fffd75688367ad48ef6a9fedb7389422dfa598",
+      "frontend/src/styles/sidebar-refined.css": "1414964665db14eca1156db1deace5a8623d00268d018cd59f3b4a6281e755ad",
+      "frontend/src/styles/sidebar-search.css": "56139cdc78274fc49155a171114d9f7d34862712130fbc94f13bef6a6c4e7805",
+      "frontend/src/styles/sidebar.css": "1ce7d64c3bcd4680b59e3c16b4773247a6b7ff9c786404caced05d3d84888194",
+      "frontend/src/styles/signin-page.css": "113e864cbaaeb2006ca1d8ecea21bd827e2ce58566f7ed305ec5127c81a59060",
+      "frontend/src/styles/tokens.css": "1b5d6587206bf0df328fe6d7331bc53cc6fbd108120d3b2e6038c3d21e3b4795",
+      "frontend/src/styles/visual-workspace.css": "9292214a19ad6fe125d7a9a4e8adee2e45bd52ed308e1359cbecc7578bfabd50",
+      "frontend/src/styles/workspace-library.css": "96b189811cbc3699a78249e6fe49cfd04fc6421dc6fab270a908d305188c32e6",
+      "frontend/src/styles/workspace.css": "ceaa4dadfdb137b9e965de0fc2784c5a02ac19cf91e3c73ac85edfe04e392c60"
+    },
+    "builds": {
+      "opal": {
+        "status": "passed",
+        "bundle": {
+          "status": "passed",
+          "initial": {
+            "files": [
+              {
+                "file": "assets/index-CEetZ6Nj.css",
+                "bytes": 77730,
+                "gzip_bytes": 15538
+              },
+              {
+                "file": "assets/index-DPSnigV_.js",
+                "bytes": 554079,
+                "gzip_bytes": 173914
+              }
+            ],
+            "bytes": 631809,
+            "gzip_bytes": 189452
+          },
+          "engine": {
+            "file": "assets/plotly-basic.min-xwdtK5Zk.js",
+            "bytes": 1211596,
+            "gzip_bytes": 404238,
+            "sha256": "915cbf161e97ec0bcac0402847f0a13e091b9e1415c21628d0b37b15f578b600",
+            "initial": false
+          },
+          "manifest_sha256": "3d915e1e519757fa1e282bd8fdd21335a1e7d18ff70ba564b36207d904b6c731"
+        }
+      },
+      "legacy": {
+        "status": "passed",
+        "bundle": {
+          "status": "passed",
+          "initial": {
+            "files": [
+              {
+                "file": "assets/index-CEetZ6Nj.css",
+                "bytes": 77730,
+                "gzip_bytes": 15538
+              },
+              {
+                "file": "assets/index-tSoN53T3.js",
+                "bytes": 554081,
+                "gzip_bytes": 173912
+              }
+            ],
+            "bytes": 631811,
+            "gzip_bytes": 189450
+          },
+          "engine": {
+            "file": "assets/plotly-basic.min-7kMPs94F.js",
+            "bytes": 1211596,
+            "gzip_bytes": 404237,
+            "sha256": "fe1f8c8cebbea55304b30450a8d76eca06c22eb79bc719bb392bd52ae3cd14ff",
+            "initial": false
+          },
+          "manifest_sha256": "9a3db4f7af5cc1edeee5fe62d1c45f1c2980098bc4e19544cf3867a97b8a5edc"
+        }
+      }
+    }
+  },
+  "account_verification": {
+    "profile_cas_and_lost_response_reconciliation": true,
+    "private_read_only_methods_and_sessions": true,
+    "independent_presentation_drafts": true,
+    "auth_hidden_native_modal_and_owner_fences": true,
+    "future_sensitive_capabilities_disabled": true,
+    "restored_profile_identity_provenance_and_action_authority_fenced": true,
+    "fixture_schema": 6,
+    "live_provider_calls": 0,
+    "migration_applied_to_production": false
+  },
+  "browser": {
+    "opal": {
+      "synthetic": {
+        "status": "passed",
+        "cases": 136,
+        "report_sha256": "1586b743a8fe5222ed057be6aae1c30704d5339ce7f9dc202410248579ed7ae5",
+        "observed_seconds": 22.84,
+        "asset_set_sha256": "07f6f2e78f6574eb06c1189990bf34ea185d06ad0ef12865a592136665934ef4",
+        "observations": {
+          "requestCount": 417,
+          "apiRequests": 286,
+          "staticRequests": 135,
+          "external_attempts": 0,
+          "consoleLeaks": 0,
+          "runtimeErrors": 0,
+          "forbidden_api_calls": 0
+        },
+        "cleanup": "browser_profile_loopback_and_owned_fixtures_removed",
+        "menu_text": {
+          "root_text_percent": 200,
+          "model_base_pixels": 14,
+          "model_enlarged_pixels": 28,
+          "model_scale": 2,
+          "account_base_pixels": 14,
+          "account_enlarged_pixels": 28,
+          "account_scale": 2
+        },
+        "composer_controls": {
+          "width_css_pixels": 320,
+          "root_text_percent": 200,
+          "non_overlapping": true,
+          "model_width": 160,
+          "saved_prompts_width": 44,
+          "send_width": 44
+        }
+      },
+      "workspace": {
+        "status": "passed",
+        "cases": 43,
+        "report_sha256": "d450d44b3107277da680bc92d4f71f87a72214f4aa63aa61ba176fdf2001a044",
+        "observed_seconds": 102.23,
+        "asset_set_sha256": "07f6f2e78f6574eb06c1189990bf34ea185d06ad0ef12865a592136665934ef4",
+        "observations": {
+          "requests": 375,
+          "apiRequests": 287,
+          "external_attempts": 0,
+          "consoleLeaks": 0
+        },
+        "cleanup": "browser_profile_loopback_and_owned_fixtures_removed"
+      },
+      "settings": {
+        "status": "passed",
+        "cases": 41,
+        "report_sha256": "844b3a04c63a313e23cc6bf8661d1c6a8bc8a5247d78444d08d690f40d19e027",
+        "observed_seconds": 27,
+        "asset_set_sha256": "07f6f2e78f6574eb06c1189990bf34ea185d06ad0ef12865a592136665934ef4",
+        "observations": {
+          "requests": 80,
+          "api_requests": 48,
+          "external_attempts": 0,
+          "console_leaks": 0,
+          "runtime_errors": 0,
+          "maximum_paused_requests": 7
+        },
+        "cleanup": "browser_profile_loopback_and_owned_fixtures_removed",
+        "appearance": {
+          "combinations": 128,
+          "minimum_select_text_contrast": 15.38320828520069,
+          "minimum_enabled_button_text_contrast": 6.991986463688356,
+          "minimum_label_text_contrast": 15.38320828520069,
+          "minimum_breadcrumb_text_contrast": 14.680549772941458,
+          "sidebar_input_cases": 0,
+          "minimum_sidebar_input_text_contrast": null,
+          "minimum_control_height": 44,
+          "minimum_control_width": 114.15625,
+          "system_theme_media_cases": 2,
+          "forced_colors_and_reduced_motion": true
+        },
+        "mobile": {
+          "width_css_pixels": 320,
+          "actual_control_text_scale": 2,
+          "categories_reachable": 9
+        },
+        "accessibility_tree": {
+          "settings_heading": true,
+          "named_category_navigation": true,
+          "named_comboboxes": 5,
+          "save_and_cancel_named": true
+        },
+        "actual_provider_calls": 0,
+        "fake_jobs_started": 0
+      },
+      "visuals": {
+        "status": "passed",
+        "cases": 37,
+        "report_sha256": "508abf6a0d847dacd896b581c64da93229cfa6f6b0b3276b4b4979894a38b7b8",
+        "observed_seconds": 29.2,
+        "asset_set_sha256": "07f6f2e78f6574eb06c1189990bf34ea185d06ad0ef12865a592136665934ef4",
+        "observations": {
+          "requests": 111,
+          "api_requests": 84,
+          "external_attempts": 0,
+          "console_leaks": 0,
+          "runtime_errors": 0,
+          "maximum_paused_requests": 7
+        },
+        "cleanup": "browser_profile_loopback_and_owned_fixtures_removed",
+        "actual_provider_calls": 0,
+        "fake_jobs_started": 12
+      },
+      "account": {
+        "status": "passed",
+        "cases": 27,
+        "report_sha256": "cc8d9b91ee9a38006a2c7b1c3093cb3449d2777353037c922fef040dee23ecf3",
+        "observed_seconds": 23.7,
+        "asset_set_sha256": "07f6f2e78f6574eb06c1189990bf34ea185d06ad0ef12865a592136665934ef4",
+        "observations": {
+          "requests": 78,
+          "api_requests": 54,
+          "external_attempts": 0,
+          "console_leaks": 0,
+          "runtime_errors": 0,
+          "maximum_paused_requests": 7
+        },
+        "actual_provider_calls": 0,
+        "fake_jobs_started": 0,
+        "dataset_grant": false,
+        "cleanup": "browser_profile_loopback_and_owned_fixtures_removed"
+      }
+    },
+    "legacy": {
+      "synthetic": {
+        "status": "passed",
+        "cases": 136,
+        "report_sha256": "e8e55c2b245eadc86ba830b1034250d80c5da0bfdf768f9bec4277a07d96778f",
+        "observed_seconds": 35.27,
+        "asset_set_sha256": "b13c365bbaeae7c1e5e253176b1ddab60d47b138e31cea96b86e89071fe65c53",
+        "observations": {
+          "requestCount": 431,
+          "apiRequests": 286,
+          "staticRequests": 151,
+          "external_attempts": 0,
+          "consoleLeaks": 0,
+          "runtimeErrors": 0,
+          "forbidden_api_calls": 0
+        },
+        "cleanup": "browser_profile_loopback_and_owned_fixtures_removed",
+        "menu_text": {
+          "root_text_percent": 200,
+          "model_base_pixels": 14,
+          "model_enlarged_pixels": 28,
+          "model_scale": 2,
+          "account_base_pixels": 14,
+          "account_enlarged_pixels": 28,
+          "account_scale": 2
+        },
+        "composer_controls": {
+          "width_css_pixels": 320,
+          "root_text_percent": 200,
+          "non_overlapping": true,
+          "model_width": 160,
+          "saved_prompts_width": 44,
+          "send_width": 44
+        }
+      },
+      "workspace": {
+        "status": "passed",
+        "cases": 43,
+        "report_sha256": "ad273ac46bdc2d9df590a282ac61338b467c6fbd954906abf7d3424728260b88",
+        "observed_seconds": 102.05,
+        "asset_set_sha256": "b13c365bbaeae7c1e5e253176b1ddab60d47b138e31cea96b86e89071fe65c53",
+        "observations": {
+          "requests": 387,
+          "apiRequests": 285,
+          "external_attempts": 0,
+          "consoleLeaks": 0
+        },
+        "cleanup": "browser_profile_loopback_and_owned_fixtures_removed"
+      },
+      "settings": {
+        "status": "passed",
+        "cases": 41,
+        "report_sha256": "e5e02e8ea8cfac61b48c8c65f422d4d1c4ad9841aacdf9685a65c9a6059b31ce",
+        "observed_seconds": 27.7,
+        "asset_set_sha256": "b13c365bbaeae7c1e5e253176b1ddab60d47b138e31cea96b86e89071fe65c53",
+        "observations": {
+          "requests": 84,
+          "api_requests": 48,
+          "external_attempts": 0,
+          "console_leaks": 0,
+          "runtime_errors": 0,
+          "maximum_paused_requests": 8
+        },
+        "cleanup": "browser_profile_loopback_and_owned_fixtures_removed",
+        "appearance": {
+          "combinations": 128,
+          "minimum_select_text_contrast": 14.64845708722105,
+          "minimum_enabled_button_text_contrast": 6.991986463688356,
+          "minimum_label_text_contrast": 14.64845708722105,
+          "minimum_breadcrumb_text_contrast": 14.680549772941458,
+          "sidebar_input_cases": 0,
+          "minimum_sidebar_input_text_contrast": null,
+          "minimum_control_height": 44,
+          "minimum_control_width": 114.15625,
+          "system_theme_media_cases": 2,
+          "forced_colors_and_reduced_motion": true
+        },
+        "mobile": {
+          "width_css_pixels": 320,
+          "actual_control_text_scale": 2,
+          "categories_reachable": 9
+        },
+        "accessibility_tree": {
+          "settings_heading": true,
+          "named_category_navigation": true,
+          "named_comboboxes": 5,
+          "save_and_cancel_named": true
+        },
+        "actual_provider_calls": 0,
+        "fake_jobs_started": 0
+      },
+      "visuals": {
+        "status": "passed",
+        "cases": 37,
+        "report_sha256": "6b6584e356add57c35885963e08185644145d854578c9a7663162f5adcdeb002",
+        "observed_seconds": 29.6,
+        "asset_set_sha256": "b13c365bbaeae7c1e5e253176b1ddab60d47b138e31cea96b86e89071fe65c53",
+        "observations": {
+          "requests": 115,
+          "api_requests": 84,
+          "external_attempts": 0,
+          "console_leaks": 0,
+          "runtime_errors": 0,
+          "maximum_paused_requests": 8
+        },
+        "cleanup": "browser_profile_loopback_and_owned_fixtures_removed",
+        "actual_provider_calls": 0,
+        "fake_jobs_started": 12
+      },
+      "account": {
+        "status": "passed",
+        "cases": 27,
+        "report_sha256": "6a8bef826ced1d9f6575a96572eb4d0fe2d7d6cb2c1b4c77c999f1a14e43487c",
+        "observed_seconds": 22.5,
+        "asset_set_sha256": "b13c365bbaeae7c1e5e253176b1ddab60d47b138e31cea96b86e89071fe65c53",
+        "observations": {
+          "requests": 81,
+          "api_requests": 54,
+          "external_attempts": 0,
+          "console_leaks": 0,
+          "runtime_errors": 0,
+          "maximum_paused_requests": 8
+        },
+        "actual_provider_calls": 0,
+        "fake_jobs_started": 0,
+        "dataset_grant": false,
+        "cleanup": "browser_profile_loopback_and_owned_fixtures_removed"
+      }
+    }
+  },
+  "prior_failed_attempts": [],
+  "screenshots": [
+    {
+      "file": "screenshots/opal-home-desktop-1440x980.png",
+      "bytes": 186993,
+      "sha256": "d78a4c687ed5c1e1bae252a1ccd2d78ed76ecdf44bd1b8aee62938c0f47fa052",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/opal-p06-private-prompts-project-history.png",
+      "bytes": 171013,
+      "sha256": "1b8960005b1e25b3439984f83b8947d5591600c49929f25d68c3394a0f234fc6",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/opal-homepage-model-menu-desktop.png",
+      "bytes": 172569,
+      "sha256": "0c4a75a0c69ba408827c76973aeadf7bc9cae0d611a56da9db1a2e6168e43408",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/opal-homepage-account-menu-desktop.png",
+      "bytes": 187248,
+      "sha256": "f6f8e9a50be8c0043ce0b56a6438e878e9c2a37ba720a4af3174f8519603ff25",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/opal-homepage-model-menu-mobile-double-text.png",
+      "bytes": 61288,
+      "sha256": "75050f6db784425ba5ff3dd473ba587f3d490ce54e4877d4bf6c459d31992d9e",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/opal-homepage-account-menu-mobile-double-text.png",
+      "bytes": 49268,
+      "sha256": "ec677a7473c77911e4decf2ab63cd88e9ba1eddac22c00467c22f0ce057be7fe",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/opal-settings-desktop.png",
+      "bytes": 148786,
+      "sha256": "9ff1b381dcdf4907fc4270b0b6036870e4ec60139c13893fd5a69aac23e27f6f",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/opal-settings-light-increased.png",
+      "bytes": 172059,
+      "sha256": "5cee009fb3a5a2d4650a34e6f74229ab77cd7e50d3d2c4e40d8e4d464fc873e2",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/opal-settings-320-double-text.png",
+      "bytes": 48439,
+      "sha256": "c603f42dfebdd50d97a4806e4302cda9e04700fc473a121f23b189736ee86999",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/opal-desktop-actual-plotly.png",
+      "bytes": 141460,
+      "sha256": "5f0b89d24fcaf8f7223d10cb523e157eb71ddbc8ab3d1243bfe8e35d388ea06a",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/legacy-home-desktop-1440x980.png",
+      "bytes": 174723,
+      "sha256": "594cec57cdcd331d6b9123db2ef6e7e350295bd7f922a27cab52b7367287bd62",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/legacy-p06-private-prompts-project-history.png",
+      "bytes": 154148,
+      "sha256": "4e123ec669b56ee3f96328ef02149e7eb52c486598a9cbc43f59db8a6cac1719",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/legacy-homepage-model-menu-desktop.png",
+      "bytes": 179807,
+      "sha256": "feac4b53239b7c3eaa193026a0238e46f5d3dcab054570cf401fd1d896e3c712",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/legacy-homepage-account-menu-desktop.png",
+      "bytes": 167418,
+      "sha256": "3d3b1416617eca634d8f03dff3b3a7e86090afe753a8d0d8f74b2c3ccbd99996",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/legacy-homepage-model-menu-mobile-double-text.png",
+      "bytes": 67465,
+      "sha256": "4c1bb5ad8c3e2778f21440b6c0487a9ebdebebf5b56684bd88feea1e48c06ecf",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/legacy-homepage-account-menu-mobile-double-text.png",
+      "bytes": 50539,
+      "sha256": "5e535629cb7c84ed2d23c3d226896259f2fcb2517e86c11e95a5f74a8e956145",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/legacy-settings-desktop.png",
+      "bytes": 137745,
+      "sha256": "340244748fd0fa6c3dfa7745f4114d57a783a60e16e51dc40de3dc7d98dd4d9e",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/legacy-settings-light-increased.png",
+      "bytes": 170137,
+      "sha256": "009fcfe195dd901be9ae7163da20358eb579f0695ff207abf8ede794dfbe2884",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/legacy-settings-320-double-text.png",
+      "bytes": 47592,
+      "sha256": "40fe30029671563ced77a74b3af61e3593d9b4555b6ca5a75777b4a966af9366",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/legacy-desktop-actual-plotly.png",
+      "bytes": 134238,
+      "sha256": "4a4da0a3d526acbf0057bcbb3a4cab44bbb6b052f5c1896ccdf9b3285e4fab0c",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/opal-p10a-account-desktop.png",
+      "bytes": 147848,
+      "sha256": "dfe4ea226402328e4e03158acd552f2541febf56a8d9bd099d9396555d1c6c8d",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/opal-p10a-account-mobile-name.png",
+      "bytes": 36102,
+      "sha256": "849a10b59d37bc766fe003f9aaa183192ad17bb4554317f441b5417832810a34",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/opal-p10a-account-mobile-settings.png",
+      "bytes": 94413,
+      "sha256": "342dd46b001b2b42e5c8da213e83659bca90865fde0fcce9010a37f88e807194",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/legacy-p10a-account-desktop.png",
+      "bytes": 139452,
+      "sha256": "20329fb4e8e56bc7ba6fe1718520818cef273ac7ed0383a1dd96844d7a7a9333",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/legacy-p10a-account-mobile-name.png",
+      "bytes": 37400,
+      "sha256": "eedcf84abff57f9926f0e6b87ce3013b48c5a0cb2ba582bb45e382b2ec13e83a",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/legacy-p10a-account-mobile-settings.png",
+      "bytes": 92871,
+      "sha256": "800ab3d962507ec5396c37b69da7dbd7da8e81532383eb2bd671e3cee5d61c2c",
+      "content": "fixed_synthetic_fixture_only"
+    }
+  ],
+  "visual_review": "reviewed_by_root",
+  "homepage_verification": [
+    "Conditional New chat and compact same-node composer",
+    "Single bottom account entry and single advertised model chooser",
+    "Explicit owner-scoped project/chat menus and literal title search",
+    "Saved prompts remain accessible through the composer with bounded pagination",
+    "Late prompt use and native modal ancestry cannot restore hidden private state",
+    "Doubled text, narrow viewport, keyboard and reduced-motion journeys",
+    "All prior auth, CSRF, account isolation, cancellation, exact-value, Settings and Plotly gates retained"
+  ],
+  "release_gates": {
+    "required_pr_ci": "pending",
+    "merged_main_ci": "pending",
+    "production_verification": "pending",
+    "phase_complete_claimed": false
+  },
+  "limitations": [
+    "All browser/API/database rows and accounts are disposable synthetic fixtures.",
+    "No production backup/restore, real email, real analytical query or live AI provider was exercised.",
+    "Automated keyboard/AX/contrast checks are bounded evidence, not a complete assistive-technology audit.",
+    "No private records, tokens, raw responses, absolute workstation paths or credential files are included."
+  ]
+}

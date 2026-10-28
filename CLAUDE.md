@@ -2,28 +2,37 @@
 
 Instructions for coding agents working in this repository. Read this file before making changes.
 
-Latest verified checkpoint: P00 through P09 Settings are complete and deployed.
-P09 Settings merged as `05accec31da7d257ca5f1ffb7bd4897eac70d8b5` (PR #52,
-`Phase9 Settings`). Required PR and merged-main CI passed. The controlled
-October 28 21:58:59 UTC deployment passed on schema 5 without a migration,
-preserving database/volumes, environment, password/mail activation, private worker
-configuration and scheduler. Exact origin/public asset hashes and unauthenticated
-private-API denials passed; the public sign-in browser passed.
+Latest verified checkpoint: P00 through P09 are complete and deployed.
+The simplified homepage merged as `7c0caae8ac0d5fa1c74866bd898d317c1fc984ea`
+(PR #53, `Phase9 Homepage`). Both required CI runs passed all 29 steps. The
+October 28 23:10:19 UTC frontend-only release preserved the exact P09 backend,
+schema 5, private volumes/environment, authentication, mail worker and scheduler.
+All origin/public asset hashes and private API denials passed; the bounded
+public sign-in browser passed. See `docs/implementation/evidence/homepage/release.json`.
 
-The candidate verification covered 1,385 backend cases, 399 frontend tests, both
-builds and eight browser gates (per shell 103 synthetic, 39 real database,
-41 Settings and 37 Plotly checks). All 119 installed files were proved against
-the merged source. Portable records and reviewed synthetic screenshots are in
-`docs/implementation/P09_SETTINGS_PREFERENCES.md` and
-`docs/implementation/evidence/p09/release.json`.
+P10a adds display-name editing and explicit read-only methods/session reviews,
+separate from preference saves. The candidate passed 1,440 backend cases,
+455 frontend units, both builds and ten browser gates (568 checks), with all
+234 frontend inputs/nine assets bound and 26 screenshots reviewed. Runtime
+audits, actual synthetic restore, storage/proxy checks and resource cleanup
+passed. PR/main CI and the private schema-6 migration/release remain pending.
+Do not label P10 complete. P10b is being implemented separately; P11–P13 have
+not started. No public Google audience or analytical grant changes are authorized.
 
-The user requested an additional P09 homepage simplification: conditional New
-Chat, Projects/Recents navigation, an integrated conversation/composer, one
-bottom account menu and one composer model chooser. That separate supplement
-is under current-source verification; its earlier Settings evidence cannot
-satisfy its gates. P10a is being prepared in a separate local directory, and
-P10 remains incomplete. P11 through P13 have not started. Do not claim a phase
-complete until its required security, CI and release gates pass.
+### P10a account API (candidate; production remains P09 until verified release)
+
+`GET/PATCH /api/v1/me` expose the current verified app profile and display-name
+revision. PATCH accepts only `{expectedRevision, display_name}`, enforces
+Origin/CSRF and owner-scoped CAS; a conflict returns 409. Name normalization
+is NFC, single-line, 1–120 code points and at most 512 UTF-8 bytes, without
+control/format characters. Google sign-in no longer overwrites the app profile
+or primary email. `GET /api/v1/me/methods` and `GET /api/v1/me/sessions` are
+bounded read-only owner views without analytical grants or idle extension.
+Only profile-edit/method-list/session-list capabilities are available. No
+public proof issuer, password/email/link/revocation operation is enabled here.
+Private migration 0006 is additive; applied 0001–0005 are immutable. Code on
+schema 6 needs compatible forward recovery or maintenance, never a P09 image
+rollback. See `docs/implementation/P10A_ACCOUNT_FOUNDATION.md`.
 
 The user explicitly authorized direct server access and routine server updates
 after required checks pass. A dedicated key-backed Windows SSH alias,
