@@ -63,15 +63,10 @@ CI now runs actual P09 Settings checks for both shells, retains bounded syntheti
 reports/screenshots and tests explicit charts against a saved Table default.
 Changed-file source-policy checks passed. YAML parsing and all 20 Bash run-block
 syntax checks passed with existing action pins/permissions/concurrency preserved.
-Required GitHub PR/main CI has **not** run for this change.
+Required PR and merged-main CI subsequently passed; PR #52 merged as `05accec`.
 
 See [the phase record](implementation/P09_SETTINGS_PREFERENCES.md) for the
-requirement/evidence map and explicit unavailable capabilities. Implementation
-and isolated verification are ready for human review, uncommitted. This is a
-reviewable draft description; no PR has been created and P09 is not marked
-complete or deployed. Authorized Git operations, required PR/main CI and production
-verification remain release gates.
-No production deployment, production restore or live-provider/load test is claimed.
+requirement/evidence map and explicit unavailable capabilities. Settings is complete and deployed. The phase record includes exact release images, CI and controlled production verification. No production restore or live-provider/load benchmark is claimed.
 
 ## Compatibility and rollback
 

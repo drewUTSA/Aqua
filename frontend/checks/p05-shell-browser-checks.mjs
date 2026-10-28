@@ -37,9 +37,9 @@ export async function assertLoginDelivery(check) {
 
 export async function assertEssentialControls(check, label) {
   await check(label, `(()=>{
-    const selectors=['.opal-composer textarea','[aria-label="Send message"]','.workspace-header [aria-label="Account menu"]'];
+    const selectors=['.opal-composer textarea','[aria-label="Send message"]','[aria-label="Open navigation"],.opal-account [aria-label="Account menu"]'];
     return document.documentElement.scrollWidth<=innerWidth+1&&selectors.every(selector=>{
-      const el=document.querySelector(selector),rect=el?.getBoundingClientRect();
+      const el=[...document.querySelectorAll(selector)].find(item=>item.getClientRects().length&&!item.closest('[hidden],[inert]')),rect=el?.getBoundingClientRect();
       if(!rect||rect.width<=0||rect.height<=0||el.closest('[hidden],[inert]'))return false;
       if(rect.left<0||rect.right>innerWidth+1||rect.top<0||rect.bottom>innerHeight+1)return false;
       const top=document.elementFromPoint(rect.left+rect.width/2,rect.top+rect.height/2);
@@ -52,10 +52,10 @@ export async function captureControlBounds(evaluate) {
   // Keep diagnostic output numerical/structural: never serialize field values,
   // message text, account labels, cookies or tokens when an assertion fails.
   return evaluate(`(()=>{
-    const selectors=['.opal-composer textarea','[aria-label="Send message"]','.workspace-header [aria-label="Account menu"]'];
+    const selectors=['.opal-composer textarea','[aria-label="Send message"]','[aria-label="Open navigation"],.opal-account [aria-label="Account menu"]'];
     return {viewport:{width:innerWidth,height:innerHeight},page_width:document.documentElement.scrollWidth,
       controls:selectors.map(selector=>{
-        const el=document.querySelector(selector),rect=el?.getBoundingClientRect();
+        const el=[...document.querySelectorAll(selector)].find(item=>item.getClientRects().length&&!item.closest('[hidden],[inert]')),rect=el?.getBoundingClientRect();
         if(!rect)return {selector,exists:false};
         const top=document.elementFromPoint(rect.left+rect.width/2,rect.top+rect.height/2);
         return {selector,exists:true,left:rect.left,right:rect.right,top:rect.top,bottom:rect.bottom,

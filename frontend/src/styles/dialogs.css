@@ -1,0 +1,13 @@
+
+.preference-dialog button { min-height: 44px; max-width: 100%; font: inherit; }
+.preference-dialog button { border: 1px solid var(--settings-edge, #65676d); border-radius: .7rem; padding: .55rem .9rem; background: var(--pref-panel, #24262b); color: inherit; cursor: pointer; }
+.preference-dialog button:disabled { cursor: default; opacity: .6; }
+.preference-dialog :focus-visible { outline: 3px solid var(--pref-accent, #e1e2e6); outline-offset: 3px; }
+.settings-dialog-actions { display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; }
+.preference-dialog { max-width: min(42rem, calc(100vw - 2rem)); max-height: calc(100dvh - 2rem); overflow: auto; padding: clamp(1rem, 4vw, 2rem); border: 1px solid var(--settings-edge, #65676d); border-radius: 1rem; background: var(--pref-panel, #24262b); color: var(--pref-text, #eeeff2); line-height: 1.6; }
+.preference-dialog::backdrop { background: rgb(0 0 0 / .65); }
+.preference-dialog h2 { margin-top: 0; }
+.settings-dialog-actions { justify-content: flex-end; margin-top: 1.5rem; }
+@media (forced-colors: active) {
+  .preference-dialog, .preference-dialog button { border: 1px solid ButtonText; }
+}

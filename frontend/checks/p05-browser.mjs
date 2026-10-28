@@ -9,6 +9,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createHash } from "node:crypto";
 import { BrowserPipe } from "./p05-browser-pipe.mjs";
+import { accountAction, openAccount, recentsAction, openPrompts, closePrompts } from "./homepage-browser-actions.mjs";
+import { initialHomepageChecks, mobileHomepageChecks } from './homepage-browser-checks.mjs';
 import { workspaceJourneys, pendingWorkspaceJourney } from "./p06-browser-checks.mjs";
 import { analysisJourneys } from "./p07-browser-checks.mjs";
 import { makeFixture, GOOGLE_STUB, EMAIL_A, EMAIL_B, PASSWORD, VERIFY_PROOF, RESET_PROOF } from "./p05-browser-fixture.mjs";
@@ -33,7 +35,7 @@ const temporaryRoot = await realpath(tmpdir());
 const fixture = makeFixture();
 const results = [], screenshots = [], external = [], protocolFailures = [], performanceSamples = [], scrollObservations = [];
 const sessions = new Set(), fonts = [], transitions = new Set(), closingSessions = new Set();
-let browser, cdp, profile, server, sessionId, origin, deadline;
+let browser, cdp, profile, server, sessionId, origin, deadline, homepageMenuTextAudit=null;
 let requestCount = 0, staticRequests = 0, apiRequests = 0, consoleLeaks = 0, runtimeErrors = 0, canceledInterceptions = 0, cleanup = false;
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const escaped = (value) => JSON.stringify(value);
@@ -89,7 +91,7 @@ async function fill(selector, value) {
   await evaluate(`(()=>{const el=document.querySelector(${escaped(selector)});if(!el||el.disabled)throw Error('field_missing');el.focus();const proto=el.tagName==='TEXTAREA'?HTMLTextAreaElement.prototype:HTMLInputElement.prototype;Object.getOwnPropertyDescriptor(proto,'value').set.call(el,${escaped(value)});el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}));return true})()`);
 }
 async function key(key, modifiers = 0, text) {
-  const code = { Enter: 13, Escape: 27, Tab: 9, ArrowDown: 40, ArrowUp: 38 }[key];
+  const code = { Enter: 13, Escape: 27, Tab: 9, ArrowDown: 40, ArrowUp: 38, Home: 36, End: 35 }[key];
   await cdp.send("Input.dispatchKeyEvent", { type: "keyDown", key, code: key, windowsVirtualKeyCode: code, modifiers, ...(text ? { text } : {}) });
   await cdp.send("Input.dispatchKeyEvent", { type: "keyUp", key, code: key, windowsVirtualKeyCode: code, modifiers });
 }
@@ -135,8 +137,7 @@ async function legalRoundTrip(state) {
   assert.equal(fixture.securityCallCount(), requestsBefore, "legal_navigation_cannot_restart_auth_or_query");
 }
 async function menu(action) {
-  await click(".workspace-header [aria-label='Account menu']");
-  await clickText(action, "[role=menuitem]");
+  await accountAction({ evaluate, click, clickText, waitFor }, action);
 }
 async function proofSubmission() {
   await waitFor("Boolean(document.querySelector('#auth-password'))&&!document.querySelector('#auth-password').disabled", "proof_form_ready");
@@ -246,12 +247,13 @@ try {
   await assertShell(check);
   await check("password works during stalled Google configuration", "location.pathname==='/'&&Boolean(document.querySelector('.opal-workspace:not([hidden])'))");
   fixture.google = "ready"; await fixture.release("google");
+  await initialHomepageChecks({check,evaluate,click,clickText,key,fill,waitFor,cdp,screenshot},fixture);
   await workspaceJourneys({ check, click, clickText, fill, waitFor, evaluate, navigate, screenshot, fixture });
   await analysisJourneys({ check, click, clickText, fill, waitFor, evaluate, navigate, screenshot, fixture, viewport });
   await check("chat-only entry has complete composer and no empty visuals", "Boolean(document.querySelector('.opal-composer textarea'))&&Boolean(document.querySelector('[aria-label=\"Send message\"]'))&&!document.querySelector('[role=separator],.visual-pane,[aria-label=Visuals]')");
   await viewport(1440, 980); await screenshot("home-desktop-1440x980"); await captureFonts("workspace");
   performanceSamples.push(await capturePerformance(evaluate, "desktop-workspace"));
-  await click(".workspace-header [aria-label='Account menu']"); await key("Escape");
+  await openAccount({ evaluate, click, waitFor }); await key("Escape");
   await check("account menu Escape restores trigger focus", "!document.querySelector('[role=menu][aria-label=\"Your account\"]')&&document.activeElement.getAttribute('aria-label')==='Account menu'");
 
   const beforeIME = fixture.queryCount(); await fill(".opal-composer textarea", "Synthetic IME draft");
@@ -261,20 +263,23 @@ try {
   fixture.queryMessage = Array.from({ length: 24 }, (_, index) => `Synthetic paragraph ${index + 1}: this bounded answer contains only fixture values and helps verify reading position.`).join("\n\n");
   await key("Enter"); await waitFor("document.querySelector('.conversation')?.textContent.includes('Synthetic paragraph 24')", "query_answer");
   await fill(".opal-composer textarea", "Draft preserved through Settings");
-  const searchSelector = ".desktop-sidebar .sidebar-search input";
+  await recentsAction({ evaluate, click, clickText, waitFor }, 'Search chats');
+  await waitFor("Boolean(document.querySelector('dialog[open] .sidebar-search input'))", 'title_search_dialog_ready');
+  const searchSelector = "dialog[open] .sidebar-search input";
   const searchCalls = fixture.queryCount();
-  await check("saved chat-title search has an accessible bounded input", "(()=>{const input=document.querySelector('.desktop-sidebar .sidebar-search input');return input?.maxLength===80&&input.labels?.[0]?.textContent==='Search chat titles'})()");
+  await check("saved chat-title search has an accessible bounded input", "(()=>{const input=document.querySelector('dialog[open] .sidebar-search input');return input?.maxLength===80&&input.labels?.[0]?.textContent==='Search chat titles'})()");
   await fill(searchSelector, "Synthetic IME");
-  await click(".desktop-sidebar .sidebar-search button[type=submit]");
-  await waitFor("document.querySelector('.desktop-sidebar .sidebar-search__status').textContent.includes('1 chat matches')", "title_search_ready");
+  await click("dialog[open] .sidebar-search button[type=submit]");
+  await waitFor("document.querySelector('dialog[open] .sidebar-search__status').textContent.includes('1 chat matches')", "title_search_ready");
   await check("saved title search retains the matching conversation", "Boolean(document.querySelector('.desktop-sidebar button[aria-current=page]'))");
   await fill(searchSelector, "<img src=https://attacker.invalid/x onerror=alert(1)> $(rm -rf /)");
-  await click(".desktop-sidebar .sidebar-search button[type=submit]");
-  await waitFor("document.querySelector('.desktop-sidebar .sidebar-search__status').textContent.includes('0 chats match')", "hostile_title_search_ready");
-  await check("hostile search is literal and cannot select or submit a conversation", "document.querySelector('.desktop-sidebar .sidebar-search__status').textContent.includes('0 chats match')&&!document.querySelector('.desktop-sidebar button[aria-current=page]')&&document.querySelector('.opal-composer textarea').value==='Draft preserved through Settings'&&document.querySelector('.conversation').textContent.includes('Synthetic paragraph 24')&&window.__fixtureScriptExecuted===0");
-  await clickText("Clear chat search");
+  await click("dialog[open] .sidebar-search button[type=submit]");
+  await waitFor("document.querySelector('dialog[open] .sidebar-search__status').textContent.includes('0 chats match')", "hostile_title_search_ready");
+  await check("hostile search is literal and cannot select or submit a conversation", "document.querySelector('dialog[open] .sidebar-search__status').textContent.includes('0 chats match')&&!document.querySelector('.desktop-sidebar button[aria-current=page]')&&document.querySelector('.opal-composer textarea').value==='Draft preserved through Settings'&&document.querySelector('.conversation').textContent.includes('Synthetic paragraph 24')&&window.__fixtureScriptExecuted===0");
+  await clickText("Clear chat search",'dialog[open] button');
   await waitFor("Boolean(document.querySelector('.desktop-sidebar button[aria-current=page]'))", "clear_title_search_ready");
-  await check("clearing local search restores titles without losing the draft", "document.querySelector('.desktop-sidebar .sidebar-search input').value===''&&Boolean(document.querySelector('.desktop-sidebar button[aria-current=page]'))&&document.querySelector('.opal-composer textarea').value==='Draft preserved through Settings'");
+  await check("clearing local search restores titles without losing the draft", "document.querySelector('dialog[open] .sidebar-search input').value===''&&Boolean(document.querySelector('.desktop-sidebar button[aria-current=page]'))&&document.querySelector('.opal-composer textarea').value==='Draft preserved through Settings'");
+  await clickText('Close search', 'dialog[open] button');
   assert.equal(fixture.queryCount(), searchCalls, "title_search_never_runs_analysis");
   await evaluate("(()=>{const el=document.querySelector('.conversation__scroll');el.scrollTop=80;el.dispatchEvent(new Event('scroll'));return true})()");
   await evaluate("new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve(true))))");
@@ -385,12 +390,25 @@ try {
   const secondarySession = sessionId;
   await preparePage(); await viewport(1440, 980); await navigate("/");
   await waitFor("Boolean(document.querySelector('.opal-workspace:not([hidden])'))", "second_tab_workspace");
+  await openPrompts({click,clickText,waitFor});
+  await waitFor("Boolean(document.querySelector('[aria-label=\"Edit saved prompt Private P06 prompt renamed\"]'))",'second_tab_prompt_loaded');
+  fixture.holdPromptUse=true;
+  await click('.prompt-library-dialog .workspace-library-row > button:first-child');
+  await delay(80); assert.ok(fixture.held.some(item=>item.kind==='prompt-use'),'explicit_saved_prompt_use_held');
+  await closePrompts({click,clickText,waitFor});
   await fill(".opal-composer textarea", "Private account A second-tab draft");
+  fixture.holdPromptUse=false; await fixture.release('prompt-use');
+  await evaluate('new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve(true))))');
+  await check('homepage a late saved-prompt application cannot overwrite text after its dialog closes', "!document.querySelector('.prompt-library-dialog')&&document.querySelector('.opal-composer textarea').value==='Private account A second-tab draft'");
+  await openPrompts({click,clickText,waitFor}); await clickText('Save a prompt');
+  await fill('.workspace-editor input:not([type=checkbox])','Private unsaved second-tab prompt');
+  await waitFor('Boolean(document.querySelector(".prompt-library-dialog[open]"))&&Boolean(document.querySelector(".workspace-editor[open]"))','second_tab_nested_private_editor');
   sessionId = primarySession; await menu("Sign out");
   await waitFor("Boolean(document.querySelector('#auth-email'))&&!document.querySelector('.opal-workspace')", "primary_logout_complete");
   sessionId = secondarySession;
   await waitFor("Boolean(document.querySelector('#auth-email'))&&!document.querySelector('.opal-workspace')", "other_tab_logout_lock");
   await check("confirmed logout clears private state in the other real tab", "!document.body.textContent.includes('Private account A second-tab draft')");
+  await check('homepage cross-tab sign-out closes nested private dialogs and removes their unsaved fields', '!document.querySelector(".prompt-library-dialog,.workspace-editor[open]")&&!document.body.textContent.includes("Private unsaved second-tab prompt")');
   await signIn(EMAIL_B);
   sessionId = primarySession;
   await waitFor(`Boolean(document.querySelector('.opal-workspace:not([hidden])'))&&document.body.textContent.includes('Fixture Reader B')`, "other_tab_account_switch");
@@ -451,8 +469,8 @@ try {
   await screenshot("home-mobile-keyboard-height-390x420");
   await viewport(390, 844, true); await enlargeText(evaluate);
   await evaluate("document.querySelector('.opal-composer').scrollIntoView({block:'center'})");
-  await assertEssentialControls(check, "200 percent workspace text keeps composer and account menu visible and operable");
-  await click(".workspace-header [aria-label='Account menu']"); await clickText("Settings", "[role=menuitem]");
+  await assertEssentialControls(check, "200 percent workspace text keeps composer and navigation visible and operable");
+  await menu("Settings");
   await waitFor("Boolean(document.querySelector('#settings-heading'))", "enlarged_settings_reachable");
   await clickText("Back to workspace");
   await check("200 percent workspace text preserves draft across reachable Settings", "document.querySelector('.opal-composer textarea').value==='Draft with a small mobile viewport'");
@@ -468,6 +486,8 @@ try {
   await navigate("/"); await waitFor("Boolean(document.querySelector('.opal-workspace:not([hidden])'))", "active_text_reset");
   await viewport(320, 844, true); await screenshot("home-mobile-320-reflow");
   await check("320 CSS pixel home has no page overflow", "document.documentElement.scrollWidth<=innerWidth+1");
+  homepageMenuTextAudit={};const homepageMobileContext={check,click,clickText,fill,evaluate,key,waitFor,cdp,screenshot,homepageMenuTextAudit};
+  await mobileHomepageChecks(homepageMobileContext);
   await cdp.send("Emulation.setEmulatedMedia", { features: [{ name: "prefers-reduced-motion", value: "reduce" }, { name: "forced-colors", value: "active" }] });
   await screenshot("home-forced-colors-reduced-motion");
   await check("forced colors and reduced motion preserve essential controls", "matchMedia('(forced-colors: active)').matches&&matchMedia('(prefers-reduced-motion: reduce)').matches&&Boolean(document.querySelector('[aria-label=\"Send message\"]'))");
@@ -475,7 +495,7 @@ try {
     await cdp.send("Emulation.setEmulatedMedia", { features: [{ name: "forced-colors", value: "active" }, { name: "prefers-color-scheme", value: scheme }, { name: "prefers-reduced-motion", value: "reduce" }] });
     await fill(".opal-composer textarea", "Synthetic high-contrast draft");
     await check(`forced colors ${scheme} uses a visible arrow mask`, "(()=>{const icon=document.querySelector('.opal-send__contrast-icon'),button=icon.closest('button');const style=getComputedStyle(icon);return !button.disabled&&style.display!=='none'&&style.maskImage!=='none'&&style.backgroundColor!==getComputedStyle(button).backgroundColor})()");
-    await check(`forced colors ${scheme} keeps header action glyphs visible`, "['New chat','Account menu'].every(label=>{const button=document.querySelector('.workspace-header [aria-label=\"'+label+'\"]');const icon=button?.querySelector('.icon-contrast');if(!icon)return false;const style=getComputedStyle(icon);return style.display!=='none'&&style.maskImage!=='none'&&style.backgroundColor!==getComputedStyle(button).backgroundColor})");
+    await check(`forced colors ${scheme} keeps the single navigation entry visible`, "(()=>{const button=document.querySelector('.workspace-header [aria-label=\"Open navigation\"]'),icon=button?.querySelector('span,svg'),r=button?.getBoundingClientRect();if(!r||!icon)return false;const s=getComputedStyle(icon);return r.width>=24&&r.height>=24&&s.display!=='none'&&s.color!=='transparent'&&s.color!==getComputedStyle(button).backgroundColor})()");
     await screenshot(`home-forced-colors-${scheme}-enabled`);
     await fill(".opal-composer textarea", "");
     await check(`forced colors ${scheme} preserves disabled arrow contrast`, "(()=>{const icon=document.querySelector('.opal-send__contrast-icon'),button=icon.closest('button');return button.disabled&&getComputedStyle(icon).maskImage!=='none'&&getComputedStyle(icon).backgroundColor!==getComputedStyle(button).backgroundColor})()");
@@ -519,7 +539,7 @@ try {
 }
 if (!failure && protocolFailures.length) failure = "interception_failure";
 const report = { status: failure ? "failed" : "passed", failure, failureLayout, checked_utc: new Date().toISOString(),
-  mode: "production_build_synthetic_api_browser", expected_shell: EXPECTED_SHELL, browser_diagnostic: failureDiagnostic ?? cdp?.diagnostic ?? null, loadedAssets, results, screenshots, performanceSamples,
+  mode: "production_build_synthetic_api_browser", expected_shell: EXPECTED_SHELL, browser_diagnostic: failureDiagnostic ?? cdp?.diagnostic ?? null, homepage_menu_text_audit:homepageMenuTextAudit, loadedAssets, results, screenshots, performanceSamples,
   limits: { maximum_seconds: MAX_MS / 1000, maximum_requests: MAX_REQUESTS, maximum_api_requests: MAX_API },
   observations: { requestCount, staticRequests, apiRequests, external_attempts: external.length, consoleLeaks, runtimeErrors, forbidden_api_calls: fixture.forbiddenCalls, protocolFailures, canceledInterceptions, scrollObservations },
   cleanup: cleanup ? "browser_stopped_loopback_closed_temporary_profile_removed" : "failed",

@@ -3,6 +3,7 @@ import { writeFile, mkdir } from "node:fs/promises";
 import path from "node:path";
 import { openP08Browser, LIMITS } from "./p08-browser-environment.mjs";
 import { runVisualChecks } from "./p08-browser-checks.mjs";
+import { assertLoginDelivery } from './p05-shell-browser-checks.mjs';
 import { prepareVisualPreference, visualPreferenceMode } from "./p09-visual-preference-checks.mjs";
 const EMAIL = "p05-browser-reader@example.test", PASSWORD = "Synthetic orbital meadow password 27";
 const preferenceMode = visualPreferenceMode();
@@ -15,7 +16,7 @@ try {
   const proof = mail.proof; if (mail.found !== true || typeof proof !== "string" || !/^[A-Za-z0-9_-]{43}$/.test(proof)) throw Error("synthetic_proof_invalid"); ctx.secrets.add(proof);
   await ctx.navigate(`/verify-email#token=${proof}`); await ctx.fill("#auth-password", PASSWORD); await ctx.fill("#auth-password-confirm", PASSWORD);
   await ctx.click("[data-testid=password-auth-submit]"); await ctx.waitFor("document.querySelector('h1')?.textContent==='Your account is ready'", "verified_synthetic_account");
-  await ctx.navigate("/signin"); await ctx.fill("#auth-email", EMAIL); await ctx.fill("#auth-password", PASSWORD); await ctx.click("[data-testid=password-auth-submit]");
+  await ctx.navigate("/signin"); await assertLoginDelivery(ctx.check); await ctx.fill("#auth-email", EMAIL); await ctx.fill("#auth-password", PASSWORD); await ctx.click("[data-testid=password-auth-submit]");
   await ctx.waitFor("Boolean(document.querySelector('.opal-workspace'))", "password_session_ready");
   const me = await ctx.rawRequest("GET", "/api/auth/me");
   if (me.status !== 200 || JSON.parse(me.body).can_query !== false) throw Error("initial_grant_boundary_invalid");

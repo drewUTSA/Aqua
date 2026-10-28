@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { startBlankChat } from './homepage-browser-actions.mjs';
 
 export async function analysisJourneys({ check, click, clickText, fill, waitFor, evaluate, navigate, screenshot, fixture, viewport }) {
   const latest = () => [...fixture.analysisRequests.keys()].at(-1);
@@ -7,7 +8,7 @@ export async function analysisJourneys({ check, click, clickText, fill, waitFor,
   const state = (value) => `document.querySelector('.analysis-status')?.dataset.analysisState===${JSON.stringify(value)}`;
   const stage = (value) => `document.querySelector('.analysis-status')?.dataset.analysisStage===${JSON.stringify(value)}`;
   const revalidate = () => evaluate("(()=>{const channel=new BroadcastChannel('aqua-session-events');channel.postMessage({type:'changed'});channel.close();return true})()");
-  const begin = async (question) => { await clickText("New chat"); await fill(".opal-composer textarea", question); await click("[aria-label='Send message']"); await waitFor(state("queued"), "p07_saved_queued"); return latest(); };
+  const begin = async (question) => { await startBlankChat({ check, click, clickText, evaluate, waitFor }); await fill(".opal-composer textarea", question); await click("[aria-label='Send message']"); await waitFor(state("queued"), "p07_saved_queued"); return latest(); };
   const count = fixture.queryCount();
   const id = await begin("P07 live progress and cancellation");
   await waitFixture(() => fixture.analysisRequests.get(id).streams.size === 1, "p07_stream_open_before_progress");

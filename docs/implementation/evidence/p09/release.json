@@ -1,0 +1,127 @@
+{
+  "version": 1,
+  "phase": "P09 Settings",
+  "status": "complete_and_deployed",
+  "commit": "05accec31da7d257ca5f1ffb7bd4897eac70d8b5",
+  "pull_request": "https://github.com/drewUTSA/Aqua/pull/52",
+  "ci": {
+    "pull_request": {
+      "run": 40773039197,
+      "status": "passed"
+    },
+    "main": {
+      "run": 40774686721,
+      "status": "passed"
+    }
+  },
+  "deployment": {
+    "activation_and_environment_preserved": true,
+    "authenticated_request": false,
+    "backend_image": "sha256:5ff0cb141a3399f95458cc20fcadfbe66577e750702fd74ba6238716d7c99897",
+    "checked_utc": "2026-10-28T21:58:59.753094+00:00",
+    "commit": "05accec31da7d257ca5f1ffb7bd4897eac70d8b5",
+    "database_identity_and_volumes_preserved": true,
+    "exact_images_healthy": true,
+    "frontend_image": "sha256:3a43d6ce99d4bf684f977ac8c9dbdb1e99d8a78ec78f306cf3c4c540f0a8c49c",
+    "index_html_transform": {
+      "kind": "cloudflare_web_analytics_beacon",
+      "origin_sha256": "ee712d314241563b4794fce566bc589d4205ef56e3e1f9b5074f25dfa06b9cfd",
+      "pinned_script_sha256": "2765a11d900a367f5d9d2bb378ddeef7eb25852fe48aa9b2bbd2824f9cb7a284",
+      "public_sha256": "8d0db8f4e2c6f9ee0a72b99db86708d60aa0acc3225dfb95914b5539334d280d",
+      "removed_bytes": 367,
+      "script_count": 1,
+      "verified_public_origin_sha256": "ee712d314241563b4794fce566bc589d4205ef56e3e1f9b5074f25dfa06b9cfd"
+    },
+    "migration": "none",
+    "nginx_source_matches": true,
+    "origin_asset_hashes": {
+      "assets/AQUA_V2_Final_static-cJJYBiOn.svg": "a610bf95498d5bbc765cf49879bc98ee9a33f385cdf88452622a6871ae825648",
+      "assets/index-CWgYAHmc.css": "eb4e0cfb2ac33918f2740ffdb4da847465a1c4e05f275b605d8957547b5d30c3",
+      "assets/index-Cf3kY1oB.js": "6e8136127bdc8df964a81624d86b3375d41a2f02ace46e70d3de9be312319358",
+      "assets/plotly-basic.min-CBfOoNid.js": "396b459df2df0536bb063e6d01ff8473f6b0995a6391c3ad3b1d2f6509a2d21c",
+      "index.html": "ee712d314241563b4794fce566bc589d4205ef56e3e1f9b5074f25dfa06b9cfd"
+    },
+    "production_changed": true,
+    "provider_key_absent_from_web": true,
+    "provider_or_analytical_request": false,
+    "public_asset_bytes": 3958756,
+    "public_asset_hashes": {
+      "assets/AQUA_V2_Final_static-cJJYBiOn.svg": "a610bf95498d5bbc765cf49879bc98ee9a33f385cdf88452622a6871ae825648",
+      "assets/index-CWgYAHmc.css": "eb4e0cfb2ac33918f2740ffdb4da847465a1c4e05f275b605d8957547b5d30c3",
+      "assets/index-Cf3kY1oB.js": "6e8136127bdc8df964a81624d86b3375d41a2f02ace46e70d3de9be312319358",
+      "assets/plotly-basic.min-CBfOoNid.js": "396b459df2df0536bb063e6d01ff8473f6b0995a6391c3ad3b1d2f6509a2d21c",
+      "index.html": "8d0db8f4e2c6f9ee0a72b99db86708d60aa0acc3225dfb95914b5539334d280d"
+    },
+    "public_statuses": {
+      "/": 200,
+      "/api/auth/me": 401,
+      "/api/health": 200,
+      "/api/ready": 404,
+      "/api/v1/analysis-requests/00000000-0000-4000-8000-000000000001": 401,
+      "/api/v1/analysis-requests/00000000-0000-4000-8000-000000000001/events": 401,
+      "/api/v1/chats": 401,
+      "/api/v1/me/preferences": 401,
+      "/signin": 200
+    },
+    "rollback": "not_needed",
+    "scheduler_unchanged": true,
+    "schema_version": 5,
+    "status": "passed",
+    "worker_private_file_unchanged": true
+  },
+  "public_browser": {
+    "status": "passed",
+    "authenticated_account_used": false,
+    "title": "Welcome back | AQUA",
+    "password_enabled": true,
+    "email_enabled": true,
+    "registration_link": true,
+    "recovery_link": true,
+    "assets": [
+      "/assets/index-Cf3kY1oB.js",
+      "/assets/index-CWgYAHmc.css"
+    ],
+    "chart_engine_requested_at_signin": false,
+    "browser_cleanup": true,
+    "profile_removed": true
+  },
+  "image_proofs": {
+    "opal": {
+      "status": "passed",
+      "name": "aqua-p09-public-assets-9ff230ce3d30a7224f85f514",
+      "network": "none",
+      "image_id": "sha256:3a43d6ce99d4bf684f977ac8c9dbdb1e99d8a78ec78f306cf3c4c540f0a8c49c",
+      "shell": "opal",
+      "assets": 5,
+      "full_asset_set_equal": true,
+      "nginx_sha256": "95684a18a181778ea37da9d364568ede5112eb4aa8c7071a725dbec7f7095f8f",
+      "manifest_sha256": "0fd612c2abc77924a4f9217daa01aa28587979f6c8ef3c6e6694d5c86dd88007",
+      "cleanup": "removed_and_absence_confirmed"
+    },
+    "legacy": {
+      "status": "passed",
+      "name": "aqua-p09-public-assets-a860dfc77e201754365db8b1",
+      "network": "none",
+      "image_id": "sha256:66a91eeab5cffeb74b779d48590bbde0aa7af9d585ce67db1bac53881007c1da",
+      "shell": "legacy",
+      "assets": 5,
+      "full_asset_set_equal": true,
+      "nginx_sha256": "95684a18a181778ea37da9d364568ede5112eb4aa8c7071a725dbec7f7095f8f",
+      "manifest_sha256": "a6384235800eabcfde7307df7582c0fa3e447125adfbbe0918c65ad6bb9ae9e8",
+      "cleanup": "removed_and_absence_confirmed"
+    }
+  },
+  "helper_review": {
+    "independent_review": "passed_after_evidence_failure_fix",
+    "linux_black": "passed_9_files",
+    "linux_ruff": "passed",
+    "offline_scenarios": 20,
+    "public_html_cases": 12,
+    "real_commands_in_mocked_cases": 0,
+    "real_http_in_mocked_cases": 0
+  },
+  "limitations": [
+    "No authenticated production account, provider/analytical request, load benchmark or production restore used.",
+    "Homepage changes are a separate P09 supplement and are not included in this Settings release."
+  ]
+}

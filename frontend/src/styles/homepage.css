@@ -1,0 +1,83 @@
+/* One continuous conversation surface. Only the user's message and composer
+   need a surface; answers share the canvas and retain their own data controls. */
+.opal-workspace[data-theme] { --reading-width: 820px; gap: 16px; }
+.opal-workspace[data-width="focused"] { --reading-width: 680px; }
+.opal-workspace[data-width="wide"] { --reading-width: 1100px; }
+.opal-workspace[data-theme] .workspace-header { min-height: 48px; padding-inline: 12px; }
+.opal-workspace[data-theme] .breadcrumb { flex: 1; font-size: .875em; }
+.opal-workspace[data-theme] .data-badge { margin-left: auto; }
+.opal-workspace[data-theme] .opal-chat { gap: 24px; padding: 24px clamp(8px, 2vw, 28px) 12px; }
+.opal-workspace[data-theme] .opal-welcome { flex: 0 0 auto; max-width: var(--reading-width); margin: 0; padding: 0; }
+.opal-workspace[data-theme] .opal-welcome h1 { margin: 0; }
+.opal-workspace[data-theme] .opal-welcome p { margin-top: 12px; }
+.opal-workspace[data-theme] .opal-welcome > img { width: 32px; height: 40px; margin: 0 auto 16px; }
+.opal-workspace[data-ui-shell="legacy"] .opal-welcome > img { width: min(240px, 65%); height: 100px; }
+.opal-workspace[data-theme] .opal-composer-wrap { width: min(100%, var(--reading-width)); max-width: var(--reading-width); margin: 0; }
+.opal-workspace[data-theme] .opal-composer { border-radius: 22px; padding: 18px; background: var(--pref-panel); border-color: var(--pref-border); box-shadow: none; transition: border-color 160ms ease, background-color 160ms ease, padding 220ms ease; }
+.opal-workspace[data-theme] .opal-composer textarea { min-height: 28px; max-height: min(220px, 32dvh); resize: none; line-height: 1.65; overflow-y: auto; }
+.opal-workspace[data-theme] .opal-composer__toolbar { gap: 6px; min-width: 0; margin-top: 8px; }
+.opal-composer__toolbar .model-selector { flex: 0 1 auto; min-width: 0; max-width: calc(100% - 106px); }
+.opal-composer__toolbar .model-selector .model-selector__trigger { max-width: 100%; }
+.opal-workspace[data-theme] .composer-prompts { display: grid; place-items: center; flex: 0 0 44px; width: 44px; height: 44px; padding: 11px; border: 0; border-radius: 12px; background: transparent; color: var(--pref-muted); cursor: pointer; transition: color 150ms ease, background-color 150ms ease; }
+.composer-prompts svg { width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linejoin: round; }
+.opal-workspace[data-theme] .composer-prompts:hover { color: var(--pref-text); background: var(--pref-raised); }
+.opal-workspace[data-theme] .opal-send { margin-left: auto; border-radius: 50%; transition: opacity 150ms ease, transform 150ms ease; }
+.opal-workspace[data-theme] .opal-send:active:enabled { transform: scale(.94); }
+.opal-workspace[data-theme] .composer-hint { margin: 6px 4px 0; font-size: calc(.6875rem * var(--pref-text-scale, 1)); }
+.opal-workspace[data-theme] .opal-disclaimer { margin: 0; padding: 0; font-size: calc(.6875rem * var(--pref-text-scale, 1)); }
+.opal-workspace[data-theme] .opal-chat--active { justify-content: flex-start; gap: 8px; overflow: hidden; padding-top: 0; }
+.opal-workspace[data-theme] .opal-chat--active .opal-composer { padding: 12px 16px; }
+.opal-workspace[data-theme] .opal-chat--active .conversation { width: 100%; max-width: none; min-height: 0; flex: 1 1 80px; margin: 0; }
+.opal-workspace[data-theme] .conversation__scroll { overflow-x: hidden; scrollbar-gutter: stable; }
+.opal-workspace[data-theme] .conversation__messages { width: min(100%, var(--reading-width)); padding: 16px 6px 24px; gap: 28px; }
+.opal-workspace[data-theme] .message__bubble--aqua { width: 100%; max-width: 100%; padding: 8px 0; border: 0; border-radius: 0; box-shadow: none; background: transparent; }
+.opal-workspace[data-theme] .message__bubble--user { max-width: 88%; padding: 12px 18px; border: 0; border-radius: 20px; box-shadow: none; background: var(--pref-raised); }
+.opal-workspace[data-theme] .markdown-response { max-width: none; }
+.opal-workspace[data-theme] :is(.markdown-response h1,.markdown-response h2,.markdown-response h3,.financial-table__heading h3) { color: var(--pref-text); }
+.opal-workspace[data-theme] .sort-button span { color: var(--pref-muted); }
+.opal-workspace[data-theme] .error-card .text-action { color: var(--pref-danger); }
+.opal-workspace[data-theme] ::selection { color: var(--pref-on-accent); background: var(--pref-accent); }
+.opal-workspace[data-theme] .workspace-history-controls { flex: 0 0 auto; width: min(100%, var(--reading-width)); margin: 0; gap: 8px; min-height: 44px; }
+.workspace-history-controls .conversation-actions { margin-left: auto; order: 3; }
+.opal-workspace[data-theme] .conversation-actions > button { width: 44px; height: 44px; padding: 0; border: 0; border-radius: 12px; background: transparent; color: var(--pref-muted); font-size: 24px; cursor: pointer; }
+.opal-workspace[data-theme] .conversation-actions > button:hover { background: var(--pref-raised); color: var(--pref-text); }
+.conversation-actions [role="menu"] { padding: 6px; border: 1px solid var(--pref-border); border-radius: 14px; background: var(--pref-panel); color: var(--pref-text); box-shadow: 0 10px 32px #0003; overflow: auto; }
+.conversation-actions [role="menuitem"] { width: 100%; min-height: 44px; padding: 10px 12px; border: 0; border-radius: 8px; background: transparent; color: inherit; text-align: left; cursor: pointer; }
+.conversation-actions [role="menuitem"]:hover { background: var(--pref-raised); }
+.opal-workspace[data-theme] .analysis-status { flex: 0 0 auto; width: min(100%, var(--reading-width)); margin: 0; padding: 8px 12px; border-color: var(--pref-border); }
+.opal-workspace[data-theme] .analysis-status[data-analysis-state="complete"] { border: 0; padding: 0 4px; color: var(--pref-muted); font-size: .75em; }
+.opal-workspace[data-theme] .workspace-request-notice { width: min(100%, var(--reading-width)); margin: 0; background: var(--pref-panel); color: var(--pref-text); border-color: var(--pref-border); }
+.prompt-library-dialog { width: min(560px, calc(100vw - 24px)); }
+.prompt-library-dialog section + section { margin-top: 24px; border-top: 1px solid var(--pref-border); padding-top: 16px; }
+.prompt-library-dialog section > h2 { font-size: 1rem; }
+.prompt-library-dialog section > button, .prompt-library-dialog .workspace-library-row { margin-top: 8px; }
+.prompt-library-dialog .workspace-library-row > button:first-child { flex: 1; min-width: 0; text-align: left; overflow-wrap: anywhere; }
+.prompt-library-dialog .workspace-library-row > button:last-child { flex: 0 0 auto; }
+.prompt-library-dialog button { min-height: 44px; }
+.prompt-library-close { display: block; margin: 20px 0 0 auto; }
+.opal-workspace [popover]:popover-open { animation: homepage-menu-in 140ms ease-out both; }
+.opal-workspace :is([role="menu"] button,.refined-sidebar button,.model-selector__trigger,.account-menu__trigger) { transition: background-color 140ms ease, color 140ms ease, opacity 140ms ease; }
+.opal-workspace :is(.refined-section-content,.settings-page) { animation: homepage-content-in 180ms ease-out both; }
+@keyframes homepage-menu-in { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes homepage-content-in { from { opacity: .35; } to { opacity: 1; } }
+@media (max-width: 900px) {
+  .opal-workspace[data-theme] .workspace-header { padding: 0; }
+  .opal-workspace[data-theme] .opal-chat { padding: 20px 0 8px; }
+  .opal-workspace[data-theme] .opal-chat--active { padding-top: 0; }
+  .opal-workspace[data-theme] .opal-welcome h1 { max-width: none; line-height: 1.35; }
+  .opal-workspace[data-theme] .conversation__messages { padding-inline: 2px; }
+  .opal-workspace[data-theme] .opal-composer { padding: 14px; }
+  .opal-workspace[data-theme] .opal-chat--active .opal-composer { padding: 10px 12px; }
+}
+@media (max-height: 600px) {
+  .opal-workspace[data-theme] .opal-chat:not(.opal-chat--active) { justify-content: flex-start; gap: 12px; }
+  .opal-workspace[data-theme] .opal-welcome > img { display: none; }
+  .opal-workspace[data-theme] .opal-welcome h1 { font-size: 1.4em; }
+  .opal-workspace[data-theme] .opal-welcome p { margin-top: 8px; }
+}
+/* The visual pane can occupy the reading area; keep the same composer alive. */
+.opal-workspace[data-theme] .opal-chat--visual-hidden { flex: 0 0 auto; height: auto; justify-content: flex-end; overflow: visible; gap: 0; padding-block: 4px; }
+@media (forced-colors: active) {
+  .opal-workspace[data-theme] .message__bubble--aqua { border: 0; }
+  .opal-workspace[data-theme] .message__bubble--user, .conversation-actions [role="menu"] { border: 1px solid CanvasText; }
+}

@@ -58,7 +58,7 @@ export function makeFixture() {
       workspace ||= workspaceFixture(this);
       if (await workspace({ url, method: request.method, body, headers }, reply)) return;
       if (url.pathname === "/api/auth/me" && request.method === "GET") return this.email ? reply(200, this.session()) : reply(401, {});
-      if (url.pathname === "/api/models" && request.method === "GET") return reply(200, { models: [{ id: "fixture-model", name: "Fixture model" }] });
+      if (url.pathname === "/api/models" && request.method === "GET") return reply(200, { models: [{ id: "fixture-model", name: "Fixture model" }, { id: "fixture-model-next", name: "Fixture next model" }] });
       if (url.pathname === "/api/auth/config" && request.method === "GET") {
         const finish = () => reply(this.google === "error" ? 503 : 200, this.google === "error" ? { detail: "private-server" } : {
           client_id: "fixture.apps.googleusercontent.com", nonce: "fixture-google-nonce", csrf_token: "fixture-google-csrf",

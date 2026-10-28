@@ -15,7 +15,7 @@ async function jsxModule(url) {
   const replacements = new Map();
   for (const match of code.matchAll(/from\s+["']([^"']+)["']/g)) {
     const specifier = match[1];
-    replacements.set(specifier, specifier === "react" ? import.meta.resolve("react")
+    replacements.set(specifier, !specifier.startsWith(".") ? import.meta.resolve(specifier)
       : specifier.endsWith(".jsx") ? await jsxModule(new URL(specifier, url))
         : specifier.endsWith(".svg") ? "data:text/javascript;base64," + Buffer.from(`export default ${JSON.stringify(new URL(specifier, url).href)}`).toString("base64")
           : new URL(specifier, url).href);
@@ -44,30 +44,36 @@ test("provider context keeps absent undo data distinct from its callable draft o
   }
   assert.match(renderToStaticMarkup(React.createElement(PreferencesProvider, { auth }, React.createElement(Probe))), /pearl/);
 });
-function sidebar(sections) {
+function sidebar(sections, showNewChat = false, drafts = [{ id: "draft", title: "Unsent", draft: "Private unsent text" }]) {
   const chat = { durable: true, faqs: [{ id: "starter", title: "Starter title", prompt: "Synthetic starter" }],
-    drafts: [{ id: "draft", title: "Unsent" }], conversations: [{ id: "recent", title: "Saved title", messageCount: 1 }],
+    drafts, conversations: [{ id: "recent", title: "Saved title", messageCount: 1 }],
     filters: { search: "", archived: false, projectId: null }, chats: { loading: false }, activeConversationId: "draft",
     prompts: { items: [{ id: "prompt", label: "Saved prompt title", prompt: "Synthetic saved prompt" }], loading: false },
     projects: { items: [{ id: "project", name: "Project title" }], loading: false } };
-  return renderToStaticMarkup(React.createElement(OpalSidebar, { chat, auth, preferences: { sidebar_sections: sections, recents_count: 10 },
+  return renderToStaticMarkup(React.createElement(OpalSidebar, { chat, auth, showNewChat, preferences: { sidebar_sections: sections, recents_count: 10 },
     onNewChat() {}, onSelect() {}, onPrompt() {}, onNavigate() {}, onClose() {} }));
 }
-const headings = (html) => [...html.matchAll(/<h2[^>]*>([\s\S]*?)<\/h2>/g)].map((match) => match[1].replace(/<[^>]+>/g, ""));
+const headings = (html) => [...html.matchAll(/<h2[^>]*>([\s\S]*?)<\/h2>/g)].map((match) => match[1].replace(/<span[^>]*aria-hidden="true"[^>]*>[\s\S]*?<\/span>/g, "").replace(/<[^>]+>/g, ""));
 test("actual sidebar DOM reading and keyboard sequence follow saved optional section order", () => {
   const variants = [
-    [["projects", "recents", "prompts"], ["Drafts in this visit", "Projects", "Recent chats", "Starter questions", "Saved prompts"]],
-    [["prompts", "projects", "recents"], ["Drafts in this visit", "Starter questions", "Saved prompts", "Projects", "Recent chats"]],
-    [["recents", "prompts", "projects"], ["Drafts in this visit", "Recent chats", "Starter questions", "Saved prompts", "Projects"]]
+    [["projects", "recents", "prompts"], ["Projects", "Recents"]],
+    [["prompts", "projects", "recents"], ["Projects", "Recents"]],
+    [["recents", "prompts", "projects"], ["Recents", "Projects"]]
   ];
   for (const [order, expected] of variants) {
     const html = sidebar(order); assert.deepEqual(headings(html), expected);
     assert.doesNotMatch(html, /style="order:/); assert.doesNotMatch(html, /tabindex="[1-9]/);
   }
 });
-test("hiding optional sidebar sections retains unsent drafts, New Chat and account access", () => {
-  const html = sidebar([]); assert.deepEqual(headings(html), ["Drafts in this visit"]);
-  assert.match(html, /New chat/); assert.match(html, /aria-label="Account menu"/); assert.match(html, /Draft · Unsent/);
+test("hiding sidebar lists retains contextual recovery and the single account entry without standing draft or prompt sections", () => {
+  const html = sidebar([]); assert.deepEqual(headings(html), ["Recents"]);
+  assert.match(html, /aria-label="Recents actions"/); assert.equal((html.match(/aria-label="Account menu"/g) || []).length, 1);
+  assert.doesNotMatch(html, /Drafts in this visit|Starter questions|Saved prompts|Private unsent text/);
   assert.doesNotMatch(html, /Private projects|Private saved prompts|Starter title|Saved title/);
-  assert.deepEqual(headings(sidebar(["projects"])), ["Drafts in this visit", "Projects"]);
+  assert.deepEqual(headings(sidebar(["projects"], false, [])), ["Projects"]);
+  assert.deepEqual(headings(sidebar([], false, [])), []);
+});
+test("the sidebar New Chat action appears only when the active conversation has started", () => {
+  assert.doesNotMatch(sidebar(["projects", "recents"], false), /class="new-chat refined-new-chat"/);
+  assert.match(sidebar(["projects", "recents"], true), /class="new-chat refined-new-chat"/);
 });

@@ -4,6 +4,7 @@ import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import { FixtureBridge } from "./p05-browser-bridge.mjs";
 import { BrowserPipe } from "./p05-browser-pipe.mjs";
+import { accountAction } from "./homepage-browser-actions.mjs";
 import { actualPersonalWorkspace, foreignPersonalWorkspace } from "./p06-real-browser-checks.mjs";
 import { actualAnalysisWorkspace } from "./p06-analysis-browser-checks.mjs";
 import { createServer } from "node:http";
@@ -39,7 +40,7 @@ const proofValues = [], browserErrors = [], protocolErrors = [];
 const sensitiveValues = new Set([PASSWORD, NEXT_PASSWORD]);
 const apiOutcomes = [];
 const abortedNetworkRequests = new Set();
-let browser, bridge, cdp, profile, server, origin, sessionId, deadline, failure = null, failureDiagnostic = null, firstAccountWorkspace = null;
+let browser, bridge, cdp, profile, server, origin, sessionId, deadline, failure = null, failureDiagnostic = null, firstAccountWorkspace = null, currentStep='setup', failureStep=null;
 let requests = 0, apiRequests = 0, external = 0, consoleLeaks = 0, bridgeCleanup = null;
 let navigating = false, canceled = 0, staticCount = 0, fixtureClockSteps = 0, analysisClockSteps = 0;
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -51,11 +52,12 @@ async function evaluate(expression) {
   return value.result.value;
 }
 async function waitFor(expression, label, ms = 15000) {
+  currentStep=label;
   const until = performance.now() + ms;
   while (performance.now() < until) { if (await evaluate(expression)) return; await delay(40); }
   throw new Error(`condition_failed:${label}`);
 }
-async function check(label, expression) { assert.equal(await evaluate(expression), true, label); results.push({ check: label, passed: true }); }
+async function check(label, expression) { currentStep=label;assert.equal(await evaluate(expression), true, label); results.push({ check: label, passed: true }); }
 async function navigate(route) {
   navigating = true;
   try {
@@ -65,12 +67,15 @@ async function navigate(route) {
   } finally { navigating = false; }
 }
 async function fill(selector, value) {
+  currentStep='fill_control';
   await evaluate(`(()=>{const el=document.querySelector(${quote(selector)});if(!el||el.disabled)throw Error();el.focus();const prototype=el instanceof HTMLTextAreaElement?HTMLTextAreaElement.prototype:HTMLInputElement.prototype;Object.getOwnPropertyDescriptor(prototype,'value').set.call(el,${quote(value)});el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}));return true})()`);
 }
 async function click(selector) {
+  currentStep='click_control';
   await evaluate(`(()=>{const el=[...document.querySelectorAll(${quote(selector)})].find(el=>el.getClientRects().length&&!el.closest('[hidden],[inert]'));if(!el||el.disabled)throw Error();el.focus();el.click();return true})()`);
 }
 async function clickText(text, selector = "button,a") {
+  currentStep='click_named_control';
   await evaluate(`(()=>{const el=[...document.querySelectorAll(${quote(selector)})].find(el=>el.getClientRects().length&&!el.closest('[hidden],[inert]')&&el.textContent.trim()===${quote(text)});if(!el||el.disabled)throw Error();el.focus();el.click();return true})()`);
 }
 async function screenshot(name) {
@@ -85,7 +90,7 @@ async function signIn(password = PASSWORD) {
   assert.equal(await evaluate("document.querySelector('.opal-workspace').dataset.uiShell"), EXPECTED_SHELL, "real_authenticated_shell_must_match_operator_build");
 }
 async function logout() {
-  await click(".workspace-header [aria-label='Account menu']"); await clickText("Sign out", "[role=menuitem]");
+  await accountAction({ evaluate, click, clickText, waitFor }, 'Sign out');
   await waitFor("Boolean(document.querySelector('#auth-email'))&&!document.querySelector('.opal-workspace')", "logout_confirmed");
 }
 async function submitProof(password) {
@@ -217,7 +222,7 @@ try {
   if (analysisFixture) firstAccountWorkspace.chatId = await actualAnalysisWorkspace({ check, click, clickText, fill, waitFor, evaluate, navigate, rawRequest, bridge, screenshot, csrf: session.csrf_token,
     recoverAnalysisRates: async () => { await bridge.send("workspace_recover_analysis_rate"); analysisClockSteps++; },
     queryCount: () => apiOutcomes.filter((call) => call.method === "POST" && /^\/api\/v1\/chats(?:\/[^/]+\/messages(?:\/[^/]+\/retries)?)?$/.test(call.path)).length });
-  await click(".workspace-header [aria-label='Account menu']"); await clickText("Settings", "[role=menuitem]");
+  await accountAction({ evaluate, click, clickText, waitFor }, 'Settings');
   await check("actual signed-in account can reach its own Settings", `document.querySelector('.settings-shell').textContent.includes(${quote(EMAIL)})`);
   await screenshot("actual-password-account-settings"); await clickText("Back to workspace");
   await logout(); assert.equal((await rawRequest("GET", "/api/auth/me")).status, 401, "actual_logout_revokes_session");
@@ -296,6 +301,7 @@ try {
   results.push({ check: "actual browser/API journeys use bounded local traffic without provider calls", passed: true });
   await writeFile(path.join(artifacts, "browser-version.json"), JSON.stringify({ browser: version.product }, null, 2) + "\n");
 } catch (error) {
+  failureStep=/^[A-Za-z0-9 _.,:&()-]{1,180}$/.test(currentStep)?currentStep:'unclassified_step';
   failure = error instanceof assert.AssertionError ? error.message.split("\n")[0] : String(error.message || "real_browser_gate_failed");
   failureDiagnostic = error.browserDiagnostic ?? cdp?.diagnostic ?? null;
   if (sessionId) await screenshot("failure-current-view").catch(() => {});
@@ -327,7 +333,7 @@ const backendReport = Object.fromEntries(["run", "status", "step", "cleanup", "r
 if (!failure && (!backendRemoved || !backendPassed)) failure = "backend_cleanup_unconfirmed";
 // Only explicitly sanitized bridge cleanup fields are persisted. Mail payloads,
 // cookies, credentials, CSRF values and proof links never enter the report.
-const report = { status: failure ? "failed" : "passed", failure, checked_utc: new Date().toISOString(), mode: "real_fastapi_disposable_postgres_browser",
+const report = { status: failure ? "failed" : "passed", failure, failure_step:failureStep, last_completed_check:results.at(-1)?.check||null, checked_utc: new Date().toISOString(), mode: "real_fastapi_disposable_postgres_browser",
   expected_shell: EXPECTED_SHELL, analysis_fixture: analysisFixture, browser_diagnostic: failureDiagnostic ?? cdp?.diagnostic ?? null, bridge_diagnostic: bridge?.diagnostic ?? null, loadedAssets, results, screenshots, performanceSamples, observations: { requests, apiRequests, external_attempts: external, consoleLeaks, browserErrors, protocolErrors, canceled, explicit_fixture_admission_clock_steps: fixtureClockSteps, explicit_fixture_analysis_clock_steps: analysisClockSteps, apiOutcomes },
   cleanup: { browser_stopped: !browser || cdp?.stopped === true, temporary_profile_removed: Boolean(profile), loopback_closed: !server?.listening, backend_status: bridgeCleanup?.status ?? null, backend_resources_removed: backendRemoved, backend_report: backendReport },
   elapsed_seconds: Math.round((performance.now() - started) / 10) / 100,
