@@ -1,4 +1,6 @@
-.settings-page { --settings-edge: var(--pref-border, #45474c); --settings-muted: var(--pref-muted, #bbbcc2); overflow-y: auto; min-height: 0; padding: clamp(1rem, 3vw, 2.5rem); color: inherit; }
+.settings-page { --settings-edge: var(--pref-border, #45474c); --settings-muted: var(--pref-muted, #bbbcc2); flex: 1; overflow-y: auto; min-height: 0; padding: clamp(1rem, 3vw, 2.5rem); color: inherit; }
+.settings-page section { padding: 20px; border: 1px solid var(--pref-border); border-radius: 16px; overflow-wrap: anywhere; }
+.settings-page p { line-height: 1.65; }
 .opal-workspace[data-ui-shell] .settings-page section { background: var(--pref-panel, #24262b); border-color: var(--pref-border, #45474c); }
 .opal-workspace[data-ui-shell] .settings-page p { color: var(--pref-muted, #bbbcc2); }
 .settings-page .settings-control-label { font-weight: 600; }
@@ -6,10 +8,10 @@
 .settings-heading-row > div { flex: 1 1 20rem; min-width: 0; max-width: 100%; overflow-wrap: anywhere; }
 .settings-heading-row .breadcrumb { white-space: normal; overflow: visible; text-overflow: unset; }
 .settings-heading-row h1 { margin-top: .35rem; }
-.settings-page button, .settings-page select, .settings-page input:not([type=checkbox]), .preference-dialog button { min-height: 44px; max-width: 100%; font: inherit; }
-.settings-page button, .preference-dialog button { border: 1px solid var(--settings-edge, #65676d); border-radius: .7rem; padding: .55rem .9rem; background: var(--pref-panel, #24262b); color: inherit; cursor: pointer; }
-.settings-page button:disabled, .settings-page input:disabled, .settings-page select:disabled, .preference-dialog button:disabled { cursor: default; opacity: .6; }
-.settings-page :focus-visible, .preference-dialog :focus-visible { outline: 3px solid var(--pref-accent, #e1e2e6); outline-offset: 3px; }
+.settings-page button, .settings-page select, .settings-page input:not([type=checkbox]) { min-height: 44px; max-width: 100%; font: inherit; }
+.settings-page button { border: 1px solid var(--settings-edge, #65676d); border-radius: .7rem; padding: .55rem .9rem; background: var(--pref-panel, #24262b); color: inherit; cursor: pointer; }
+.settings-page button:disabled, .settings-page input:disabled, .settings-page select:disabled { cursor: default; opacity: .6; }
+.settings-page :focus-visible { outline: 3px solid var(--pref-accent, #e1e2e6); outline-offset: 3px; }
 .settings-page input, .settings-page select, .settings-page textarea { background: var(--pref-panel, #24262b); color: inherit; border: 1px solid var(--settings-edge); border-radius: .55rem; padding: .6rem; font: inherit; }
 .settings-search { display: grid; grid-template-columns: minmax(0, 1fr); min-width: 0; gap: .45rem; margin: 1.25rem 0; max-width: 42rem; }
 .settings-search input { width: 100%; min-width: 0; }
@@ -36,7 +38,7 @@
 .settings-information, .settings-preview, .settings-transfers { margin: 1.25rem 0; padding: 1rem; border: 1px solid var(--settings-edge); border-radius: .9rem; line-height: 1.6; }
 .settings-information a { color: inherit; text-decoration: underline; text-underline-offset: .2em; }
 .settings-error, .settings-warning { border: 1px solid var(--settings-edge); border-left: 4px solid #f1b98a; border-radius: .65rem; padding: .8rem; margin: 1rem 0; overflow-wrap: anywhere; }
-.settings-actions, .settings-dialog-actions { display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; }
+.settings-actions { display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; }
 .settings-transfers > label { display: flex; align-items: start; gap: .6rem; margin: .9rem 0; }
 .settings-file-label { display: grid; grid-template-columns: minmax(0, 1fr); flex: 1 1 16rem; min-width: 0; gap: .4rem; max-width: 100%; }
 .settings-file-label input { width: 100%; min-width: 0; max-width: min(100%, 24rem); }
@@ -59,10 +61,6 @@
 .settings-preview-chart span:nth-child(2) i { height: 3rem; }.settings-preview-chart span:nth-child(3) i { height: 4rem; }
 .settings-preview textarea { display: block; width: 100%; resize: vertical; margin: .5rem 0; min-height: 44px; }
 .settings-category-back { display: none; }
-.preference-dialog { max-width: min(42rem, calc(100vw - 2rem)); max-height: calc(100dvh - 2rem); overflow: auto; padding: clamp(1rem, 4vw, 2rem); border: 1px solid var(--settings-edge, #65676d); border-radius: 1rem; background: var(--pref-panel, #24262b); color: var(--pref-text, #eeeff2); line-height: 1.6; }
-.preference-dialog::backdrop { background: rgb(0 0 0 / .65); }
-.preference-dialog h2 { margin-top: 0; }
-.settings-dialog-actions { justify-content: flex-end; margin-top: 1.5rem; }
 @media (max-width: 700px) {
   .settings-layout { display: block; }
   .settings-categories { position: static; grid-template-columns: 1fr; }
@@ -77,7 +75,7 @@
   .settings-savebar button { flex: 1 1 9rem; }
 }
 @media (forced-colors: active) {
-  .settings-page button, .settings-page input, .settings-page select, .preference-dialog, .preference-dialog button { border: 1px solid ButtonText; }
+  .settings-page button, .settings-page input, .settings-page select { border: 1px solid ButtonText; }
   .settings-categories button[aria-current=page] { outline: 2px solid Highlight; }
   .settings-preview-chart i { background: CanvasText; forced-color-adjust: none; }
   .settings-error, .settings-warning { border-color: CanvasText; }

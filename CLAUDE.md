@@ -2,38 +2,28 @@
 
 Instructions for coding agents working in this repository. Read this file before making changes.
 
-Latest verified checkpoint: P00 through P08 are complete and deployed. P08 code
-checkpoint is `d76be9a` (PR #50); required PR/main CI each passed all 27 steps.
-The tested backend/Opal images are healthy on schema 5, with verified origin
-and public assets. Public HTML differs only by the pinned, pre-existing
-Cloudflare Analytics insertion documented in the release evidence. Bounded
-lazy Plotly, the conditional visual pane, linked result/table controls,
-compatible zoom, keyboard resizing and mobile navigation passed isolated
-functional/security/browser gates. See
-`docs/implementation/P08_PLOTLY_VISUALS.md` for final release evidence and
-`docs/implementation/P07_DURABLE_ANALYSIS.md` for preserved lifecycle history.
+Latest verified checkpoint: P00 through P09 Settings are complete and deployed.
+P09 Settings merged as `05accec31da7d257ca5f1ffb7bd4897eac70d8b5` (PR #52,
+`Phase9 Settings`). Required PR and merged-main CI passed. The controlled
+October 28 21:58:59 UTC deployment passed on schema 5 without a migration,
+preserving database/volumes, environment, password/mail activation, private worker
+configuration and scheduler. Exact origin/public asset hashes and unauthenticated
+private-API denials passed; the public sign-in browser passed.
 
-Password login, registration, recovery and encrypted branded mail remain active.
-P08 required no database migration; the private database/socket volumes,
-scheduled worker, worker-only provider environment, cron and launcher lock were
-preserved. The public verification used no authenticated account, dataset grant
-or model request. No live provider-quality/load benchmark or production restore
-is claimed.
+The candidate verification covered 1,385 backend cases, 399 frontend tests, both
+builds and eight browser gates (per shell 103 synthetic, 39 real database,
+41 Settings and 37 Plotly checks). All 119 installed files were proved against
+the merged source. Portable records and reviewed synthetic screenshots are in
+`docs/implementation/P09_SETTINGS_PREFERENCES.md` and
+`docs/implementation/evidence/p09/release.json`.
 
-The October 28 user request resumed implementation at P09. The current P09
-candidate adds nine-category Settings, strict revisioned owner preferences,
-separate device storage, safe imports and presentation integrations. Backend
-source/lock/Black/Ruff/audit, 1,385 unique isolated backend cases, restore,
-storage and proxy gates passed. All 399 frontend tests, both production builds
-and eight browser gates passed on the final assets: per shell 103 synthetic,
-39 real-database, 41 Settings and 37 Plotly checks. Native modal focus, stale-save
-recovery and measured 320px/200% text reflow findings were fixed and retested.
-Portable sanitized evidence and eight reviewed screenshots are retained with
-the phase record. Schema 5 and applied migrations remain unchanged. See
-`docs/implementation/P09_SETTINGS_PREFERENCES.md` for current evidence.
-P09 is ready for human review and remains in the authorized Git/CI release workflow and not yet deployed. P10 through
-P13 have not started. Required PR/main CI remains pending. The human Git checkpoint
-below still applies. This checkpoint supersedes historical status statements.
+The user requested an additional P09 homepage simplification: conditional New
+Chat, Projects/Recents navigation, an integrated conversation/composer, one
+bottom account menu and one composer model chooser. That separate supplement
+is under current-source verification; its earlier Settings evidence cannot
+satisfy its gates. P10a is being prepared in a separate local directory, and
+P10 remains incomplete. P11 through P13 have not started. Do not claim a phase
+complete until its required security, CI and release gates pass.
 
 The user explicitly authorized direct server access and routine server updates
 after required checks pass. A dedicated key-backed Windows SSH alias,
@@ -43,7 +33,7 @@ The user also explicitly authorized the specific P05 test/CI/docs repair on
 October 26: commit it on a separate branch, publish its PR, and merge only after
 required GitHub checks pass. The October 28 user instruction supersedes that earlier narrow Git exception; the current Git authorization below covers the remaining phases.
 
-### P09 preference API (uncommitted review candidate)
+### P09 preference API (deployed)
 
 `GET /api/v1/me/preferences` returns `{schemaVersion:1, revision, values,
 capabilities}` for the current authenticated account, including accounts without
@@ -80,7 +70,7 @@ The research contribution is the retrieval layer (what context the model sees) a
 - Public site: `aqua-ai.us`, served by the frontend container on port 5173
 - Local development: each person's own clone
 
-The server runs the app with docker-compose. Code changes are made locally, pushed by a human, merged through a pull request, and pulled on the server. Nobody commits on the server: its GitHub key can only pull.
+The server runs the app with docker-compose. Code changes are made locally, reviewed through a pull request, merged after required checks pass, and pulled on the server. The October 28 instruction authorizes Codex to handle these Git steps. Nobody commits on the server: its GitHub key can only pull.
 
 ## Current stack
 

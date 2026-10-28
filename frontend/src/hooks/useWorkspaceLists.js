@@ -4,7 +4,7 @@ import { listChats, listProjects, listPrompts, listStarters, saveProject, delete
 export function useWorkspaceLists({ csrfToken, onError, enabled = true }) {
   const [chats, setChats] = useState({ items: [], cursor: null, loading: true }), [projects, setProjects] = useState({ items: [], cursor: null, loading: true }),
     [prompts, setPrompts] = useState({ items: [], cursor: null, loading: true }), [starters, setStarters] = useState([]),
-    [filters, setFilters] = useState({ search: "", archived: false, projectId: null }), [busy, setBusy] = useState(false);
+    [filters, setFilters] = useState({ search: "", archived: false, projectId: null }), [busy, setBusy] = useState(false), [promptsEnabled, setPromptsEnabled] = useState(false);
   const current = useRef(null), generation = useRef(0), alive = useRef(true), pending = useRef(new Set()), mutationLock = useRef(false), namedReads = useRef(new Map());
   current.current = { csrfToken, onError, filters };
   const options = () => ({ csrfToken: current.current.csrfToken });
@@ -31,11 +31,12 @@ export function useWorkspaceLists({ csrfToken, onError, enabled = true }) {
     catch (error) { if (alive.current && error.name !== "AbortError") { save((previous) => ({ ...previous, loading: false })); current.current.onError(error); } }
   }, [read]);
   useEffect(() => { if (!enabled) return; void refreshChats(null, filters); }, [enabled, filters, refreshChats]);
-  useEffect(() => { if (!enabled) return; void refreshPersonal("projects"); void refreshPersonal("prompts");
+  useEffect(() => { if (enabled) void refreshPersonal("projects"); }, [enabled, refreshPersonal]);
+  useEffect(() => { if (!enabled || !promptsEnabled) return; void refreshPersonal("prompts");
     void read((signal) => listStarters({ signal })).then((items) => { if (alive.current) setStarters(items); }).catch((error) => {
       if (alive.current && error.name !== "AbortError") current.current.onError(error);
     });
-  }, [enabled, read, refreshPersonal]);
+  }, [enabled, promptsEnabled, read, refreshPersonal]);
   const mutate = async (action, kind) => {
     if (mutationLock.current) return false; mutationLock.current = true; setBusy(true);
     try { await read((signal) => action({ ...options(), signal })); if (!alive.current) return false;
@@ -43,7 +44,7 @@ export function useWorkspaceLists({ csrfToken, onError, enabled = true }) {
     } catch (error) { if (alive.current && error.name !== "AbortError") current.current.onError(error); return false; }
     finally { mutationLock.current = false; if (alive.current) setBusy(false); }
   };
-  return { chats, projects, prompts, starters, filters, busy, refreshChats,
+  return { chats, projects, prompts, starters, filters, busy, refreshChats, openPrompts: () => setPromptsEnabled(true),
     filter: (value) => setFilters((previous) => ({ ...previous, ...value })),
     moreChats: () => refreshChats(chats.cursor), moreProjects: () => refreshPersonal("projects", projects.cursor), morePrompts: () => refreshPersonal("prompts", prompts.cursor),
     firstProjects: () => refreshPersonal("projects"), firstPrompts: () => refreshPersonal("prompts"),

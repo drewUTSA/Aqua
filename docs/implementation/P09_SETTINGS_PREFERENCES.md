@@ -1,12 +1,6 @@
 # P09 Settings and safe preferences
 
-Status: implementation and isolated verification are ready for human review,
-uncommitted. Canonical backend/security, storage/restore/proxy checks, 399 frontend
-tests, both production builds and all eight final browser gates pass. Eight
-selected synthetic screenshots have been visually reviewed. Authorized Git operations,
-required PR/main CI and production verification remain pending. P09 is not
-deployed and is not marked complete; this document does not authorize P10/P11
-actions. Portable results are in the [verification record](evidence/p09/verification.json).
+Status: complete and deployed on October 28 at 21:58:59 UTC. PR #52 merged as `05accec31da7d257ca5f1ffb7bd4897eac70d8b5` after all required PR checks passed; the merged main checks and controlled production verification also passed. Canonical isolated results cover 1,385 backend cases, 399 frontend tests, both production builds and eight browser gates. Eight synthetic screenshots were visually reviewed. See the [isolated verification record](evidence/p09/verification.json) and [release record](evidence/p09/release.json). The separately requested homepage supplement is under verification; P10/P11 remain separate phases.
 
 The October 28 continuation resumes the clean P08 closeout at `14993c2`. The
 working change replaces the Settings placeholder with nine categories, local
@@ -231,9 +225,7 @@ saved-Table/explicit-chart regression in both P08 visual gates. Artifact retenti
 adds only bounded synthetic P09 JSON/PNG paths. Changed CI/docs source-policy
 checks passed with zero findings. The workflow parsed as YAML, all 20 Bash run
 blocks passed syntax checks, and its 24 steps retain the existing action pins,
-permissions and concurrency. **The GitHub workflow itself has not run for this
-change.** Human review, any commit/push/PR, required PR/main CI and production
-verification remain pending; no PR or P09 production release is claimed.
+permissions and concurrency. The required PR and merged-main workflows subsequently passed; see the dated release closeout below.
 
 Native reverse Tab could leave the preference modal despite its native dialog
 semantics. The fix explicitly wraps Tab/Shift+Tab across visible enabled controls;
@@ -252,8 +244,7 @@ ordering have focused regressions and final actual-browser retests. Harness-only
 diagnostic/lock-proof problems were corrected separately. Historical failures
 and their available metadata remain in the portable evidence; an earlier setup
 failure whose cause was not retained is not assigned an invented diagnosis.
-All final isolated gates pass. Human Git review, required PR/main CI and
-production verification still prevent a completed/deployed phase claim.
+All final isolated gates passed at the candidate checkpoint. Required PR/main CI and production verification subsequently passed as recorded below.
 
 Detailed ignored working evidence remains under `.check-results/p09/`; the
 sanitized portable record and selected screenshots above are included for review.
@@ -282,3 +273,11 @@ between the secured shared shells, not a permission or credential switch. P09
 preferences operate within either shell. Never roll back to obsolete authentication
 or disable private storage to change appearance. A newer schema/client must not
 be forced into a version-1 write; keep the record and deploy a compatible reader.
+
+## October 28 release closeout
+
+[PR #52](https://github.com/drewUTSA/Aqua/pull/52) merged with the short title `Phase9 Settings`. Both [PR CI](https://github.com/drewUTSA/Aqua/actions/runs/40773039197) and [main CI](https://github.com/drewUTSA/Aqua/actions/runs/40774686721) passed. Frozen frontend assets were packaged from the exact locally verified P09 builds, proved against both image file sets/nginx configuration, and passed both isolated proxy denial/recovery runs. The source, all 119 installed files, unchanged dependency lock and migrations were compared with the merged commit before cutover.
+
+The controlled web-service deployment passed at 21:58:59 UTC on schema 5 without a migration. Database identity/volumes, environment, password/mail activation, private worker configuration and scheduler were preserved. Exact images are healthy; all origin/public assets matched, with only the pinned pre-existing Cloudflare Analytics HTML insertion. Public private APIs returned 401, readiness remained 404, and the sign-in browser showed enabled password/email fields, registration/recovery links and no initial Plotly load. The browser/profile and disposable image/proxy cleanup were confirmed. No authenticated production account or analytical/provider request was used.
+
+Independent helper review found an evidence-write failure could incorrectly report no production change. The handler now preserves mutation/rollback facts in a fixed stdout fallback; 20 mocked scenarios, 12 public-HTML cases and Linux formatting/correctness gates passed before deployment. The [release record](evidence/p09/release.json) pins images, checks and public hashes. The separately requested homepage simplification will have its own verification and short commit.

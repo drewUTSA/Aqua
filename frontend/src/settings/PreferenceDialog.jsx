@@ -1,4 +1,5 @@
 import React, { useEffect, useId, useRef } from "react";
+import "../styles/dialogs.css";
 
 export default function PreferenceDialog({ title, children, onClose, busy = false, className = "" }) {
   const ref = useRef(null), heading = useId();
@@ -13,8 +14,22 @@ export default function PreferenceDialog({ title, children, onClose, busy = fals
         if (value) node.style.setProperty(`--pref-${token}`, value);
       }
     }
-    node?.showModal();
-    return () => { node?.close(); if (trigger?.isConnected) trigger.focus({ preventScroll: true }); };
+    // Native dialogs enter the top layer. Explicitly close them while their
+    // account/route is inert, including a closed mobile navigation ancestor.
+    // React keeps their draft state until the owner is restored or unmounted.
+    const sync = () => {
+      if (!node?.isConnected) return;
+      const suppressed = node.closest("[hidden],[inert]") || [...parents].some((parent) => parent.tagName === "DIALOG" && !parent.open);
+      if (suppressed) { if (node.open) node.close(); }
+      else if (!node.open) node.showModal();
+    };
+    const parents = [];
+    for (let parent = node?.parentElement; parent; parent = parent.parentElement) parents.push(parent);
+    const observer = new MutationObserver(sync);
+    for (const parent of parents) observer.observe(parent, { attributes: true, attributeFilter: ["hidden", "inert", "open"] });
+    sync();
+    return () => { observer.disconnect(); node?.close();
+      if (trigger?.isConnected && !trigger.closest("[hidden],[inert]") && trigger.getClientRects().length) trigger.focus({ preventScroll: true }); };
   }, []);
   const keyboard = (event) => {
     if (event.key !== "Tab" || event.ctrlKey || event.metaKey || event.altKey) return;

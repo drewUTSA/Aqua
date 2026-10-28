@@ -1,0 +1,91 @@
+/* These surfaces inherit the selected account theme, including both shells.
+   Their content is ordinary escaped text; presets never supply CSS or URLs. */
+.account-menu--refined,.model-selector--refined,.account-signout-dialog {
+  --menu-bg: var(--pref-panel,#191a1e); --menu-raised: var(--pref-raised,#232429);
+  --menu-text: var(--pref-text,#f2f1ed); --menu-muted: var(--pref-muted,#adb0ba);
+  --menu-border: var(--pref-border,#686b77); --menu-accent: var(--pref-accent,#cdc8ec);
+  --menu-danger: var(--pref-danger,#ffb4b4);
+}
+.account-menu.account-menu--refined { position: relative; flex: 0 0 auto; }
+.account-menu--refined .account-menu__trigger {
+  display: grid; place-items: center; min-width: 44px; width: 44px; min-height: 44px;
+  padding: 10px; border: 1px solid transparent; border-radius: 12px; color: var(--menu-muted);
+  background: transparent; cursor: pointer;
+}
+.account-menu--refined .account-menu__trigger > svg { width: 22px; height: 22px; fill: currentColor; }
+.account-menu--refined .account-menu__trigger:is(:hover,[aria-expanded="true"]) { color: var(--menu-text); background: var(--menu-raised); }
+.account-menu.account-menu--refined .account-menu__panel,
+.model-selector.model-selector--refined .model-selector__menu {
+  box-sizing: border-box; z-index: 80; overflow: auto; overscroll-behavior: contain;
+  padding: 8px; border: 1px solid var(--menu-border); border-radius: 16px;
+  color: var(--menu-text); background: var(--menu-bg); box-shadow: 0 18px 60px #0004,0 3px 12px #0002;
+  text-align: left; scrollbar-width: thin;
+}
+.account-menu__identity { display: grid; gap: 4px; min-width: 0; padding: 10px 12px 14px; }
+.account-menu__identity > span { color: var(--menu-muted); font-size: calc(0.6875rem * var(--pref-text-scale,1)); letter-spacing: .04em; }
+.account-menu__identity strong { display: block; color: var(--menu-text); font-size: calc(0.875rem * var(--pref-text-scale,1)); font-weight: 600; overflow-wrap: anywhere; }
+.account-menu--refined .account-menu__identity p { margin: 0; color: var(--menu-muted); font-size: calc(0.75rem * var(--pref-text-scale,1)); line-height: 1.45; }
+.account-menu.account-menu--refined .account-menu__panel > button {
+  display: flex; align-items: center; gap: 12px; width: 100%; min-height: 46px; margin: 0;
+  padding: 10px 12px; border: 1px solid transparent; border-radius: 10px;
+  color: var(--menu-text); background: transparent; text-align: left; cursor: pointer;
+  font-size: calc(0.875rem * var(--pref-text-scale,1)); line-height: 1.4;
+}
+.account-menu--refined .account-menu__panel > button > svg { flex: 0 0 19px; width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.account-menu--refined .account-menu__hint { margin-left: auto; color: var(--menu-muted); }
+.account-menu--refined .account-menu__divider { height: 1px; margin: 6px 8px; background: var(--menu-border); opacity: .5; }
+.account-menu.account-menu--refined .account-menu__panel > button:last-of-type { color: var(--menu-danger); }
+.account-menu.account-menu--refined .account-menu__panel > button:hover { background: var(--menu-raised); }
+.account-menu--refined .account-menu__panel > button:disabled { color: var(--menu-muted); opacity: .65; cursor: not-allowed; }
+.account-menu--refined .account-menu__demo { margin: 10px 12px 6px; color: var(--menu-muted); font-size: calc(0.6875rem * var(--pref-text-scale,1)); }
+.account-menu__error { position: absolute; bottom: calc(100% + 10px); right: 0; width: min(260px,80vw); padding: 12px; border: 1px solid var(--menu-border); border-radius: 12px; background: var(--menu-bg); color: var(--menu-danger); }
+
+.model-selector.model-selector--refined { position: relative; flex: 0 1 auto; min-width: 0; padding: 0; border: 0; background: none; }
+.model-selector--refined .model-selector__label { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.model-selector.model-selector--refined .model-selector__trigger {
+  display: inline-flex; align-items: center; justify-content: flex-start; gap: 8px;
+  min-width: 0; max-width: min(300px,55vw); min-height: 44px; padding: 9px 11px;
+  border: 1px solid transparent; border-radius: 11px; color: var(--menu-text); background: transparent;
+  font: inherit; cursor: pointer; box-shadow: none; text-align: left;
+}
+.model-selector--refined .model-selector__trigger:is(:hover,[aria-expanded="true"]) { border-color: var(--menu-border); background: var(--menu-raised); }
+.model-selector--refined .model-selector__trigger:disabled { color: var(--menu-muted); cursor: not-allowed; }
+.model-selector--refined .model-selector__name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: inherit; font-size: calc(0.8125rem * var(--pref-text-scale,1)); font-weight: 500; line-height: 1.4; }
+.model-selector--refined .model-selector__symbol { flex: 0 0 16px; width: 16px; height: 16px; fill: none; stroke: var(--menu-muted); stroke-width: 1.3; }
+.model-selector--refined .model-selector__chevron,.model-selector--refined .model-selector__check { flex: 0 0 16px; width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.model-selector--refined .model-selector__chevron { color: var(--menu-muted); }
+.model-selector__heading { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 4px 12px; padding: 9px 10px 12px; }
+.model-selector__heading strong { color: var(--menu-text); font-size: calc(0.8125rem * var(--pref-text-scale,1)); font-weight: 600; }
+.model-selector__heading > span { color: var(--menu-muted); font-size: calc(0.6875rem * var(--pref-text-scale,1)); }
+.model-selector.model-selector--refined .model-selector__option {
+  display: flex; align-items: center; gap: 12px; width: 100%; min-height: 58px; margin: 0; padding: 12px 10px;
+  border: 1px solid transparent; border-radius: 10px; color: var(--menu-text); background: transparent; text-align: left; cursor: pointer;
+}
+.model-selector--refined .model-selector__option-copy { display: grid; flex: 1; gap: 4px; min-width: 0; }
+.model-selector--refined .model-selector__option-name { font-size: calc(0.875rem * var(--pref-text-scale,1)); line-height: 1.4; font-weight: 600; overflow-wrap: anywhere; }
+.model-selector--refined .model-selector__description { margin: 0; color: var(--menu-muted); font-size: calc(0.75rem * var(--pref-text-scale,1)); line-height: 1.5; overflow-wrap: anywhere; }
+.model-selector.model-selector--refined .model-selector__option:hover { background: var(--menu-raised); }
+.model-selector.model-selector--refined .model-selector__option[aria-checked="true"] { background: var(--menu-raised); border-color: var(--menu-border); }
+.model-selector__selection { display: grid; place-items: center; width: 22px; height: 22px; flex: 0 0 22px; color: var(--menu-accent); }
+.model-selector--refined .model-selector__note { margin: 8px 10px 4px; padding-top: 12px; border-top: 1px solid var(--menu-border); color: var(--menu-muted); font-size: calc(0.6875rem * var(--pref-text-scale,1)); line-height: 1.55; }
+.account-menu--refined :focus-visible,.model-selector--refined :focus-visible,.account-signout-dialog :focus-visible { outline: 3px solid var(--menu-accent); outline-offset: 2px; }
+
+.account-signout-dialog { box-sizing: border-box; width: min(430px,calc(100vw - 32px)); max-height: calc(100dvh - 32px); margin: auto; padding: 26px; border: 1px solid var(--menu-border); border-radius: 20px; color: var(--menu-text); background: var(--menu-bg); box-shadow: 0 24px 80px #0005; }
+.account-signout-dialog::backdrop { background: #0008; }
+.account-signout-dialog__eyebrow { color: var(--menu-muted); font-size: calc(0.75rem * var(--pref-text-scale,1)); }
+.account-signout-dialog h2 { margin: 10px 0 12px; font-size: calc(1.4375rem * var(--pref-text-scale,1)); line-height: 1.25; letter-spacing: -.02em; }
+.account-signout-dialog p { margin: 0 0 24px; color: var(--menu-muted); font-size: calc(0.875rem * var(--pref-text-scale,1)); line-height: 1.65; }
+.account-signout-dialog > div { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; }
+.account-signout-dialog button { min-height: 44px; padding: 10px 16px; border: 1px solid var(--menu-border); border-radius: 11px; color: var(--menu-text); background: var(--menu-raised); font-size: calc(0.875rem * var(--pref-text-scale,1)); cursor: pointer; }
+.account-signout-dialog .account-signout-dialog__confirm { color: var(--pref-on-accent,#121317); background: var(--menu-accent); border-color: var(--menu-accent); }
+@media (max-width: 420px) {
+  .model-selector.model-selector--refined .model-selector__trigger { max-width: 58vw; padding-inline: 7px; gap: 6px; }
+  .account-signout-dialog { padding: 20px; }
+  .account-signout-dialog > div > button { flex: 1; }
+}
+@media (forced-colors: active) {
+  .account-menu--refined,.model-selector--refined,.account-signout-dialog { --menu-bg: Canvas; --menu-raised: Canvas; --menu-text: CanvasText; --menu-muted: CanvasText; --menu-border: ButtonText; --menu-accent: Highlight; --menu-danger: CanvasText; }
+  .account-menu.account-menu--refined .account-menu__panel,.model-selector.model-selector--refined .model-selector__menu,.account-signout-dialog { box-shadow: none; border: 1px solid CanvasText; }
+  .model-selector--refined .model-selector__trigger,.account-menu--refined .account-menu__trigger { border: 1px solid ButtonText; }
+  .account-signout-dialog .account-signout-dialog__confirm { color: HighlightText; }
+}

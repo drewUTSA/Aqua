@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import { actualLifecycleWorkspace } from "./p07-real-browser-checks.mjs";
+import { actualHomepageStateChecks } from './homepage-browser-checks.mjs';
 
 // Opt-in network-none fixture only. The production query service and storage
 // routes run normally; the fixture supplies a fixed fake analytical result.
@@ -16,8 +17,13 @@ export async function actualAnalysisWorkspace({ check, click, clickText, fill, w
   const revalidate = () => evaluate("(()=>{const channel=new BroadcastChannel('aqua-session-events');channel.postMessage({type:'changed'});channel.close();return true})()");
   await bridge.send("workspace_grant"); await revalidate();
   await waitFor("Boolean(document.querySelector('.opal-workspace:not([hidden])'))&&!document.querySelector('.opal-composer textarea').disabled", "actual_fake_data_grant_confirmed");
+  await check('actual homepage hides New chat before the first submitted conversation', "![...document.querySelectorAll('.new-chat,[aria-label=\"New chat\"]')].some(el=>el.getClientRects().length&&!el.closest('[hidden],[inert]'))");
   await fill(".opal-composer textarea", title); await click("[aria-label='Send message']");
   await waitFor("Boolean(document.querySelector('.conversation .sql-block'))&&!document.querySelector('[aria-label=\"Stop response\"]')", "actual_durable_first_result");
+  await check('actual homepage reveals one New chat after the first canonical submission', "[...document.querySelectorAll('.new-chat,[aria-label=\"New chat\"]')].filter(el=>el.getClientRects().length&&!el.closest('[hidden],[inert]')).length===1");
+  await fill('.opal-composer textarea','Actual homepage unsent draft');
+  await actualHomepageStateChecks({check,click,clickText,fill,waitFor,evaluate,queryCount});
+  await fill('.opal-composer textarea','');
   const chats = await rawRequest("GET", "/api/v1/chats"); assert.equal(chats.status, 200);
   const chat = JSON.parse(chats.body).items.find((item) => item.title === title); assert.ok(chat?.id); assert.equal(chat.message_count, 2);
   const firstPage = await rawRequest("GET", `/api/v1/chats/${chat.id}/messages`); assert.equal(firstPage.status, 200);

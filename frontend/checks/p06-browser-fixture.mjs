@@ -76,7 +76,8 @@ export function workspaceFixture(fixture) {
     if (match[2] && !item) return json(404, {});
     if (method === "GET") return json(200, { items: [...collection.values()], next_cursor: null });
     if (method === "DELETE") { collection.delete(item.id); if (projects) for (const value of data.chats.values()) if (value.chat.project_id === item.id) { value.chat.project_id = null; value.chat.revision++; } return json(204); }
-    if (match[3]) { item.use_count++; return json(200, { saved_prompt: item }); }
+    if (match[3]) { const finish=async()=>{item.use_count++;return json(200,{saved_prompt:item});};
+      if(fixture.holdPromptUse){fixture.held.push({kind:'prompt-use',finish});return true;}return finish(); }
     if (method === "PATCH") { if (body.revision !== item.revision) return json(409, {}); Object.assign(item, body); item.revision++; return json(200, { [key]: item }); }
     const created = { id: randomUUID(), revision: 1, created_at: now(), updated_at: now(), ...(projects ? { name: body.name, archived: false }
       : { label: body.label, prompt: body.prompt, pinned: body.pinned || false, use_count: 0, last_used_at: null }) };

@@ -1,12 +1,13 @@
 // Actual Plotly and application actions over fixed synthetic private results.
-import { assertEssentialControls, assertLoginDelivery, assertShell } from "./p05-shell-browser-checks.mjs";
+import { assertEssentialControls, assertShell } from "./p05-shell-browser-checks.mjs";
+import { accountAction, startBlankChat } from "./homepage-browser-actions.mjs";
 const q = JSON.stringify;
 const plot = "document.querySelector('.visual-pane .js-plotly-plot')";
 const paneText = "document.querySelector('.visual-pane')?.textContent";
 
 export async function runVisualChecks(ctx) {
   const { check, evaluate, waitFor, click, clickText, fill } = ctx;
-  await assertShell(check); await assertLoginDelivery(check);
+  await assertShell(check);
   let jobs = 0;
   async function submit(question) {
     if (jobs && jobs % 3 === 0) await ctx.bridge.send("workspace_recover_analysis_rate");
@@ -15,7 +16,7 @@ export async function runVisualChecks(ctx) {
     await waitFor(`document.querySelectorAll('.conversation .message--user').length>${before}&&Boolean(document.querySelector('.analysis-status[data-analysis-state=complete],.analysis-status[data-analysis-state=error]'))&&!document.querySelector('[aria-label="Cancel analysis"]')`, "synthetic_analysis_terminal");
   }
   async function ready() { await waitFor("Boolean(document.querySelector('.visual-pane:not([hidden]) .plotly-chart[data-chart-status=ready] .js-plotly-plot'))", "actual_plotly_ready"); }
-  async function newChat() { await click(".new-chat,[aria-label='New chat']"); await waitFor("!document.querySelector('.visual-pane')", "new_chat_removes_previous_visual"); }
+  async function newChat() { await startBlankChat(ctx); await waitFor("!document.querySelector('.visual-pane')", "new_chat_removes_previous_visual"); }
   async function retainNode() { await evaluate(`window.__p08Previous=${plot};true`); }
   async function purged(label) { const condition = "Boolean(window.__p08Previous)&&!window.__p08Previous.data&&!window.__p08Previous._fullData"; await waitFor(condition, "owned_plot_purged"); await check(label, condition); await evaluate("delete window.__p08Previous;true"); }
   async function setSize(width, height = 900) { await ctx.cdp.send("Emulation.setDeviceMetricsOverride", { width, height, deviceScaleFactor: 1, mobile: false }); await waitFor(`innerWidth===${width}`, "viewport_set"); }
@@ -118,7 +119,7 @@ export async function runVisualChecks(ctx) {
   await waitFor("document.querySelector('.opal-composer textarea')?.disabled===true&&!document.querySelector('.visual-pane,.js-plotly-plot,.financial-table')", "grant_revocation_visible");
   await check("current grant loss removes visual data and export controls", "!document.querySelector('.visual-pane,.js-plotly-plot,.financial-table')");
   await purged("current grant loss purges the actual chart instance without navigation");
-  await click(".workspace-header [aria-label='Account menu']"); await clickText("Sign out", "[role=menuitem]");
+  await accountAction(ctx, 'Sign out');
   await waitFor("Boolean(document.querySelector('.auth-page'))&&!document.querySelector('.opal-workspace')", "logout_confirmed_auth_page");
   if ((await ctx.rawRequest("GET", "/api/auth/me")).status !== 401) throw Error("logout_session_not_revoked");
   await check("logout leaves no chart result or export in the authenticated shell", "!document.querySelector('.opal-workspace,.js-plotly-plot,.visual-pane')");

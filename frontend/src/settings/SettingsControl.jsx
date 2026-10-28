@@ -4,15 +4,18 @@ import { usePreferences } from "./PreferencesProvider.jsx";
 import { valueLabel } from "./controls.js";
 
 function OrderedSections({ value, id, disabled, onChange }) {
-  const titles = { projects: "Projects", recents: "Recents", prompts: "Frequent questions" };
+  const titles = { projects: "Projects", recents: "Recents" };
+  // Version-1 imports may retain the former prompts section. Keep that data
+  // readable, but expose only the two navigation sections used by this UI.
+  const sections = value.filter((section) => Object.hasOwn(titles, section));
   return <fieldset id={id} disabled={disabled} className="settings-section-order" aria-labelledby={`${id}-label`}><legend className="visually-hidden">Optional sidebar sections</legend>
-    {Object.entries(titles).map(([section, title]) => <label key={section}><input type="checkbox" checked={value.includes(section)}
-      onChange={(event) => onChange(event.target.checked ? [...value, section] : value.filter((item) => item !== section))} />{title}</label>)}
-    <ol>{value.map((section, index) => <li key={section}><span>{titles[section]}</span>
+    {Object.entries(titles).map(([section, title]) => <label key={section}><input type="checkbox" checked={sections.includes(section)}
+      onChange={(event) => onChange(event.target.checked ? [...sections, section] : sections.filter((item) => item !== section))} />{title}</label>)}
+    <ol>{sections.map((section, index) => <li key={section}><span>{titles[section]}</span>
       <button type="button" disabled={disabled || index === 0} aria-label={`Move ${titles[section]} up`} onClick={() => {
-        const next = [...value]; [next[index - 1], next[index]] = [next[index], next[index - 1]]; onChange(next);
-      }}>↑</button><button type="button" disabled={disabled || index === value.length - 1} aria-label={`Move ${titles[section]} down`} onClick={() => {
-        const next = [...value]; [next[index], next[index + 1]] = [next[index + 1], next[index]]; onChange(next);
+        const next = [...sections]; [next[index - 1], next[index]] = [next[index], next[index - 1]]; onChange(next);
+      }}>↑</button><button type="button" disabled={disabled || index === sections.length - 1} aria-label={`Move ${titles[section]} down`} onClick={() => {
+        const next = [...sections]; [next[index], next[index + 1]] = [next[index + 1], next[index]]; onChange(next);
       }}>↓</button></li>)}</ol>
   </fieldset>;
 }

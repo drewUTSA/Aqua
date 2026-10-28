@@ -1,15 +1,16 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import WorkspaceEditor from "./WorkspaceEditor.jsx";
 
 export default function WorkspaceLibrary({ chat, onPrompt, section }) {
   const [editor, setEditor] = useState(null);
-  const current = useRef(chat); current.current = chat;
+  const current = useRef(chat), alive = useRef(true); current.current = chat;
+  useEffect(() => { alive.current = true; return () => { alive.current = false; }; }, []);
   return <>
     {(!section || section === "prompts") && <section aria-label="Private saved prompts"><h2>Saved prompts</h2><p className="sidebar-note">Private to your account. Applying a prompt never submits it.</p>
       <button type="button" onClick={() => setEditor({ kind: "prompt" })}>Save a prompt</button>
       {chat.prompts.items.map((item) => <div className="workspace-library-row" key={item.id}><button type="button" disabled={chat.busy}
         onClick={async () => { const target = chat.activeConversationId, draft = chat.draft;
-          if (await chat.usePrompt(item) && current.current.activeConversationId === target && current.current.draft === draft) onPrompt(item.prompt); }}><span>{item.pinned ? "★ " : ""}{item.label}</span></button>
+          if (await chat.usePrompt(item) && alive.current && current.current.activeConversationId === target && current.current.draft === draft) onPrompt(item.prompt); }}><span>{item.pinned ? "★ " : ""}{item.label}</span></button>
         <button type="button" aria-label={`Edit saved prompt ${item.label}`} onClick={() => setEditor({ kind: "prompt", item })}>Edit</button></div>)}
       {chat.prompts.loading && <p className="sidebar-note" role="status">Loading saved prompts…</p>}
       {!chat.prompts.loading && !chat.prompts.items.length && <p className="sidebar-note">No saved prompts yet.</p>}

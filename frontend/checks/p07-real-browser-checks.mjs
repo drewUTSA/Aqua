@@ -58,8 +58,8 @@ export async function actualLifecycleWorkspace({ check, click, clickText, fill, 
 
   await recoverAnalysisRates();
   const deleted = await begin("P07 fixture held execution", "executing");
-  await click(".desktop-sidebar .workspace-library-row:has([aria-current=page]) button[aria-label^='Edit chat']");
-  await clickText("Delete chat"); await clickText("Confirm delete"); await waitFor("!document.querySelector('.workspace-editor,.conversation')", "actual_p07_pending_chat_deleted", 10000);
+  await click(".desktop-sidebar .refined-chat-row:has([aria-current=page]) [aria-label^='Chat actions: ']");
+  await clickText("Delete chat",'[role="menuitem"]'); await clickText("Delete chat",'dialog[open] button'); await waitFor("!document.querySelector('.workspace-editor,.conversation')", "actual_p07_pending_chat_deleted", 10000);
   const absent = await rawRequest("GET", status(deleted.id)); assert.equal(absent.status, 404);
   const stopBy = Date.now() + 8000; do { measured = await stats(); if (!measured.physical_active) break; await new Promise((resolve) => setTimeout(resolve, 60)); } while (Date.now() < stopBy);
   assert.equal(measured.physical_active, 0);

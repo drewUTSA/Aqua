@@ -1,8 +1,8 @@
 # Aqua
 Ask a database a question in plain English. Get back data, a readable summary and the exact SQL that produced it.
 
-Current checkpoint: P00 through P08 are complete and live at code checkpoint
-`d76be9a` (PR #50), private schema 5. Analysis retains P07's durable requests,
+Current checkpoint: P00 through P09 Settings are complete and live at
+`05accec` (PR #52, `Phase9 Settings`), private schema 5. Analysis retains P07's durable requests,
 owned progress, server cancellation and exact numeric values. Requested visuals
 now open a bounded lazy Plotly pane with linked table/chart controls, compatible
 zoom, keyboard resizing and mobile navigation.
@@ -15,11 +15,12 @@ controlled production health/asset verification passed. See
 [P07 durable analysis](docs/implementation/P07_DURABLE_ANALYSIS.md) and
 [activation](docs/implementation/P05_PRODUCTION_ACTIVATION.md).
 
-P09 Settings is implemented and locally verified in the October 28 review
-candidate: 1,385 backend cases, 399 frontend tests and all eight browser gates
-passed. The authorized Git/CI release workflow and PR/main CI remain pending. See
+P09 Settings passed 1,385 backend cases, 399 frontend tests, both builds, eight
+browser gates, required PR/main CI and controlled production verification. See
 [P09 Settings and preferences](docs/implementation/P09_SETTINGS_PREFERENCES.md).
-P10 through P13 have not started.
+The separately requested homepage simplification is under verification. P10a
+foundations are being prepared in isolation; P10 is incomplete and P11–P13 have
+not started.
 The [approved phased specification](AQUA_CODEX_HANDOFF.md) governs the order.
 Verification: [check runner guide](tools/checks/README.md).
 
@@ -27,7 +28,7 @@ Verification: [check runner guide](tools/checks/README.md).
 
 The application PostgreSQL is separate from the hosted analytical database. It has no network, TCP listener or published port. Backend/migration jobs attach only the private Unix socket, with distinct runtime, owner, migrator and backup privileges. nginx refuses public readiness; liveness stays independent of databases/models. P03's canonical UUID accounts, opaque digest-only sessions, one-use Google challenges, durable revocation, grants and session caps are deployed. Legacy signed cookies require fresh authentication.
 
-P04 introduced email-first registration, fresh-password verification, password login, reset/session fencing, bounded Argon2id work, an offline common-password corpus and encrypted account mail with reserved recovery/security capacity. Activation flags remain off by default for new installations; this production installation completed the reviewed P05 activation. P06 requires schema 4; the deployed P08 release retains schema 5. New installations must apply the reviewed migrations explicitly before starting the matching backend.
+P04 introduced email-first registration, fresh-password verification, password login, reset/session fencing, bounded Argon2id work, an offline common-password corpus and encrypted account mail with reserved recovery/security capacity. Activation flags remain off by default for new installations; this production installation completed the reviewed P05 activation. P06 requires schema 4; the deployed P09 release retains schema 5. New installations must apply the reviewed migrations explicitly before starting the matching backend.
 
 Frontend presentation is selected at build time: `AQUA_UI_SHELL=opal` (default) or
 `legacy` for Docker/Compose, and `VITE_AQUA_UI_SHELL` for direct Vite builds.

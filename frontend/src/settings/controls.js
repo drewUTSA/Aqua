@@ -7,12 +7,12 @@ export const CATEGORIES = [
     field("account", "specks", "Background specks", "Specks are static and stay clear of reading surfaces."),
     field("account", "surface", "Surface treatment"), field("account", "font", "Typeface") ] },
   { id: "workspace", title: "Workspace", description: "Keep navigation and reading space useful on this device.", fields: [
-    field("device", "sidebar", "Sidebar"), field("account", "sidebar_sections", "Sidebar sections", "Show, hide and reorder optional sections. New Chat and account access remain available."),
-    field("account", "recents_count", "Recents shown", "See all remains available."), field("device", "conversation_width", "Conversation width"),
+    field("device", "sidebar", "Sidebar"), field("account", "sidebar_sections", "Sidebar sections", "Show, hide and reorder Projects and Recents. Account access stays in the footer; Saved prompts opens from the composer."),
+    field("account", "recents_count", "Recents shown", "More chats remains available."), field("device", "conversation_width", "Conversation width"),
     field("device", "split_percent", "Conversation share when visuals are open", "25–65%. The responsive layout keeps both panes usable; New Chat starts with visuals closed.") ] },
   { id: "chat", title: "Chat & AI", description: "Presentation changes apply without rerunning a question.", fields: [
     field("device", "send_shortcut", "Send shortcut", "A visible Send button always remains. Shift+Enter inserts a new line."),
-    field("account", "suggestions", "Starter suggestions", "Show suggested questions on New Chat; this does not generate follow-ups."), field("account", "timestamps", "Timestamps", "Ordering, errors and freshness information remain visible."),
+    field("account", "suggestions", "Starter suggestions", "Show starter questions in Saved prompts; this does not generate follow-ups."), field("account", "timestamps", "Timestamps", "Ordering, errors and freshness information remain visible."),
     field("device", "auto_scroll", "Auto-scroll", "Follow new output only while you are near the bottom."),
     field("account", "wrap_code", "Wrap long code lines", "Copied SQL remains unchanged.") ] },
   { id: "charts", title: "Charts & tables", description: "Keep charts linked to their source data and conversation.", fields: [

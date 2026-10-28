@@ -4,7 +4,7 @@ import { changeRecord, emptyConversation, failSubmission, finishHistory, finishS
 import { useWorkspaceLists } from "./useWorkspaceLists.js";
 import { useAnalysisRequests } from "./useAnalysisRequests.js";
 import { acceptAnalysis, progressAnalysis, activeAnalysis, analysisRequests } from "./workspaceAnalysisState.js";
-import { terminalAnalysis } from "../services/workspaceContract.js";
+import { terminalAnalysis, validId } from "../services/workspaceContract.js";
 
 export function useWorkspace({ canQuery, canReadResults = canQuery, csrfToken, onAuthFailure, suspended = false }) {
   const [state, setState] = useState(initialWorkspace), [models, setModels] = useState([]), [selectedModelId, setModelId] = useState("");
@@ -54,13 +54,20 @@ export function useWorkspace({ canQuery, canReadResults = canQuery, csrfToken, o
       ...([403, 404].includes(error.status) ? { messages: [], loaded: true } : {}) }))); onError(error); } }
     finally { reads.current.delete(controller); if (historyReads.current.get(id) === controller) historyReads.current.delete(id); }
   }, [update, onError]);
-  const selectConversation = (id) => { const summary = library.chats.items.find((item) => item.id === id) || current.current.records[id]; if (!summary) return;
+  const selectConversation = (id, cachedSummary = null) => {
+    // Cached project/recents summaries came from this mounted owner's validated
+    // list API. They select a view only; every history read still checks ownership.
+    const cached = validId(id) && cachedSummary?.id === id && Number.isSafeInteger(cachedSummary.revision) && cachedSummary.revision > 0 ? cachedSummary : null;
+    const candidates = [library.chats.items.find((item) => item.id === id), current.current.records[id], cached].filter(Boolean);
+    let summary = candidates.reduce((latest, item) => !latest || (item.revision || 0) > (latest.revision || 0) ? item : latest, null);
+    if (!summary || current.current.deletedChatIds.includes(id)) return;
     update((previous) => openConversation(previous, summary)); void loadMessages(id); };
-  const startConversation = () => { const previous = current.current;
-    const empty = Object.values(previous.records).find((item) => item.id.startsWith("draft-") && !item.messages.length && !item.draft);
+  const startConversation = ({ projectId = null } = {}) => { const previous = current.current;
+    if (projectId !== null && !validId(projectId)) return null;
+    const empty = Object.values(previous.records).find((item) => item.id.startsWith("draft-") && !item.messages.length && !item.draft && !item.operation && item.projectId === projectId);
     if (empty) { update((value) => ({ ...value, activeId: empty.id, notice: "" })); return empty.id; }
     if (Object.keys(previous.records).length >= 100) { onError(new Error("Keep up to 100 unsent drafts in this visit. Reuse an existing chat.")); return null; }
-    const item = emptyConversation(); update((value) => ({ ...value, records: { ...value.records, [item.id]: item }, activeId: item.id, notice: "" })); return item.id; };
+    const item = { ...emptyConversation(), projectId }; update((value) => ({ ...value, records: { ...value.records, [item.id]: item }, activeId: item.id, notice: "" })); return item.id; };
   const run = useCallback(async (recordId, operation) => {
     if (!access.current.canQuery || access.current.suspended || requests.current.has(recordId)) return;
     if (requests.current.size >= 4) { onError(new Error("Wait for another open request to finish before asking another question.")); return; }
@@ -83,7 +90,7 @@ export function useWorkspace({ canQuery, canReadResults = canQuery, csrfToken, o
     if (requests.current.size >= 4) { onError(new Error("Wait for another open request to finish before asking another question.")); return null; }
     const clientId = operationId(), userId = `local-${clientId}`, operation = { clientId, prompt,
       submission: { client_request_id: clientId, question: prompt, model: selectedModelId, ...(item.id.startsWith("draft-")
-        ? library.filters.projectId ? { project_id: library.filters.projectId } : {} : { chatId: item.id }) } };
+        ? item.projectId ? { project_id: item.projectId } : {} : { chatId: item.id }) } };
     update((previous) => changeRecord(previous, item.id, (record) => ({ ...record, draft: "", title: record.messageCount ? record.title : prompt.replace(/\s+/g, " ").slice(0, 120),
       messages: [...record.messages, { id: userId, role: "user", content: prompt, optimisticOperation: clientId }], operation })));
     void run(item.id, operation); return userId; };
@@ -105,13 +112,24 @@ export function useWorkspace({ canQuery, canReadResults = canQuery, csrfToken, o
     } catch (error) { if (error.name !== "AbortError") onError(error); return false; } finally { reads.current.delete(controller); }
   };
   const conversations = library.chats.items.map((summary) => ({ ...current.current.records[summary.id], ...summary }));
+  const removeProject = async (item) => {
+    if (!await library.deleteProject(item)) return false;
+    // A visit-local draft has no server row to ungroup on project deletion.
+    // Preserve text and any immutable in-flight submission for reconciliation;
+    // the next new submission follows the project's confirmed removal.
+    update((previous) => ({ ...previous, records: Object.fromEntries(Object.entries(previous.records).map(([id, record]) =>
+      [id, !record.revision && record.projectId === item.id ? { ...record, projectId: null } : record])) }));
+    return true;
+  };
   const analysis = activeAnalysis(active), running = Boolean(analysis && !terminalAnalysis(analysis.state));
   return { durable: true, ...library, conversations, activeConversationId: state.activeId, active, messages: maskSavedResults(active.messages, canReadResults), draft: active.draft,
     pending: Boolean(active.operation?.busy || running), submitting: Boolean(active.operation?.busy), waiting: Boolean(active.operation?.busy), uncertain: Boolean(active.operation?.uncertain), notice: state.notice,
     analysis, analysisConnection: analysis ? lifecycle.connections[analysis.id] : null, reconnectAnalysis: lifecycle.reconnect,
     cancelAnalysis: analysis?.cancellable && !analysis.cancelRequested && analysis.state !== "cancelling" ? () => lifecycle.cancel(analysis.id) : null,
     models, selectedModelId, setModelId, faqs: library.starters, submit, retry, startConversation, selectConversation,
+    deleteProject: removeProject,
     drafts: Object.values(state.records).filter((item) => item.draft.trim()),
+    recoverableDrafts: Object.values(state.records).filter((item) => item.draft.trim() || item.operation),
     stop: () => requests.current.get(current.current.activeId)?.abort(),
     setDraft: (draft) => update((previous) => changeRecord(previous, previous.activeId, (item) => ({ ...item, draft: String(draft).slice(0, 2000) }))),
     refresh: () => { void loadMessages(current.current.activeId); void library.refreshChats(); },

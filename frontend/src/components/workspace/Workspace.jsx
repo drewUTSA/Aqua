@@ -1,20 +1,19 @@
-import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import React, { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useChat } from "../../hooks/useChat.js";
 import { useWorkspace } from "../../hooks/useWorkspace.js";
-import ModelSelector from "../navigation/ModelSelector.jsx";
 import OpalSidebar from "./OpalSidebar.jsx";
 import VisualWorkspace from "./VisualWorkspace.jsx";
-import AccountMenu from "./AccountMenu.jsx";
-import SettingsShell from "../../pages/SettingsShell.jsx";
 import OpalBackdrop from "../auth/OpalBackdrop.jsx";
-import plus from "../../assets/opal/workspace/imgIconPlus.svg";
-import ControlIcon from "./ControlIcon.jsx";
 import { UI_SHELL } from "../../services/runtimeConfig.js";
 import { usePreferences } from "../../settings/PreferencesProvider.jsx";
 import "../../styles/workspace.css";
 import "../../styles/legacy-workspace.css";
 import "../../styles/workspace-library.css";
 import "../../styles/preferences.css";
+import "../../styles/homepage.css";
+
+const SettingsShell = lazy(() => import("../../pages/SettingsShell.jsx"));
+const PromptLibraryDialog = lazy(() => import("./PromptLibraryDialog.jsx"));
 
 export default function Workspace({ auth, hidden, path, onNavigate }) {
   return auth.demoMode ? <DemoWorkspace auth={auth} hidden={hidden} path={path} onNavigate={onNavigate} />
@@ -43,7 +42,7 @@ function WorkspaceView({ auth, hidden, path, onNavigate, chat }) {
   const theme = account.theme === "system" ? systemDark ? "opal" : "light" : account.theme;
   const [sidebar, setSidebar] = useState(true), [drawer, setDrawer] = useState(false), [focus, setFocus] = useState(0);
   useEffect(() => { setSidebar(device.sidebar !== "collapsed"); }, [device.sidebar]);
-  const [notice, setNotice] = useState("");
+  const [notice, setNotice] = useState(""), [promptsOpen, setPromptsOpen] = useState(false);
   const inputRef = useRef(null), dialogRef = useRef(null), navigationRef = useRef(null);
   const scrollPositions = useRef(new Map());
   const settings = path === "/settings";
@@ -51,13 +50,15 @@ function WorkspaceView({ auth, hidden, path, onNavigate, chat }) {
   const focusComposer = useCallback(() => setFocus((value) => value + 1), []);
   const closeDrawer = () => { dialogRef.current?.close(); setDrawer(false); navigationRef.current?.focus(); };
   const go = (target) => { closeDrawer(); onNavigate(target); };
-  const start = () => void preferences.requestLeave(() => {
-    if (!chat.startConversation()) setNotice("You have reached the conversation limit for this visit. Reuse an existing conversation.");
+  const start = (projectId = null) => void preferences.requestLeave(() => {
+    if (!chat.startConversation({ projectId })) setNotice("You have reached the conversation limit for this visit. Reuse an existing conversation.");
     else setNotice("");
     go("/"); focusComposer();
   });
-  const select = (id) => void preferences.requestLeave(() => { chat.selectConversation(id); go("/"); focusComposer(); });
+  const select = (id, summary) => void preferences.requestLeave(() => { chat.selectConversation(id, summary); go("/"); focusComposer(); });
   const prompt = (value) => void preferences.requestLeave(() => { chat.setDraft(value); go("/"); focusComposer(); });
+  const openPrompts = () => { chat.openPrompts?.(); setPromptsOpen(true); };
+  useEffect(() => { if (hidden || settings) setPromptsOpen(false); }, [hidden, settings]);
   useLayoutEffect(() => {
     if (hidden || settings) return;
     document.title = "AQUA | Your data, clearly";
@@ -73,7 +74,8 @@ function WorkspaceView({ auth, hidden, path, onNavigate, chat }) {
     media.addEventListener("change", closeOnDesktop);
     return () => media.removeEventListener("change", closeOnDesktop);
   }, []);
-  const navProps = { chat, auth, preferences: account, onNewChat: start, onSelect: select, onPrompt: prompt, onNavigate: go };
+  const showNewChat = chat.messages.length > 0 || Boolean(chat.active?.messageCount || chat.pending || chat.uncertain);
+  const navProps = { chat, auth, preferences: account, showNewChat, onNewChat: start, onSelect: select, onNavigate: go };
   // The rollback changes presentation within this same secured workspace. It
   // must never remount chat state or substitute the pre-P05 auth implementation.
   return <div className={`opal-workspace${sidebar ? "" : " opal-workspace--collapsed"}`} data-ui-shell={UI_SHELL} data-theme={theme}
@@ -89,19 +91,17 @@ function WorkspaceView({ auth, hidden, path, onNavigate, chat }) {
     <div className="opal-main"><header className="workspace-header">
       <button type="button" ref={navigationRef} className="icon-button navigation-toggle" aria-label="Open navigation" aria-haspopup="dialog" aria-expanded={drawer}
         onClick={() => { if (window.matchMedia("(max-width: 900px)").matches) setDrawer(true); else { setSidebar(true); preferences.persistDeviceValue("sidebar", "expanded"); } }}><span aria-hidden="true">☰</span></button>
-      <span className="breadcrumb">Workspace <span aria-hidden="true">/</span> <strong title={caption}>{caption}</strong></span>
-      <div className="workspace-header__actions"><div className="header-model"><ModelSelector models={chat.models} selectedModelId={chat.selectedModelId} onSelectModel={chat.setModelId} /></div>
-        <span className="data-badge">{auth.demoMode ? "Demo data" : auth.canQuery ? "Authorized data" : "Access pending"}</span>
-        <button className="icon-button mobile-new-chat" type="button" onClick={start} aria-label="New chat"><ControlIcon asset={plus} /></button>
-        <AccountMenu auth={auth} onNavigate={go} /></div>
+      <span className="breadcrumb"><strong title={caption}>{caption}</strong></span>
+      {(auth.demoMode || !auth.canQuery) && <span className="data-badge">{auth.demoMode ? "Demo data" : "Access pending"}</span>}
     </header>
     {notice && <p className="workspace-notice" role="status">{notice}</p>}
     {chat.notice && <p className="workspace-notice" role="alert">{chat.notice}</p>}
     {!settings && preferences.error && <p className="workspace-notice" role="alert">{preferences.error} Open Settings to review or retry.</p>}
     <div className="chat-route" hidden={settings} inert={settings || undefined} style={settings ? { display: "none" } : undefined}>
-      <VisualWorkspace chat={chat} auth={auth} preferences={{ account, device }} onDeviceChange={preferences.persistDeviceValue} chartTheme={theme} inputRef={inputRef} focusRequest={focus} onPrompt={prompt} shell={UI_SHELL} visible={!hidden && !settings} scrollPositions={scrollPositions.current} />
+      <VisualWorkspace chat={chat} auth={auth} preferences={{ account, device }} onDeviceChange={preferences.persistDeviceValue} chartTheme={theme} inputRef={inputRef} focusRequest={focus} onOpenPrompts={openPrompts} shell={UI_SHELL} visible={!hidden && !settings} scrollPositions={scrollPositions.current} />
     </div>
-    {settings && <SettingsShell auth={auth} onBack={() => go("/")} onNavigate={go} />}
+    {settings && <Suspense fallback={<p role="status">Opening Settings…</p>}><SettingsShell auth={auth} onBack={() => go("/")} onNavigate={go} /></Suspense>}
+    {promptsOpen && !hidden && !settings && <Suspense fallback={<p role="status">Opening saved prompts…</p>}><PromptLibraryDialog chat={chat} suggestions={account.suggestions} onClose={() => setPromptsOpen(false)} onPrompt={(value) => { prompt(value); setPromptsOpen(false); }} /></Suspense>}
     </div>
   </div>;
 }
