@@ -42,7 +42,7 @@ def host(origin: str, image: str, workspace_analysis: bool = False) -> int:
         "status": "failed",
         "network": "none",
         "database_transport": "private_unix_socket",
-        "schema_version": 5,
+        "schema_version": 6,
         "max_operations": request_limit(workspace_analysis),
         "real_data_accessed": False,
         "provider_calls": 0,
@@ -82,7 +82,7 @@ def host(origin: str, image: str, workspace_analysis: bool = False) -> int:
         )
         assert child.stdout is not None and child.stdin is not None
         ready = json.loads(child.stdout.readline(MAX_LINE + 1))
-        if ready.get("kind") != "ready" or ready.get("schema_version") != 5:
+        if ready.get("kind") != "ready" or ready.get("schema_version") != 6:
             if ready.get("kind") == "error":
                 report["worker_error"] = {
                     key: ready.get(key) for key in ("category", "stage", "module")

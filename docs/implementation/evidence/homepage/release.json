@@ -1,0 +1,136 @@
+{
+  "version": 1,
+  "phase": "P09 Homepage",
+  "status": "complete_and_deployed",
+  "commit": "7c0caae8ac0d5fa1c74866bd898d317c1fc984ea",
+  "pull_request": "https://github.com/drewUTSA/Aqua/pull/53",
+  "ci": {
+    "phase": "P09 Homepage",
+    "pull_request": {
+      "number": 53,
+      "url": "https://github.com/drewUTSA/Aqua/pull/53",
+      "head": "61707aca8bce745329c81ffd03fdfb172f7aacc1",
+      "run_id": 40782308916,
+      "status": "passed",
+      "successful_steps": 29
+    },
+    "main": {
+      "commit": "7c0caae8ac0d5fa1c74866bd898d317c1fc984ea",
+      "run_id": 40783727297,
+      "status": "passed",
+      "successful_steps": 29
+    },
+    "checked_utc": "2026-10-28T23:09:56.5943693Z"
+  },
+  "verification_sha256": "fe868e4e9eba31791afdd3b98774ee3795d6bfccf8f98f2ee3c0488d1a9cd97e",
+  "deployment": {
+    "activation_and_environment_preserved": true,
+    "authenticated_request": false,
+    "backend_container_preserved": true,
+    "backend_image": "sha256:5ff0cb141a3399f95458cc20fcadfbe66577e750702fd74ba6238716d7c99897",
+    "checked_utc": "2026-10-28T23:10:19.298675+00:00",
+    "commit": "7c0caae8ac0d5fa1c74866bd898d317c1fc984ea",
+    "database_identity_and_volumes_preserved": true,
+    "deployment_scope": "frontend_only",
+    "exact_images_healthy": true,
+    "frontend_image": "sha256:7084420826c1babcc0b51340e57048e294920949215133ce811f753554484d21",
+    "index_html_transform": {
+      "kind": "cloudflare_web_analytics_beacon",
+      "origin_sha256": "f2f7269b6eadf27fe900c8ed5e7ec621d6120e342881c3c08fd3a3982884a1c6",
+      "pinned_script_sha256": "2765a11d900a367f5d9d2bb378ddeef7eb25852fe48aa9b2bbd2824f9cb7a284",
+      "public_sha256": "0a21c0de8882332a25f311f759484413da46f04db130d166a51d0e6a4bc2625a",
+      "removed_bytes": 367,
+      "script_count": 1,
+      "verified_public_origin_sha256": "f2f7269b6eadf27fe900c8ed5e7ec621d6120e342881c3c08fd3a3982884a1c6"
+    },
+    "migration": "none",
+    "nginx_source_matches": true,
+    "origin_asset_hashes": {
+      "assets/AQUA_V2_Final_static-cJJYBiOn.svg": "a610bf95498d5bbc765cf49879bc98ee9a33f385cdf88452622a6871ae825648",
+      "assets/PromptLibraryDialog-FhUe2spX.js": "e877ffe267b634a95cd8da20ade458da6a6f504a62f5a33f13ec5e4367674309",
+      "assets/SettingsShell-CKFEyLbB.css": "842547345c7d87dc17f42111234b9255fca43d22b108894287a72cdd9f7b2002",
+      "assets/SettingsShell-CYIbih-1.js": "786128af669a7df49a27a221f3e6d5442cc95c154f8b21f8ff669a965cdbbb5f",
+      "assets/index-BAnkCh3u.js": "0ea2e148a634fa21cc47914300518e803ad8d8fc545d9501660ec7b8e46fb073",
+      "assets/index-CEetZ6Nj.css": "6091739f404c12b647530a43b3a3c1a9735854555b4374c207d5a3f28da98cdf",
+      "assets/plotly-basic.min-DKd0VqQH.js": "bfe103eebc2e783ce442ff9907e77fde8af66817b5eb759e2db6d1573043988f",
+      "index.html": "f2f7269b6eadf27fe900c8ed5e7ec621d6120e342881c3c08fd3a3982884a1c6"
+    },
+    "production_changed": true,
+    "provider_key_absent_from_web": true,
+    "provider_or_analytical_request": false,
+    "public_asset_bytes": 3993510,
+    "public_asset_hashes": {
+      "assets/AQUA_V2_Final_static-cJJYBiOn.svg": "a610bf95498d5bbc765cf49879bc98ee9a33f385cdf88452622a6871ae825648",
+      "assets/PromptLibraryDialog-FhUe2spX.js": "e877ffe267b634a95cd8da20ade458da6a6f504a62f5a33f13ec5e4367674309",
+      "assets/SettingsShell-CKFEyLbB.css": "842547345c7d87dc17f42111234b9255fca43d22b108894287a72cdd9f7b2002",
+      "assets/SettingsShell-CYIbih-1.js": "786128af669a7df49a27a221f3e6d5442cc95c154f8b21f8ff669a965cdbbb5f",
+      "assets/index-BAnkCh3u.js": "0ea2e148a634fa21cc47914300518e803ad8d8fc545d9501660ec7b8e46fb073",
+      "assets/index-CEetZ6Nj.css": "6091739f404c12b647530a43b3a3c1a9735854555b4374c207d5a3f28da98cdf",
+      "assets/plotly-basic.min-DKd0VqQH.js": "bfe103eebc2e783ce442ff9907e77fde8af66817b5eb759e2db6d1573043988f",
+      "index.html": "0a21c0de8882332a25f311f759484413da46f04db130d166a51d0e6a4bc2625a"
+    },
+    "public_statuses": {
+      "/": 200,
+      "/api/auth/me": 401,
+      "/api/health": 200,
+      "/api/ready": 404,
+      "/api/v1/analysis-requests/00000000-0000-4000-8000-000000000001": 401,
+      "/api/v1/analysis-requests/00000000-0000-4000-8000-000000000001/events": 401,
+      "/api/v1/chats": 401,
+      "/api/v1/me/preferences": 401,
+      "/signin": 200
+    },
+    "rollback": "not_needed",
+    "scheduler_unchanged": true,
+    "schema_version": 5,
+    "status": "passed",
+    "worker_private_file_unchanged": true
+  },
+  "rollback_frontend_image": "sha256:3a43d6ce99d4bf684f977ac8c9dbdb1e99d8a78ec78f306cf3c4c540f0a8c49c",
+  "verified_legacy_frontend_image": "sha256:231a8359de4cb90c2d6dac3acb01e9a6bec80576ad924ae799e8cf8434882f3d",
+  "public_browser": {
+    "status": "passed",
+    "authenticated_account_used": false,
+    "title": "Welcome back | AQUA",
+    "password_enabled": true,
+    "email_enabled": true,
+    "registration_link": true,
+    "recovery_link": true,
+    "assets": [
+      "/assets/index-BAnkCh3u.js",
+      "/assets/index-CEetZ6Nj.css"
+    ],
+    "request_count": 21,
+    "api_requests": 2,
+    "blocked_api_requests": 0,
+    "model_or_analytical_request": false,
+    "api_methods": "GET_only",
+    "chart_engine_requested_at_signin": false,
+    "browser_cleanup": true,
+    "profile_removed": true
+  },
+  "public_signin_visual_review": "reviewed_by_root",
+  "proxy": {
+    "opal": {
+      "status": "passed",
+      "image": "sha256:7084420826c1babcc0b51340e57048e294920949215133ce811f753554484d21",
+      "requests": 116,
+      "request_cap": 120,
+      "cleanup": "removed_and_absence_confirmed",
+      "report_sha256": "a5b7fbdde98074fc314cf2f4adf0803289d8298d5f852c7e18cdba96a2ddc778"
+    },
+    "legacy": {
+      "status": "passed",
+      "image": "sha256:231a8359de4cb90c2d6dac3acb01e9a6bec80576ad924ae799e8cf8434882f3d",
+      "requests": 116,
+      "request_cap": 120,
+      "cleanup": "removed_and_absence_confirmed",
+      "report_sha256": "75a1b4a57d3a0b1b10f698f49322856a7fa0b1d2032b789ec63f5907cb10c098"
+    }
+  },
+  "limitations": [
+    "No authenticated production account, live provider, analytical request or email delivery was used.",
+    "No production migration, backup/restore or load/security exercise occurred; security exercises used bounded isolated fixtures.",
+    "The pre-existing byte-pinned Cloudflare Analytics HTML insertion is preserved."
+  ]
+}

@@ -34,7 +34,7 @@ const report = { status: failure ? 'failed' : 'passed', failure, checked_utc: ne
   expected_shell: process.env.AQUA_P05_EXPECTED_SHELL || 'opal', limits: LIMITS, workload, fixture: stats,
   browser_diagnostic: ctx?.cdp?.diagnostic || null, protocol_diagnostics: ctx?.protocolDiagnostics || [],
   setup_diagnostic: setup,
-  boundary: { backend_image: ctx?.backendImage || null, schema_version: 5, network: 'none', live_provider_or_production: false },
+  boundary: { backend_image: ctx?.backendImage || null, schema_version: 6, network: 'none', live_provider_or_production: false },
   appearance_audit: ctx?.appearanceAudit || null, mobile_category_audit: ctx?.mobileCategoryAudit || null, accessibility_tree_audit: ctx?.accessibilityTreeAudit || null, mobile_text_audit: ctx?.mobileTextAudit || null,
   mobile_overflow_audit: ctx?.mobileOverflowAudit || [],
   checks: ctx?.results || [], screenshots: ctx?.screenshots || [], cleanup: ctx?.cleanup || null,

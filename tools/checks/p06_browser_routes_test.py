@@ -8,6 +8,44 @@ ID = "c5fbc248-64cb-4f08-b2be-e38df9d7b331"
 
 
 class Routes(unittest.TestCase):
+    def test_account_foundation_only_current_owner_reads_and_name_patch(self) -> None:
+        for path, method in [
+            ("/api/v1/me", "GET"),
+            ("/api/v1/me", "PATCH"),
+            ("/api/v1/me/methods", "GET"),
+            ("/api/v1/me/sessions", "GET"),
+        ]:
+            with self.subTest(path=path, method=method):
+                self.assertTrue(workspace_route(path, method))
+        for path, method in [
+            ("/api/v1/me", "POST"),
+            ("/api/v1/me", "PUT"),
+            ("/api/v1/me", "DELETE"),
+            ("/api/v1/me?owner_id=forged", "GET"),
+            ("/api/v1/me?expectedRevision=1", "PATCH"),
+            ("/api/v1/me/methods?cursor=forged", "GET"),
+            ("/api/v1/me/sessions?limit=20", "GET"),
+            ("/api/v1/me/methods", "POST"),
+            ("/api/v1/me/methods", "PATCH"),
+            ("/api/v1/me/sessions", "POST"),
+            ("/api/v1/me/sessions", "DELETE"),
+            (f"/api/v1/me/sessions/{ID}", "DELETE"),
+            ("/api/v1/me/recent-proof", "POST"),
+            ("/api/v1/me/email", "PATCH"),
+            ("/api/v1/me/password", "PATCH"),
+            ("/api/v1/me/google/link", "POST"),
+            (f"/api/v1/users/{ID}", "GET"),
+            (f"/api/v1/users/{ID}/sessions", "GET"),
+            ("/api/v1/me/", "GET"),
+            ("/api/v1/me/methods/", "GET"),
+            ("/api/v1/me/sessions/revoke-all", "POST"),
+            ("https://attacker.invalid/api/v1/me", "GET"),
+            ("//attacker.invalid/api/v1/me", "GET"),
+            ("/api/v1/me#owner", "GET"),
+        ]:
+            with self.subTest(path=path, method=method):
+                self.assertFalse(workspace_route(path, method))
+
     def test_preferences_has_only_current_owner_get_put_without_query_authority(
         self,
     ) -> None:

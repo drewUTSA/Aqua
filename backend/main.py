@@ -29,6 +29,7 @@ from workspace.boundary import PREFIXES as WORKSPACE_PREFIXES, WorkspaceBodyLimi
 from workspace.access_logging import install as private_workspace_access_logging
 from analysis.router import router as analysis_router
 from preferences.router import router as preferences_router
+from account.router import router as account_router
 from analysis.dependencies import get_analysis
 from analysis.service import Analysis
 from nl2sql.query_service import run as run_query
@@ -77,6 +78,7 @@ app.include_router(readiness_router)
 app.include_router(workspace_router)
 app.include_router(analysis_router)
 app.include_router(preferences_router)
+app.include_router(account_router)
 app.state.storage = Storage(load_storage_settings())
 app.add_middleware(WorkspaceBodyLimit)
 
@@ -104,7 +106,7 @@ async def safe_request_validation(
             "/api/v1/analysis-requests",
             "/api/v1/projects",
             "/api/v1/me/saved-prompts",
-            "/api/v1/me/preferences",
+            "/api/v1/me",
             "/api/v1/starter-prompts",
         )
     ):

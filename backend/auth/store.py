@@ -104,6 +104,16 @@ class IdentityStore:
             ).fetchone()
             if state is None or state[0] != "active":
                 raise AuthDenied("account_inactive")
+            # Resolution/admission committed before this transaction. Recheck
+            # the exact identity under the user lock so a later unlink cannot
+            # race an in-flight Google sign-in into creating a usable session.
+            linked = conn.execute(
+                "SELECT id FROM app.external_identities WHERE user_id=%s "
+                "AND issuer='https://accounts.google.com' AND subject=%s AND is_active",
+                (owner, identity["sub"]),
+            ).fetchone()
+            if linked is None:
+                raise AuthDenied("identity_inactive")
             cleanup(conn, self.policy)
             instant = conn.execute("SELECT clock_timestamp()").fetchone()[0]
             active = conn.execute(

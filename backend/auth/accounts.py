@@ -59,46 +59,38 @@ def resolve_account(conn: psycopg.Connection, identity: dict[str, Any]) -> str:
     )
     conn.execute("SELECT pg_advisory_xact_lock(%s)", (lock,))
     existing = conn.execute(
-        "SELECT u.id,u.status FROM app.external_identities e JOIN app.users u ON u.id=e.user_id "
+        "SELECT u.id,u.status,e.is_active FROM app.external_identities e JOIN app.users u ON u.id=e.user_id "
         "WHERE e.issuer=%s AND e.subject=%s FOR UPDATE OF u",
         (ISSUER, subject),
     ).fetchone()
     owner = str(existing[0]) if existing else None
-    if existing and existing[1] != "active":
+    if existing and (existing[1] != "active" or not existing[2]):
         raise AuthDenied("account_inactive")
-    address = conn.execute(
-        "SELECT user_id FROM app.user_emails WHERE email_key=%s", (email,)
-    ).fetchone()
-    if address and str(address[0]) != owner:
-        raise AuthDenied("identity_conflict")
     name = identity.get("name", "")
     name = name[:120] if isinstance(name, str) else ""
     picture = _picture(identity.get("picture", ""))
     if owner is None:
+        address = conn.execute(
+            "SELECT user_id FROM app.user_emails WHERE email_key=%s", (email,)
+        ).fetchone()
+        if address:
+            raise AuthDenied("identity_conflict")
         owner = str(
             conn.execute(
                 "INSERT INTO app.users(status,display_name,picture) VALUES ('active',%s,%s) RETURNING id",
                 (name, picture),
             ).fetchone()[0]
         )
-    else:
-        conn.execute(
-            "UPDATE app.users SET display_name=%s,picture=%s,updated_at=now() WHERE id=%s",
-            (name, picture, owner),
-        )
-    conn.execute(
-        "UPDATE app.user_emails SET is_primary=false WHERE user_id=%s AND is_primary",
-        (owner,),
-    )
-    bound_email = conn.execute(
-        "INSERT INTO app.user_emails(user_id,address,email_key,verified_at,verification_method,is_primary) "
-        "VALUES (%s,%s,%s,now(),'google',true) ON CONFLICT(email_key) DO UPDATE "
-        "SET address=EXCLUDED.address,verified_at=now(),verification_method='google',is_primary=true "
-        "WHERE app.user_emails.user_id=EXCLUDED.user_id RETURNING user_id",
-        (owner, identity["email"], email),
-    ).fetchone()
-    if bound_email is None:
-        raise AuthDenied("identity_conflict")
+        bound_email = conn.execute(
+            "INSERT INTO app.user_emails(user_id,address,email_key,verified_at,verification_method,is_primary) "
+            "VALUES (%s,%s,%s,now(),'google',true) ON CONFLICT(email_key) DO NOTHING RETURNING user_id",
+            (owner, identity["email"], email),
+        ).fetchone()
+        if bound_email is None:
+            raise AuthDenied("identity_conflict")
+    # A known verified subject owns the existing canonical account. Provider
+    # metadata is observation, never permission to replace the app profile or
+    # primary mailbox, even when the new observed email belongs to another user.
     hosted_domain = identity.get("hd", "")
     workspace = (
         isinstance(hosted_domain, str)
@@ -131,7 +123,7 @@ def preserve_approved_grant(
         return
     row = conn.execute(
         "SELECT id,subject,observed_email_key,email_authoritative FROM app.external_identities "
-        "WHERE user_id=%s AND provider='google' AND issuer=%s AND subject=%s",
+        "WHERE user_id=%s AND provider='google' AND issuer=%s AND subject=%s AND is_active",
         (owner, ISSUER, subject),
     ).fetchone()
     if row is None:
@@ -158,19 +150,24 @@ def grant_state(
         return False, 0
     row = conn.execute(
         "SELECT g.version,g.revoked_at,g.approval_kind,g.approval_evidence,"
-        "e.subject,e.observed_email_key,e.email_authoritative FROM app.dataset_grants g "
+        "e.subject,e.observed_email_key,e.email_authoritative,e.is_active FROM app.dataset_grants g "
         "LEFT JOIN app.external_identities e ON e.id=g.approval_identity_id AND e.user_id=g.user_id "
         "WHERE g.user_id=%s AND g.dataset_key=%s",
         (owner, policy.dataset_key),
     ).fetchone()
     if row is None:
         return False, 0
-    version, revoked, kind, evidence, subject, email, authoritative = row
+    version, revoked, kind, evidence, subject, email, authoritative, active = row
     allowed = kind == "operator"
     if kind == "google_subject":
-        allowed = evidence == subject and evidence in policy.allowed_google_subs
+        allowed = (
+            active and evidence == subject and evidence in policy.allowed_google_subs
+        )
     elif kind == "google_email":
         allowed = (
-            authoritative and evidence == email and evidence in policy.allowed_emails
+            active
+            and authoritative
+            and evidence == email
+            and evidence in policy.allowed_emails
         )
     return bool(allowed and revoked is None), version

@@ -141,6 +141,20 @@ jobs:
           export AQUA_P09_BACKEND_IMAGE="$(docker image inspect aqua-runtime:check --format '{{.Id}}')"
           export AQUA_P09_BRIDGE_ARGS_JSON="$(python -c 'import json,os; print(json.dumps(["-u","../tools/checks/p08_browser_backend.py","--image",os.environ["AQUA_P09_BACKEND_IMAGE"]]))')"
           node checks/p09-browser.mjs
+      - name: Opal account profile and isolated session review journeys
+        timeout-minutes: 4
+        working-directory: frontend
+        env:
+          AQUA_P05_EXPECTED_SHELL: opal
+          AQUA_P10A_DIST: ${{ github.workspace }}/frontend/dist
+          AQUA_P10A_ARTIFACT_DIR: ${{ runner.temp }}/aqua-p10a/opal
+        run: |
+          export AQUA_CHROME_EXECUTABLE="$(command -v google-chrome)"
+          test -x "$AQUA_CHROME_EXECUTABLE"
+          export AQUA_P10A_BRIDGE_EXECUTABLE="$(command -v python)"
+          export AQUA_P10A_BACKEND_IMAGE="$(docker image inspect aqua-runtime:check --format '{{.Id}}')"
+          export AQUA_P10A_BRIDGE_ARGS_JSON="$(python -c 'import json,os; print(json.dumps(["-u","../tools/checks/p08_browser_backend.py","--image",os.environ["AQUA_P10A_BACKEND_IMAGE"]]))')"
+          node checks/p10a-account-browser.mjs
       - name: Build classic UI rollback with the current secure auth contracts
         working-directory: frontend
         env:
@@ -193,6 +207,20 @@ jobs:
           export AQUA_P09_BACKEND_IMAGE="$(docker image inspect aqua-runtime:check --format '{{.Id}}')"
           export AQUA_P09_BRIDGE_ARGS_JSON="$(python -c 'import json,os; print(json.dumps(["-u","../tools/checks/p08_browser_backend.py","--image",os.environ["AQUA_P09_BACKEND_IMAGE"]]))')"
           node checks/p09-browser.mjs
+      - name: Classic account profile and isolated session review journeys
+        timeout-minutes: 4
+        working-directory: frontend
+        env:
+          AQUA_P05_EXPECTED_SHELL: legacy
+          AQUA_P10A_DIST: ${{ github.workspace }}/frontend/dist
+          AQUA_P10A_ARTIFACT_DIR: ${{ runner.temp }}/aqua-p10a/legacy
+        run: |
+          export AQUA_CHROME_EXECUTABLE="$(command -v google-chrome)"
+          test -x "$AQUA_CHROME_EXECUTABLE"
+          export AQUA_P10A_BRIDGE_EXECUTABLE="$(command -v python)"
+          export AQUA_P10A_BACKEND_IMAGE="$(docker image inspect aqua-runtime:check --format '{{.Id}}')"
+          export AQUA_P10A_BRIDGE_ARGS_JSON="$(python -c 'import json,os; print(json.dumps(["-u","../tools/checks/p08_browser_backend.py","--image",os.environ["AQUA_P10A_BACKEND_IMAGE"]]))')"
+          node checks/p10a-account-browser.mjs
       # Only synthetic browser evidence is retained. Never upload the checkout,
       # arbitrary temporary files, fixture pipes, credentials or runtime config.
       - name: Retain bounded browser reports after success or failure
@@ -219,6 +247,10 @@ jobs:
             ${{ runner.temp }}/aqua-p09/opal/*.png
             ${{ runner.temp }}/aqua-p09/legacy/*.json
             ${{ runner.temp }}/aqua-p09/legacy/*.png
+            ${{ runner.temp }}/aqua-p10a/opal/*.json
+            ${{ runner.temp }}/aqua-p10a/opal/*.png
+            ${{ runner.temp }}/aqua-p10a/legacy/*.json
+            ${{ runner.temp }}/aqua-p10a/legacy/*.png
           if-no-files-found: warn
           retention-days: 7
           include-hidden-files: false

@@ -36,7 +36,7 @@ if (ctx && (ctx.external || ctx.runtimeErrors || ctx.consoleLeaks || ctx.errors.
 const report = { status: failure ? "failed" : "passed", failure, checked_utc: new Date().toISOString(), mode: "real_plotly_real_private_auth_history_fixed_fake_analysis",
   expected_shell: process.env.AQUA_P05_EXPECTED_SHELL || "opal", browser: ctx?.browserVersion || null, limits: LIMITS, workload, fixture: stats, failure_state: failureState,
   preference_regression: preferenceMode || "not_requested",
-  boundary: { backend_image: ctx?.backendImage || null, schema_version: 5, network: "none", private_synthetic_auth_history: true },
+  boundary: { backend_image: ctx?.backendImage || null, schema_version: 6, network: "none", private_synthetic_auth_history: true },
   elapsed_seconds: ctx ? Math.round((performance.now() - ctx.started) / 100) / 10 : null, browser_diagnostic: ctx?.cdp?.diagnostic || null,
   protocol_diagnostics: ctx?.protocolDiagnostics || [],
   observations: ctx ? { requests: ctx.requests, api_requests: ctx.api, external_attempts: ctx.external, runtime_errors: ctx.runtimeErrors, console_leaks: ctx.consoleLeaks, protocol_errors: ctx.errors, maximum_paused_requests: ctx.maximumPending } : null,

@@ -83,8 +83,8 @@ passing result from the earlier Settings release satisfies this supplement.
 
 ## Release and recovery
 
-Publish as `Phase9 Homepage` after local gates pass. Required checks on the exact
-PR head and merged main must pass before release. Package only the final
+Published as `Phase9 Homepage` after local gates passed. Required checks on the
+exact PR head and merged main passed before release. Future recovery must package only the final
 browser-verified assets, prove their source against the merged Git object and
 compare the full static/nginx image set. Recreate only the frontend. Preserve
 the healthy P09 backend container/image, database, private volumes, environment,
@@ -94,3 +94,13 @@ No database restore or obsolete-auth rollback is part of this frontend change.
 P10 account/security implementation stays separate. ChatGPT-like organization
 uses AQUA's existing private projects/chats contract; project files, shared
 workspaces and cross-project model memory are not introduced.
+
+## Verified release
+
+Merged as `7c0caae8ac0d5fa1c74866bd898d317c1fc984ea` (PR #53,
+`Phase9 Homepage`). PR and merged-main CI passed all 29 steps. The October 28
+23:10:19 UTC frontend-only release passed exact image/asset and preservation
+checks, plus the public sign-in browser. Private schema 5 and the existing
+backend/authentication/mail/worker/scheduler stayed unchanged. See
+`docs/implementation/evidence/homepage/release.json`; the earlier local-check
+record remains immutable evidence of the candidate verification.

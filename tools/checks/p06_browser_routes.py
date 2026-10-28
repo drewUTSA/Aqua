@@ -5,6 +5,8 @@ from urllib.parse import parse_qsl, urlsplit
 
 UUID = r"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}"
 ROUTES = (
+    (r"/api/v1/me", {"GET": set(), "PATCH": set()}),
+    (r"/api/v1/me/(methods|sessions)", {"GET": set()}),
     (r"/api/v1/me/preferences", {"GET": set(), "PUT": set()}),
     (
         r"/api/v1/chats",

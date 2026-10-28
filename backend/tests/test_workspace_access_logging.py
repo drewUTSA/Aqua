@@ -24,6 +24,9 @@ def test_private_workspace_access_records_are_suppressed_without_changing_health
         "/api/v1/chats?search=" + canary,
         "/api/v1/projects?cursor=" + canary,
         "/api/v1/me/saved-prompts?cursor=" + canary,
+        "/api/v1/me?name=" + canary,
+        "/api/v1/me/methods?owner_id=" + canary,
+        "/api/v1/me/sessions/" + canary,
     ]:
         assert not filter.filter(record(path))
     assert filter.filter(record("/api/health"))

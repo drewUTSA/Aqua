@@ -1,0 +1,29 @@
+.account-foundation { min-width: 0; margin-block: 1.25rem; overflow-wrap: anywhere; }
+.account-foundation .account-section { padding: 1.25rem 0; border: 0; border-top: 1px solid var(--pref-border, #cbd5e1); border-radius: 0; min-width: 0; }
+.account-foundation .account-section-heading { display: flex; gap: .75rem 1.25rem; flex-wrap: wrap; align-items: start; justify-content: space-between; }
+.account-foundation :is(h3,h4,p) { margin-top: 0; }
+.account-foundation .account-section-heading h3 { margin-bottom: .4rem; }
+.account-foundation .account-section-heading p { color: var(--pref-muted, #64748b); margin-bottom: .5rem; }
+.account-foundation .account-section-heading > div { flex: 1 1 14rem; min-width: 0; }
+.account-foundation .account-section-heading > button { flex: 0 1 auto; }
+.account-foundation .account-detail-list { margin: .75rem 0 1rem; }
+.account-foundation :is(.account-detail-list,.account-session dl) > div { display: grid; grid-template-columns: minmax(0, 9rem) minmax(0, 1fr); gap: .35rem 1rem; padding-block: .5rem; }
+.account-foundation dt { color: var(--pref-muted, #64748b); }
+.account-foundation dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+.account-foundation .account-muted,.account-name-dialog .account-muted { display: block; color: var(--pref-muted, #64748b); }
+.account-foundation .account-session-list { list-style: none; padding: 0; margin: .5rem 0 1.25rem; display: grid; gap: .75rem; }
+.account-foundation .account-session { padding: 1rem; background: var(--pref-raised, #f8fafc); border: 1px solid var(--pref-border, #cbd5e1); border-radius: .75rem; min-width: 0; }
+.account-foundation .account-session-heading { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1rem; margin-bottom: .35rem; }
+.account-foundation .account-current { padding: .2rem .55rem; border: 1px solid var(--pref-border, #cbd5e1); border-radius: 1rem; }
+.account-foundation .account-session dl { margin-bottom: 0; }
+.account-foundation .account-future { padding-block: .75rem; color: var(--pref-muted, #64748b); }
+.account-name-dialog { overflow-wrap: anywhere; }
+.account-name-dialog .account-name-field { display: grid; gap: .5rem; font-weight: 600; }
+.account-name-dialog .account-name-field input { box-sizing: border-box; width: 100%; min-width: 0; min-height: 2.75rem; padding: .7rem .8rem; font: inherit; color: var(--pref-text, #0f172a); background: var(--pref-raised, #f8fafc); border: 1px solid var(--pref-border, #cbd5e1); border-radius: .65rem; }
+.account-name-dialog .account-name-review { padding: 1rem; margin-top: 1rem; border: 1px solid var(--pref-border, #cbd5e1); border-radius: .7rem; }
+.account-name-dialog .account-actions { display: flex; flex-wrap: wrap; gap: .5rem; }
+.account-name-dialog .account-actions > button,.account-name-dialog .settings-dialog-actions > button { max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
+@media (max-width: 42rem) {
+  .account-foundation :is(.account-detail-list,.account-session dl) > div { grid-template-columns: minmax(0, 1fr); gap: .2rem; }
+  .account-foundation .account-session { padding: .75rem; }
+}
