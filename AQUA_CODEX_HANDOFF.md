@@ -45,17 +45,17 @@ Prepared October 16, 2026. This single file contains the approved frontend/backe
 
 Maintain this table or an equivalent repository progress log during implementation. Do not mark a phase complete based on its documentation.
 
-| Field | Verified checkpoint — P08 release |
+| Field | October 28 P09 implementation checkpoint |
 | --- | --- |
-| Current phase | P00–P08 complete and deployed |
-| Code checkpoint | `d76be9a`, P08 PR #50 merged after required checks |
-| Deployment | Tested P08 backend/Opal images healthy on schema 5; bounded Plotly and conditional visuals live; password login, registration, recovery and branded mail remain active |
+| Current phase | P00–P08 complete and deployed; P09 implemented and locally verified, ready for human review |
+| Code checkpoint | Clean resume base `14993c2` (P08 closeout PR #51); P09 is a verified release candidate; Git operations are authorized |
+| Deployment | P08 remains live on schema 5; P09 is not deployed; private storage, active authentication and branded mail worker preserved |
 | Last accepted design | Opal home, dual login, on-demand right visuals, complete Settings |
 | Historical verification | 47 existing frontend tests passed during audit; not a current security or backend result |
-| Phase evidence | P08 PR/main CI each passed all 27 steps; 1,303 unique backend cases, 323 frontend cases, and per shell 103 synthetic, 39 real-DB and 35 Plotly checks passed; see [P08 release](docs/implementation/P08_PLOTLY_VISUALS.md) |
-| Findings/blockers | No unresolved P08 release blocker; later Settings/product work remains in the phase plan |
-| Review checkpoint | P08 independently reviewed, merged, deployed and verified; schema 5, private volumes, activation settings and scheduled mail worker preserved |
-| Next phase | P09 only after a new user request; P09–P13 not started |
+| Phase evidence | P09 source/lock/Black/Ruff/audits, 1,385 backend cases, 399 frontend cases, both builds, restore/storage/proxy and all eight browser gates passed; per shell 103 synthetic, 39 real-DB, 41 Settings and 37 Plotly checks; see [P09 Settings](docs/implementation/P09_SETTINGS_PREFERENCES.md) |
+| Findings/blockers | No unresolved local verification blocker; human Git checkpoint, required PR/main CI and production release remain pending |
+| Review checkpoint | Verified P09 source, portable security/browser evidence, reviewed screenshots and PR draft ready; Git operations authorized; PR/main CI and release remain pending |
+| Next phase | P10 after the P09 review checkpoint; P10–P13 not started |
 
 ---
 

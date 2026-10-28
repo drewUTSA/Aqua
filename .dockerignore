@@ -9,6 +9,7 @@
 !backend/storage/*.py
 !backend/workspace/*.py
 !backend/analysis/*.py
+!backend/preferences/*.py
 !backend/migrations/*.sql
 !tools/checks/Dockerfile
 !tools/checks/requirements-runtime.lock

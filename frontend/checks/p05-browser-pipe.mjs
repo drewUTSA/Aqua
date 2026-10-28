@@ -8,6 +8,7 @@ const METHODS = new Set([
   "Page.enable", "Page.navigate", "Page.captureScreenshot", "Page.addScriptToEvaluateOnNewDocument", "Page.bringToFront",
   "Network.enable", "Network.getCookies", "Runtime.enable", "Runtime.evaluate", "Fetch.enable", "Fetch.fulfillRequest", "Fetch.continueRequest", "Fetch.failRequest",
   "Emulation.setDeviceMetricsOverride", "Emulation.setEmulatedMedia", "Input.dispatchKeyEvent", "DOM.enable", "DOM.getDocument", "DOM.querySelector", "CSS.enable", "CSS.getPlatformFontsForNode",
+  "Accessibility.getFullAXTree",
 ]);
 const record = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
 const protocolClass = (error) => !record(error) || typeof error.message !== "string" ? "none"

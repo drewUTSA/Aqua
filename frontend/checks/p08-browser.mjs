@@ -3,7 +3,9 @@ import { writeFile, mkdir } from "node:fs/promises";
 import path from "node:path";
 import { openP08Browser, LIMITS } from "./p08-browser-environment.mjs";
 import { runVisualChecks } from "./p08-browser-checks.mjs";
+import { prepareVisualPreference, visualPreferenceMode } from "./p09-visual-preference-checks.mjs";
 const EMAIL = "p05-browser-reader@example.test", PASSWORD = "Synthetic orbital meadow password 27";
+const preferenceMode = visualPreferenceMode();
 let ctx, failure = null, stats = null, workload = null, failureState = null;
 try {
   ctx = await openP08Browser(); ctx.secrets.add(PASSWORD);
@@ -19,6 +21,7 @@ try {
   if (me.status !== 200 || JSON.parse(me.body).can_query !== false) throw Error("initial_grant_boundary_invalid");
   await ctx.bridge.send("workspace_grant"); await ctx.navigate("/");
   await ctx.waitFor("document.querySelector('.opal-composer textarea')?.disabled===false", "synthetic_grant_ready");
+  if (preferenceMode) await prepareVisualPreference(ctx, preferenceMode);
   workload = await runVisualChecks(ctx); stats = await ctx.bridge.send("workspace_stats");
   if (stats.actual_provider_calls !== 0 || stats.physical_active !== 0 || stats.maximum_physical_active !== 1 || stats.fake_executions !== workload.fake_jobs_requested || stats.fake_started !== workload.fake_jobs_requested || stats.fake_started > LIMITS.fakeJobs) throw Error("fixture_execution_boundary_invalid");
   if (ctx.external || ctx.runtimeErrors || ctx.consoleLeaks || ctx.errors.length) throw Error("browser_boundary_failure");
@@ -31,6 +34,7 @@ if (ctx && Object.entries(ctx.cleanup || {}).some(([key, value]) => key !== "bac
 if (ctx && (ctx.external || ctx.runtimeErrors || ctx.consoleLeaks || ctx.errors.length)) failure ||= "browser_boundary_failure";
 const report = { status: failure ? "failed" : "passed", failure, checked_utc: new Date().toISOString(), mode: "real_plotly_real_private_auth_history_fixed_fake_analysis",
   expected_shell: process.env.AQUA_P05_EXPECTED_SHELL || "opal", browser: ctx?.browserVersion || null, limits: LIMITS, workload, fixture: stats, failure_state: failureState,
+  preference_regression: preferenceMode || "not_requested",
   boundary: { backend_image: ctx?.backendImage || null, schema_version: 5, network: "none", private_synthetic_auth_history: true },
   elapsed_seconds: ctx ? Math.round((performance.now() - ctx.started) / 100) / 10 : null, browser_diagnostic: ctx?.cdp?.diagnostic || null,
   protocol_diagnostics: ctx?.protocolDiagnostics || [],

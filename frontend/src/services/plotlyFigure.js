@@ -11,6 +11,7 @@ const bytes = (value) => new TextEncoder().encode(JSON.stringify(value)).byteLen
 const shortened = (value, limit) => { const points = Array.from(value); return points.length <= limit ? value : points.slice(0, limit - 1).join("") + "…"; };
 export const plotlyLiteral = (value) => String(value).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#39;");
 const palettes = {
+  light: { text: "#202128", muted: "#535660", grid: "#8a8c95", colors: ["#514174", "#21635d"] },
   opal: { text: "#f2f1ed", muted: "#adb0ba", grid: "#37383f", colors: ["#cdc8ec", "#82dbca"] },
   legacy: { text: "#edf8fc", muted: "#c6e0eb", grid: "#375363", colors: ["#b9e8f0", "#91b6ff"] }
 };
@@ -54,7 +55,7 @@ function xValue(row, axis) {
 }
 
 /** Project an allowlisted result descriptor into fresh app-owned Plotly input. */
-export function buildPlotlyFigure(descriptor, table, { theme = "opal" } = {}) {
+export function buildPlotlyFigure(descriptor, table, { theme = "opal", preferences, revisionKey = "", animate = false, textScale = 100 } = {}) {
   if (!keys(descriptor, chartKeys) || descriptor.id !== "result-chart" || !["bar", "line"].includes(descriptor.type)
     || !text(descriptor.title, 160) || descriptor.tableId !== "result" || !properties(table) || table.id !== "result"
     || !Array.isArray(table.columns) || table.columns.length > 64 || !Array.isArray(table.rows) || table.rows.length > 1000
@@ -103,7 +104,15 @@ export function buildPlotlyFigure(descriptor, table, { theme = "opal" } = {}) {
   if (axis.kind === "calendar" && values.some((value, index) => index && value <= values[index - 1])) return null;
   if (!descriptor.series.every((series) => rows.some((row) => row[series.key] !== null)
     && rows.every((row) => row[series.key] === null || numeric(row[series.key])))) return null;
-  const palette = palettes[theme] || palettes.opal, labels = values.map((value, index) => plotlyLiteral(axis.kind === "datetime" ? rows[index][axis.keys[0]] : value)), slots = rows.map((_, index) => `row-${index}`);
+  const safeTheme = typeof theme === "string" && Object.hasOwn(palettes, theme) ? theme : "opal";
+  const base = palettes[safeTheme];
+  const seriesColors = safeTheme === "light" ? { categorical: ["#514174", "#21635d"], sequential: ["#193e72", "#306c98"], diverging: ["#893f13", "#275f8a"] }
+    : { categorical: base.colors, sequential: ["#9ecae1", "#4eb3d3"], diverging: ["#f4b183", "#9ac9ec"] };
+  const paletteName = typeof preferences?.palette === "string" && Object.hasOwn(seriesColors, preferences.palette) ? preferences.palette : "categorical";
+  const palette = { ...base, colors: seriesColors[paletteName] };
+  const revision = typeof revisionKey === "string" && revisionKey.length <= 128 ? revisionKey : "";
+  const scale = [100, 112.5, 125, 150].includes(textScale) ? textScale / 100 : 1;
+  const labels = values.map((value, index) => plotlyLiteral(axis.kind === "datetime" ? rows[index][axis.keys[0]] : value)), slots = rows.map((_, index) => `row-${index}`);
   const tickLabels = values.map((value) => plotlyLiteral(shortened(value, 48)));
   const data = descriptor.series.map((series, index) => ({
     type: descriptor.type === "bar" ? "bar" : "scatter",
@@ -116,18 +125,18 @@ export function buildPlotlyFigure(descriptor, table, { theme = "opal" } = {}) {
   const axisTitle = axis.keys.map((key) => columns.get(key)?.label || key).join(" · ");
   const unit = descriptor.series[0].unit;
   const layout = {
-    autosize: true, height: 320, paper_bgcolor: "rgba(0,0,0,0)", plot_bgcolor: "rgba(0,0,0,0)",
-    font: { family: "Manrope, system-ui, sans-serif", size: 12, color: palette.text },
-    margin: { t: 24, r: 20, b: 70, l: 76 }, showlegend: data.length > 1, barmode: "group", dragmode: "zoom",
+    autosize: true, height: 320 * scale, paper_bgcolor: "rgba(0,0,0,0)", plot_bgcolor: "rgba(0,0,0,0)",
+    font: { family: preferences?.font === "system" ? "system-ui, sans-serif" : "Manrope, system-ui, sans-serif", size: 12 * scale, color: palette.text },
+    margin: { t: 24, r: 20, b: 70, l: 76 }, showlegend: preferences?.legend === "show" || preferences?.legend !== "hide" && data.length > 1, barmode: "group", dragmode: "zoom",
     legend: { orientation: "h", x: 0, y: 1.14, font: { color: palette.text } },
     xaxis: { type: temporal ? "date" : "category", title: { text: plotlyLiteral(shortened(axisTitle, 80)) }, automargin: true,
-      gridcolor: palette.grid, zeroline: false, tickfont: { color: palette.muted },
+      gridcolor: palette.grid, showgrid: preferences?.grid !== "minimal", gridwidth: preferences?.grid === "standard" ? 2 : 1, zeroline: false, tickfont: { color: palette.muted },
       ...(temporal ? { tickformat: axis.kind === "date" ? "%Y-%m-%d" : "%Y-%m-%d<br>%H:%M UTC" }
         : { categoryorder: "array", categoryarray: [...slots], tickmode: "array", tickvals: [...slots], ticktext: [...tickLabels] }) },
     yaxis: { type: "linear", title: { text: plotlyLiteral(unit || "Unit not specified") }, automargin: true,
-      gridcolor: palette.grid, zeroline: true, zerolinecolor: palette.muted, tickfont: { color: palette.muted } },
-    hoverlabel: { bgcolor: theme === "legacy" ? "#0b2533" : "#191a1e", bordercolor: palette.muted, font: { color: palette.text } },
-    transition: { duration: 0 }, uirevision: descriptor.compatibility_key, selectionrevision: descriptor.compatibility_key
+      gridcolor: palette.grid, showgrid: preferences?.grid !== "minimal", gridwidth: preferences?.grid === "standard" ? 2 : 1, zeroline: true, zerolinecolor: palette.muted, tickfont: { color: palette.muted } },
+    hoverlabel: { bgcolor: safeTheme === "legacy" ? "#0b2533" : safeTheme === "light" ? "#ffffff" : "#191a1e", bordercolor: palette.muted, font: { color: palette.text } },
+    transition: { duration: animate === true ? 150 : 0 }, uirevision: descriptor.compatibility_key + (preferences?.preserve_exploration === false ? `:${revision}` : ""), selectionrevision: descriptor.compatibility_key
   };
   const config = {
     displayModeBar: false, modeBarButtons: [], displaylogo: false, showLink: false, showSendToCloud: false,

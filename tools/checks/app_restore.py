@@ -97,6 +97,14 @@ COMMIT;
     )
     admission_sql = b"SELECT scope,units,expires_at FROM app.analysis_admission WHERE scope='recovery-fixture-budget';"
     admission_expected = sql("aqua_app", admission_sql)
+    # P09 writes the existing schema-1 preferences table. Restore must preserve
+    # choices and revision while the independent session fence revokes access.
+    sql(
+        "aqua_app",
+        b'SET ROLE aqua_app_runtime; INSERT INTO app.user_preferences(user_id,revision,values) VALUES (\'00000000-0000-0000-0000-000000000001\',7,\'{"accent":"sage","sidebar_sections":["prompts","recents"]}\');',
+    )
+    preferences_sql = b"SELECT schema_version,revision,values FROM app.user_preferences WHERE user_id='00000000-0000-0000-0000-000000000001';"
+    preferences_expected = sql("aqua_app", preferences_sql)
     dump = docker(
         "exec",
         "-e",
@@ -172,6 +180,7 @@ COMMIT;
     ).decode().splitlines() == ["0", "0", "expired|t", "t"]
     assert sql("aqua_restore", recipient_sql) == recipient_expected
     assert sql("aqua_restore", admission_sql) == admission_expected
+    assert sql("aqua_restore", preferences_sql) == preferences_expected
     workspace_sql = b"SELECT state,reserved_bytes FROM app.analysis_requests WHERE user_id='00000000-0000-0000-0000-000000000001' ORDER BY id; SELECT content_bytes FROM app.workspace_usage WHERE user_id='00000000-0000-0000-0000-000000000001'; SELECT count(*) FROM app.visual_results WHERE user_id='00000000-0000-0000-0000-000000000001' AND response->>'message'='Completed synthetic answer'; SELECT status FROM app.messages WHERE id='20000000-0000-4000-8000-000000000004';"
     workspace_expected = ["complete|0", "interrupted|0", "1024", "1", "interrupted"]
     assert (
@@ -224,4 +233,5 @@ COMMIT;
         "restored_workspace_history": "preserved_and_pending_fenced",
         "restored_analysis_lifecycle": "interrupted_context_purged_streams_closed",
         "restored_analysis_admission": "preserved",
+        "restored_preferences": "values_schema_and_revision_preserved",
     }

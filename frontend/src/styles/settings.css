@@ -1,0 +1,84 @@
+.settings-page { --settings-edge: var(--pref-border, #45474c); --settings-muted: var(--pref-muted, #bbbcc2); overflow-y: auto; min-height: 0; padding: clamp(1rem, 3vw, 2.5rem); color: inherit; }
+.opal-workspace[data-ui-shell] .settings-page section { background: var(--pref-panel, #24262b); border-color: var(--pref-border, #45474c); }
+.opal-workspace[data-ui-shell] .settings-page p { color: var(--pref-muted, #bbbcc2); }
+.settings-page .settings-control-label { font-weight: 600; }
+.settings-heading-row { display: flex; flex-wrap: wrap; align-items: start; justify-content: space-between; gap: 1rem; }
+.settings-heading-row > div { flex: 1 1 20rem; min-width: 0; max-width: 100%; overflow-wrap: anywhere; }
+.settings-heading-row .breadcrumb { white-space: normal; overflow: visible; text-overflow: unset; }
+.settings-heading-row h1 { margin-top: .35rem; }
+.settings-page button, .settings-page select, .settings-page input:not([type=checkbox]), .preference-dialog button { min-height: 44px; max-width: 100%; font: inherit; }
+.settings-page button, .preference-dialog button { border: 1px solid var(--settings-edge, #65676d); border-radius: .7rem; padding: .55rem .9rem; background: var(--pref-panel, #24262b); color: inherit; cursor: pointer; }
+.settings-page button:disabled, .settings-page input:disabled, .settings-page select:disabled, .preference-dialog button:disabled { cursor: default; opacity: .6; }
+.settings-page :focus-visible, .preference-dialog :focus-visible { outline: 3px solid var(--pref-accent, #e1e2e6); outline-offset: 3px; }
+.settings-page input, .settings-page select, .settings-page textarea { background: var(--pref-panel, #24262b); color: inherit; border: 1px solid var(--settings-edge); border-radius: .55rem; padding: .6rem; font: inherit; }
+.settings-search { display: grid; grid-template-columns: minmax(0, 1fr); min-width: 0; gap: .45rem; margin: 1.25rem 0; max-width: 42rem; }
+.settings-search input { width: 100%; min-width: 0; }
+.settings-layout { display: grid; grid-template-columns: minmax(11rem, 14rem) minmax(0, 1fr); gap: clamp(1rem, 3vw, 2.5rem); align-items: start; }
+.settings-categories { display: grid; gap: .45rem; position: sticky; top: 0; }
+.settings-categories button { text-align: left; background: transparent; border-color: transparent; }
+.settings-categories button[aria-current=page] { border-color: var(--pref-accent, #d7d8dd); background: var(--pref-panel, #24262b); }
+.settings-content { min-width: 0; padding-bottom: 2rem; max-width: 64rem; }
+.settings-category-section { margin-bottom: 1.5rem; }
+.settings-control { display: grid; grid-template-columns: minmax(0, 1fr) minmax(9rem, 16rem); gap: 1rem; align-items: start; border-bottom: 1px solid var(--settings-edge); padding: 1rem 0; }
+.settings-control label { font-weight: 600; }
+.settings-control p { margin: .4rem 0 0; color: var(--settings-muted); font-size: .9em; line-height: 1.5; }
+.settings-scope { display: block; font-size: .8em; color: var(--settings-muted); margin-top: .25rem; }
+.settings-toggle { display: flex; align-items: center; gap: .65rem; min-height: 44px; }
+.settings-toggle input, .settings-transfers input[type=checkbox], .settings-section-order input[type=checkbox] { width: 1.25rem; height: 1.25rem; accent-color: var(--pref-accent, #d7d8dd); }
+.settings-range { display: grid; min-width: 0; gap: .4rem; }
+.settings-range input { width: 100%; padding: 0; }
+.settings-section-order { border: 0; margin: 0; padding: 0; min-width: 0; }
+.settings-section-order label { display: flex; align-items: center; min-height: 44px; gap: .55rem; }
+.settings-section-order ol { padding: 0; list-style: none; margin: .5rem 0 0; }
+.settings-section-order li { display: flex; gap: .3rem; align-items: center; margin-top: .3rem; }
+.settings-section-order li span { flex: 1; min-width: 0; }
+.settings-section-order li button { min-width: 44px; padding: .35rem; }
+.settings-information, .settings-preview, .settings-transfers { margin: 1.25rem 0; padding: 1rem; border: 1px solid var(--settings-edge); border-radius: .9rem; line-height: 1.6; }
+.settings-information a { color: inherit; text-decoration: underline; text-underline-offset: .2em; }
+.settings-error, .settings-warning { border: 1px solid var(--settings-edge); border-left: 4px solid #f1b98a; border-radius: .65rem; padding: .8rem; margin: 1rem 0; overflow-wrap: anywhere; }
+.settings-actions, .settings-dialog-actions { display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; }
+.settings-transfers > label { display: flex; align-items: start; gap: .6rem; margin: .9rem 0; }
+.settings-file-label { display: grid; grid-template-columns: minmax(0, 1fr); flex: 1 1 16rem; min-width: 0; gap: .4rem; max-width: 100%; }
+.settings-file-label input { width: 100%; min-width: 0; max-width: min(100%, 24rem); }
+.settings-savebar { position: sticky; bottom: -1px; background: var(--pref-panel, #24262b); border: 1px solid var(--settings-edge); border-radius: .8rem; margin-top: 1rem; padding: .85rem; display: flex; flex-wrap: wrap; justify-content: space-between; gap: .8rem; z-index: 2; }
+.settings-savebar > div { min-width: 0; }
+.settings-savebar p { margin: .3rem 0 0; max-width: 50rem; font-size: .9em; }
+.settings-savebar button.opal-primary { background: var(--pref-accent, #e1e2e6); color: var(--pref-on-accent, #111317); }
+.settings-control, .settings-category-section, .settings-page button, .settings-page input, .settings-page select { scroll-margin-bottom: 14rem; }
+.settings-draft-review { margin: 1.5rem 0; }
+.settings-draft-review summary { cursor: pointer; min-height: 44px; padding: .5rem 0; }
+.settings-comparison dl { display: grid; gap: .6rem; }
+.settings-comparison dl > div { border-bottom: 1px solid var(--settings-edge, #65676d); padding-bottom: .5rem; }
+.settings-comparison dt { font-weight: 600; }
+.settings-comparison dd { margin: .2rem 0 0; overflow-wrap: anywhere; }
+.settings-preview nav { display: flex; flex-wrap: wrap; gap: 1rem; }
+.settings-preview-message { padding: 1rem; border: 1px solid var(--settings-edge); border-radius: .7rem; }
+.settings-preview-chart { height: 8rem; display: flex; gap: 1rem; align-items: end; padding: .5rem; margin: 1rem 0; border-bottom: 1px solid var(--settings-edge); }
+.settings-preview-chart span { display: flex; flex: 1; flex-direction: column; align-items: center; gap: .4rem; }
+.settings-preview-chart i { display: block; background: var(--pref-accent, #e1e2e6); width: 60%; height: 2rem; }
+.settings-preview-chart span:nth-child(2) i { height: 3rem; }.settings-preview-chart span:nth-child(3) i { height: 4rem; }
+.settings-preview textarea { display: block; width: 100%; resize: vertical; margin: .5rem 0; min-height: 44px; }
+.settings-category-back { display: none; }
+.preference-dialog { max-width: min(42rem, calc(100vw - 2rem)); max-height: calc(100dvh - 2rem); overflow: auto; padding: clamp(1rem, 4vw, 2rem); border: 1px solid var(--settings-edge, #65676d); border-radius: 1rem; background: var(--pref-panel, #24262b); color: var(--pref-text, #eeeff2); line-height: 1.6; }
+.preference-dialog::backdrop { background: rgb(0 0 0 / .65); }
+.preference-dialog h2 { margin-top: 0; }
+.settings-dialog-actions { justify-content: flex-end; margin-top: 1.5rem; }
+@media (max-width: 700px) {
+  .settings-layout { display: block; }
+  .settings-categories { position: static; grid-template-columns: 1fr; }
+  .settings-categories button { border-color: var(--settings-edge); }
+  .settings-page[data-mobile-index=true] .settings-content { display: none; }
+  .settings-page[data-mobile-index=false] .settings-categories { display: none; }
+  .settings-category-back { display: block; margin-bottom: 1rem; }
+  .settings-control { grid-template-columns: minmax(0, 1fr); gap: .65rem; }
+  .settings-control select, .settings-range { width: 100%; }
+  .settings-savebar { position: static; }
+  .settings-savebar .settings-actions { width: 100%; }
+  .settings-savebar button { flex: 1 1 9rem; }
+}
+@media (forced-colors: active) {
+  .settings-page button, .settings-page input, .settings-page select, .preference-dialog, .preference-dialog button { border: 1px solid ButtonText; }
+  .settings-categories button[aria-current=page] { outline: 2px solid Highlight; }
+  .settings-preview-chart i { background: CanvasText; forced-color-adjust: none; }
+  .settings-error, .settings-warning { border-color: CanvasText; }
+}

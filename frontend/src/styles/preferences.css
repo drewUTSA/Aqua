@@ -1,0 +1,94 @@
+/* Presentation is scoped to the mounted account. Presets never become CSS text. */
+.opal-workspace[data-theme] {
+  --pref-bg: #0b0c0e; --pref-panel: #191a1e; --pref-raised: #232429;
+  --pref-text: #f2f1ed; --pref-muted: #adb0ba; --pref-border: #737682;
+  --pref-accent: #cdc8ec; --pref-on-accent: #121317; --pref-danger: #ffb4b4;
+  --color-bg: var(--pref-bg); --color-bg-raised: var(--pref-panel); --color-navy: var(--pref-panel);
+  --color-text: var(--pref-text); --color-muted: var(--pref-muted); --color-subtle: var(--pref-muted);
+  --color-aqua: var(--pref-accent); --color-aqua-bright: var(--pref-accent); --color-blue: var(--pref-accent);
+  --color-danger: var(--pref-danger); color: var(--pref-text); background: var(--pref-bg);
+  font-size: calc(1rem * var(--pref-text-scale, 1)); color-scheme: dark;
+}
+.opal-workspace[data-theme="opal"][data-ui-shell="legacy"] {
+  --pref-bg: #071520; --pref-panel: #0b2533; --pref-raised: #153346;
+  --pref-text: #edf8fc; --pref-muted: #c6e0eb; --pref-border: #729aa8;
+}
+.opal-workspace[data-theme="light"] {
+  --pref-bg: #f5f5f2; --pref-panel: #ffffff; --pref-raised: #e9e9e4;
+  --pref-text: #202128; --pref-muted: #535660; --pref-border: #797b84;
+  --pref-accent: #514174; --pref-on-accent: #ffffff; --pref-danger: #a32232; color-scheme: light;
+}
+.opal-workspace[data-accent="sage"] { --pref-accent: #a5d7bf; }
+.opal-workspace[data-accent="slate"] { --pref-accent: #b7c9e6; }
+.opal-workspace[data-accent="amber"] { --pref-accent: #ebc77e; }
+.opal-workspace[data-theme="light"][data-accent="sage"] { --pref-accent: #2b6248; }
+.opal-workspace[data-theme="light"][data-accent="slate"] { --pref-accent: #39567e; }
+.opal-workspace[data-theme="light"][data-accent="amber"] { --pref-accent: #73540e; }
+.opal-workspace[data-contrast="increased"] { --pref-muted: #dedee3; --pref-border: #b4b6bf; }
+.opal-workspace[data-theme="light"][data-contrast="increased"] { --pref-muted: #343640; --pref-border: #4c4f58; }
+.opal-workspace[data-theme] :is(.opal-sidebar,.visual-pane,.settings-shell section,.account-menu__panel,.logout-dialog,.workspace-editor,.header-model .model-selector__menu) {
+  background: var(--pref-panel); color: var(--pref-text); border-color: var(--pref-border);
+}
+.opal-workspace[data-theme] :is(.opal-composer,.opal-suggestions button,.mobile-model select,.header-model .model-selector__trigger,.data-badge,.financial-table,.financial-table th,.sql-block,.message__bubble--user) {
+  background: var(--pref-raised); color: var(--pref-text); border-color: var(--pref-border);
+}
+.opal-workspace[data-theme] :is(.message__bubble,.markdown-response,.financial-table td,.opal-composer textarea,.opal-sidebar section button,.sort-button) {
+  color: var(--pref-text);
+}
+.opal-workspace[data-theme] .message__bubble--aqua { background: var(--pref-panel); border-color: var(--pref-border); }
+.opal-workspace[data-theme] :is(.settings-shell p,.sidebar-note,.sidebar-search label,.sidebar-search__status,.opal-sidebar h2,.breadcrumb,.opal-account small,.opal-welcome p,.opal-suggestions small,.opal-disclaimer,.composer-hint,.visual-pane__context,.result-metadata,.answered-by) {
+  color: var(--pref-muted);
+}
+.opal-workspace[data-theme] :is(.status-mark,.markdown-response code) { color: var(--pref-accent); }
+.opal-workspace[data-theme] :is(.breadcrumb strong,.account-menu__panel strong) { color: var(--pref-text); }
+.opal-workspace[data-theme] :is(.sidebar-search input,.workspace-editor input,.workspace-editor select,.workspace-editor textarea) {
+  background: var(--pref-raised); color: var(--pref-text); border-color: var(--pref-border);
+}
+.opal-workspace[data-theme] :is(.logout-dialog p,.workspace-editor p,.account-menu__panel p) { color: var(--pref-muted); }
+.opal-workspace[data-theme] :is(input,textarea)::placeholder { color: var(--pref-muted); opacity: 1; }
+.opal-workspace[data-theme="light"] :is(.opal-brand > img,.opal-welcome > img) { filter: brightness(.35); }
+.opal-workspace[data-theme] :is(.opal-primary,.opal-send,.plotly-chart__controls button[aria-pressed="true"]) {
+  background: var(--pref-accent); color: var(--pref-on-accent); border-color: var(--pref-accent);
+}
+.opal-workspace[data-theme] .opal-composer:focus-within { border-color: var(--pref-accent); }
+.opal-workspace[data-theme] :is(.visual-pane button,.financial-table__actions button,.financial-table__pagination button) {
+  color: var(--pref-text); background: var(--pref-raised); border-color: var(--pref-border);
+}
+.opal-workspace[data-theme] .opal-send:disabled { opacity: .6; }
+.opal-workspace[data-theme] .opal-send > img { display: none; }
+.opal-workspace[data-theme] .opal-send__contrast-icon { display: block; background: var(--pref-on-accent); }
+.opal-workspace[data-theme="light"] .icon-button > img { filter: invert(1); }
+.opal-workspace[data-theme="light"] .opal-backdrop { opacity: .15; }
+.opal-workspace[data-theme] :is(button,input,select,textarea,p,small,label,li,td,th,pre,code) { font-size: calc(.875rem * var(--pref-text-scale, 1)); }
+.opal-workspace[data-theme] :is(.opal-composer textarea,.markdown-response,.message__bubble > p) { font-size: calc(1rem * var(--pref-text-scale, 1)); }
+.opal-workspace[data-theme] :is(h1,h2,h3) { overflow-wrap: anywhere; }
+.opal-workspace[data-theme] .opal-welcome h1 { font-size: clamp(calc(1.625rem * var(--pref-text-scale, 1)), 2.65vw, calc(2.375rem * var(--pref-text-scale, 1))); }
+.opal-workspace[data-font="system"],.opal-workspace[data-font="system"] :is(button,input,select,textarea) { font-family: system-ui,sans-serif; }
+.opal-workspace[data-spacing="relaxed"] :is(.markdown-response,.message__bubble p) { line-height: 2; }
+.opal-workspace[data-wrap-code="true"] .sql-block pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+.opal-workspace[data-wrap-code="false"] .sql-block pre { white-space: pre; overflow: auto; }
+.opal-workspace[data-width="focused"] :is(.conversation,.opal-composer-wrap,.opal-welcome,.opal-suggestions) { max-width: 680px; }
+.opal-workspace[data-width="wide"] :is(.conversation,.opal-composer-wrap,.opal-welcome,.opal-suggestions) { max-width: 1100px; }
+.opal-workspace[data-surface="depth"] :is(.opal-sidebar,.opal-composer,.visual-pane,.settings-category-section) { box-shadow: 0 8px 22px #0003; }
+.opal-workspace[data-density="compact"] :is(.opal-sidebar,.opal-composer,.settings-category-section) { padding: 12px; }
+.opal-workspace[data-density="compact"] .opal-chat { gap: 12px; }
+.opal-workspace[data-theme] :is(button,select) { min-height: 44px; }
+.opal-sidebar__scroll { display: flex; flex-direction: column; gap: 20px; }
+.opal-sidebar__scroll > section { margin: 0 !important; flex: 0 0 auto; }
+.opal-workspace [hidden] { display: none !important; }
+.financial-table[data-density="compact"] :is(th,td) { padding: 6px 10px; }
+.financial-table__pagination { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 12px; }
+.financial-table__pagination p { width: 100%; }
+.opal-workspace[data-theme] :focus-visible { outline: 3px solid var(--pref-accent); outline-offset: 3px; }
+.opal-workspace[data-motion="reduce"] *,.opal-workspace[data-motion="reduce"] *::before,.opal-workspace[data-motion="reduce"] *::after {
+  animation: none !important; transition: none !important; scroll-behavior: auto !important;
+}
+@media (forced-colors: active) {
+  .opal-workspace[data-theme] { --pref-bg: Canvas; --pref-panel: Canvas; --pref-raised: Canvas; --pref-text: CanvasText; --pref-muted: CanvasText; --pref-border: CanvasText; --pref-accent: Highlight; --pref-on-accent: HighlightText; }
+  .opal-workspace[data-theme] :is(button,input,select,textarea,.opal-composer,.message__bubble) { border: 1px solid ButtonText; }
+  .opal-workspace[data-theme] :focus-visible { outline-color: Highlight; }
+}
+@media (max-width: 600px) {
+  .opal-workspace[data-theme] { padding-inline: max(12px,env(safe-area-inset-left)) max(12px,env(safe-area-inset-right)); }
+  .opal-workspace[data-theme] :is(.financial-table__heading,.financial-table__actions) { flex-wrap: wrap; }
+}

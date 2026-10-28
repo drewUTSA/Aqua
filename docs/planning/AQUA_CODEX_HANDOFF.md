@@ -51,17 +51,17 @@ Setup has established a verified Resend sender domain, successful mode-600 email
 
 Maintain this table or an equivalent repository progress log during implementation. Do not mark a phase complete based on its documentation.
 
-| Field | Verified checkpoint — October 26, 2026 |
+| Field | October 28 P09 implementation checkpoint |
 | --- | --- |
-| Current phase | P05 issue closure complete; P00–P05 merged |
-| Code checkpoint | `8a5c71d`, P05 repair PR #43 merged |
-| Deployment | P05 Opal frontend and patched P04 backend healthy; private storage at schema 3; password/registration/recovery/mail/worker activation flags disabled |
+| Current phase | P00–P08 complete and deployed; P09 implemented and locally verified, ready for human review |
+| Code checkpoint | Clean resume base `14993c2` (P08 closeout PR #51); P09 is a verified release candidate; Git operations are authorized |
+| Deployment | P08 remains live on schema 5; P09 is not deployed; private storage, active authentication and branded mail worker preserved |
 | Last accepted design | Opal home, dual login, on-demand right visuals, complete Settings |
 | Historical verification | 47 existing frontend tests passed during audit; not a current security or backend result |
-| Phase evidence | Required PR/main CI and patched-runtime checks passed; see [P05 closure and deployment](../implementation/P05_CI_CLOSURE.md) and [earlier verification](../implementation/P05_RELEASE_READINESS.md) |
-| Findings/blockers | No unresolved P05 release blocker; later feature/activation work remains in the phase plan |
-| Review checkpoint | P05 repair PR #43 merged after required checks; patched backend deployed and verified |
-| Next phase | P06 ready; not started |
+| Phase evidence | P09 source/lock/Black/Ruff/audits, 1,385 backend cases, 399 frontend cases, both builds, restore/storage/proxy and all eight browser gates passed; per shell 103 synthetic, 39 real-DB, 41 Settings and 37 Plotly checks; see [P09 Settings](../implementation/P09_SETTINGS_PREFERENCES.md) |
+| Findings/blockers | No unresolved local verification blocker; human Git checkpoint, required PR/main CI and production release remain pending |
+| Review checkpoint | Verified P09 source, portable security/browser evidence, reviewed screenshots and PR draft ready; Git operations authorized; PR/main CI and release remain pending |
+| Next phase | P10 after the P09 review checkpoint; P10–P13 not started |
 
 ---
 

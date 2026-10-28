@@ -20,10 +20,20 @@ preserved. The public verification used no authenticated account, dataset grant
 or model request. No live provider-quality/load benchmark or production restore
 is claimed.
 
-The authorized P08 run is complete. P09 through P13 require a new user request
-and have not started. The default human Git checkpoint below applies outside
-explicitly authorized phase work. This checkpoint supersedes historical status
-statements below.
+The October 28 user request resumed implementation at P09. The current P09
+candidate adds nine-category Settings, strict revisioned owner preferences,
+separate device storage, safe imports and presentation integrations. Backend
+source/lock/Black/Ruff/audit, 1,385 unique isolated backend cases, restore,
+storage and proxy gates passed. All 399 frontend tests, both production builds
+and eight browser gates passed on the final assets: per shell 103 synthetic,
+39 real-database, 41 Settings and 37 Plotly checks. Native modal focus, stale-save
+recovery and measured 320px/200% text reflow findings were fixed and retested.
+Portable sanitized evidence and eight reviewed screenshots are retained with
+the phase record. Schema 5 and applied migrations remain unchanged. See
+`docs/implementation/P09_SETTINGS_PREFERENCES.md` for current evidence.
+P09 is ready for human review and remains in the authorized Git/CI release workflow and not yet deployed. P10 through
+P13 have not started. Required PR/main CI remains pending. The human Git checkpoint
+below still applies. This checkpoint supersedes historical status statements.
 
 The user explicitly authorized direct server access and routine server updates
 after required checks pass. A dedicated key-backed Windows SSH alias,
@@ -31,8 +41,21 @@ after required checks pass. A dedicated key-backed Windows SSH alias,
 key contents into the repository. Preserve phase isolation and recovery gates.
 The user also explicitly authorized the specific P05 test/CI/docs repair on
 October 26: commit it on a separate branch, publish its PR, and merge only after
-required GitHub checks pass. This is an exception for that repair; other Git
-commit/push/PR work retains the human checkpoint below.
+required GitHub checks pass. The October 28 user instruction supersedes that earlier narrow Git exception; the current Git authorization below covers the remaining phases.
+
+### P09 preference API (uncommitted review candidate)
+
+`GET /api/v1/me/preferences` returns `{schemaVersion:1, revision, values,
+capabilities}` for the current authenticated account, including accounts without
+a dataset grant. `PUT` accepts only `{schemaVersion:1, expectedRevision, values}`
+with a complete allowlisted account snapshot and ordinary Origin/CSRF defenses.
+An atomic revision mismatch returns 409. Unknown/newer stored settings are
+preserved and block overwriting; the client requires an explicit reload/review.
+Reads and writes share the durable 60/account/minute workspace budget. Device
+preferences have separate bounded owner-scoped storage, never a server-sync claim.
+Imports are versioned data only, at most 64 KiB; permissions, consent, secrets,
+custom instructions and destructive operations cannot enter preferences. Schema
+5 is reused without a migration. P10/P11 operational controls remain unavailable.
 
 ## What this project is
 
@@ -424,7 +447,7 @@ before the human PR checkpoint. No unrestricted production attacks are implied.
 Keep future charts, Settings imports and AI tools data-only and allowlisted.
 
 
-- Never commit, push, or open pull requests. Make code changes only and leave them uncommitted for a human to review.
+- On October 28 the user explicitly authorized Codex to handle all Git operations through the remaining phases: branch, commit, push, create PRs and merge after required checks pass. Use short commit titles such as `Phase9 Settings` and `Phase9 Homepage`. Preserve phase isolation and security/release gates.
 - Do not create, modify, or delete Tiger Cloud services. Use database tools in read-only mode.
 - Do not run DDL or write queries against the shared database. Schema changes go in `db/*.sql` for a human to apply.
 - Write or update tests in `backend/tests/test_validate.py` before changing `validate.py`.
