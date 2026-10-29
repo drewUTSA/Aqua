@@ -212,11 +212,10 @@ def test_account_budget_is_shared_with_preferences_and_failed_cas(world):
 def test_future_security_actions_are_unmounted(world):
     a, _ = world.client(grant=False)
     for path in [
-        "/reauth-challenges",
         "/email-change-requests",
-        "/password",
+        "/password-add",
+        "/reauth/google",
         "/identities/google",
-        "/session-revocations",
         "/notifications",
     ]:
         assert a.post(PATH + path, json={}).status_code == 404

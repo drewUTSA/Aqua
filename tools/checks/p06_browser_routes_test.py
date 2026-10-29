@@ -8,6 +8,36 @@ ID = "c5fbc248-64cb-4f08-b2be-e38df9d7b331"
 
 
 class Routes(unittest.TestCase):
+    def test_security_actions_allow_only_five_exact_routes_methods_without_queries(
+        self,
+    ) -> None:
+        actions = [
+            ("/api/v1/me/reauth-challenges", "POST"),
+            ("/api/v1/me/reauth/password", "POST"),
+            ("/api/v1/me/password", "PUT"),
+            (f"/api/v1/me/sessions/{ID}/revocations", "POST"),
+            ("/api/v1/me/session-revocations", "POST"),
+        ]
+        for path, expected in actions:
+            for method in ["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"]:
+                with self.subTest(path=path, method=method):
+                    self.assertEqual(workspace_route(path, method), method == expected)
+            for alternate in [
+                path + "/",
+                path + "?owner_id=forged",
+                path + "?proof=secret",
+                path + "#secret",
+                "https://outside.invalid" + path,
+            ]:
+                self.assertFalse(workspace_route(alternate, expected))
+        for path in [
+            "/api/v1/me/reauth/google",
+            "/api/v1/me/password-add",
+            "/api/v1/me/sessions/not-uuid/revocations",
+            f"/api/v1/users/{ID}/session-revocations",
+        ]:
+            self.assertFalse(workspace_route(path, "POST"))
+
     def test_account_foundation_only_current_owner_reads_and_name_patch(self) -> None:
         for path, method in [
             ("/api/v1/me", "GET"),

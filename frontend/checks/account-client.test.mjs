@@ -7,7 +7,7 @@ import { WorkspaceError } from "../src/services/workspaceClient.js";
 const OWNER = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa", OTHER = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";
 const ID = "cccccccc-cccc-4ccc-8ccc-cccccccccccc", NEXT = "dddddddd-dddd-4ddd-8ddd-dddddddddddd";
 const CAPS = { profile_edit: true, method_list: true, session_list: true, recent_proof: false,
-  email_change: false, password_change: false, google_link: false, google_unlink: false,
+  email_change: false, password_change: false, password_add: false, google_link: false, google_unlink: false,
   session_revoke: false, sessions_revoke_all: false, notification_delivery: false };
 const profile = () => ({ schemaVersion: 1, revision: 7, user: { id: OWNER, name: "Example Person", picture: "", email: "person@example.invalid" }, email_verified: true, capabilities: { ...CAPS } });
 const methods = () => ({ schemaVersion: 1, password: { linked: true, available: false, changed_at: "2026-10-26T10:00:00.123456+00:00" },

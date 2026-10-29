@@ -14,11 +14,11 @@ export function createAccountRequestScope(owner, currentIdentity) {
     begin(key) {
       if (!permitted()) return null;
       pending.get(key)?.abort();
-      const controller = new AbortController(), issued = generation;
+      const controller = new AbortController(), issued = generation, csrfToken = currentIdentity()?.csrfToken;
       pending.set(key, controller);
       return {
         signal: controller.signal,
-        current: () => permitted() && generation === issued && pending.get(key) === controller && !controller.signal.aborted,
+        current: () => permitted() && currentIdentity()?.csrfToken === csrfToken && generation === issued && pending.get(key) === controller && !controller.signal.aborted,
         finish: () => { if (pending.get(key) === controller) pending.delete(key); }
       };
     },

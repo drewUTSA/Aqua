@@ -1,4 +1,4 @@
-"""Same-origin account reads/profile edits; no future security mutation routes."""
+"""Same-origin profile reads/edits expose separately computed action capabilities."""
 
 import os
 from typing import Annotated, Any
@@ -6,6 +6,7 @@ from typing import Annotated, Any
 from fastapi import APIRouter, Depends, Request
 
 from account import repository
+from account.availability import capabilities
 from account.contracts import ProfileUpdate
 from auth.security import UserSession, get_store, require_user
 from auth.store import IdentityStore
@@ -34,21 +35,31 @@ def account_request(
         admit(conn, session.user["id"])
     with store.storage.transaction() as conn:
         guard(conn, session, store.policy)
+        available = capabilities(
+            conn, session.user["id"], request.app.state.settings.app_origin
+        )
         if operation == "profile":
-            return repository.profile(conn, session.user["id"])
-        if operation == "save" and body is not None:
-            return repository.save_profile(conn, session.user["id"], body)
-        if operation == "methods":
-            return repository.methods(
+            result = repository.profile(conn, session.user["id"])
+        elif operation == "save" and body is not None:
+            result = repository.save_profile(conn, session.user["id"], body)
+        elif operation == "methods":
+            result = repository.methods(
                 conn,
                 session.user["id"],
                 password_enabled=os.environ.get("PASSWORD_AUTH_ENABLED", "false")
                 == "true",
                 google_enabled=bool(request.app.state.settings.google_client_id),
             )
-        if operation == "sessions":
-            return repository.sessions(conn, session)
-        raise ValueError("account_operation_invalid")
+        elif operation == "sessions":
+            result = repository.sessions(conn, session)
+            result["capabilities"] = {
+                "revoke_one": available["session_revoke"],
+                "revoke_all": available["sessions_revoke_all"],
+            }
+            return result
+        else:
+            raise ValueError("account_operation_invalid")
+        return {**result, "capabilities": available}
 
 
 @router.get("")

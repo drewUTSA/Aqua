@@ -1,7 +1,7 @@
 import React, { useEffect, useId, useRef } from "react";
 import "../styles/dialogs.css";
 
-export default function PreferenceDialog({ title, children, onClose, busy = false, className = "" }) {
+export default function PreferenceDialog({ title, children, onClose, busy = false, className = "", initialFocusRef }) {
   const ref = useRef(null), heading = useId();
   useEffect(() => {
     const trigger = document.activeElement, node = ref.current;
@@ -21,7 +21,13 @@ export default function PreferenceDialog({ title, children, onClose, busy = fals
       if (!node?.isConnected) return;
       const suppressed = node.closest("[hidden],[inert]") || [...parents].some((parent) => parent.tagName === "DIALOG" && !parent.open);
       if (suppressed) { if (node.open) node.close(); }
-      else if (!node.open) node.showModal();
+      else if (!node.open) {
+        node.showModal();
+        // showModal performs native focus selection. Apply an explicit safe
+        // target afterwards, including when authority restores this dialog.
+        const target = initialFocusRef?.current;
+        if (target && node.contains(target) && !target.matches(":disabled") && target.getClientRects().length) target.focus({ preventScroll: true });
+      }
     };
     const parents = [];
     for (let parent = node?.parentElement; parent; parent = parent.parentElement) parents.push(parent);

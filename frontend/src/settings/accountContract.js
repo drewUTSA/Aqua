@@ -1,7 +1,7 @@
-// Closed P10a account snapshots. Future capabilities require a reviewed contract.
+// Closed P10b snapshots. Future capabilities still require a reviewed contract.
 const CAPABILITIES = Object.freeze({
   profile_edit: true, method_list: true, session_list: true, recent_proof: false,
-  email_change: false, password_change: false, google_link: false, google_unlink: false,
+  email_change: false, password_change: false, password_add: false, google_link: false, google_unlink: false,
   session_revoke: false, sessions_revoke_all: false, notification_delivery: false,
 });
 const FORBIDDEN_TEXT = /[\p{C}\p{Zl}\p{Zp}]/u;
@@ -55,8 +55,10 @@ export function normalizedDisplayName(value) {
 
 function capabilities(value) {
   exactKeys(value, Object.keys(CAPABILITIES));
-  requireValue(Object.entries(CAPABILITIES).every(([key, enabled]) => value[key] === enabled));
-  return { ...CAPABILITIES };
+  const conditional = ["recent_proof", "password_change", "session_revoke", "sessions_revoke_all"];
+  requireValue(Object.entries(CAPABILITIES).every(([key, enabled]) => conditional.includes(key) ? typeof value[key] === "boolean" : value[key] === enabled));
+  requireValue(value.session_revoke === value.recent_proof && value.sessions_revoke_all === value.recent_proof && (!value.password_change || value.recent_proof));
+  return Object.fromEntries(Object.keys(CAPABILITIES).map(key => [key, value[key]]));
 }
 
 function picture(value) {
@@ -90,6 +92,9 @@ function instant(value) {
   requireValue(Number.isSafeInteger(milliseconds));
   return BigInt(milliseconds) * 1000n + BigInt((parts[2] || "").padEnd(6, "0"));
 }
+
+export function accountInstant(value) { instant(value); return value; }
+export function compareAccountInstants(left, right) { const a = instant(left), b = instant(right); return a < b ? -1 : a > b ? 1 : 0; }
 
 export function accountProfile(value, expectedOwner) {
   accountOwner(expectedOwner);
@@ -149,7 +154,7 @@ export function accountSessions(value) {
   requireValue(value.schemaVersion === 1);
   boundedList(value.items, 1, 20);
   exactKeys(value.capabilities, ["revoke_one", "revoke_all"]);
-  requireValue(value.capabilities.revoke_one === false && value.capabilities.revoke_all === false);
+  requireValue(typeof value.capabilities.revoke_one === "boolean" && value.capabilities.revoke_all === value.capabilities.revoke_one);
   const identifiers = new Set(); let current = 0, previousActivity = null;
   const items = value.items.map((item, index) => {
     exactKeys(item, ["id", "method", "device_label", "created_at", "authenticated_at", "last_activity_at", "idle_expires_at", "absolute_expires_at", "current"]);
@@ -167,5 +172,5 @@ export function accountSessions(value) {
       idle_expires_at: item.idle_expires_at, absolute_expires_at: item.absolute_expires_at, current: item.current };
   });
   requireValue(current === 1);
-  return { schemaVersion: 1, items, capabilities: { revoke_one: false, revoke_all: false } };
+  return { schemaVersion: 1, items, capabilities: { revoke_one: value.capabilities.revoke_one, revoke_all: value.capabilities.revoke_all } };
 }

@@ -33,7 +33,7 @@ export const CATEGORIES = [
     field("account", "locale", "Dates and numbers", "The interface is available in English. These options change regional formatting only."),
     field("account", "timezone", "Timezone", "Detect device uses the named timezone shown in the sample."),
     field("account", "date_style", "Date style"), field("account", "time_format", "Time format") ] },
-  { id: "account", title: "Account & security", description: "Edit your display name and review sign-in methods and active sessions. Account actions save separately from preferences.", fields: [] },
+  { id: "account", title: "Account & security", description: "Edit your name, review sign-in methods, and manage supported password and session actions. Account changes save separately from preferences.", fields: [] },
   { id: "privacy", title: "Privacy & data", description: "Move safe presentation preferences between devices.", fields: [] }
 ];
 export const VALUE_LABELS = {

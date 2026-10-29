@@ -43,6 +43,15 @@ test("effect cleanup and reactivation never revive an earlier request", () => {
   assert.equal(scope.begin("profile").current(), true); scope.dispose();
 });
 
+test("same-owner session CSRF replacement fences results from the earlier authority pair", () => {
+  const identity = { owner, active: true, csrfToken: "session-A" };
+  const scope = createAccountRequestScope(owner, () => identity), first = scope.begin("proof");
+  identity.csrfToken = "session-B";
+  assert.equal(first.current(), false);
+  assert.equal(scope.begin("proof").current(), true);
+  scope.dispose();
+});
+
 test("CAS conflict retains text and cannot save until explicit reload and review", () => {
   let state = failed();
   assert.equal(state.stage, "blocked"); assert.equal(state.draft, "My retained edit"); assert.equal(state.base.revision, 1);

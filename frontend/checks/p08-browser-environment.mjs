@@ -7,6 +7,7 @@ import path from "node:path";
 import { createHash } from "node:crypto";
 import { FixtureBridge } from "./p05-browser-bridge.mjs";
 import { BrowserPipe } from "./p05-browser-pipe.mjs";
+import { browserFixtureMode, SECURE_ACCOUNT_ORIGIN, staticFixtureResponse } from "./p10b-browser-mode.mjs";
 
 export const LIMITS = Object.freeze({ milliseconds: 150000, requests: 250, api: 160, paused: 16, perSecond: 5, bodyBytes: 16384, fakeJobs: 12 });
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -29,7 +30,8 @@ export function setupDiagnostic(error, ctx) {
       backend_status: token(ctx.cleanup.backend?.status), backend_cleanup: token(ctx.cleanup.backend?.cleanup), remaining_resources: Array.isArray(ctx.cleanup.backend?.remaining_ids) ? ctx.cleanup.backend.remaining_ids.length : null } : null };
 }
 
-export async function openP08Browser() {
+export async function openP08Browser(options) {
+  const { secureAccountFixture } = browserFixtureMode(options);
   const ctx = { started: performance.now(), stage: "configuration", results: [], screenshots: [], assets: [], external: 0, requests: 0, api: 0,
     errors: [], protocolDiagnostics: [], runtimeErrors: 0, consoleLeaks: 0, navigating: false, pending: 0, maximumPending: 0, secrets: new Set() };
   const artifacts = configured("AQUA_P08_ARTIFACT_DIR"), dist = configured("AQUA_P08_DIST"), executable = configured("AQUA_P08_BRIDGE_EXECUTABLE");
@@ -37,6 +39,7 @@ export async function openP08Browser() {
   if (!Array.isArray(argv) || !argv.length || argv.length > 12 || argv.some((arg) => typeof arg !== "string" || arg.length > 1024)) throw Error("fixture_arguments_invalid");
   const imageIndex = argv.indexOf("--image");
   if (imageIndex < 0 || argv.lastIndexOf("--image") !== imageIndex || !/^sha256:[a-f0-9]{64}$/.test(argv[imageIndex + 1] || "")) throw Error("immutable_fixture_image_required");
+  if (secureAccountFixture && !argv.some(arg => arg.endsWith("/tools/checks/p10b_browser_backend.py"))) throw Error("secure_account_fixture_entry_required");
   ctx.backendImage = argv[imageIndex + 1];
   await mkdir(artifacts, { recursive: true }); if ((await lstat(artifacts)).isSymbolicLink()) throw Error("artifact_symlink_denied");
   ctx.artifacts = artifacts;
@@ -93,14 +96,20 @@ export async function openP08Browser() {
     if ((await lstat(dist)).isSymbolicLink() || !(await lstat(dist)).isDirectory()) throw Error("dist_invalid");
     await preload(dist); if (!files.has("/index.html")) throw Error("production_build_required");
     ctx.assets = [...files].map(([name, data]) => ({ name, bytes: data.length, sha256: createHash("sha256").update(data).digest("hex") }));
+    if (secureAccountFixture) {
+      ctx.origin = SECURE_ACCOUNT_ORIGIN;
+      ctx.secureAccountFixture = { mode: "cdp_fulfilled_reserved_https_origin", dns_socket_tls_transport_tested: false };
+    } else {
     ctx.server = createServer((request, response) => { if (request.method !== "GET") { response.writeHead(405); response.end(); return; }
       const pathname = new URL(request.url, "http://127.0.0.1").pathname, key = files.has(pathname) ? pathname : !path.extname(pathname) ? "/index.html" : null;
       if (!key) { response.writeHead(pathname === "/favicon.ico" ? 204 : 404); response.end(); return; }
       const type = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".woff2": "font/woff2", ".svg": "image/svg+xml" }[path.extname(key)] || "application/octet-stream";
       response.writeHead(200, { "Content-Type": type, "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff", "Referrer-Policy": "no-referrer" }); response.end(files.get(key)); });
     await new Promise((resolve) => ctx.server.listen(0, "127.0.0.1", resolve)); ctx.origin = `http://127.0.0.1:${ctx.server.address().port}`;
+    }
     ctx.bridge = new FixtureBridge(executable, argv, ctx.origin); const ready = await ctx.bridge.ready;
     if (ready.origin !== ctx.origin || ready.schema_version !== 6 || ready.dataset_grants !== 0 || ready.network !== "none" || ready.workspace_analysis_fixture !== true) throw Error("fixture_boundary_invalid");
+    if (secureAccountFixture && ready.account_security_fixture !== true) throw Error("secure_account_fixture_required");
     if ((await ctx.bridge.send("workspace_stats")).p08_presentation_fixture !== true) throw Error("p08_fixture_required");
     ctx.profile = await mkdtemp(path.join(await realpath(tmpdir()), "aqua-p08-browser-"));
     const chrome = process.env.AQUA_CHROME_EXECUTABLE || (process.platform === "win32" ? "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe" : "/usr/bin/google-chrome");
@@ -112,6 +121,19 @@ export async function openP08Browser() {
     ctx.browserVersion = (await ctx.cdp.ready()).product;
     const targets = await ctx.cdp.send("Target.getTargets"); ({ sessionId: ctx.sessionId } = await ctx.cdp.send("Target.attachToTarget", { targetId: targets.targetInfos.find((item) => item.type === "page").targetId, flatten: true }));
     let queue = Promise.resolve(), nextRequest = 0; const aborted = new Set();
+    if (secureAccountFixture) ctx.probeCopiedSession = token => {
+      if (typeof token !== "string" || !/^v2\.[A-Za-z0-9_-]{43}$/.test(token)) throw Error("copied_session_probe_invalid");
+      if (++ctx.requests > LIMITS.requests || ++ctx.api > LIMITS.api || performance.now() - ctx.started > LIMITS.milliseconds) throw Error("api_budget");
+      ctx.secrets.add(token);
+      const probe = queue.then(async () => {
+        await delay(Math.max(0, nextRequest - performance.now())); nextRequest = performance.now() + 1000 / LIMITS.perSecond;
+        const result = await ctx.bridge.send("request", { method: "GET", path: "/api/auth/me", headers: [["Cookie", "__Host-aqua_session=" + token]], bodyBase64: "" });
+        if (!Number.isInteger(result.status) || !Array.isArray(result.headers) || Buffer.from(result.bodyBase64 || "", "base64").length > LIMITS.bodyBytes) throw Error("bridge_response_invalid");
+        return result.status;
+      });
+      queue = probe.then(() => undefined, () => undefined);
+      return probe;
+    };
     ctx.cdp.onEvent = (event) => {
       if (event.sessionId !== ctx.sessionId) return;
       if (ctx.cdp.stopping) return;
@@ -127,10 +149,13 @@ export async function openP08Browser() {
           const result = await ctx.bridge.send("request", { method: request.method, path: url.pathname + url.search, headers: Object.entries(request.headers), bodyBase64: Buffer.from(request.postData || "").toString("base64") });
           if (!Number.isInteger(result.status) || !Array.isArray(result.headers) || Buffer.from(result.bodyBase64 || "", "base64").length > LIMITS.bodyBytes) throw Error("bridge_response_invalid");
           const remember = value => { if (typeof value === "string" && value.length >= 20 && value.length <= 1024 && ctx.secrets.size < 512) ctx.secrets.add(value); };
-          try { const value = JSON.parse(Buffer.from(result.bodyBase64 || "", "base64").toString("utf8")); remember(value.csrf_token); remember(value.nonce); } catch { /* Empty/non-JSON responses carry no structured proof. */ }
+          try { const value = JSON.parse(Buffer.from(result.bodyBase64 || "", "base64").toString("utf8")); remember(value.csrf_token); remember(value.nonce); remember(value.challenge_token); remember(value.proof_token); } catch { /* Empty/non-JSON responses carry no structured proof. */ }
           for (const [name, value] of result.headers) if (name.toLowerCase() === "set-cookie") remember(value.split(";", 1)[0].split("=").slice(1).join("="));
           await ctx.cdp.send("Fetch.fulfillRequest", { requestId, responseCode: result.status, responseHeaders: result.headers.map(([name, value]) => ({ name, value })), ...(result.status === 204 ? {} : { body: result.bodyBase64 || "" }) });
-        } else if (url.origin === ctx.origin && request.method === "GET") await ctx.cdp.send("Fetch.continueRequest", { requestId });
+        } else if (url.origin === ctx.origin && request.method === "GET") {
+          if (secureAccountFixture) { const result = staticFixtureResponse(files, url); await ctx.cdp.send("Fetch.fulfillRequest", { requestId, responseCode: result.status, responseHeaders: result.headers, ...(result.status === 204 ? {} : { body: result.body }) }); }
+          else await ctx.cdp.send("Fetch.continueRequest", { requestId });
+        }
         else { ctx.external++; await ctx.cdp.send("Fetch.failRequest", { requestId, errorReason: "BlockedByClient" }); }
       }).catch(async (error) => { if (error.canceled) await delay(50); // Chrome may deliver its canceled marker after the closing Fetch response.
         if (!(error.canceled && (navigating || ctx.navigating || aborted.has(event.params.networkId))) && !(error.shutdownSessionMissing && ctx.cdp.stopping) && ctx.errors.length < 16) { ctx.errors.push("request_interception_failed_" + (error.protocolReason === "request_no_longer_exists" ? "cancel_unconfirmed" : "other"));

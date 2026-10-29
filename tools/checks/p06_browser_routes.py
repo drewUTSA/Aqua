@@ -8,6 +8,11 @@ ROUTES = (
     (r"/api/v1/me", {"GET": set(), "PATCH": set()}),
     (r"/api/v1/me/(methods|sessions)", {"GET": set()}),
     (r"/api/v1/me/preferences", {"GET": set(), "PUT": set()}),
+    (r"/api/v1/me/reauth-challenges", {"POST": set()}),
+    (r"/api/v1/me/reauth/password", {"POST": set()}),
+    (r"/api/v1/me/password", {"PUT": set()}),
+    (rf"/api/v1/me/sessions/{UUID}/revocations", {"POST": set()}),
+    (r"/api/v1/me/session-revocations", {"POST": set()}),
     (
         r"/api/v1/chats",
         {"GET": {"cursor", "limit", "archived", "project_id"}, "POST": set()},
