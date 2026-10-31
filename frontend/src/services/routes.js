@@ -1,6 +1,7 @@
 // Email bearers live only in page memory. Never accept a caller's redirect.
 export const AUTH_PATHS = new Set(["/signin", "/register", "/forgot-password", "/check-email", "/registration-sent", "/verify-email", "/reset-password"]);
-export const LOCAL_PATHS = new Set(["/", "/settings", "/privacy", "/terms", ...AUTH_PATHS]);
+export const ACCOUNT_ACTION_PATHS = new Set(["/account-action/password_add", "/account-action/email_change_new", "/account-action/email_change_old"]);
+export const LOCAL_PATHS = new Set(["/", "/settings", "/privacy", "/terms", ...AUTH_PATHS, ...ACCOUNT_ACTION_PATHS]);
 const PROOF_PATHS = new Set(["/verify-email", "/reset-password"]);
 export function consumeLocation(location, history) {
   // A pathname beginning // or containing a backslash can be interpreted as a

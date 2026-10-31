@@ -6,6 +6,7 @@ import VisualWorkspace from "./VisualWorkspace.jsx";
 import OpalBackdrop from "../auth/OpalBackdrop.jsx";
 import { UI_SHELL } from "../../services/runtimeConfig.js";
 import { usePreferences } from "../../settings/PreferencesProvider.jsx";
+import { useNotifications } from "../../settings/NotificationProvider.jsx";
 import "../../styles/workspace.css";
 import "../../styles/legacy-workspace.css";
 import "../../styles/workspace-library.css";
@@ -26,8 +27,9 @@ function DemoWorkspace(props) {
 }
 function LiveWorkspace(props) {
   const { auth, hidden } = props;
+  const notifications=useNotifications();
   const chat = useWorkspace({ canQuery: auth.canQuery, canReadResults: auth.session?.can_query === true,
-    csrfToken: auth.csrfToken, onAuthFailure: auth.refresh, suspended: hidden });
+    csrfToken: auth.csrfToken, onAuthFailure: auth.refresh, suspended: hidden, onLiveCompletion:event=>notifications.observe({...event,alreadyVisible:event.alreadyVisible&&props.path==="/"&&!hidden}) });
   return <WorkspaceView {...props} chat={chat} />;
 }
 function WorkspaceView({ auth, hidden, path, onNavigate, chat }) {

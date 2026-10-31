@@ -31,6 +31,7 @@ from analysis.router import router as analysis_router
 from preferences.router import router as preferences_router
 from account.router import router as account_router
 from account.security_router import router as account_security_router
+from account.identity_router import router as account_identity_router
 from analysis.dependencies import get_analysis
 from analysis.service import Analysis
 from nl2sql.query_service import run as run_query
@@ -81,6 +82,7 @@ app.include_router(analysis_router)
 app.include_router(preferences_router)
 app.include_router(account_router)
 app.include_router(account_security_router)
+app.include_router(account_identity_router)
 app.state.storage = Storage(load_storage_settings())
 app.add_middleware(WorkspaceBodyLimit)
 

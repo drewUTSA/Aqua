@@ -94,12 +94,13 @@ def admit(
 
 def cleanup(conn: psycopg.Connection, policy: AuthPolicy) -> None:
     """Bound deletion work and retain unexpired challenge replay tombstones."""
-    mail_exists = conn.execute(
-        "SELECT to_regclass('app.account_mail') IS NOT NULL"
-    ).fetchone()[0]
-    # Login already owns its user lock. Leave mail-backed parents for the
-    # mail-first job purge, so a cascade cannot invert a sensitive action's
-    # mail -> user ordering. Earlier-schema fixtures have no outbox table.
+    mail_exists, requests_exist = conn.execute(
+        "SELECT to_regclass('app.account_mail') IS NOT NULL,"
+        "to_regclass('app.account_security_requests') IS NOT NULL"
+    ).fetchone()
+    # Login already holds its current user lock. A parent deletion must not
+    # cascade into mail rows held by a mail-first sensitive action. That path
+    # purges expired jobs first; a later bounded cleanup can retire the ticket.
     retained_mail = (
         "AND NOT EXISTS(SELECT 1 FROM app.account_mail m WHERE m.challenge_id=c.id) "
         if mail_exists
@@ -112,10 +113,20 @@ def cleanup(conn: psycopg.Connection, policy: AuthPolicy) -> None:
         + "ORDER BY c.expires_at,c.id LIMIT %s FOR UPDATE OF c SKIP LOCKED)",
         (policy.cleanup_batch,),
     )
+    # Schema-7 intents retain an exact session FK independently of their mail
+    # challenges. Leave those session rows for the established mail-first
+    # bounded request purge; never cascade to encrypted mail under a user lock.
+    # The earlier-schema upgrade fixtures must still be cleanable by this code.
+    retained_request = (
+        "AND NOT EXISTS(SELECT 1 FROM app.account_security_requests r WHERE r.user_id=s.user_id AND r.session_id=s.id) "
+        if requests_exist
+        else ""
+    )
     conn.execute(
         "DELETE FROM app.sessions WHERE id IN "
         "(SELECT s.id FROM app.sessions s WHERE s.absolute_expires_at <= now() "
         "AND NOT EXISTS(SELECT 1 FROM app.auth_challenges c WHERE c.session_id=s.id) "
-        "ORDER BY s.absolute_expires_at,s.id LIMIT %s FOR UPDATE OF s SKIP LOCKED)",
+        + retained_request
+        + "ORDER BY s.absolute_expires_at,s.id LIMIT %s FOR UPDATE OF s SKIP LOCKED)",
         (policy.cleanup_batch,),
     )

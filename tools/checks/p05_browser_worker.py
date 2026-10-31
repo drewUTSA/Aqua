@@ -24,6 +24,7 @@ from p05_browser_protocol import (
     emit,
     message,
     request_limit,
+    fixture_schema,
 )
 
 WORKER_STAGE = "before_start"
@@ -66,11 +67,19 @@ def worker(
     *,
     analysis_factory: Callable[[Any, Any], Any] | None = None,
     account_security_fixture: bool = False,
+    account_identity_fixture: bool = False,
 ) -> int:
     """Actual app/router/session/password code; only provider and mail are fakes."""
     global WORKER_STAGE
-    if type(account_security_fixture) is not bool:
+    if (
+        type(account_security_fixture) is not bool
+        or type(account_identity_fixture) is not bool
+    ):
         raise ValueError("fixture_security_mode_invalid")
+    if account_identity_fixture and (
+        not account_security_fixture or fixture_schema(ROOT) != 7
+    ):
+        raise ValueError("fixture_identity_mode_invalid")
     if account_security_fixture:
         from p10b_browser_fixture import MAX_REQUESTS, secure_origin
 
@@ -117,7 +126,7 @@ def worker(
     from fastapi.testclient import TestClient
     from storage.config import StorageSettings
     from storage.migrate import apply
-    from storage.pool import Storage
+    from storage.pool import SCHEMA_VERSION, Storage
     from p06_browser_analysis import DATASET
     from p07_browser_analysis import LifecycleFixture
 
@@ -215,6 +224,12 @@ def worker(
         raise AssertionError("fixture_private_query_pipeline_was_invoked")
 
     router.verify_google_token = verify
+    identity_fixture = None
+    if account_identity_fixture:
+        from p10c_browser_fixture import IdentityFixture
+
+        identity_fixture = IdentityFixture(service, settings, analysis)
+        identity_fixture.install()
     main.answer_question = no_pipeline
     main.get_schema = no_pipeline
     from google import genai
@@ -226,15 +241,21 @@ def worker(
             main.app, base_url=origin, raise_server_exceptions=True
         ) as client:
             readiness = service.readiness()
-            if readiness.get("schema_version") != 6:
+            if readiness.get(
+                "schema_version"
+            ) != SCHEMA_VERSION or SCHEMA_VERSION != fixture_schema(ROOT):
                 raise RuntimeError("fixture_schema_invalid")
             emit(
                 {
                     "kind": "ready",
-                    "schema_version": 6,
+                    "schema_version": SCHEMA_VERSION,
                     "origin": origin,
                     "mail_origin": policy.public_origin,
                     "account_security_fixture": account_security_fixture,
+                    "account_identity_fixture": account_identity_fixture,
+                    "identity_fixture": (
+                        identity_fixture.metadata() if identity_fixture else None
+                    ),
                     "google_email": GOOGLE_EMAIL,
                     "google_subject": GOOGLE_SUBJECT,
                     "dataset_grants": 0,
@@ -262,7 +283,9 @@ def worker(
                 if item is None:
                     return 0
                 WORKER_STAGE = "request_dispatch"
-                if account_security_fixture:
+                if identity_fixture is not None:
+                    forward = identity_fixture.dispatch
+                elif account_security_fixture:
                     from p10b_browser_fixture import security_dispatch
 
                     forward = security_dispatch
@@ -271,6 +294,8 @@ def worker(
                 response = forward(item, client, service, mail.once, captured, analysis)
                 emit(response)
     finally:
+        if identity_fixture is not None:
+            identity_fixture.clear()
         main.app.dependency_overrides.clear()
         service.close()
     return 1

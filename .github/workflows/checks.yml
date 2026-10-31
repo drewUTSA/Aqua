@@ -40,6 +40,9 @@ jobs:
           python tools/checks/p06_browser_routes_test.py
           python tools/checks/p06_browser_analysis_test.py
           python tools/checks/test_p08_browser_fixture.py
+          python tools/checks/test_p10b_browser_fixture.py
+          python tools/checks/test_p10c_browser_fixture.py
+          python tools/checks/test_p10c_proxy_fixture.py
       - name: Audit pinned runtime dependencies
         run: python -m pip_audit --no-deps --disable-pip -r tools/checks/requirements-runtime.lock
       - name: Prepare isolated test images
@@ -68,6 +71,8 @@ jobs:
         run: python tools/checks/storage_deployment.py --image aqua-runtime:check
       - name: Rate-limit bypass, denial and recovery checks in an isolated proxy
         run: python tools/checks/run_proxy.py
+      - name: Identity action aliases, denial and recovery in a separate isolated proxy
+        run: python tools/checks/run_proxy.py --identity-actions
       # The offline SSR tests import React from this locked dependency tree.
       - name: Install locked frontend dependencies
         working-directory: frontend
@@ -387,6 +392,183 @@ jobs:
             ${{ runner.temp }}/aqua-p10b/${{ matrix.shell }}/lost-other/*.png
             ${{ runner.temp }}/aqua-p10b/${{ matrix.shell }}/verification-failure/*.json
             ${{ runner.temp }}/aqua-p10b/${{ matrix.shell }}/verification-failure/*.png
+          if-no-files-found: warn
+          retention-days: 7
+          include-hidden-files: false
+
+  identity-actions:
+    name: Identity actions (${{ matrix.shell }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        shell: [opal, legacy]
+    defaults:
+      run:
+        shell: bash
+    env:
+      AQUA_P05_EXPECTED_SHELL: ${{ matrix.shell }}
+      AQUA_P10C_DIST: ${{ github.workspace }}/frontend/dist
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12.14'
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24.19.0'
+      - name: Install pinned check tools
+        run: python -m pip install -r tools/checks/requirements-dev.txt
+      - name: Validate dedicated identity fixture boundaries offline
+        run: python tools/checks/test_p10c_browser_fixture.py
+      - name: Prepare isolated identity fixture images
+        id: runtime
+        run: |
+          docker build --pull -t aqua-checks:p00 -f tools/checks/Dockerfile .
+          docker build --pull -t aqua-runtime:check -f backend/Dockerfile .
+          docker pull postgres@sha256:3645570cccdfa447589da9f57dd740faa29b30938e861289a5574b6ca6b03826
+          docker pull node:24.19.0-bookworm-slim@sha256:a9f5f7c91a432850b2a8a7797adf5eadb6c733ceed61167806cee7ea7fbc29df
+          docker pull nginx@sha256:970364228b1e4f932abc22d321932816782cca8a20b85a77552a7cfe9acfb3b5
+      - name: Install locked frontend dependencies
+        working-directory: frontend
+        run: npm ci --ignore-scripts --no-fund
+      - name: Build the selected secure UI shell
+        id: build
+        working-directory: frontend
+        env:
+          VITE_AQUA_DEMO_MODE: 'false'
+          VITE_AQUA_USE_MOCK: 'false'
+          VITE_AQUA_UI_SHELL: ${{ matrix.shell }}
+        run: npm run build -- --manifest
+      - name: Bind Chrome and the exact identity backend image
+        id: fixture
+        run: |
+          chrome="$(command -v google-chrome)"
+          test -x "$chrome"
+          python="$(command -v python)"
+          test -x "$python"
+          image="$(docker image inspect aqua-runtime:check --format '{{.Id}}')"
+          [[ "$image" =~ ^sha256:[a-f0-9]{64}$ ]]
+          export AQUA_P10C_BACKEND_IMAGE="$image"
+          args="$(python -c 'import json,os; print(json.dumps(["-u","../tools/checks/p10c_browser_backend.py","--image",os.environ["AQUA_P10C_BACKEND_IMAGE"]]))')"
+          {
+            echo "AQUA_CHROME_EXECUTABLE=$chrome"
+            echo "AQUA_P10C_BRIDGE_EXECUTABLE=$python"
+            echo "AQUA_P10C_BACKEND_IMAGE=$image"
+            echo "AQUA_P10C_BRIDGE_ARGS_JSON=$args"
+          } >> "$GITHUB_ENV"
+      # Each process owns a fresh fixture and absence-confirmed cleanup.
+      # The 150-second, 250-request, 160-API, 5/second and 16-paused
+      # browser ceilings are unchanged; unlink waits the real cooldown.
+      - name: Optional live notices and owner changes with a fresh synthetic fixture
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        timeout-minutes: 5
+        working-directory: frontend
+        env:
+          AQUA_P05_DIST: ${{ github.workspace }}/frontend/dist
+          AQUA_P05_ARTIFACT_DIR: ${{ runner.temp }}/aqua-p10c/${{ matrix.shell }}/synthetic-notices
+        run: node checks/p10c-notice-browser.mjs
+      - name: Fresh Google proof and current-session revocation
+        if: ${{ !cancelled() && steps.fixture.outcome == 'success' }}
+        timeout-minutes: 4
+        working-directory: frontend
+        env:
+          AQUA_P10C_SCENARIO: google-session
+          AQUA_P10C_ARTIFACT_DIR: ${{ runner.temp }}/aqua-p10c/${{ matrix.shell }}/google-session
+        run: node checks/p10c-identity-browser.mjs
+      - name: Fail closed on an invalid fresh Google assertion
+        if: ${{ !cancelled() && steps.fixture.outcome == 'success' }}
+        timeout-minutes: 4
+        working-directory: frontend
+        env:
+          AQUA_P10C_SCENARIO: google-failure
+          AQUA_P10C_ARTIFACT_DIR: ${{ runner.temp }}/aqua-p10c/${{ matrix.shell }}/google-failure
+        run: node checks/p10c-identity-browser.mjs
+      - name: Link an independently verified Google method
+        if: ${{ !cancelled() && steps.fixture.outcome == 'success' }}
+        timeout-minutes: 4
+        working-directory: frontend
+        env:
+          AQUA_P10C_SCENARIO: link
+          AQUA_P10C_ARTIFACT_DIR: ${{ runner.temp }}/aqua-p10c/${{ matrix.shell }}/link
+        run: node checks/p10c-identity-browser.mjs
+      - name: Unlink a Google method after the genuine account cooldown
+        if: ${{ !cancelled() && steps.fixture.outcome == 'success' }}
+        timeout-minutes: 4
+        working-directory: frontend
+        env:
+          AQUA_P10C_SCENARIO: unlink
+          AQUA_P10C_ARTIFACT_DIR: ${{ runner.temp }}/aqua-p10c/${{ matrix.shell }}/unlink
+        run: node checks/p10c-identity-browser.mjs
+      - name: Add a first password with distinct primary-mail confirmation
+        if: ${{ !cancelled() && steps.fixture.outcome == 'success' }}
+        timeout-minutes: 4
+        working-directory: frontend
+        env:
+          AQUA_P10C_SCENARIO: password-add
+          AQUA_P10C_ARTIFACT_DIR: ${{ runner.temp }}/aqua-p10c/${{ matrix.shell }}/password-add
+        run: node checks/p10c-identity-browser.mjs
+      - name: Change primary email with old and new mailbox confirmation
+        if: ${{ !cancelled() && steps.fixture.outcome == 'success' }}
+        timeout-minutes: 4
+        working-directory: frontend
+        env:
+          AQUA_P10C_SCENARIO: email
+          AQUA_P10C_ARTIFACT_DIR: ${{ runner.temp }}/aqua-p10c/${{ matrix.shell }}/email
+        run: node checks/p10c-identity-browser.mjs
+      - name: Reconcile a lost email-change response without replay
+        if: ${{ !cancelled() && steps.fixture.outcome == 'success' }}
+        timeout-minutes: 4
+        working-directory: frontend
+        env:
+          AQUA_P10C_SCENARIO: lost-email
+          AQUA_P10C_ARTIFACT_DIR: ${{ runner.temp }}/aqua-p10c/${{ matrix.shell }}/lost-email
+        run: node checks/p10c-identity-browser.mjs
+      - name: Independent notification consent CAS and stale revision
+        if: ${{ !cancelled() && steps.fixture.outcome == 'success' }}
+        timeout-minutes: 4
+        working-directory: frontend
+        env:
+          AQUA_P10C_SCENARIO: notifications
+          AQUA_P10C_ARTIFACT_DIR: ${{ runner.temp }}/aqua-p10c/${{ matrix.shell }}/notifications
+        run: node checks/p10c-identity-browser.mjs
+      - name: Deny removal of the last usable sign-in method
+        if: ${{ !cancelled() && steps.fixture.outcome == 'success' }}
+        timeout-minutes: 4
+        working-directory: frontend
+        env:
+          AQUA_P10C_SCENARIO: last-method
+          AQUA_P10C_ARTIFACT_DIR: ${{ runner.temp }}/aqua-p10c/${{ matrix.shell }}/last-method
+        run: node checks/p10c-identity-browser.mjs
+      - name: Retain bounded synthetic identity evidence after success or failure
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: p10c-identity-${{ matrix.shell }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/aqua-p10c/${{ matrix.shell }}/synthetic-notices/report.json
+            ${{ runner.temp }}/aqua-p10c/${{ matrix.shell }}/synthetic-notices/p10c-*.png
+            ${{ runner.temp }}/aqua-p10c/${{ matrix.shell }}/google-session/p10c-identity-browser-report.json
+            ${{ runner.temp }}/aqua-p10c/${{ matrix.shell }}/google-session/p10c-*.png
+            ${{ runner.temp }}/aqua-p10c/${{ matrix.shell }}/google-failure/p10c-identity-browser-report.json
+            ${{ runner.temp }}/aqua-p10c/${{ matrix.shell }}/google-failure/p10c-*.png
+            ${{ runner.temp }}/aqua-p10c/${{ matrix.shell }}/link/p10c-identity-browser-report.json
+            ${{ runner.temp }}/aqua-p10c/${{ matrix.shell }}/link/p10c-*.png
+            ${{ runner.temp }}/aqua-p10c/${{ matrix.shell }}/unlink/p10c-identity-browser-report.json
+            ${{ runner.temp }}/aqua-p10c/${{ matrix.shell }}/unlink/p10c-*.png
+            ${{ runner.temp }}/aqua-p10c/${{ matrix.shell }}/password-add/p10c-identity-browser-report.json
+            ${{ runner.temp }}/aqua-p10c/${{ matrix.shell }}/password-add/p10c-*.png
+            ${{ runner.temp }}/aqua-p10c/${{ matrix.shell }}/email/p10c-identity-browser-report.json
+            ${{ runner.temp }}/aqua-p10c/${{ matrix.shell }}/email/p10c-*.png
+            ${{ runner.temp }}/aqua-p10c/${{ matrix.shell }}/lost-email/p10c-identity-browser-report.json
+            ${{ runner.temp }}/aqua-p10c/${{ matrix.shell }}/lost-email/p10c-*.png
+            ${{ runner.temp }}/aqua-p10c/${{ matrix.shell }}/notifications/p10c-identity-browser-report.json
+            ${{ runner.temp }}/aqua-p10c/${{ matrix.shell }}/notifications/p10c-*.png
+            ${{ runner.temp }}/aqua-p10c/${{ matrix.shell }}/last-method/p10c-identity-browser-report.json
+            ${{ runner.temp }}/aqua-p10c/${{ matrix.shell }}/last-method/p10c-*.png
           if-no-files-found: warn
           retention-days: 7
           include-hidden-files: false

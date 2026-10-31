@@ -45,6 +45,7 @@ def test_account_without_data_grant_has_private_bounded_reads_without_idle_refre
     )
     methods = a.get(PATH + "/methods").json()
     assert methods["google"]["linked"] and not methods["password"]["linked"]
+    assert methods["google"]["identities"][0]["email"] == "a@gmail.com"
     listed = a.get(PATH + "/sessions").json()
     assert len(listed["items"]) == 1 and listed["items"][0]["current"] is True
     assert listed["items"][0]["device_label"] == "Unknown device"
@@ -218,7 +219,9 @@ def test_future_security_actions_are_unmounted(world):
         "/identities/google",
         "/notifications",
     ]:
-        assert a.post(PATH + path, json={}).status_code == 404
+        assert a.post(PATH + path, json={}).status_code == (
+            422 if path in {"/email-change-requests", "/reauth/google"} else 404
+        )
 
 
 def test_concurrent_profile_cas_across_pools_has_one_winner_and_spends_both_admissions(

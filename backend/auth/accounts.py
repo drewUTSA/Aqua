@@ -44,6 +44,18 @@ def _picture(value: object) -> str:
         return ""
 
 
+def provider_observation(identity: dict[str, Any]) -> tuple[str, bool]:
+    """Normalize verified provider metadata without granting mailbox ownership."""
+    email = identity["email"].lower()
+    hosted_domain = identity.get("hd", "")
+    workspace = (
+        isinstance(hosted_domain, str)
+        and 1 <= len(hosted_domain) <= 253
+        and not any(char.isspace() or ord(char) < 32 for char in hosted_domain)
+    )
+    return email, email.rsplit("@", 1)[-1] == "gmail.com" or workspace
+
+
 def resolve_account(conn: psycopg.Connection, identity: dict[str, Any]) -> str:
     """One subject lock plus DB uniqueness resolves first-login races safely.
 
@@ -91,13 +103,7 @@ def resolve_account(conn: psycopg.Connection, identity: dict[str, Any]) -> str:
     # A known verified subject owns the existing canonical account. Provider
     # metadata is observation, never permission to replace the app profile or
     # primary mailbox, even when the new observed email belongs to another user.
-    hosted_domain = identity.get("hd", "")
-    workspace = (
-        isinstance(hosted_domain, str)
-        and 1 <= len(hosted_domain) <= 253
-        and not any(char.isspace() or ord(char) < 32 for char in hosted_domain)
-    )
-    authoritative = email.rsplit("@", 1)[-1] == "gmail.com" or workspace
+    email, authoritative = provider_observation(identity)
     conn.execute(
         "INSERT INTO app.external_identities(user_id,provider,issuer,subject,last_login_at,observed_email_key,email_authoritative) "
         "VALUES (%s,'google',%s,%s,now(),%s,%s) ON CONFLICT(issuer,subject) DO UPDATE "

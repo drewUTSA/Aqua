@@ -2,8 +2,8 @@
 Ask a database a question in plain English. Get back data, a readable summary and the exact SQL that produced it.
 
 Current checkpoint: P00 through P09 are complete and live at
-`f5f5b2d` (PR #54, `Phase10 Accounts`), private schema 6, with
-the P10a account foundation deployed. P10 remains incomplete. The home page uses
+`7477e28` (PR #55, `Phase10 Security`), private schema 6, with
+the P10a account foundation and P10b security actions deployed. P10 remains incomplete. The home page uses
 Projects/Recents, conditional New Chat, one bottom account menu and one composer
 model chooser. Answers share the page canvas and the composer compacts after
 the first question. Durable requests, cancellation, exact values, optional
@@ -20,8 +20,16 @@ method/session reviews save separately from preferences. Required PR/main CI
 and the 2026-10-28T23:42:41.253826+00:00 schema-6 release passed after a fresh authenticated
 encrypted backup, preserving protected records, private storage/environment and
 the mail worker schedule. See [P10a release evidence](docs/implementation/evidence/p10a/release.json).
-P10b is separate; P10
-remains incomplete and P11–P13 have not started.
+P10b passed 1,519 backend cases, 492 frontend units and all 22 browser gates.
+Both PR/main CI and the 2026-10-31T01:50:04 UTC release passed, preserving
+protected state and configuration. See
+[P10b release evidence](docs/implementation/evidence/p10b/release.json).
+P10c identity passes 1,635 backend cases, 528 frontend units and all 42 browser
+gates, with 104 screenshots reviewed. Schema-compatible recovery and migration
+rehearsal pass; PR/main CI and the backup-gated release remain pending. See
+[identity evidence](docs/implementation/evidence/p10c/verification.json).
+P11a exports are isolated preparation;
+P11 deletion and P12–P13 remain incomplete.
 The [approved phased specification](AQUA_CODEX_HANDOFF.md) governs the order.
 Verification: [check runner guide](tools/checks/README.md).
 

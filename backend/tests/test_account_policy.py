@@ -83,7 +83,12 @@ class AccountPolicyTests(unittest.TestCase):
     def test_future_sensitive_capabilities_remain_disabled(self):
         self.assertTrue(CAPABILITIES["profile_edit"])
         for key, enabled in CAPABILITIES.items():
-            if key not in {"profile_edit", "method_list", "session_list"}:
+            if key not in {
+                "profile_edit",
+                "method_list",
+                "session_list",
+                "in_app_notifications",
+            }:
                 self.assertFalse(enabled, key)
 
 

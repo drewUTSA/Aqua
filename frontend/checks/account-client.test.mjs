@@ -8,10 +8,10 @@ const OWNER = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa", OTHER = "bbbbbbbb-bbbb-4bb
 const ID = "cccccccc-cccc-4ccc-8ccc-cccccccccccc", NEXT = "dddddddd-dddd-4ddd-8ddd-dddddddddddd";
 const CAPS = { profile_edit: true, method_list: true, session_list: true, recent_proof: false,
   email_change: false, password_change: false, password_add: false, google_link: false, google_unlink: false,
-  session_revoke: false, sessions_revoke_all: false, notification_delivery: false };
+  session_revoke: false, sessions_revoke_all: false, notification_delivery: false, in_app_notifications: true };
 const profile = () => ({ schemaVersion: 1, revision: 7, user: { id: OWNER, name: "Example Person", picture: "", email: "person@example.invalid" }, email_verified: true, capabilities: { ...CAPS } });
 const methods = () => ({ schemaVersion: 1, password: { linked: true, available: false, changed_at: "2026-10-26T10:00:00.123456+00:00" },
-  google: { linked: true, available: true, identities: [{ id: ID, linked_at: "2026-10-26T10:00:00+00:00" }] }, capabilities: { ...CAPS } });
+  google: { linked: true, available: true, identities: [{ id: ID, linked_at: "2026-10-26T10:00:00+00:00", email: null }] }, capabilities: { ...CAPS } });
 const session = (id = ID, current = true) => ({ id, method: "password", device_label: "Unknown device", current,
   created_at: "2026-10-26T10:00:00+00:00", authenticated_at: "2026-10-26T10:00:00+00:00", last_activity_at: "2026-10-26T10:05:00.000001+00:00",
   idle_expires_at: "2026-10-26T11:00:00+00:00", absolute_expires_at: "2026-10-27T10:00:00+00:00" });
@@ -138,9 +138,9 @@ test("method snapshots distinguish linked methods from configured availability a
   payload.google.identities[0].id = OTHER; assert.equal(result.google.identities[0].id, ID);
   const none = methods(); none.password = { linked: false, available: false, changed_at: null };
   none.google = { linked: false, available: false, identities: [] }; assert.equal(accountMethods(none).google.linked, false);
-  const twenty = methods(); twenty.google.identities = Array.from({ length: 20 }, (_, index) => ({ id: sequentialId(index), linked_at: "2026-10-26T10:00:00Z" }));
+  const twenty = methods(); twenty.google.identities = Array.from({ length: 20 }, (_, index) => ({ id: sequentialId(index), linked_at: "2026-10-26T10:00:00Z", email: null }));
   assert.equal(accountMethods(twenty).google.identities.length, 20);
-  twenty.google.identities.push({ id: NEXT, linked_at: "2026-10-26T10:00:00Z" }); assert.throws(() => accountMethods(twenty), /account_invalid/);
+  twenty.google.identities.push({ id: NEXT, linked_at: "2026-10-26T10:00:00Z", email: null }); assert.throws(() => accountMethods(twenty), /account_invalid/);
 });
 
 test("closed decoders reject sparse lists, extra array properties and getter records", () => {

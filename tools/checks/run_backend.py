@@ -283,7 +283,7 @@ def run(image: str, output: Path) -> int:
             print(log.decode(errors="replace"))
         # Record immutable versions used, without inspecting runtime environments.
         report["coverage"] = coverage(output)
-        report["app_restore"] = verify_restore(docker, pg)
+        report["app_restore"] = verify_restore(docker, pg, runner)
         (output / "packages.txt").write_bytes(
             docker("exec", runner, "python", "-m", "pip", "freeze")
         )

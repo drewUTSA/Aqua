@@ -7,6 +7,7 @@ from psycopg import Connection
 
 from auth.mailconfig import MailUnavailable
 from auth.mailtemplates import recipient_key
+from auth.mailpurposes import GROUPS, recipient_group
 
 MAX_KEYS = 4096
 CLEANUP_BATCH = 64
@@ -14,7 +15,9 @@ CLEANUP_BATCH = 64
 
 def allowed(conn: Connection, recipient: str, purpose: str) -> bool:
     """Caller holds the account-mail admission lock; suppression is a generic ACK."""
-    if purpose not in {"verify_email", "reset_password"}:
+    try:
+        purpose = recipient_group(purpose)
+    except ValueError:
         raise MailUnavailable("account_mail_purpose_invalid")
     digest = hashlib.sha256(recipient_key(recipient).encode()).digest()
     now = conn.execute("SELECT clock_timestamp()").fetchone()[0]
@@ -45,8 +48,8 @@ def allowed(conn: Connection, recipient: str, purpose: str) -> bool:
         return False
     # Already queued work is coalesced, without expiring any issued valid link.
     queued = conn.execute(
-        "SELECT 1 FROM app.account_mail m JOIN app.auth_challenges c ON c.id=m.challenge_id WHERE m.purpose=%s AND m.recipient_digest=%s AND m.state IN ('pending','sending') AND m.expires_at>%s AND c.consumed_at IS NULL AND c.expires_at>%s LIMIT 1",
-        (purpose, digest, now, now),
+        "SELECT 1 FROM app.account_mail m JOIN app.auth_challenges c ON c.id=m.challenge_id WHERE m.purpose=ANY(%s) AND m.recipient_digest=%s AND m.state IN ('pending','sending') AND m.expires_at>%s AND c.consumed_at IS NULL AND c.expires_at>%s LIMIT 1",
+        (list(GROUPS[purpose]), digest, now, now),
     ).fetchone()
     return queued is None
 
@@ -54,6 +57,7 @@ def allowed(conn: Connection, recipient: str, purpose: str) -> bool:
 def reserve(conn: Connection, recipient: str, purpose: str) -> None:
     if not allowed(conn, recipient, purpose):
         raise MailUnavailable("account_mail_recipient_limited")
+    purpose = recipient_group(purpose)
     digest = hashlib.sha256(recipient.encode()).digest()
     now = conn.execute("SELECT clock_timestamp()").fetchone()[0]
     row = conn.execute(

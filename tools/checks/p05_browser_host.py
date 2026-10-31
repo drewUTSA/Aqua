@@ -7,7 +7,15 @@ import signal
 import subprocess
 from typing import Any
 
-from p05_browser_protocol import MAX_LINE, MAX_SECONDS, emit, message, request_limit
+from p05_browser_protocol import (
+    MAX_LINE,
+    MAX_SECONDS,
+    emit,
+    fixture_schema,
+    message,
+    request_limit,
+)
+from p05_browser_docker import ROOT
 from p05_browser_resources import Resources
 
 
@@ -38,10 +46,17 @@ def host(
     workspace_analysis: bool = False,
     *,
     account_security_fixture: bool = False,
+    account_identity_fixture: bool = False,
 ) -> int:
     """Bound all operations/lifetime; lifecycle mode explicitly allows 400."""
-    if type(account_security_fixture) is not bool:
+    if (
+        type(account_security_fixture) is not bool
+        or type(account_identity_fixture) is not bool
+    ):
         raise ValueError("fixture_security_mode_invalid")
+    schema = fixture_schema(ROOT)
+    if account_identity_fixture and (not account_security_fixture or schema != 7):
+        raise ValueError("fixture_identity_mode_invalid")
     if account_security_fixture:
         from p10b_browser_fixture import MAX_REQUESTS, secure_origin
 
@@ -62,9 +77,10 @@ def host(
         "status": "failed",
         "network": "none",
         "database_transport": "private_unix_socket",
-        "schema_version": 6,
+        "schema_version": schema,
         "max_operations": operations,
         "account_security_fixture": account_security_fixture,
+        "account_identity_fixture": account_identity_fixture,
         "real_data_accessed": False,
         "provider_calls": 0,
         "workspace_analysis_fixture": workspace_analysis,
@@ -87,9 +103,13 @@ def host(
                 "-B",
                 "-u",
                 (
-                    "/checks/tools/checks/p10b_browser_backend.py"
-                    if account_security_fixture
-                    else "/checks/tools/checks/p05_browser_backend.py"
+                    "/checks/tools/checks/p10c_browser_backend.py"
+                    if account_identity_fixture
+                    else (
+                        "/checks/tools/checks/p10b_browser_backend.py"
+                        if account_security_fixture
+                        else "/checks/tools/checks/p05_browser_backend.py"
+                    )
                 ),
                 "--worker",
                 "--origin",
@@ -111,12 +131,14 @@ def host(
         )
         assert child.stdout is not None and child.stdin is not None
         ready = json.loads(child.stdout.readline(MAX_LINE + 1))
+        if ready.get("account_identity_fixture", False) is not account_identity_fixture:
+            raise RuntimeError("fixture_identity_worker_not_ready")
         if (
             account_security_fixture
             and ready.get("account_security_fixture") is not True
         ):
             raise RuntimeError("fixture_security_worker_not_ready")
-        if ready.get("kind") != "ready" or ready.get("schema_version") != 6:
+        if ready.get("kind") != "ready" or ready.get("schema_version") != schema:
             if ready.get("kind") == "error":
                 report["worker_error"] = {
                     key: ready.get(key) for key in ("category", "stage", "module")

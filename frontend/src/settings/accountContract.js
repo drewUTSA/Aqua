@@ -1,8 +1,8 @@
-// Closed P10b snapshots. Future capabilities still require a reviewed contract.
+// Closed P10c snapshots. Authority remains conditional on the server snapshot.
 const CAPABILITIES = Object.freeze({
   profile_edit: true, method_list: true, session_list: true, recent_proof: false,
   email_change: false, password_change: false, password_add: false, google_link: false, google_unlink: false,
-  session_revoke: false, sessions_revoke_all: false, notification_delivery: false,
+  session_revoke: false, sessions_revoke_all: false, notification_delivery: false, in_app_notifications: true,
 });
 const FORBIDDEN_TEXT = /[\p{C}\p{Zl}\p{Zp}]/u;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
@@ -55,9 +55,10 @@ export function normalizedDisplayName(value) {
 
 function capabilities(value) {
   exactKeys(value, Object.keys(CAPABILITIES));
-  const conditional = ["recent_proof", "password_change", "session_revoke", "sessions_revoke_all"];
+  const conditional = ["recent_proof", "password_change", "password_add", "email_change", "google_link", "google_unlink", "session_revoke", "sessions_revoke_all"];
   requireValue(Object.entries(CAPABILITIES).every(([key, enabled]) => conditional.includes(key) ? typeof value[key] === "boolean" : value[key] === enabled));
-  requireValue(value.session_revoke === value.recent_proof && value.sessions_revoke_all === value.recent_proof && (!value.password_change || value.recent_proof));
+  requireValue(value.session_revoke === value.recent_proof && value.sessions_revoke_all === value.recent_proof
+    && ["password_change", "password_add", "email_change", "google_link", "google_unlink"].every(key => !value[key] || value.recent_proof));
   return Object.fromEntries(Object.keys(CAPABILITIES).map(key => [key, value[key]]));
 }
 
@@ -128,10 +129,11 @@ export function accountMethods(value) {
   requireValue(google.linked === (google.identities.length > 0));
   const identifiers = new Set();
   const identities = google.identities.map((identity) => {
-    exactKeys(identity, ["id", "linked_at"]);
+    exactKeys(identity, ["id", "linked_at", "email"]);
     const id = accountOwner(identity.id);
     requireValue(!identifiers.has(id)); identifiers.add(id); instant(identity.linked_at);
-    return { id, linked_at: identity.linked_at };
+    if(identity.email!==null)plainText(identity.email,320);
+    return { id, linked_at: identity.linked_at, email:identity.email };
   });
   return {
     schemaVersion: 1,

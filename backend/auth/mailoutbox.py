@@ -17,9 +17,9 @@ from auth.mailconfig import MailPolicy, MailUnavailable
 from auth.mailproof import validate_challenge
 from auth.mailrecipient import reserve
 from auth.mailtemplates import render, validate
+from auth.mailpurposes import ACCOUNT_TOKENS, GROUPS, NOTICES, PURPOSES, group
 
 LOCK = 1095848261
-PURPOSES = {"verify_email", "reset_password", "password_changed"}
 TOKEN = re.compile(r"[A-Za-z0-9_-]{43}\Z")
 
 
@@ -52,14 +52,19 @@ def _aad(
 
 
 def ensure_capacity(
-    conn: Connection, policy: MailPolicy, purpose: str | None = None
+    conn: Connection, policy: MailPolicy, purpose: str | None = None, *, count: int = 1
 ) -> None:
     """Call before checking account eligibility, so overload cannot enumerate it.
 
     A short shared lock bounds all retained rows and pending work. Purging is
     indexed/batched. No live quota/job is evicted to make admission succeed.
     """
-    if purpose is not None and purpose not in PURPOSES:
+    if (
+        type(count) is not int
+        or not 1 <= count <= 2
+        or purpose is not None
+        and purpose not in PURPOSES
+    ):
         raise MailUnavailable("account_mail_input_invalid")
     if not policy.enabled or len(policy.key) != 32:
         raise MailUnavailable("account_mail_disabled")
@@ -72,18 +77,19 @@ def ensure_capacity(
     rows, pending = conn.execute(
         "SELECT count(*),count(*) FILTER (WHERE state IN ('pending','sending')) FROM app.account_mail"
     ).fetchone()
-    if rows >= policy.max_rows or pending >= policy.max_pending:
+    if rows + count > policy.max_rows or pending + count > policy.max_pending:
         raise MailUnavailable("account_mail_capacity")
     if purpose is not None:
         # Registration can never fill slots reserved for recovery/security mail.
+        bucket = group(purpose)
         limit = {"verify_email": 1024, "reset_password": 768, "password_changed": 256}[
-            purpose
+            bucket
         ]
         queued = conn.execute(
-            "SELECT count(*) FROM app.account_mail WHERE purpose=%s AND state IN ('pending','sending')",
-            (purpose,),
+            "SELECT count(*) FROM app.account_mail WHERE purpose=ANY(%s) AND state IN ('pending','sending')",
+            (list(GROUPS[bucket]),),
         ).fetchone()[0]
-        if queued >= min(limit, policy.max_pending):
+        if queued + count > min(limit, policy.max_pending):
             raise MailUnavailable("account_mail_capacity")
 
 
@@ -107,14 +113,14 @@ def enqueue(
         or not isinstance(expires_at, datetime)
         or expires_at.tzinfo is None
         or (
-            purpose != "password_changed"
+            purpose not in NOTICES
             and (
                 not isinstance(token, str)
                 or not TOKEN.fullmatch(token)
                 or challenge_id is None
             )
         )
-        or (purpose == "password_changed" and token is not None)
+        or (purpose in NOTICES and (token is not None or challenge_id is not None))
     ):
         raise MailUnavailable("account_mail_input_invalid")
     instant = conn.execute("SELECT clock_timestamp()").fetchone()[0]
@@ -122,10 +128,20 @@ def enqueue(
         raise MailUnavailable("account_mail_expiry_invalid")
     job_id = uuid.uuid4()
     recipient_digest = hashlib.sha256(recipient.encode()).digest()
-    payload = render(purpose, recipient, token, policy.public_origin)
-    if purpose != "password_changed":
+    request_id = ""
+    if purpose not in NOTICES:
         validate_challenge(conn, recipient, purpose, token, expires_at, challenge_id)
         reserve(conn, recipient, purpose)
+        if purpose in ACCOUNT_TOKENS:
+            request_id = str(
+                conn.execute(
+                    "SELECT account_request_id FROM app.auth_challenges WHERE id=%s",
+                    (challenge_id,),
+                ).fetchone()[0]
+            )
+    payload = render(
+        purpose, recipient, token, policy.public_origin, request_id=request_id
+    )
     raw = json.dumps(payload, separators=(",", ":")).encode()
     nonce = secrets.token_bytes(12)
     ciphertext = nonce + AESGCM(policy.key).encrypt(

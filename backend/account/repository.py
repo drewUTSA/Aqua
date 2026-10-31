@@ -1,6 +1,7 @@
 """Bounded canonical profile, method and live-session views with no secrets."""
 
 from copy import deepcopy
+import unicodedata
 
 from psycopg import Connection
 
@@ -22,6 +23,22 @@ LIVE_SESSIONS_SQL = (
     "WHERE user_id=%s AND auth_epoch=%s AND revoked_at IS NULL "
     "AND idle_expires_at>%s AND absolute_expires_at>%s LIMIT %s"
 )
+
+
+def provider_email(value):
+    """An observed method label, never app-primary verification authority."""
+    if (
+        type(value) is not str
+        or not 3 <= len(value) <= 320
+        or value.count("@") != 1
+        or not all(value.split("@"))
+        or any(
+            c.isspace() or unicodedata.category(c).startswith("C") or c in "<>"
+            for c in value
+        )
+    ):
+        return None
+    return value
 
 
 def profile(conn: Connection, owner: str) -> dict:
@@ -70,7 +87,7 @@ def methods(
         "SELECT changed_at FROM app.password_credentials WHERE user_id=%s", (owner,)
     ).fetchone()
     identities = conn.execute(
-        "SELECT id,linked_at FROM app.external_identities WHERE user_id=%s "
+        "SELECT id,linked_at,observed_email_key FROM app.external_identities WHERE user_id=%s "
         "AND is_active ORDER BY linked_at,id LIMIT %s",
         (owner, MAX_METHODS + 1),
     ).fetchall()
@@ -87,7 +104,11 @@ def methods(
             "linked": bool(identities),
             "available": bool(identities) and google_enabled,
             "identities": [
-                {"id": str(row[0]), "linked_at": row[1].isoformat()}
+                {
+                    "id": str(row[0]),
+                    "linked_at": row[1].isoformat(),
+                    "email": provider_email(row[2]),
+                }
                 for row in identities
             ],
         },

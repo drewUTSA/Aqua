@@ -34,7 +34,7 @@ const report = { status: failure ? "failed" : "passed", failure, checked_utc: ne
   scenario: SECURITY_SCENARIOS.has(scenario) ? scenario : "invalid", expected_shell: process.env.AQUA_P05_EXPECTED_SHELL || "opal",
   elapsed_seconds: ctx ? Math.round((performance.now() - ctx.started) / 100) / 10 : null,
   limits: LIMITS, workload, fixture: stats, secure_origin: ctx?.secureAccountFixture || null,
-  boundary: { backend_image: ctx?.backendImage || null, schema_version: 6, network: "none", live_provider_or_production: false, dns_socket_tls_transport_tested: false },
+  boundary: { backend_image: ctx?.backendImage || null, schema_version: 7, network: "none", live_provider_or_production: false, dns_socket_tls_transport_tested: false },
   browser_diagnostic: ctx?.cdp?.diagnostic || null, protocol_diagnostics: ctx?.protocolDiagnostics || [], setup_diagnostic: setup,
   checks: ctx?.results || [], screenshots: ctx?.screenshots || [], assets: ctx?.assets || [], cleanup: ctx?.cleanup || null,
   observations: ctx ? { requests: ctx.requests, api_requests: ctx.api, external_attempts: ctx.external, runtime_errors: ctx.runtimeErrors,

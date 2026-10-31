@@ -32,6 +32,7 @@ from auth.sessions import (
 from auth.store import IdentityStore
 from nl2sql.config import Settings
 from storage.pool import StorageUnavailable
+from account.security_http import binding_cookie, identity_cookie
 
 router = APIRouter(prefix="/api/auth", tags=["authentication"])
 log = logging.getLogger("aqua.auth")
@@ -212,3 +213,5 @@ def logout(
     clear_auth_cookie(response, settings, session_cookie_name(settings))
     clear_auth_cookie(response, settings, challenge_cookie_name(settings))
     log.info("auth_event action=allow reason=session_revoked")
+    clear_auth_cookie(response, settings, binding_cookie(settings))
+    clear_auth_cookie(response, settings, identity_cookie(settings))

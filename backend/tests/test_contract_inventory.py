@@ -60,6 +60,18 @@ def test_current_http_surface_is_explicit():
         ("/api/v1/me/password", "PUT"),
         ("/api/v1/me/sessions/{session_id}/revocations", "POST"),
         ("/api/v1/me/session-revocations", "POST"),
+        ("/api/v1/me/reauth/google-challenges", "POST"),
+        ("/api/v1/me/reauth/google", "POST"),
+        ("/api/v1/me/google-link-challenges", "POST"),
+        ("/api/v1/me/google-link-candidates", "POST"),
+        ("/api/v1/me/google-links", "POST"),
+        ("/api/v1/me/methods/google/{identity_id}/revocations", "POST"),
+        ("/api/v1/me/password-enrollments", "POST"),
+        ("/api/v1/me/password", "POST"),
+        ("/api/v1/me/email-change-requests", "POST"),
+        ("/api/v1/me/email", "PUT"),
+        ("/api/v1/me/notification-settings", "GET"),
+        ("/api/v1/me/notification-settings", "PUT"),
         ("/api/v1/starter-prompts", "GET"),
     }
     for path in ("/openapi.json", "/docs", "/docs/oauth2-redirect", "/redoc"):

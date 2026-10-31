@@ -39,7 +39,7 @@ export async function openP08Browser(options) {
   if (!Array.isArray(argv) || !argv.length || argv.length > 12 || argv.some((arg) => typeof arg !== "string" || arg.length > 1024)) throw Error("fixture_arguments_invalid");
   const imageIndex = argv.indexOf("--image");
   if (imageIndex < 0 || argv.lastIndexOf("--image") !== imageIndex || !/^sha256:[a-f0-9]{64}$/.test(argv[imageIndex + 1] || "")) throw Error("immutable_fixture_image_required");
-  if (secureAccountFixture && !argv.some(arg => arg.endsWith("/tools/checks/p10b_browser_backend.py"))) throw Error("secure_account_fixture_entry_required");
+  if (secureAccountFixture && !argv.some(arg => ["/tools/checks/p10b_browser_backend.py","/tools/checks/p10c_browser_backend.py"].some(entry=>arg.endsWith(entry)))) throw Error("secure_account_fixture_entry_required");
   ctx.backendImage = argv[imageIndex + 1];
   await mkdir(artifacts, { recursive: true }); if ((await lstat(artifacts)).isSymbolicLink()) throw Error("artifact_symlink_denied");
   ctx.artifacts = artifacts;
@@ -110,7 +110,8 @@ export async function openP08Browser(options) {
     await new Promise((resolve) => ctx.server.listen(0, "127.0.0.1", resolve)); ctx.origin = `http://127.0.0.1:${ctx.server.address().port}`;
     }
     ctx.bridge = new FixtureBridge(executable, argv, ctx.origin); const ready = await ctx.bridge.ready;
-    if (ready.origin !== ctx.origin || ready.schema_version !== 6 || ready.dataset_grants !== 0 || ready.network !== "none" || ready.workspace_analysis_fixture !== true) throw Error("fixture_boundary_invalid");
+    if (ready.origin !== ctx.origin || ready.schema_version !== 7 || ready.dataset_grants !== 0 || ready.network !== "none" || ready.workspace_analysis_fixture !== true) throw Error("fixture_boundary_invalid");
+    ctx.accountIdentityFixture=ready.account_identity_fixture===true;
     if (secureAccountFixture && ready.account_security_fixture !== true) throw Error("secure_account_fixture_required");
     if ((await ctx.bridge.send("workspace_stats")).p08_presentation_fixture !== true) throw Error("p08_fixture_required");
     ctx.profile = await mkdtemp(path.join(await realpath(tmpdir()), "aqua-p08-browser-"));
@@ -151,7 +152,7 @@ export async function openP08Browser(options) {
           const result = await ctx.bridge.send("request", { method: request.method, path: url.pathname + url.search, headers: Object.entries(request.headers), bodyBase64: Buffer.from(request.postData || "").toString("base64") });
           if (!Number.isInteger(result.status) || !Array.isArray(result.headers) || Buffer.from(result.bodyBase64 || "", "base64").length > LIMITS.bodyBytes) throw Error("bridge_response_invalid");
           const remember = value => { if (typeof value === "string" && value.length >= 20 && value.length <= 1024 && ctx.secrets.size < 512) ctx.secrets.add(value); };
-          try { const value = JSON.parse(Buffer.from(result.bodyBase64 || "", "base64").toString("utf8")); remember(value.csrf_token); remember(value.nonce); remember(value.challenge_token); remember(value.proof_token); } catch { /* Empty/non-JSON responses carry no structured proof. */ }
+          try { const value = JSON.parse(Buffer.from(result.bodyBase64 || "", "base64").toString("utf8")); remember(value.csrf_token); remember(value.nonce); remember(value.challenge_token); remember(value.proof_token);remember(value.request_token);remember(value.candidate_token); } catch { /* Empty/non-JSON responses carry no structured proof. */ }
           for (const [name, value] of result.headers) if (name.toLowerCase() === "set-cookie") remember(value.split(";", 1)[0].split("=").slice(1).join("="));
           await ctx.cdp.send("Fetch.fulfillRequest", { requestId, responseCode: result.status, responseHeaders: result.headers.map(([name, value]) => ({ name, value })), ...(result.status === 204 ? {} : { body: result.bodyBase64 || "" }) });
         } else if (url.origin === ctx.origin && request.method === "GET") {

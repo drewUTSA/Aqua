@@ -10,6 +10,7 @@ import main
 from auth.mailconfig import MailPolicy
 from auth.password_policy import PasswordPolicy
 from auth.password_settings import get_password_store
+from account.identity_runtime import get_identity_passwords
 from auth.passwords import PasswordStore
 from auth.security import UserSession
 from auth.sessions import session_cookie_name, token_digest
@@ -72,6 +73,11 @@ class SecurityWorld:
         )
         monkeypatch.setitem(
             main.app.dependency_overrides, get_password_store, lambda: self.passwords
+        )
+        monkeypatch.setitem(
+            main.app.dependency_overrides,
+            get_identity_passwords,
+            lambda: self.passwords,
         )
 
     def client(self, label="A", *, linked=True):

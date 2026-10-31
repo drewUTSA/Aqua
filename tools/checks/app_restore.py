@@ -3,9 +3,10 @@
 import hashlib
 from pathlib import Path
 from collections.abc import Callable
+from identity_restore import seed as seed_identity, verify as verify_identity
 
 
-def verify(docker: Callable, pg: str) -> dict:
+def verify(docker: Callable, pg: str, runner: str) -> dict:
     def sql(database: str, statement: bytes) -> bytes:
         return docker(
             "exec",
@@ -37,7 +38,7 @@ INSERT INTO app.sessions(user_id,token_digest,csrf_digest,auth_epoch,method,idle
     # restored instance must not inherit abandoned hash slots or replay mail.
     sql(
         "aqua_app",
-        b"SET ROLE aqua_app_owner; INSERT INTO app.password_hash_slots(id) VALUES ('a78c4e72-c149-4f85-80f1-422cd0637eaa'); INSERT INTO app.account_mail(id,purpose,recipient_digest,ciphertext,expires_at) VALUES ('f4d6b61d-11be-4510-bca3-0521dd724aaa','password_changed',decode(repeat('00',32),'hex'),decode(repeat('ab',30),'hex'),now()+interval '1 hour'); UPDATE app.account_mail_control SET lease_id='5da38ab6-643a-4152-93b5-894c4f8a8651',lease_expires_at=now()+interval '1 minute' WHERE singleton;",
+        b"SET ROLE aqua_app_owner; INSERT INTO app.password_hash_slots(id) VALUES ('a78c4e72-c149-4f85-80f1-422cd0637eaa'); INSERT INTO app.account_mail(id,purpose,recipient_digest,ciphertext,expires_at,attempts) VALUES ('f4d6b61d-11be-4510-bca3-0521dd724aaa','password_changed',decode(repeat('00',32),'hex'),decode(repeat('ab',30),'hex'),now()+interval '1 hour',3); UPDATE app.account_mail_control SET lease_id='5da38ab6-643a-4152-93b5-894c4f8a8651',lease_expires_at=now()+interval '1 minute' WHERE singleton;",
     )
     # Recovery must preserve spent anti-spam history rather than creating a new
     # sending allowance when restored pending proofs/jobs are invalidated.
@@ -118,7 +119,7 @@ COMMIT;
         b"""
 BEGIN;
 SET LOCAL ROLE aqua_app_runtime;
-UPDATE app.users SET display_name='Synthetic app profile',profile_revision=9,
+UPDATE app.users SET display_name='Synthetic app profile',profile_revision=9,email_revision=4,
  picture='https://lh3.googleusercontent.com/synthetic-recovery'
  WHERE id='00000000-0000-0000-0000-000000000001';
 INSERT INTO app.user_emails(user_id,address,email_key,verified_at,verification_method,is_primary)
@@ -136,20 +137,21 @@ INSERT INTO app.auth_challenges(id,user_id,session_id,purpose,secret_digest,bind
 INSERT INTO app.auth_challenges(id,user_id,session_id,purpose,secret_digest,binding_digest,account_operation,account_target_digest,account_auth_epoch,created_at,expires_at)
  SELECT '72000000-0000-4000-8000-000000000002',user_id,id,'reauth',decode(repeat('fd',32),'hex'),decode(repeat('fe',32),'hex'),'sessions_revoke_all',decode('TARGET_DIGEST','hex'),0,now(),now()+interval '300 seconds'
  FROM app.sessions WHERE token_digest=decode(repeat('ab',32),'hex');
-INSERT INTO app.account_action_proofs(id,user_id,session_id,challenge_id,secret_digest,auth_epoch,operation,target_digest,method,external_identity_id,created_at,expires_at)
- SELECT '73000000-0000-4000-8000-000000000001',user_id,id,'72000000-0000-4000-8000-000000000001',decode(repeat('fc',32),'hex'),0,'sessions_revoke_all',decode('TARGET_DIGEST','hex'),'google','71000000-0000-4000-8000-000000000001',now(),now()+interval '240 seconds'
+UPDATE app.auth_challenges SET account_google_identity_id='71000000-0000-4000-8000-000000000001',account_google_identity_revision=2 WHERE id='72000000-0000-4000-8000-000000000001';
+INSERT INTO app.account_action_proofs(id,user_id,session_id,challenge_id,secret_digest,auth_epoch,operation,target_digest,method,external_identity_id,external_identity_revision,created_at,expires_at)
+ SELECT '73000000-0000-4000-8000-000000000001',user_id,id,'72000000-0000-4000-8000-000000000001',decode(repeat('fc',32),'hex'),0,'sessions_revoke_all',decode('TARGET_DIGEST','hex'),'google','71000000-0000-4000-8000-000000000001',2,now(),now()+interval '240 seconds'
  FROM app.sessions WHERE token_digest=decode(repeat('ab',32),'hex');
 COMMIT;
 """.replace(b"TARGET_DIGEST", account_target),
     )
     account_sql = b"""
-SELECT display_name,picture,profile_revision FROM app.users WHERE id='00000000-0000-0000-0000-000000000001';
+SELECT display_name,picture,profile_revision,email_revision FROM app.users WHERE id='00000000-0000-0000-0000-000000000001';
 SELECT address,email_key,verified_at,verification_method,is_primary FROM app.user_emails WHERE user_id='00000000-0000-0000-0000-000000000001' ORDER BY id;
 SELECT id,issuer,subject,is_active,inactive_at,revision,observed_email_key,email_authoritative FROM app.external_identities WHERE user_id='00000000-0000-0000-0000-000000000001' ORDER BY id;
 SELECT encoded_hash,policy_version,changed_at FROM app.password_credentials WHERE user_id='00000000-0000-0000-0000-000000000001';
 SELECT dataset_key,permission,version,granted_at,revoked_at,approval_kind,approval_identity_id,approval_evidence FROM app.dataset_grants WHERE user_id='00000000-0000-0000-0000-000000000001' ORDER BY dataset_key;
-SELECT id,user_id,session_id,secret_digest,binding_digest,account_operation,account_target_digest,account_auth_epoch,created_at,expires_at FROM app.auth_challenges WHERE id IN ('72000000-0000-4000-8000-000000000001','72000000-0000-4000-8000-000000000002') ORDER BY id;
-SELECT id,user_id,session_id,challenge_id,secret_digest,auth_epoch,operation,target_digest,method,external_identity_id,password_changed_at,created_at,expires_at FROM app.account_action_proofs WHERE id='73000000-0000-4000-8000-000000000001';
+SELECT id,user_id,session_id,secret_digest,binding_digest,account_operation,account_target_digest,account_auth_epoch,account_google_identity_id,account_google_identity_revision,created_at,expires_at FROM app.auth_challenges WHERE id IN ('72000000-0000-4000-8000-000000000001','72000000-0000-4000-8000-000000000002') ORDER BY id;
+SELECT id,user_id,session_id,challenge_id,secret_digest,auth_epoch,operation,target_digest,method,external_identity_id,external_identity_revision,password_changed_at,created_at,expires_at FROM app.account_action_proofs WHERE id='73000000-0000-4000-8000-000000000001';
 SELECT has_table_privilege('aqua_app_runtime','app.account_action_proofs','UPDATE'),has_table_privilege('aqua_app_backup','app.account_action_proofs','UPDATE');
 """
     account_expected = sql("aqua_app", account_sql)
@@ -158,6 +160,8 @@ SELECT count(*),bool_and(consumed_at IS NOT NULL) FROM app.auth_challenges WHERE
 SELECT count(*),bool_and(consumed_at IS NOT NULL) FROM app.account_action_proofs WHERE id='73000000-0000-4000-8000-000000000001';
 """
     assert sql("aqua_app", proof_fence_sql).decode().splitlines() == ["2|f", "1|f"]
+    identity_recovery = seed_identity(sql, docker, runner)
+    verify_identity(sql, "aqua_app", identity_recovery, fenced=False)
     dump = docker(
         "exec",
         "-e",
@@ -210,10 +214,12 @@ SELECT count(*),bool_and(consumed_at IS NOT NULL) FROM app.account_action_proofs
         "4",
         "5",
         "6",
+        "7",
         "t|f",
     ], observed
     assert sql("aqua_restore", account_sql) == account_expected
     assert sql("aqua_restore", proof_fence_sql).decode().splitlines() == ["2|f", "1|f"]
+    verify_identity(sql, "aqua_restore", identity_recovery, fenced=False)
     denied = False
     try:
         sql("aqua_restore", b"SET ROLE aqua_app_backup; DELETE FROM app.users;")
@@ -232,13 +238,15 @@ SELECT count(*),bool_and(consumed_at IS NOT NULL) FROM app.account_action_proofs
     ).decode().splitlines() == ["0", "1"]
     assert sql(
         "aqua_restore",
-        b"SELECT count(*) FROM app.password_hash_slots; SELECT count(*) FROM app.account_mail WHERE state IN ('pending','sending'); SELECT state,ciphertext=decode(repeat('00',30),'hex') FROM app.account_mail WHERE id='f4d6b61d-11be-4510-bca3-0521dd724aaa'; SELECT lease_id IS NULL AND lease_expires_at IS NULL FROM app.account_mail_control WHERE singleton;",
-    ).decode().splitlines() == ["0", "0", "expired|t", "t"]
+        b"SELECT count(*) FROM app.password_hash_slots; SELECT count(*) FROM app.account_mail WHERE state IN ('pending','sending') AND purpose NOT IN ('password_changed','password_added','email_changed','google_linked','google_unlinked'); SELECT state,ciphertext=decode(repeat('00',30),'hex') FROM app.account_mail WHERE id='f4d6b61d-11be-4510-bca3-0521dd724aaa'; SELECT lease_id IS NULL AND lease_expires_at IS NULL FROM app.account_mail_control WHERE singleton;",
+    ).decode().splitlines() == ["0", "0", "failed|t", "t"]
     assert sql("aqua_restore", recipient_sql) == recipient_expected
     assert sql("aqua_restore", admission_sql) == admission_expected
     assert sql("aqua_restore", preferences_sql) == preferences_expected
     assert sql("aqua_restore", account_sql) == account_expected
     assert sql("aqua_restore", proof_fence_sql).decode().splitlines() == ["2|t", "1|t"]
+    verify_identity(sql, "aqua_restore", identity_recovery, fenced=True)
+    verify_identity(sql, "aqua_app", identity_recovery, fenced=False)
     assert sql("aqua_app", proof_fence_sql).decode().splitlines() == ["2|f", "1|f"]
     workspace_sql = b"SELECT state,reserved_bytes FROM app.analysis_requests WHERE user_id='00000000-0000-0000-0000-000000000001' ORDER BY id; SELECT content_bytes FROM app.workspace_usage WHERE user_id='00000000-0000-0000-0000-000000000001'; SELECT count(*) FROM app.visual_results WHERE user_id='00000000-0000-0000-0000-000000000001' AND response->>'message'='Completed synthetic answer'; SELECT status FROM app.messages WHERE id='20000000-0000-4000-8000-000000000004';"
     workspace_expected = ["complete|0", "interrupted|0", "1024", "1", "interrupted"]
@@ -281,6 +289,7 @@ SELECT count(*),bool_and(consumed_at IS NOT NULL) FROM app.account_action_proofs
     assert sql("aqua_restore", admission_sql) == admission_expected
     assert sql("aqua_restore", account_sql) == account_expected
     assert sql("aqua_restore", proof_fence_sql).decode().splitlines() == ["2|t", "1|t"]
+    verify_identity(sql, "aqua_restore", identity_recovery, fenced=True)
     assert recipient_expected.decode().splitlines()[-1] == "t|f"
     return {
         "status": "passed",
@@ -298,4 +307,8 @@ SELECT count(*),bool_and(consumed_at IS NOT NULL) FROM app.account_action_proofs
         "restored_account_profile_methods": "profile_revision_primary_credentials_and_identity_tombstones_preserved",
         "restored_account_provenance": "derived_grant_identity_binding_and_revocation_preserved",
         "restored_account_action_proofs": "challenge_proof_bindings_preserved_consumption_fenced_repeatably",
+        "restored_identity_actions": "google_link_and_dual_mail_and_password_add_requests_consumed_repeatably",
+        "restored_identity_revisions": "email_and_google_proof_revision_snapshots_preserved",
+        "restored_notification_consent": "independent_CAS_values_and_revision_preserved",
+        "restored_mandatory_notice": "real_synthetic_v2_encrypted_body_UUID_recipient_attempts_expiry_preserved_and_lease_recovered",
     }

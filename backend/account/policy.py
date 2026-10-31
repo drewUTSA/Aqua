@@ -15,6 +15,7 @@ OPERATIONS = frozenset(
     {
         "email_change",
         "password_change",
+        "password_add",
         "google_link",
         "google_unlink",
         "session_revoke",
@@ -34,6 +35,7 @@ CAPABILITIES = {
     "session_revoke": False,
     "sessions_revoke_all": False,
     "notification_delivery": False,
+    "in_app_notifications": True,
 }
 
 
@@ -84,7 +86,7 @@ def target_digest(operation: object, target: object = None) -> bytes:
         raise ValueError("account_operation_invalid")
     if operation in {"google_unlink", "session_revoke"}:
         target = identifier(target)
-    elif operation == "email_change":
+    elif operation in {"email_change", "password_add"}:
         if (
             type(target) is not str
             or not 3 <= len(target) <= 320

@@ -1,0 +1,2585 @@
+{
+  "schema_version": 1,
+  "phase": "P10c Identity actions",
+  "status": "local_checks_passed_release_pending",
+  "generated_utc": "2026-10-31T03:08:48.127Z",
+  "application_schema_version": 7,
+  "historical_baseline": {
+    "phase": "P10b Account security",
+    "classification": "historical_only",
+    "prior_PASS_reused": false,
+    "can_satisfy_current_gates": false
+  },
+  "backend": {
+    "run": "p10c-checks-20261031014310618-b071a04a",
+    "image": "sha256:990f869a6e67533fcda6a26ddce43de7ae165b35a37ae1b5e29f97dcc9cf45e9",
+    "prior_case_retention": {
+      "status": "passed",
+      "receipt_sha256": "716a70a79cc2a36a7e9d97f2b304eee39b6194c3be5616dd44554c5ee25f1b85",
+      "baseline_receipt_sha256": "7932023f12bf243a9ab577ef4ab28e5bba45f62c35fca370331d07a713c9eeec",
+      "prior_cases": 1519,
+      "current_cases": 1635,
+      "retained_prior_cases": 1519,
+      "added_cases": 116,
+      "prior_PASS_reused": false
+    },
+    "source_archive_sha256": "5abae8fb3d2f24b8b815f706d3f6a265b2d0246db5e9444cff9df319739d2601",
+    "summary_sha256": "27f7b174397652f8772d997476e4c4737a23923865adca296bdc3fe1532f8365",
+    "runtime_files": 149,
+    "checks": {
+      "source": {
+        "status": "passed",
+        "seconds": 0.06
+      },
+      "lock": {
+        "status": "passed",
+        "seconds": 0.04
+      },
+      "black": {
+        "status": "passed",
+        "seconds": 0.75
+      },
+      "ruff": {
+        "status": "passed",
+        "seconds": 0.03
+      },
+      "dependency-audit": {
+        "status": "passed",
+        "seconds": 1.66
+      },
+      "p05_browser_cleanup_test": {
+        "status": "passed",
+        "seconds": 0.07
+      },
+      "p05_browser_startup_test": {
+        "status": "passed",
+        "seconds": 0.06
+      },
+      "p06_browser_routes_test": {
+        "status": "passed",
+        "seconds": 0.04
+      },
+      "p06_browser_analysis_test": {
+        "status": "passed",
+        "seconds": 0.06
+      },
+      "test_p08_browser_fixture": {
+        "status": "passed",
+        "seconds": 0.07
+      },
+      "test_p10b_browser_fixture": {
+        "status": "passed",
+        "seconds": 0.07
+      },
+      "test_p10c_browser_fixture": {
+        "status": "passed",
+        "seconds": 0.09
+      },
+      "test_p10c_proxy_fixture": {
+        "status": "passed",
+        "seconds": 0.07
+      },
+      "candidate-build": {
+        "status": "passed",
+        "seconds": 1
+      },
+      "runtime-bytes": {
+        "status": "passed"
+      },
+      "telemetry": {
+        "status": "passed"
+      },
+      "privacy": {
+        "status": "passed"
+      },
+      "backend": {
+        "status": "passed",
+        "seconds": 195.83
+      },
+      "storage": {
+        "status": "passed",
+        "seconds": 6.45
+      },
+      "proxy": {
+        "status": "passed",
+        "seconds": 40.69
+      },
+      "identity-proxy": {
+        "status": "passed",
+        "seconds": 27.9
+      }
+    },
+    "unique_tests": 1635,
+    "new_identity_module_cases": {
+      "test_identity_contracts": 5,
+      "test_identity_google_proofs": 25,
+      "test_identity_methods": 9,
+      "test_identity_mail_actions": 22,
+      "test_identity_boundaries": 35,
+      "test_identity_concurrency": 7,
+      "test_identity_mail_budgets": 4,
+      "test_identity_migration": 6,
+      "test_identity_notifications": 3
+    },
+    "all_cases_covered": true,
+    "restore": {
+      "status": "passed",
+      "preferences": "values_schema_and_revision_preserved",
+      "sessions_and_pending_work_fenced": true,
+      "identity_requests": "google_link_and_dual_mail_and_password_add_requests_consumed_repeatably",
+      "identity_revisions": "email_and_google_proof_revision_snapshots_preserved",
+      "notification_consent": "independent_CAS_values_and_revision_preserved",
+      "mandatory_notice": "real_synthetic_v2_encrypted_body_UUID_recipient_attempts_expiry_preserved_and_lease_recovered",
+      "dump_storage": "memory_only"
+    },
+    "disposable_installer": "passed",
+    "isolated_proxy": "passed",
+    "owned_resource_cleanup": "removed_and_absence_confirmed",
+    "existing_running_containers_unchanged": true
+  },
+  "frontend": {
+    "verification_sha256": "19d5d8bc176aa8cbf2f7c4c67dab3635a6b172066e68984f50e144bbf355f293",
+    "source_manifest_sha256": "1ac3c94808a573758d549304419c42a3279f2b590767adce19448ed831546294",
+    "helper_freeze_sha256": "b907eacc9f890f5350e0762012a4d2db0b302aefb8a1baaac61754afcc9ea63d",
+    "evidence_builder_sha256": "43c20e70ec4f31d9905a705e7e9f10caa88922b2f515f60b9f0cdc32b5e84317",
+    "evidence_collector_sha256": "943e1e9287ace8433077f48d1774dbf7abbb17852a5d968bea55ebf4e3e74a24",
+    "visual_review_validator_sha256": "f61432256340c262454566b5321bee3a555422c966dc7c2c6e32bf8fe25c611b",
+    "canonical_evidence_validator_sha256": "5e7db28166429e7b575730f3eb2b32ad6dc0801993bbf50e4f476aa93bda1d11",
+    "unit_tests": 528,
+    "unit_failures": 0,
+    "runtime_dependency_audit": {
+      "status": "passed",
+      "scope": "locked_runtime_dependencies",
+      "command": "npm audit --omit=dev --audit-level=low --json",
+      "checked_utc": "2026-10-31T00:44:24.464Z",
+      "lock_sha256": "613b5c54c993cc93bdc403e5e63e935f09c424dc0e88fc6750b9f7c1eb38d490",
+      "report_sha256": "4643d587391cac1d7272ff98041c612f8fc2f97ef114a8d11ed075c333bb4f16",
+      "attestation_sha256": "bb9bf68d0e6fcd1279c35704b0c82e72ed1f347ce51aca22dc35db2d36ab9702",
+      "vulnerabilities": 0,
+      "dependency_count": 169
+    },
+    "verified_build_input_hashes": {
+      "frontend/index.html": "c620208375d8ae4aed1b34dedaf36522719317774a22e742b2435f2681afc105",
+      "frontend/package-lock.json": "613b5c54c993cc93bdc403e5e63e935f09c424dc0e88fc6750b9f7c1eb38d490",
+      "frontend/package.json": "b9d604369bd68db1e8fbad4e31171e8c3dc54f445a370b72351b9c9a8d8c17a6",
+      "frontend/vite.config.js": "d6749bf16452e5a9167bcbcb8610d0b6615594b7f598692735e4fde7adb60ec3",
+      "frontend/checks/account-client.test.mjs": "d81dbae4591fe005c0a2c128be9ef6a39eca29dea97886d31ac776f71c95ae57",
+      "frontend/checks/account-identity-client.test.mjs": "004e6ac1c82188c1ec6d2e9cac58298a6ce15f2fb290b8ece549b311bce11b1d",
+      "frontend/checks/account-identity-state.test.mjs": "623ef7cd4fe41bb461070521709ed474c84c94e56f9296c15fe81e157bd5262c",
+      "frontend/checks/account-render.test.mjs": "d569c605ebb29d9aeda284c0b6d548363dfb1f49e6699f9a4285bec1ffe59961",
+      "frontend/checks/account-security-client.test.mjs": "9034d562679a9f670a4d138ae0df497192facbc7fb492fecb17ca777c161d0fe",
+      "frontend/checks/account-security-state.test.mjs": "c953841cdfe3ed5b0d240d60d3ff7ad5e87d5181580a9470a8d5534fa7d1f3e9",
+      "frontend/checks/account-state.test.mjs": "523bb0e84324aa1f69a51581c9e6ca6fdff6ecea51314959210ed20530b4d11c",
+      "frontend/checks/analysis-client.test.mjs": "94ffd337966948cce98df341def5e9b11f76055f7413a21c75029c15b7632484",
+      "frontend/checks/analysis-fixture.mjs": "6225618cb67dc2870fdbb9a2cb553a58883631a81fe9cd294ce5bee2c775e780",
+      "frontend/checks/analysis-observer.test.mjs": "b3e80fcd2a6970697ad939272449b1b2e7a8129140f62e1420657919afafaff1",
+      "frontend/checks/analysis-state.test.mjs": "762d1263e9a83f1bc8d723017cb0a215d131bd169b95bb8eebf0387865a3aa40",
+      "frontend/checks/api-client.test.mjs": "c87a648efbe770769721ffca15545ca6da131ee9a29b2552e066ce1c4f28bf79",
+      "frontend/checks/aqua-client.test.mjs": "416904954cdcaf593d5e7450ae711be2fa2426fb6a4f23c02d853d3c0d9487dc",
+      "frontend/checks/auth-form-policy.test.mjs": "89e3df3830ea8b5dbdce4c2d3bed86ddfc1e75b309cd560687131990cbd6ec3e",
+      "frontend/checks/auth-page-review.mjs": "662bfbeda536bcce54dc68f8edd278dd75a28f4e115b0305ebfe2fe788d5ebce",
+      "frontend/checks/auth-transport.test.mjs": "45d67b7c576ff774134d50f550abedeca162707df6db05182278860fa5162640",
+      "frontend/checks/browser-review.mjs": "6b70d3fe98f85579ade8aee614ff233c7239b772013f109c36d8cd9e8f2ceebc",
+      "frontend/checks/content-safety-browser.mjs": "aa91c1cd7cf1160ee46105a164d6dbc1b475975f308f143c7ad44b534c6b3d98",
+      "frontend/checks/data.test.mjs": "4fc2c9adc6ea815b0a11d14edc7ca49eb14ae7f5a55a3ca348313f75703e00d5",
+      "frontend/checks/financial-format.test.mjs": "a20ebb6e5bb73c20576ff933491c4a20518e09612b4c1d8974626a319ffda47a",
+      "frontend/checks/financial-table.test.mjs": "cb4b86ff48044d78c8df1c8a53479d7cab3d7d5bd0b8a085f54da2be818f0460",
+      "frontend/checks/homepage-browser-actions.mjs": "c6f8a87c73df95f0ed744596c3fcb277699b6d0f2b6500f472226de1a5876ce2",
+      "frontend/checks/homepage-browser-actions.test.mjs": "ce6b894233dfb09ee1fa2b119175daff42da818599ee6eef0eb3a65b15e2b695",
+      "frontend/checks/homepage-browser-checks.mjs": "cdc3c5779b0a904398171cf51958a6f215bbd171de0c2c260f090fd1977909a4",
+      "frontend/checks/p05-browser-bridge.mjs": "f0f5ca91eb75707e5ca0fef33bf9da5f524668e46ebe9df79936537457e30e06",
+      "frontend/checks/p05-browser-bridge.test.mjs": "717792913c8daead78e09d6ee554202174d8a06384843b910661886cdedbda72",
+      "frontend/checks/p05-browser-fixture.mjs": "413a4f19104694c5160c9f4ad12dfa926634d1d8b8d36820f01b1fe1ee776d98",
+      "frontend/checks/p05-browser-pipe.mjs": "0ca297a4b1a3d992fcd11f3239b0d12bf5a21fdfa65563362f42c0d3416bec70",
+      "frontend/checks/p05-browser-pipe.test.mjs": "766bacdb4f7a1103009fe072eb3210c69e6f9ecde4ad6cebc11f584f568f44cd",
+      "frontend/checks/p05-browser.mjs": "290444b4f26cbf8b812de2061003fe267356c437763f35f7841e9c6d60027993",
+      "frontend/checks/p05-real-backend-browser.mjs": "0ed85c90a8a1c3ce16877e6715a1bab001af8b5ff4bbd05fe17846eb7275a0e5",
+      "frontend/checks/p05-shell-browser-checks.mjs": "eddc0fbd0a90ccd7fc69797567bf2515f5f362df6fc5ae361aeb02f5b43f8dd7",
+      "frontend/checks/p06-analysis-browser-checks.mjs": "28017f04a375605cdd2167f00cd7b67637990aff6aa14183d98d330e8484077b",
+      "frontend/checks/p06-browser-checks.mjs": "54162010747cb3f263b407d1180da96d2cb88ce9df2194a5ceea23465e9d130d",
+      "frontend/checks/p06-browser-fixture.mjs": "3ae095364c1b381ef839601ce9a4f804131bf6f9e8770c447e5fdaf5593f1d7a",
+      "frontend/checks/p06-real-browser-checks.mjs": "9f91827f531abdc6a12227610a4a70fe23d5747a33039f583963daa20f1ac1dd",
+      "frontend/checks/p07-browser-checks.mjs": "127ababe5b89156e5e6ed78c03092beeb68e0e33321789d7b55ab7c1d7c6f72c",
+      "frontend/checks/p07-browser-fixture.mjs": "11141aff2fb91d2cd3c7b5ea59f5ff37919b32a5ffc9efa23289868e9acbfac9",
+      "frontend/checks/p07-real-browser-checks.mjs": "4c8a1b78a019dc2d7ab5fee5980615fb16652a1d3645adf51d37de78b033a822",
+      "frontend/checks/p08-browser-checks.mjs": "508e7c2df1d5f657668aed379c33fed7f7cc2c1f660be87b3d5be1678573673a",
+      "frontend/checks/p08-browser-environment.mjs": "ee44b894d323ab889dc283753c55eaee2559ffcc09aa3e4fd399464b0148738d",
+      "frontend/checks/p08-browser.mjs": "d5a3a917da48e9617ddbca37dc651d8ff6b19905717eb01ec191d52d1f471213",
+      "frontend/checks/p08-security.test.mjs": "5e2562946f5060095b1ee0f21ba413058740c607c7200b83057458be00dd605b",
+      "frontend/checks/p09-appearance-checks.mjs": "f3816dde0950dff5dbe5e3c3bb2fb068e7936ad3dbb4019f53e10956844b150a",
+      "frontend/checks/p09-browser-checks.mjs": "7b42b67a531afddbd771aac5c394c3b5cdc7526bca0cf64555b8c1e3796cb2d7",
+      "frontend/checks/p09-browser-diagnostics.test.mjs": "c415c5459198792ad22a4d1b286ee748aaf2bf68e237724c1b96690273558415",
+      "frontend/checks/p09-browser.mjs": "0d559cd32e1e9944ba7a07cbe4a8464e48eba8fbcd8c905223a7fe61d8a7259b",
+      "frontend/checks/p09-preference-fixture.mjs": "d0d91eaf33c03c6145b105e60deea902b9f7ab907330339042eca9ba6cb94e11",
+      "frontend/checks/p09-preference-fixture.test.mjs": "0a1e221b253bccf75be5256741d1b46b2dbf09c796aa59a3d0248e20141380db",
+      "frontend/checks/p09-visual-preference-checks.mjs": "4fdaedcddda09634574e3a7bda608a71ad0bfbddaf89c275ebd2e9d47d49a9fa",
+      "frontend/checks/p10a-account-browser-checks.mjs": "cdafa12727737bbb8e8cd4d387e9778b8fe7f4e5bb20e59821923bc1b15cbda9",
+      "frontend/checks/p10a-account-browser.mjs": "70183ad9688f8f71b9fdb505cb36ef489c63999f57165a1e23e2da22f895201e",
+      "frontend/checks/p10b-browser-mode.mjs": "c2342517bf7c226317a6433c9d74e4087f53b20c3c7a465b1f9144107d747883",
+      "frontend/checks/p10b-browser-mode.test.mjs": "437f58522dc95c65ab158dfcd6f7be0e9fd28151796233c4e05c1654d7a4c37c",
+      "frontend/checks/p10b-security-browser-checks.mjs": "96cdffea9f2883d4b637c08fd28ae2bc63425712232c6bb62c3b8161482681e9",
+      "frontend/checks/p10b-security-browser.mjs": "86c9ace50883309d0eea1c6de44b916232d771a325a2265490a5db15b333d96b",
+      "frontend/checks/p10c-identity-browser-checks.mjs": "18b865b63f7271406eca0ca826bfecf9f0cc93da1e76c411174475a9957c4f05",
+      "frontend/checks/p10c-identity-browser.mjs": "2cae9bfae44aaf0810ea6d92a557bab3a60b00cb300ada0d0fbb2648526788b4",
+      "frontend/checks/p10c-notice-browser-checks.mjs": "48e8e7856e60246c91606edd3a193d58516c86ce9a0213fbf4129d59a06beb25",
+      "frontend/checks/p10c-notice-browser.mjs": "feac08765f75bbfd3589ef2345094d7d760d584c7eed536a3d81aaeb05fdddea",
+      "frontend/checks/p10c-notification-fixture.mjs": "3bdcabc1a2cb2ac4a15172b16458dff3870e5825e27b29a4aecb78b8203a2396",
+      "frontend/checks/password-auth-client.test.mjs": "dd0efadd839c5ef44824b7ee08bca7f93804adab4fd59d10d544b5976804b452",
+      "frontend/checks/plotly-bundle.mjs": "60e3da32ea0ba48d2c7c21c3005547890621e366c08dda3afbdb7a336b108481",
+      "frontend/checks/plotly-controller.test.mjs": "5d8898e9ea802bac3cf996f53e8bd676e1b388acc3e1e495b14c923bac2cea52",
+      "frontend/checks/plotly-fixture.mjs": "7996994119dee7021fcc4836ab0ccca72aed73c36d5103420a8a17edb2494e4e",
+      "frontend/checks/plotly-renderer.test.mjs": "cb5b22cbb9a62c9ec77a9c1e5bfe9ec4646c2919e5e2070124620f1222d3478b",
+      "frontend/checks/preference-presentation.test.mjs": "1637dadf8630b8d35ea1eace477051c6084da23f1b1e5568743529e305c7847b",
+      "frontend/checks/preferences-render.test.mjs": "ed91caa2208fab5bee83409a022a14c917e7ba99332404e530166b374a833c04",
+      "frontend/checks/preferences-schema.test.mjs": "6814e29a727fc0e1864fa03ecf1fe6d5a5f696afbc4bdf790162eb9ef554b226",
+      "frontend/checks/preferences-state.test.mjs": "d193d5bde5a302fe1b0cc1f64640368b0cfdd767b540b620a5a358b48abee026",
+      "frontend/checks/query-transport.test.mjs": "a36a5f72b1d0d71f9f9f198e0aae8017e424c6c4ac943227b459ef71bba81b0e",
+      "frontend/checks/refined-menus.test.mjs": "c3cf86465250777f6ab2baf5b562443925c9f15d8f3b991122414af17b900236",
+      "frontend/checks/refined-sidebar-state.test.mjs": "b724163edb63fa9369efc5609f63a92054d482ceaab1f8b1095a49cd466391fd",
+      "frontend/checks/routes.test.mjs": "30db72dd1000d342fae526664a02bc29fe00295628d56d09d14ff81bea555ee0",
+      "frontend/checks/safe-markdown.test.mjs": "aaac2975664722b23c38092636c7effa89826db4589c27765c357898d728ee54",
+      "frontend/checks/shell-config.test.mjs": "34713a2826717014e899f74607bc2d1f6bfed3811c209ca1b28f51977ea47767",
+      "frontend/checks/visual-results.test.mjs": "504794b09d9de80bdbf6f5fdf334dc106d9331f622d5ffeb83a595b8956c8cda",
+      "frontend/checks/workspace-client.test.mjs": "a5c92cca35017f5b4867a6f6d73e62b7689edc0a240e944ae1c8c3ef0be179d7",
+      "frontend/checks/workspace-result-metadata.test.mjs": "7f5801b36723e705262eea9f624ffb9c5e55e037f17f2af86e4f56c5ed73a887",
+      "frontend/checks/workspace-state.test.mjs": "2506094a1797d8e3e2ef9a96268f33d4e5b2fdf53c9052431e81f0b3fb413a02",
+      "frontend/src/App.jsx": "31261767b233bce12498b8e8e0ec2db69818896d6b3060da7071a1d954bf64b5",
+      "frontend/src/assets/models/AQUA_V2_Final.glb": "e9dfb0d9210ea53a980e8cafc54005eff094075e1ead3d92b153c894336aee4d",
+      "frontend/src/assets/models/AQUA_V2_Final_static.svg": "a610bf95498d5bbc765cf49879bc98ee9a33f385cdf88452622a6871ae825648",
+      "frontend/src/assets/models/Aqua_logo.glb": "4b09dc47d42dc93b2492d49713f3a9c022bfb06437dbb1d0ba43a7d15346257c",
+      "frontend/src/assets/models/Aqua_logo_static.svg": "b9b2df7ef81e4dd19dfd3dc2deb1047a15eec02151382624463a77374798b6dd",
+      "frontend/src/assets/models/Chatbar.glb": "594742d13df02126c84406ead8475d6384a84bcedf4935d9fdd5c4d548f04683",
+      "frontend/src/assets/opal/auth/chart.svg": "5630b303a2d1b5639c0816f2d769f85989eaf2dd904827f3ad51aab67898b095",
+      "frontend/src/assets/opal/auth/chat.svg": "ebf9da6a9ae4aec340941fde0a4bdd63231efe56163676b854098491a93d30bf",
+      "frontend/src/assets/opal/auth/clock.svg": "254f3e5df918b6279c7d1294cb8f159cc775105e26d5e082fb1b82554dc46b7a",
+      "frontend/src/assets/opal/auth/mark.svg": "3179997aefac07e91349321b290bc413970f9f5095e6fa5223b82bf7be385cc9",
+      "frontend/src/assets/opal/auth/speck-0.svg": "c3447ce233285d6cbf250049274481eac4c83eed9d679ca7b723db947913cc6d",
+      "frontend/src/assets/opal/auth/speck-1.svg": "fea2fac34998dca11fddc160698da8b8ea36292b1b614f6cac6ce82e0ca578d2",
+      "frontend/src/assets/opal/auth/speck-2.svg": "7701cd40a2e8f47063bf94c127ee68b856d08a406c6f6f15ccbec4ee31760fb8",
+      "frontend/src/assets/opal/auth/speck-3.svg": "8d188f5f988df1597a85f78412a400a441203df5bb27e947140121ae86b7e040",
+      "frontend/src/assets/opal/auth/speck-4.svg": "6e076f6d0c28863b46d22fe0423f87f9a2e0e9a84967487c0177e71c3d0fa8c8",
+      "frontend/src/assets/opal/auth/speck-5.svg": "f5133c458e15f57dd106e3c3ba85e443d55958bfa307699d691d6557b8a6fc7c",
+      "frontend/src/assets/opal/auth/speck-6.svg": "477455e776c54404ff2253e8114b8a18f9b8587982ac93c3ebb94cdfe3cc4a48",
+      "frontend/src/assets/opal/workspace/imgAccountMenuTrigger.svg": "382205e314fdb4637291613de542bed6bb07abaf0ba8200790c4b0faf8072faa",
+      "frontend/src/assets/opal/workspace/imgAccountMenuTrigger1.svg": "47edcda205a3b979104e4f973e8361545b6610db498997988f72feaff3fab918",
+      "frontend/src/assets/opal/workspace/imgAmbientSpeck.svg": "c3447ce233285d6cbf250049274481eac4c83eed9d679ca7b723db947913cc6d",
+      "frontend/src/assets/opal/workspace/imgAmbientSpeck1.svg": "fea2fac34998dca11fddc160698da8b8ea36292b1b614f6cac6ce82e0ca578d2",
+      "frontend/src/assets/opal/workspace/imgAmbientSpeck2.svg": "7701cd40a2e8f47063bf94c127ee68b856d08a406c6f6f15ccbec4ee31760fb8",
+      "frontend/src/assets/opal/workspace/imgAmbientSpeck3.svg": "8d188f5f988df1597a85f78412a400a441203df5bb27e947140121ae86b7e040",
+      "frontend/src/assets/opal/workspace/imgAmbientSpeck4.svg": "6e076f6d0c28863b46d22fe0423f87f9a2e0e9a84967487c0177e71c3d0fa8c8",
+      "frontend/src/assets/opal/workspace/imgAmbientSpeck5.svg": "f5133c458e15f57dd106e3c3ba85e443d55958bfa307699d691d6557b8a6fc7c",
+      "frontend/src/assets/opal/workspace/imgAmbientSpeck6.svg": "477455e776c54404ff2253e8114b8a18f9b8587982ac93c3ebb94cdfe3cc4a48",
+      "frontend/src/assets/opal/workspace/imgAquaConceptMark.svg": "4bd2203087c762ce43ca145970896be6861884e4287f842deb4a7aaffe1a5f90",
+      "frontend/src/assets/opal/workspace/imgAquaConceptMark1.svg": "6c4a17cca17fa9111de7684c2a78a58b8681ff1f86f0a8920f3a50406fa903e0",
+      "frontend/src/assets/opal/workspace/imgIconArrow.svg": "e6e7714429231b5d730807848719fa13fd9389fcd3e628c9d63163259aac2774",
+      "frontend/src/assets/opal/workspace/imgIconChart.svg": "5630b303a2d1b5639c0816f2d769f85989eaf2dd904827f3ad51aab67898b095",
+      "frontend/src/assets/opal/workspace/imgIconChat.svg": "4a7af72f5e79da122633521147033baa9450d33c6734002d59e711dafc4803c7",
+      "frontend/src/assets/opal/workspace/imgIconChevron.svg": "f0d3fab8e6d6576f1aa5d56e2e7b5cbbb0daf29c6af46756631a5e79351be17c",
+      "frontend/src/assets/opal/workspace/imgIconChevron1.svg": "45e83b2defd75ff473c6c8dfa973c2fc1859796c5c63ee214cc97c4edbff406c",
+      "frontend/src/assets/opal/workspace/imgIconCollapse.svg": "4ccc997cafa05a59f5c2ae66a2587bcbe683b983fa0bc881e3fcdc1a14c3a311",
+      "frontend/src/assets/opal/workspace/imgIconFolder.svg": "c3772fb704296ea0e358e76316913693f4a5e2f612dcd6feba26c03661c797fb",
+      "frontend/src/assets/opal/workspace/imgIconGlobe.svg": "bab1b5faefd964a62304ebb476ec2bfbfeed2fa5a4819ba9b2f2f1382be4177f",
+      "frontend/src/assets/opal/workspace/imgIconPlus.svg": "99bcafb942c2f53720c9099bed4bc3338e517431181235b44f4a6512e5c4c06c",
+      "frontend/src/assets/opal/workspace/imgIconSearch.svg": "d5cb3b6093eb8cc79fc40bbd34aa2cabf9d25b77a2601957c910f950fe096718",
+      "frontend/src/components/aqua/AquaLogo3D.jsx": "43f6ab804dd8655f9f9e393f983d668b38b6688a45af43979bc0fea42f6ae626",
+      "frontend/src/components/aqua/AquaLogoFallback.jsx": "57d62f416e718e150bf638c4ee5607fec1d68ed854fb4248f52952d613e136f9",
+      "frontend/src/components/aqua/Chatbar3D.jsx": "d8d5144f6c25c47978fc26aa80291cd1bf6bcd1b891b877c786af46f101cdb51",
+      "frontend/src/components/aqua/ModelErrorBoundary.jsx": "0eaaf6d0776539dc31d64109a5bc7bca0d42e0de27bc52f66aacb8c976a4eaaa",
+      "frontend/src/components/aqua/ModelSupport.jsx": "6e2c33612fbf38db4228194617e4f61be66a31dc4932bdc74f2d335e8eeae21a",
+      "frontend/src/components/aqua/WaterSparkles.jsx": "682b65e52081d29e8d32bfa35ad0dbd9ef4c2368f80768e07f23707c71f2adae",
+      "frontend/src/components/aqua/model.css": "47b7b4561a66bbd0d39d1d2e7f78fc61a103f60f9dcd1dde31187c8de6659641",
+      "frontend/src/components/aqua/water-sparkles.css": "d04949fb3035c2b564654097792f005883a2acb8f805dd1cfeb28822aa8b64e4",
+      "frontend/src/components/auth/AccountProfile.jsx": "6b69c5d588784e8d9cc0ede2150cba5a01eda6a8a1130e8297f148088f327176",
+      "frontend/src/components/auth/GoogleSignInButton.jsx": "dad1789c70689fe2d7c006e2486395d41b7d0ecef89a6b2085e430e83aca0d54",
+      "frontend/src/components/auth/OpalBackdrop.jsx": "0655f537fdf3226e6e5adf3ab69a59577ce8c975c9cded6fcc88cbb372ce6438",
+      "frontend/src/components/auth/SignInPanel.jsx": "964c4104254f9340d1b1188a6037c1e8231b11f82e527d6a63cfd28f5cebed3b",
+      "frontend/src/components/auth/authFormPolicy.js": "1cde99e0cd0fda0f8794322c6dffb845f1f10183da1a89675baa858442a7b446",
+      "frontend/src/components/chat/AnalysisStatus.jsx": "695b5fb57b2adfa50fc8554b6b762ac480eef6b75054851a76ac573dd7dfe295",
+      "frontend/src/components/chat/AquaMessage.jsx": "ffdfe6f5de3c42741aea9a9fa3bc8ce8466169acd375af1e2bbe5afb8e16daa1",
+      "frontend/src/components/chat/ChatInput.jsx": "c820ec721f0d328287d9fdfa08c55227978d156c32794c1a8b465f9dd6009ed9",
+      "frontend/src/components/chat/ChatShell.jsx": "549159f0f6d9018a260ef66a5ba9a6aa68dbe3ff9783862ee764dc7c3dbf3354",
+      "frontend/src/components/chat/Conversation.jsx": "5a180eb9f3610536917602fcd15233a81d28161ab21567945abedd0e98d30109",
+      "frontend/src/components/chat/MessageBirthLayer.jsx": "197ef1b705d7ac79d81f4bd05dffd1d5f62e3a325d5775e66ed913ad5d78da17",
+      "frontend/src/components/chat/SafeMarkdown.js": "7cefc2d99175963c5a7a13c105843b8804f2575d85682e295b3f790940d4a275",
+      "frontend/src/components/chat/ThinkingBubbles.jsx": "806deeb4ba06797932b14e0994d74aacd01f2b41249fbaf6f649d876979737a0",
+      "frontend/src/components/chat/UserMessage.jsx": "d50ea42c336ec57742492b326bdcfdce772848f86a072b481e70927e8a322dfb",
+      "frontend/src/components/data/FinancialTable.jsx": "c2494cb4f4d2aaf5e0a1e9f13820d1b8c817dd4c2be727aeed8dd2f82c52cf3c",
+      "frontend/src/components/data/PlotlyChart.css": "d97fa983b0b0ea48af70a695d50014e950195abb4058a3eb0087692d1f126271",
+      "frontend/src/components/data/PlotlyChart.jsx": "15cc98129f69e2bc4365ef80b2b52a93095660b999d0ec12ac571c0fa4dcde9a",
+      "frontend/src/components/data/ResultMetadata.jsx": "f1ec1f94548b59daff663505bbf7c5d301234f0772a1b32f290764217a073e25",
+      "frontend/src/components/data/displayTable.js": "5fbd85e9fd9e73fc3d64ca2a9df11a190b73b9fded2ad038cec5212db48819ae",
+      "frontend/src/components/data/financialValues.js": "1b8048d55185b4ede544b989365dc3cddc32b11ec7b683af9e143278098c905d",
+      "frontend/src/components/data/plotlyController.js": "97c7e70a1751fc0bd34cbb0f0f7f28b7b55e5c5d9c438ae7c043ba36fe2646c2",
+      "frontend/src/components/data/plotlyEngine.js": "8d64f6c7d226f8f17762349b33770d19c6ac3a2eee689bc4bb0efb6adfbe5bae",
+      "frontend/src/components/navigation/LocalLink.jsx": "909c8e8685b8925b50e2edad711414fa14db3f9d9a2bb1e4a065749deb6286c3",
+      "frontend/src/components/navigation/ModelSelector.jsx": "43d15efa3cc957cd1077a48491a42c213c94791fe8c82be6cfd653a2610a3360",
+      "frontend/src/components/navigation/Sidebar.jsx": "cf6f60be449fcca5bcb423e756ac032f073d5059d804120adeb9d8621998a4d0",
+      "frontend/src/components/navigation/menuPolicy.js": "9fbd65042f8933c140567373d8b91d5eaa59e5a39e47e9ca3ec06c64b441cb56",
+      "frontend/src/components/navigation/useMenuSurface.js": "01f3b8118e56231f19b8bb1ae6516ede3ecc01bdbd3d1696d19fc47ddb74481f",
+      "frontend/src/components/workspace/AccountMenu.jsx": "a527171cd70934cc4eb82bfffd6f8830ebfc13d36596a4bd9a088176a0310047",
+      "frontend/src/components/workspace/ControlIcon.jsx": "ab48822cfebbe072878df826a1333f8f72cec6af58cf4348e7146eb46af67f0c",
+      "frontend/src/components/workspace/OpalChat.jsx": "96cde29044b8af7b7ecec36eb89e7a955f49795d5a20927b7b6be9428d2b08a0",
+      "frontend/src/components/workspace/OpalSidebar.jsx": "0ea9495ff4a95b4de7c0fcfd49182dcca815d97f9e4d11dbf1183015185424f1",
+      "frontend/src/components/workspace/PromptLibraryDialog.jsx": "cdb537c5c43c207c50c0ab772827be141c222be2aff8455f1e045b5f01a2e092",
+      "frontend/src/components/workspace/SidebarActionMenu.jsx": "865c256f0d541a02bcf7df2fc7b5e014f82bf4e787fd604bb4cd25b5eb20f8a2",
+      "frontend/src/components/workspace/SidebarChatRow.jsx": "b93eea400b44d34449f263fe3e47f40b5c1e14b21eff7b9bf8b6e2d7bc786ab9",
+      "frontend/src/components/workspace/SidebarProjects.jsx": "db415f2f0840dee08838f8ea01d8723ff07b28c7e52022ce9bbe15453211276d",
+      "frontend/src/components/workspace/SidebarRecents.jsx": "c452a2f99b2d14cfce7d4e27fdf4e2822764ee5fa0d7eae3a0b1fea6fb4e2416",
+      "frontend/src/components/workspace/SidebarRecentsDialogs.jsx": "33ab233e27642f4a6a187b06e402345263d31f8f2b7cb189a92c906fc08309db",
+      "frontend/src/components/workspace/SidebarRecordDialog.jsx": "9cf21be4c910a54c5817b21767e5a33578362519619c9c68f149ceee2b279716",
+      "frontend/src/components/workspace/VisualPane.jsx": "fe7e69ed1ef194ffbb3c4bce90c9f9ce79e3908a00668c561237278d37d24042",
+      "frontend/src/components/workspace/VisualWorkspace.jsx": "c1e0a64107996f9828a042e96634cafa6edf5775c18f41f00d9950b6a468e650",
+      "frontend/src/components/workspace/Workspace.jsx": "a50b25b58b68e95fc1775d898d03671fcf3e157ded32b78a6d4fdf3337c0796f",
+      "frontend/src/components/workspace/WorkspaceEditor.jsx": "91aeb748dc65a31b966fa63ab6b23d9fe36f942314fa727906ce93ea273d5431",
+      "frontend/src/components/workspace/WorkspaceLibrary.jsx": "2cbbb42d5e726aff904918ee1d5dc08a1d3525dca4b35ab94389c02ed1157364",
+      "frontend/src/components/workspace/sidebarState.js": "a688449e613c9fba491b39bca11dc5b5070a1c9c839b999c04d262776c66e45a",
+      "frontend/src/components/workspace/useProjectChats.js": "78d7683878db6384a8d20e30c08ceeb8b153bca0259e36f6a7473b3e9a534fe1",
+      "frontend/src/hooks/useAnalysisRequests.js": "7e9bb6c0a5a16b0df21a7e2d98206050aece982ebcb738b8c076361ce293e73c",
+      "frontend/src/hooks/useChat.js": "a4266bfd4fabeb19505ebcd7fc18b0f833bdb0e368a2cad0acf4f3eb871b4742",
+      "frontend/src/hooks/useGoogleAuth.js": "aae0b60fc500cd45edb123315bdd2ea7135bea4dd466f5bff4aed8cc7efebd2b",
+      "frontend/src/hooks/useReducedMotion.js": "825046296532d39fcaf5c0c4790b17970b7463ee50544c435db72a49a4cd6195",
+      "frontend/src/hooks/useVisualResults.js": "f220811d3d09103a754e89f4c931cec65a95faa8579c7f0b8de232bbba4bc6a9",
+      "frontend/src/hooks/useWorkspace.js": "bf5ca326dda1a98289a9924ba1ae36f0911c214a3d2391d931e746fbe1f2f8c8",
+      "frontend/src/hooks/useWorkspaceLists.js": "5ab063c7542af46bd0ca6c5aa9d68ba78ddabae40c1b8746309c01e2c06dae33",
+      "frontend/src/hooks/workspaceAnalysisState.js": "0aa451181356397c32af9df6205cf8e7d048197e1cf20167f89feb8341e31a59",
+      "frontend/src/hooks/workspaceState.js": "3dcbc472ebd40eedfdd887d12bed25b056b42e1bdd3f08ee19517365237a4aa6",
+      "frontend/src/main.jsx": "7626f6666b0baa4d6baf409f0b5b9afda38620543858e0c88099e32de7f77619",
+      "frontend/src/mocks/aiModels.js": "627d8cc8c7086c4a645e8d069a296284c28c221bd0606e47aee88989d565ae36",
+      "frontend/src/mocks/mockResponses.js": "55ff0a36c553ff99a1d5cbab851f599d438d7a77be59815aade2e27a44c81aeb",
+      "frontend/src/mocks/navigation.js": "aa1dd64be5dcab42df775c50eb98b26c59b43c94642540a03e3e32629a5eadeb",
+      "frontend/src/pages/AccountActionLanding.jsx": "f682ab98e486a4be1d1e30b18ac6091b8f42bb9678c34f1cb639965f3cdc6930",
+      "frontend/src/pages/AuthPage.jsx": "5842be76a04efbc683703883c0212425e2aa452674209b3e240f2289e695b0f8",
+      "frontend/src/pages/LegalPage.jsx": "6638eb0253a6b6266652b627a3efcdb4ad39e790a2184baa1f985d8a04eb57e1",
+      "frontend/src/pages/SettingsShell.jsx": "07d90276cfb0cefd0511d3f55bca684ac7ef977c511dfd99c34fd5f7941edf8a",
+      "frontend/src/pages/SignInPage.jsx": "fd87b2a386fc3961d197be5dd8de160e765989726a4a9b9d6a7533520d15d916",
+      "frontend/src/services/analysisClient.js": "30c1e6394240f6441c81f942dc10c3393f86d012cc5648d69f23dce5f48aa1da",
+      "frontend/src/services/analysisObserver.js": "bbe2051a6873dae7aea5c259f560f7932713cc451a5b56bc01715e3bf3ace24e",
+      "frontend/src/services/analysisPresentation.js": "f506a5b2248b1a8af344625c3bac3d18c4dd4e5d6fdb2e83562a5373f5f5822a",
+      "frontend/src/services/analysisProtocol.js": "d654ce6bd12770d8e1f5d3091640918670bcf01899e86eef52406a94724e33e7",
+      "frontend/src/services/apiClient.js": "8aa19ae3bf30457684b218dd379d569a1073ada287cab56618e398ce69659e81",
+      "frontend/src/services/aquaClient.js": "40b328d6aea3449b557e25663f8fb4a9f3c81996b064c23af2ac9a826a4fcf50",
+      "frontend/src/services/authClient.js": "2df4f84834f5db9970509b1a453acc052dce2bafe7b704d505deb3d469f451ba",
+      "frontend/src/services/googleIdentity.js": "b60aadf6a4e00471bf9120cf505dd2186fde606e16416e098b670074adc6bc16",
+      "frontend/src/services/mockClient.js": "ac85edf04d2ba46b6620e54b082a4a51970b5ea3cba906eb05f4f90a13972dfd",
+      "frontend/src/services/passwordAuthClient.js": "c2208c0870d428c5f81fe611307a8f52fdcc670798304d01f00fcbfb5de9acf9",
+      "frontend/src/services/plotlyFigure.js": "9f33c7dd694bb9d364e54bdfcbc972de907947c619c7159b8c003342768469ed",
+      "frontend/src/services/precisionCells.js": "1396ab272b042fe0737c520e43cd10259cf09d3425c613cd6f0943715f437007",
+      "frontend/src/services/preferenceFormatting.js": "0f175e2df6568bba02df42e8c164f31e8268bbf2f9ae977963cfac7c17ef3e58",
+      "frontend/src/services/presentationContract.js": "b2f09e0e43cbed412aa1ba4b5e089bf0765303c0786f1c17324226e4efac9f0f",
+      "frontend/src/services/routes.js": "de6226fbfff57e9d2f8cd46601baffe0fe617986d849e28a9e64b3d98342f543",
+      "frontend/src/services/runtimeConfig.js": "1d7a2c38aea28b3503aca579b8d89bd8363eded0074209d789a6697d911d6b55",
+      "frontend/src/services/shellConfig.js": "0b0fe800e9e4e8e94ec07d8018f8d29eefcf3047596587f9963796b0b8f10d2f",
+      "frontend/src/services/visualResults.js": "3166ae45cb7f7f0ccb07b59b5475182fcad4a46ce18f08a52a46c9467cb01ce7",
+      "frontend/src/services/workspaceClient.js": "57061836d00829d8f9c2a25e62a18956b99d8984cc8a77918ec121056533635b",
+      "frontend/src/services/workspaceContract.js": "690fe0d0c03f1e527fb45e000c5e074e84b75050654d24dec42802dc899711fe",
+      "frontend/src/services/workspaceResultMetadata.js": "61b3707ae861092a6604818cf8e9ce26d10af55f4a2113eeb3a0c45ab2164a71",
+      "frontend/src/settings/AccountFoundation.jsx": "a6819595ee3f91445114f63601cf1f7b81c29735dc3b7f20ed4940d63b2c274c",
+      "frontend/src/settings/AccountIdentityDialog.jsx": "90e36463e41bd46b92a9aa01de72da5e6bb8bde6a25f06b688deac2889275cbc",
+      "frontend/src/settings/AccountProofStep.jsx": "56740885dcc0343915374d55a5c5b3567da7f57e1fffa9dc3aec3629f3d0742b",
+      "frontend/src/settings/AccountSecurityDialog.jsx": "be82d4a385a93f62d9849ec8bcab87502dac0431acca7612a37299bcedc35696",
+      "frontend/src/settings/GoogleActionButton.jsx": "faa9755308b2862a1ce4ab7115c79d4bc62dcd9f915c4e292dcae08d4819aacd",
+      "frontend/src/settings/NotificationProvider.jsx": "ceda3e647f0d4531663141b650d7eb5252de23c815d81e4a73c46f22552e69cf",
+      "frontend/src/settings/NotificationSettings.jsx": "c41d05b86ac2292f80c9e43c806711dbb0ea18167fc87bbb5c5f070532ec04dd",
+      "frontend/src/settings/PreferenceDialog.jsx": "10fbb1c75e23c1cb69b42b891d3109b099320c1277fdd287bb0675d2fd991727",
+      "frontend/src/settings/PreferenceTransfers.jsx": "5f785f0852e860f2510629c8fe6fc2d68e02bef93c796d6a110a9b88051aefd3",
+      "frontend/src/settings/PreferencesProvider.jsx": "48192f147ae002c705782b1a1c152a0337dafaafbbceeec221630eb948de89ad",
+      "frontend/src/settings/SettingsControl.jsx": "72bbab75824eb33dba4695d722965f3136fd846a0d6f9fdce95a792e3e742771",
+      "frontend/src/settings/SettingsInformation.jsx": "dc34b7698b216a681c4c8a220a51cd2b80c39c6708a3dd547ef37db776e8ebda",
+      "frontend/src/settings/accountClient.js": "fafeac4788b01abbecc049b6779672cc54ccbc21e97b121fb08899655abe60eb",
+      "frontend/src/settings/accountContract.js": "3766e3d907089e5300068788f06d6960c9ea41d0c9fabd34cb8b126dd98f8f2a",
+      "frontend/src/settings/accountIdentityClient.js": "f033e8c42147ecb2b86277a6df9dc1ca0e2a5c0f374a736db57944fe4bc7e1e5",
+      "frontend/src/settings/accountIdentityContract.js": "fb0e7433d866b670df4f6c97d7cd59208bbda4cc59ac70753979fb11d882f20e",
+      "frontend/src/settings/accountIdentityState.js": "4f960f0da4096647fc16b634a2ddc2c3fc77f506bf0af2a1c259fcd3bf7771a2",
+      "frontend/src/settings/accountMailHandoff.js": "57e19e18235658d27197f32ab17fc7267749499d2925d7c279c4f9e1265d2e93",
+      "frontend/src/settings/accountSecurityClient.js": "ec0465d33fe40305227759c5ff1090c418e4ce2fb222323a28e455472d958418",
+      "frontend/src/settings/accountSecurityContract.js": "0b55d0865990b6e44fd9c6ed5c754b2378d10c573647a0776e1f5e524bec6c9b",
+      "frontend/src/settings/accountSecurityState.js": "30294d0f1a9c29c383287b233a87235cc016c7db1b57bcd10434782f882ae3ac",
+      "frontend/src/settings/accountState.js": "59ef837c4dc1a5e499545ab6374dc2c846ee1a574efaaac1e9b2cc6737e0fb0b",
+      "frontend/src/settings/controls.js": "c66a572abf7809a671104da56d87878552180e44638bbec138ac514833d5e65d",
+      "frontend/src/settings/deviceStore.js": "b3fd92d593157fb6592b24d6c832d17a2b898ede8ce172ba7f6cc226c0e7c7c3",
+      "frontend/src/settings/googleActionState.js": "7cd1989dd5838ea73f185f158cbf4792ecd7df439cf90dd4f3248300ac14f3b9",
+      "frontend/src/settings/notificationState.js": "e74cb667866d01f5855eb9a5e92c04df2d02f089c31234857bff3048cc6c29e6",
+      "frontend/src/settings/preferenceClient.js": "e7318d514154ffe893527781397906c88242c8e54293a4599bd65af13d957cb9",
+      "frontend/src/settings/preferenceState.js": "37feb527306b26e922ec798890ac1397451b51e8e7c43d47bb5c6ea8f85ec19b",
+      "frontend/src/settings/schema.js": "b58cef5d4ed5770f5eef01e04dc9c0caa4a16e7942b17ccaa8902af7a12a5d09",
+      "frontend/src/settings/strictJson.js": "7cf9144f812505e59cbcd7a2589b1150fcae0801550ab0d293602612ec3e474b",
+      "frontend/src/settings/useAccountScope.js": "e7219319717e27848339b8bf89de2d25063a427e938726d5119f82d10905305c",
+      "frontend/src/styles/account-foundation.css": "7ed33a963484afee8d40953738ac99cb6e1b0b8f5fd9bbed802e114c6383bb66",
+      "frontend/src/styles/animations.css": "38fc4261924daf495635d414097f02bc093f45dccd1a8d9d9c6e9383abb9b493",
+      "frontend/src/styles/auth-page.css": "c5a802323b7dd97a6edf7b01e0d49f611c05f909ca0451a6c56908669460ed52",
+      "frontend/src/styles/auth.css": "05b7166fbf606dba8efb7f7f1d5c56b75e2b127faad850a3877c036d26b23ee5",
+      "frontend/src/styles/dialogs.css": "5cf48900be473d3b1419ad99e701bd8cabfca57c6245a7edc301753987abcb6d",
+      "frontend/src/styles/global.css": "fed6cee2936bbb96702ea76a192e0431ed1e2156c0e056eeff0bc9271910bec6",
+      "frontend/src/styles/homepage.css": "3ffb97bd25f24d1e008886c0ccc1271fbe306ea1dd8e70a8c7012dbcb08dfc8d",
+      "frontend/src/styles/legacy-workspace.css": "bb2b9859fa9ab9a5e8bdb5d3b1b5899066bc19e2fd8478d6d1dff58d616adc49",
+      "frontend/src/styles/legal-page.css": "a9980009b1c02dcdb60e2645fcafc0392386f6c817a0e7f86a39c5f00cdab098",
+      "frontend/src/styles/menus-refined.css": "d38916a58e71b00fb95366cefe311ac4aac1323963c47120a862da67a6fe1a44",
+      "frontend/src/styles/notifications.css": "dfc68ae74d1af39e961d4d0945a58ff1a4e35c672078a805a61d11fa947be1cb",
+      "frontend/src/styles/preferences.css": "11b954bad5cad8bee670157feeb37fdda12e89b137c0c23d64c7f12b6646124b",
+      "frontend/src/styles/settings.css": "c594fecd6d6f207c4aad45d203fffd75688367ad48ef6a9fedb7389422dfa598",
+      "frontend/src/styles/sidebar-refined.css": "1414964665db14eca1156db1deace5a8623d00268d018cd59f3b4a6281e755ad",
+      "frontend/src/styles/sidebar-search.css": "56139cdc78274fc49155a171114d9f7d34862712130fbc94f13bef6a6c4e7805",
+      "frontend/src/styles/sidebar.css": "1ce7d64c3bcd4680b59e3c16b4773247a6b7ff9c786404caced05d3d84888194",
+      "frontend/src/styles/signin-page.css": "113e864cbaaeb2006ca1d8ecea21bd827e2ce58566f7ed305ec5127c81a59060",
+      "frontend/src/styles/tokens.css": "1b5d6587206bf0df328fe6d7331bc53cc6fbd108120d3b2e6038c3d21e3b4795",
+      "frontend/src/styles/visual-workspace.css": "9292214a19ad6fe125d7a9a4e8adee2e45bd52ed308e1359cbecc7578bfabd50",
+      "frontend/src/styles/workspace-library.css": "96b189811cbc3699a78249e6fe49cfd04fc6421dc6fab270a908d305188c32e6",
+      "frontend/src/styles/workspace.css": "ceaa4dadfdb137b9e965de0fc2784c5a02ac19cf91e3c73ac85edfe04e392c60"
+    },
+    "builds": {
+      "opal": {
+        "status": "passed",
+        "bundle": {
+          "status": "passed",
+          "initial": {
+            "files": [
+              {
+                "file": "assets/index-CRxlGAcs.css",
+                "bytes": 78681,
+                "gzip_bytes": 15793
+              },
+              {
+                "file": "assets/index-DPiDbmIy.js",
+                "bytes": 578644,
+                "gzip_bytes": 180951
+              }
+            ],
+            "bytes": 657325,
+            "gzip_bytes": 196744
+          },
+          "engine": {
+            "file": "assets/plotly-basic.min-DBIu8hKN.js",
+            "bytes": 1211597,
+            "gzip_bytes": 404238,
+            "sha256": "2a9e4bd8433f961205467a9783c33c7bc89356f6f78d68832ab5fffae4414744",
+            "initial": false
+          },
+          "manifest_sha256": "ee921b3d172d7b929b4030fc4ee09a55d1faaa924537514da2a54740fb615c31"
+        },
+        "assets": [
+          {
+            "name": ".vite/manifest.json",
+            "bytes": 1357,
+            "sha256": "ee921b3d172d7b929b4030fc4ee09a55d1faaa924537514da2a54740fb615c31"
+          },
+          {
+            "name": "assets/AQUA_V2_Final_static-cJJYBiOn.svg",
+            "bytes": 2111901,
+            "sha256": "a610bf95498d5bbc765cf49879bc98ee9a33f385cdf88452622a6871ae825648"
+          },
+          {
+            "name": "assets/index-CRxlGAcs.css",
+            "bytes": 78681,
+            "sha256": "87433b15e3c86e3bcd7c268892374efdcfc165df04a5ff25eed2d83e157fa345"
+          },
+          {
+            "name": "assets/index-DPiDbmIy.js",
+            "bytes": 578644,
+            "sha256": "688ca6691a6e4e528a6ace9d6c06e8f513551ccb2ea4c53446fa854c87399619"
+          },
+          {
+            "name": "assets/plotly-basic.min-DBIu8hKN.js",
+            "bytes": 1211597,
+            "sha256": "2a9e4bd8433f961205467a9783c33c7bc89356f6f78d68832ab5fffae4414744"
+          },
+          {
+            "name": "assets/PromptLibraryDialog-BN15XR2d.js",
+            "bytes": 6760,
+            "sha256": "dc2f3d4a5b18c8af8913bde4696027cf557a5c37c8a27b35fb43c32a523f2eca"
+          },
+          {
+            "name": "assets/SettingsShell-B8qbBcM-.css",
+            "bytes": 11493,
+            "sha256": "1b180eb389cc1bbf35b58de3f5b9a93d0523245db977cccc461eeb5d8c3e0161"
+          },
+          {
+            "name": "assets/SettingsShell-BAl-5aN0.js",
+            "bytes": 78009,
+            "sha256": "abed2a3fa55742436c6a0d57642f9cf31c840b3d5817a15b15409b6009133fbf"
+          },
+          {
+            "name": "index.html",
+            "bytes": 672,
+            "sha256": "ec76718776a326cb03336d1dfc4bb0286da0c28b6b7c35e6e14e27d61399971c"
+          }
+        ]
+      },
+      "legacy": {
+        "status": "passed",
+        "bundle": {
+          "status": "passed",
+          "initial": {
+            "files": [
+              {
+                "file": "assets/index-CRxlGAcs.css",
+                "bytes": 78681,
+                "gzip_bytes": 15793
+              },
+              {
+                "file": "assets/index-DVPV34rY.js",
+                "bytes": 578646,
+                "gzip_bytes": 180954
+              }
+            ],
+            "bytes": 657327,
+            "gzip_bytes": 196747
+          },
+          "engine": {
+            "file": "assets/plotly-basic.min-BSiCqr2Z.js",
+            "bytes": 1211597,
+            "gzip_bytes": 404238,
+            "sha256": "dc0dfebbe0bc2fa450c1356da43179cc46022aee0e79ff0ab00b6eda54f66bd3",
+            "initial": false
+          },
+          "manifest_sha256": "85266387e95936b92de9e63a6a36a0a9851531b13fb1e6a304ecb4c89f8602ad"
+        },
+        "assets": [
+          {
+            "name": ".vite/manifest.json",
+            "bytes": 1357,
+            "sha256": "85266387e95936b92de9e63a6a36a0a9851531b13fb1e6a304ecb4c89f8602ad"
+          },
+          {
+            "name": "assets/AQUA_V2_Final_static-cJJYBiOn.svg",
+            "bytes": 2111901,
+            "sha256": "a610bf95498d5bbc765cf49879bc98ee9a33f385cdf88452622a6871ae825648"
+          },
+          {
+            "name": "assets/index-CRxlGAcs.css",
+            "bytes": 78681,
+            "sha256": "87433b15e3c86e3bcd7c268892374efdcfc165df04a5ff25eed2d83e157fa345"
+          },
+          {
+            "name": "assets/index-DVPV34rY.js",
+            "bytes": 578646,
+            "sha256": "8df1d8a60a65bfb2ba1a81a3599c3e147951ecb58e1a26a6002c51e96b67b5ae"
+          },
+          {
+            "name": "assets/plotly-basic.min-BSiCqr2Z.js",
+            "bytes": 1211597,
+            "sha256": "dc0dfebbe0bc2fa450c1356da43179cc46022aee0e79ff0ab00b6eda54f66bd3"
+          },
+          {
+            "name": "assets/PromptLibraryDialog-B3wl9sPg.js",
+            "bytes": 6760,
+            "sha256": "2d0554384396420efdef0c2081216e876e0fd042bbc9b2746f22dfe54fd89001"
+          },
+          {
+            "name": "assets/SettingsShell-8eT8uBiF.js",
+            "bytes": 78009,
+            "sha256": "b5dab6b9b1053673fcc1b4a15d8e3a8e91099861b1556eff1f70d0803492a1af"
+          },
+          {
+            "name": "assets/SettingsShell-B8qbBcM-.css",
+            "bytes": 11493,
+            "sha256": "1b180eb389cc1bbf35b58de3f5b9a93d0523245db977cccc461eeb5d8c3e0161"
+          },
+          {
+            "name": "index.html",
+            "bytes": 672,
+            "sha256": "4bca240d7201f3ed3f7760e8ea7c7be51420fe2fbc46699acd40157b7bfb581c"
+          }
+        ]
+      }
+    }
+  },
+  "account_verification": {
+    "profile_cas_and_lost_response_reconciliation": true,
+    "independent_presentation_drafts": true,
+    "auth_hidden_native_modal_and_owner_csrf_fences": true,
+    "current_password_reauthentication_and_single_use_action_bound_proofs": true,
+    "password_change_and_current_other_all_session_revocation": true,
+    "uncertain_commit_requires_explicit_readback_without_replay": true,
+    "restored_profile_identity_provenance_and_action_authority_fenced": true,
+    "fixture_schema": 7,
+    "live_provider_calls": 0,
+    "migration_applied_to_production": false
+  },
+  "identity_verification": {
+    "fresh_google_proof_and_single_use_current_revision": true,
+    "independent_google_link_and_unlink": true,
+    "last_usable_method_preserved": true,
+    "first_password_requires_primary_mail": true,
+    "email_change_requires_both_mailboxes": true,
+    "canonical_owner_preserved_without_grants": true,
+    "uncertain_completion_readback_without_replay": true,
+    "notification_CAS_independent_default_off": true,
+    "optional_live_success_requires_explicit_current_owner_consent": true,
+    "mandatory_security_notices_separate_from_optional_consent": true,
+    "restored_requests_proofs_and_sessions_fenced": true,
+    "restored_notification_consent_and_notice_obligations_preserved": true,
+    "real_google_provider_or_inbox_delivery_tested": false
+  },
+  "browser": {
+    "opal": {
+      "synthetic": {
+        "status": "passed",
+        "canonical_backend_image": "sha256:990f869a6e67533fcda6a26ddce43de7ae165b35a37ae1b5e29f97dcc9cf45e9",
+        "cases": 136,
+        "checked_utc": "2026-10-31T02:44:46.053Z",
+        "source_before_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+        "source_after_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+        "report_sha256": "ffafd7b4ea8b25beb22f162846b474532a3c83984747a4287009cffff7fcb61b",
+        "observed_seconds": 22.31,
+        "asset_set_sha256": "7d2f05df367867a44048d863d53a26d2aafdcb56f136747e11fbe25c12f46642",
+        "observations": {
+          "requestCount": 437,
+          "apiRequests": 306,
+          "staticRequests": 135,
+          "external_attempts": 0,
+          "consoleLeaks": 0,
+          "runtimeErrors": 0,
+          "forbidden_api_calls": 0
+        },
+        "cleanup": "browser_profile_loopback_and_owned_fixtures_removed",
+        "menu_text": {
+          "root_text_percent": 200,
+          "model_base_pixels": 14,
+          "model_enlarged_pixels": 28,
+          "model_scale": 2,
+          "account_base_pixels": 14,
+          "account_enlarged_pixels": 28,
+          "account_scale": 2
+        },
+        "composer_controls": {
+          "width_css_pixels": 320,
+          "root_text_percent": 200,
+          "non_overlapping": true,
+          "model_width": 160,
+          "saved_prompts_width": 44,
+          "send_width": 44
+        }
+      },
+      "workspace": {
+        "status": "passed",
+        "canonical_backend_image": "sha256:990f869a6e67533fcda6a26ddce43de7ae165b35a37ae1b5e29f97dcc9cf45e9",
+        "cases": 43,
+        "checked_utc": "2026-10-31T02:46:34.518Z",
+        "source_before_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+        "source_after_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+        "report_sha256": "4cbc83038d18e925775830a73ad16805a0e32cc133bf24cc418bdb9ca4c9bed5",
+        "observed_seconds": 106.69,
+        "asset_set_sha256": "7d2f05df367867a44048d863d53a26d2aafdcb56f136747e11fbe25c12f46642",
+        "observations": {
+          "requests": 385,
+          "apiRequests": 297,
+          "external_attempts": 0,
+          "consoleLeaks": 0
+        },
+        "cleanup": "browser_profile_loopback_and_owned_fixtures_removed"
+      },
+      "settings": {
+        "status": "passed",
+        "canonical_backend_image": "sha256:990f869a6e67533fcda6a26ddce43de7ae165b35a37ae1b5e29f97dcc9cf45e9",
+        "cases": 41,
+        "checked_utc": "2026-10-31T02:47:06.425Z",
+        "source_before_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+        "source_after_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+        "report_sha256": "74e5c163f592c5830dc0eb69516aa933bcbc2e930a7852e65f3788b431098b26",
+        "observed_seconds": 27.3,
+        "asset_set_sha256": "7d2f05df367867a44048d863d53a26d2aafdcb56f136747e11fbe25c12f46642",
+        "observations": {
+          "requests": 81,
+          "api_requests": 49,
+          "external_attempts": 0,
+          "console_leaks": 0,
+          "runtime_errors": 0,
+          "maximum_paused_requests": 7
+        },
+        "cleanup": "browser_profile_loopback_and_owned_fixtures_removed",
+        "appearance": {
+          "combinations": 128,
+          "minimum_select_text_contrast": 15.38320828520069,
+          "minimum_enabled_button_text_contrast": 6.991986463688356,
+          "minimum_label_text_contrast": 15.38320828520069,
+          "minimum_breadcrumb_text_contrast": 14.680549772941458,
+          "sidebar_input_cases": 0,
+          "minimum_sidebar_input_text_contrast": null,
+          "minimum_control_height": 44,
+          "minimum_control_width": 114.15625,
+          "system_theme_media_cases": 2,
+          "forced_colors_and_reduced_motion": true
+        },
+        "mobile": {
+          "width_css_pixels": 320,
+          "actual_control_text_scale": 2,
+          "categories_reachable": 9
+        },
+        "accessibility_tree": {
+          "settings_heading": true,
+          "named_category_navigation": true,
+          "named_comboboxes": 5,
+          "save_and_cancel_named": true
+        },
+        "actual_provider_calls": 0,
+        "fake_jobs_started": 0
+      },
+      "visuals": {
+        "status": "passed",
+        "canonical_backend_image": "sha256:990f869a6e67533fcda6a26ddce43de7ae165b35a37ae1b5e29f97dcc9cf45e9",
+        "cases": 37,
+        "checked_utc": "2026-10-31T02:47:41.389Z",
+        "source_before_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+        "source_after_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+        "report_sha256": "ef1453475fea6439cba8904a9ce61643804c0b33e0e2c07a84e1e1fd78c41547",
+        "observed_seconds": 30.3,
+        "asset_set_sha256": "7d2f05df367867a44048d863d53a26d2aafdcb56f136747e11fbe25c12f46642",
+        "observations": {
+          "requests": 113,
+          "api_requests": 86,
+          "external_attempts": 0,
+          "console_leaks": 0,
+          "runtime_errors": 0,
+          "maximum_paused_requests": 7
+        },
+        "cleanup": "browser_profile_loopback_and_owned_fixtures_removed",
+        "actual_provider_calls": 0,
+        "fake_jobs_started": 12
+      },
+      "account": {
+        "status": "passed",
+        "backend_image": "sha256:990f869a6e67533fcda6a26ddce43de7ae165b35a37ae1b5e29f97dcc9cf45e9",
+        "cases": 27,
+        "checked_utc": "2026-10-31T02:48:08.551Z",
+        "report_sha256": "b09aac1e1141d404d2e278b998dc0c4ebf88cbd105eea553e462d2989acb71ba",
+        "source_before_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+        "source_after_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+        "observed_seconds": 22,
+        "asset_set_sha256": "7d2f05df367867a44048d863d53a26d2aafdcb56f136747e11fbe25c12f46642",
+        "observations": {
+          "requests": 78,
+          "api_requests": 54,
+          "external_attempts": 0,
+          "console_leaks": 0,
+          "runtime_errors": 0,
+          "maximum_paused_requests": 7
+        },
+        "actual_provider_calls": 0,
+        "fake_jobs_started": 0,
+        "dataset_grant": false,
+        "cleanup": "browser_profile_loopback_and_owned_fixtures_removed"
+      },
+      "security": {
+        "password": {
+          "status": "passed",
+          "backend_image": "sha256:990f869a6e67533fcda6a26ddce43de7ae165b35a37ae1b5e29f97dcc9cf45e9",
+          "cases": 26,
+          "checked_utc": "2026-10-31T02:48:33.494Z",
+          "report_sha256": "e15b4dd8bac9cd1fa51034daaf9966ad2ca33bdee1f3b7c68133c16780e102a3",
+          "source_before_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+          "source_after_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+          "observed_seconds": 20.4,
+          "asset_set_sha256": "7d2f05df367867a44048d863d53a26d2aafdcb56f136747e11fbe25c12f46642",
+          "observations": {
+            "requests": 68,
+            "api_requests": 46,
+            "external_attempts": 0,
+            "console_leaks": 0,
+            "runtime_errors": 0,
+            "maximum_paused_requests": 7
+          },
+          "actual_provider_calls": 0,
+          "fake_jobs_started": 0,
+          "dataset_grant": false,
+          "cleanup": "browser_profile_loopback_and_owned_fixtures_removed",
+          "secure_fixture": {
+            "mode": "cdp_fulfilled_reserved_https_origin",
+            "dns_socket_tls_transport_tested": false,
+            "real_chrome_secure_context_and_cookie_semantics": true
+          },
+          "security_post_put_attempts": 5,
+          "copied_session_authority_probes": 2,
+          "server_quota_clock_or_limit_changes": 0
+        },
+        "revoke-current": {
+          "status": "passed",
+          "backend_image": "sha256:990f869a6e67533fcda6a26ddce43de7ae165b35a37ae1b5e29f97dcc9cf45e9",
+          "cases": 22,
+          "checked_utc": "2026-10-31T02:48:57.781Z",
+          "report_sha256": "c0675eb13c842deeea80c965af0e2ccb70c892fe20b82484d0760be3988a358d",
+          "source_before_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+          "source_after_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+          "observed_seconds": 19.8,
+          "asset_set_sha256": "7d2f05df367867a44048d863d53a26d2aafdcb56f136747e11fbe25c12f46642",
+          "observations": {
+            "requests": 60,
+            "api_requests": 39,
+            "external_attempts": 0,
+            "console_leaks": 0,
+            "runtime_errors": 0,
+            "maximum_paused_requests": 7
+          },
+          "actual_provider_calls": 0,
+          "fake_jobs_started": 0,
+          "dataset_grant": false,
+          "cleanup": "browser_profile_loopback_and_owned_fixtures_removed",
+          "secure_fixture": {
+            "mode": "cdp_fulfilled_reserved_https_origin",
+            "dns_socket_tls_transport_tested": false,
+            "real_chrome_secure_context_and_cookie_semantics": true
+          },
+          "security_post_put_attempts": 5,
+          "copied_session_authority_probes": 2,
+          "server_quota_clock_or_limit_changes": 0
+        },
+        "revoke-other": {
+          "status": "passed",
+          "backend_image": "sha256:990f869a6e67533fcda6a26ddce43de7ae165b35a37ae1b5e29f97dcc9cf45e9",
+          "cases": 22,
+          "checked_utc": "2026-10-31T02:49:20.890Z",
+          "report_sha256": "2873d8e7d174790b7571641ebbc1bdd7c5e5ee2be4d08478a13f19f87fb03c4a",
+          "source_before_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+          "source_after_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+          "observed_seconds": 18.4,
+          "asset_set_sha256": "7d2f05df367867a44048d863d53a26d2aafdcb56f136747e11fbe25c12f46642",
+          "observations": {
+            "requests": 58,
+            "api_requests": 38,
+            "external_attempts": 0,
+            "console_leaks": 0,
+            "runtime_errors": 0,
+            "maximum_paused_requests": 7
+          },
+          "actual_provider_calls": 0,
+          "fake_jobs_started": 0,
+          "dataset_grant": false,
+          "cleanup": "browser_profile_loopback_and_owned_fixtures_removed",
+          "secure_fixture": {
+            "mode": "cdp_fulfilled_reserved_https_origin",
+            "dns_socket_tls_transport_tested": false,
+            "real_chrome_secure_context_and_cookie_semantics": true
+          },
+          "security_post_put_attempts": 5,
+          "copied_session_authority_probes": 2,
+          "server_quota_clock_or_limit_changes": 0
+        },
+        "revoke-all": {
+          "status": "passed",
+          "backend_image": "sha256:990f869a6e67533fcda6a26ddce43de7ae165b35a37ae1b5e29f97dcc9cf45e9",
+          "cases": 22,
+          "checked_utc": "2026-10-31T02:49:44.591Z",
+          "report_sha256": "c4bf8d89d1a1e5e4d05901a6249fea57e5dd50e3d553ab99667382e8c8051c80",
+          "source_before_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+          "source_after_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+          "observed_seconds": 18.2,
+          "asset_set_sha256": "7d2f05df367867a44048d863d53a26d2aafdcb56f136747e11fbe25c12f46642",
+          "observations": {
+            "requests": 60,
+            "api_requests": 39,
+            "external_attempts": 0,
+            "console_leaks": 0,
+            "runtime_errors": 0,
+            "maximum_paused_requests": 7
+          },
+          "actual_provider_calls": 0,
+          "fake_jobs_started": 0,
+          "dataset_grant": false,
+          "cleanup": "browser_profile_loopback_and_owned_fixtures_removed",
+          "secure_fixture": {
+            "mode": "cdp_fulfilled_reserved_https_origin",
+            "dns_socket_tls_transport_tested": false,
+            "real_chrome_secure_context_and_cookie_semantics": true
+          },
+          "security_post_put_attempts": 5,
+          "copied_session_authority_probes": 2,
+          "server_quota_clock_or_limit_changes": 0
+        },
+        "lost-other": {
+          "status": "passed",
+          "backend_image": "sha256:990f869a6e67533fcda6a26ddce43de7ae165b35a37ae1b5e29f97dcc9cf45e9",
+          "cases": 23,
+          "checked_utc": "2026-10-31T02:50:06.737Z",
+          "report_sha256": "3c4270ae39407eb4c3dd99b91dc368128c94379df196e24bb70a0118cb9779f6",
+          "source_before_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+          "source_after_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+          "observed_seconds": 17.8,
+          "asset_set_sha256": "7d2f05df367867a44048d863d53a26d2aafdcb56f136747e11fbe25c12f46642",
+          "observations": {
+            "requests": 59,
+            "api_requests": 39,
+            "external_attempts": 0,
+            "console_leaks": 0,
+            "runtime_errors": 0,
+            "maximum_paused_requests": 7
+          },
+          "actual_provider_calls": 0,
+          "fake_jobs_started": 0,
+          "dataset_grant": false,
+          "cleanup": "browser_profile_loopback_and_owned_fixtures_removed",
+          "secure_fixture": {
+            "mode": "cdp_fulfilled_reserved_https_origin",
+            "dns_socket_tls_transport_tested": false,
+            "real_chrome_secure_context_and_cookie_semantics": true
+          },
+          "security_post_put_attempts": 5,
+          "copied_session_authority_probes": 2,
+          "server_quota_clock_or_limit_changes": 0
+        },
+        "verification-failure": {
+          "status": "passed",
+          "backend_image": "sha256:990f869a6e67533fcda6a26ddce43de7ae165b35a37ae1b5e29f97dcc9cf45e9",
+          "cases": 20,
+          "checked_utc": "2026-10-31T02:50:28.588Z",
+          "report_sha256": "bab7fb36b69d0064181386d6c64b1774d8dcaf4d66fb74a4539a07a3a5785a70",
+          "source_before_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+          "source_after_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+          "observed_seconds": 17.4,
+          "asset_set_sha256": "7d2f05df367867a44048d863d53a26d2aafdcb56f136747e11fbe25c12f46642",
+          "observations": {
+            "requests": 55,
+            "api_requests": 35,
+            "external_attempts": 0,
+            "console_leaks": 0,
+            "runtime_errors": 0,
+            "maximum_paused_requests": 7
+          },
+          "actual_provider_calls": 0,
+          "fake_jobs_started": 0,
+          "dataset_grant": false,
+          "cleanup": "browser_profile_loopback_and_owned_fixtures_removed",
+          "secure_fixture": {
+            "mode": "cdp_fulfilled_reserved_https_origin",
+            "dns_socket_tls_transport_tested": false,
+            "real_chrome_secure_context_and_cookie_semantics": true
+          },
+          "security_post_put_attempts": 5,
+          "copied_session_authority_probes": 2,
+          "server_quota_clock_or_limit_changes": 0
+        }
+      },
+      "notices": {
+        "status": "passed",
+        "cases": 6,
+        "checked_utc": "2026-10-31T02:50:36.368Z",
+        "report_sha256": "c81a311e08e4758efdc158b33518e34547300bf2ceca37670073d11fdab43021",
+        "source_before_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+        "source_after_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+        "observed_seconds": 3.36,
+        "asset_set_sha256": "7d2f05df367867a44048d863d53a26d2aafdcb56f136747e11fbe25c12f46642",
+        "observations": {
+          "requestCount": 75,
+          "apiRequests": 48,
+          "staticRequests": 28,
+          "external_attempts": 0,
+          "consoleLeaks": 0,
+          "runtimeErrors": 0,
+          "forbidden_api_calls": 0
+        },
+        "real_google_sdk_calls": 0,
+        "real_mail_provider_calls": 0,
+        "fake_jobs_started": 0,
+        "real_dataset_grants": 0,
+        "cleanup": "browser_profile_loopback_and_owned_fixtures_removed",
+        "canonical_backend_image": "sha256:990f869a6e67533fcda6a26ddce43de7ae165b35a37ae1b5e29f97dcc9cf45e9",
+        "mode": "synthetic_contract_only",
+        "real_backend_executed": false
+      },
+      "identity": {
+        "lost-email": {
+          "status": "passed",
+          "cases": 13,
+          "checked_utc": "2026-10-31T02:40:08.477Z",
+          "report_sha256": "9ec7ec325d923d22573152f7bd5898e7ee28134e70de6531582b64ae180a491a",
+          "source_before_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+          "source_after_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+          "observed_seconds": 16.4,
+          "asset_set_sha256": "7d2f05df367867a44048d863d53a26d2aafdcb56f136747e11fbe25c12f46642",
+          "observations": {
+            "requests": 44,
+            "api_requests": 31,
+            "external_attempts": 0,
+            "console_leaks": 0,
+            "runtime_errors": 0,
+            "maximum_paused_requests": 7
+          },
+          "real_google_sdk_calls": 0,
+          "real_mail_provider_calls": 0,
+          "fake_jobs_started": 0,
+          "real_dataset_grants": 0,
+          "cleanup": "browser_profile_loopback_and_owned_fixtures_removed",
+          "backend_image": "sha256:990f869a6e67533fcda6a26ddce43de7ae165b35a37ae1b5e29f97dcc9cf45e9",
+          "action_attempts": 4,
+          "observed_mutation_attempts": 4,
+          "secure_fixture": {
+            "mode": "cdp_fulfilled_reserved_https_origin",
+            "dns_socket_tls_transport_tested": false
+          }
+        },
+        "google-session": {
+          "status": "passed",
+          "cases": 2,
+          "checked_utc": "2026-10-31T02:44:23.580Z",
+          "report_sha256": "dfbb0445e4dd275fe9a5ec609661c3ac51f628e1974e801f651d64ffcedce3c8",
+          "source_before_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+          "source_after_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+          "observed_seconds": 11.8,
+          "asset_set_sha256": "7d2f05df367867a44048d863d53a26d2aafdcb56f136747e11fbe25c12f46642",
+          "observations": {
+            "requests": 33,
+            "api_requests": 21,
+            "external_attempts": 0,
+            "console_leaks": 0,
+            "runtime_errors": 0,
+            "maximum_paused_requests": 7
+          },
+          "real_google_sdk_calls": 0,
+          "real_mail_provider_calls": 0,
+          "fake_jobs_started": 0,
+          "real_dataset_grants": 0,
+          "cleanup": "browser_profile_loopback_and_owned_fixtures_removed",
+          "backend_image": "sha256:990f869a6e67533fcda6a26ddce43de7ae165b35a37ae1b5e29f97dcc9cf45e9",
+          "action_attempts": 3,
+          "observed_mutation_attempts": 3,
+          "secure_fixture": {
+            "mode": "cdp_fulfilled_reserved_https_origin",
+            "dns_socket_tls_transport_tested": false
+          }
+        },
+        "google-failure": {
+          "status": "passed",
+          "cases": 1,
+          "checked_utc": "2026-10-31T02:44:40.068Z",
+          "report_sha256": "f1e5becac93778ae9988bc49844445b7a662fa66544771cb1d22f0bb43428502",
+          "source_before_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+          "source_after_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+          "observed_seconds": 11.6,
+          "asset_set_sha256": "7d2f05df367867a44048d863d53a26d2aafdcb56f136747e11fbe25c12f46642",
+          "observations": {
+            "requests": 30,
+            "api_requests": 19,
+            "external_attempts": 0,
+            "console_leaks": 0,
+            "runtime_errors": 0,
+            "maximum_paused_requests": 7
+          },
+          "real_google_sdk_calls": 0,
+          "real_mail_provider_calls": 0,
+          "fake_jobs_started": 0,
+          "real_dataset_grants": 0,
+          "cleanup": "browser_profile_loopback_and_owned_fixtures_removed",
+          "backend_image": "sha256:990f869a6e67533fcda6a26ddce43de7ae165b35a37ae1b5e29f97dcc9cf45e9",
+          "action_attempts": 2,
+          "observed_mutation_attempts": 2,
+          "secure_fixture": {
+            "mode": "cdp_fulfilled_reserved_https_origin",
+            "dns_socket_tls_transport_tested": false
+          }
+        },
+        "link": {
+          "status": "passed",
+          "cases": 7,
+          "checked_utc": "2026-10-31T02:45:04.382Z",
+          "report_sha256": "899fa7fdfd3de5ad11639c763fdb1813ac277a22f6d6f851823fccffe927a3cb",
+          "source_before_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+          "source_after_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+          "observed_seconds": 19.5,
+          "asset_set_sha256": "7d2f05df367867a44048d863d53a26d2aafdcb56f136747e11fbe25c12f46642",
+          "observations": {
+            "requests": 61,
+            "api_requests": 39,
+            "external_attempts": 0,
+            "console_leaks": 0,
+            "runtime_errors": 0,
+            "maximum_paused_requests": 7
+          },
+          "real_google_sdk_calls": 0,
+          "real_mail_provider_calls": 0,
+          "fake_jobs_started": 0,
+          "real_dataset_grants": 0,
+          "cleanup": "browser_profile_loopback_and_owned_fixtures_removed",
+          "backend_image": "sha256:990f869a6e67533fcda6a26ddce43de7ae165b35a37ae1b5e29f97dcc9cf45e9",
+          "action_attempts": 5,
+          "observed_mutation_attempts": 5,
+          "secure_fixture": {
+            "mode": "cdp_fulfilled_reserved_https_origin",
+            "dns_socket_tls_transport_tested": false
+          }
+        },
+        "unlink": {
+          "status": "passed",
+          "cases": 8,
+          "checked_utc": "2026-10-31T02:46:33.904Z",
+          "report_sha256": "9da3557702108430c4e11abe2c09b773376c963a58dbdf41bc02157742d6ee24",
+          "source_before_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+          "source_after_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+          "observed_seconds": 85.1,
+          "asset_set_sha256": "7d2f05df367867a44048d863d53a26d2aafdcb56f136747e11fbe25c12f46642",
+          "observations": {
+            "requests": 87,
+            "api_requests": 57,
+            "external_attempts": 0,
+            "console_leaks": 0,
+            "runtime_errors": 0,
+            "maximum_paused_requests": 7
+          },
+          "real_google_sdk_calls": 0,
+          "real_mail_provider_calls": 0,
+          "fake_jobs_started": 0,
+          "real_dataset_grants": 0,
+          "cleanup": "browser_profile_loopback_and_owned_fixtures_removed",
+          "backend_image": "sha256:990f869a6e67533fcda6a26ddce43de7ae165b35a37ae1b5e29f97dcc9cf45e9",
+          "action_attempts": 8,
+          "observed_mutation_attempts": 8,
+          "secure_fixture": {
+            "mode": "cdp_fulfilled_reserved_https_origin",
+            "dns_socket_tls_transport_tested": false
+          }
+        },
+        "password-add": {
+          "status": "passed",
+          "cases": 8,
+          "checked_utc": "2026-10-31T02:46:54.472Z",
+          "report_sha256": "b268c5395b3b124fb02d0253315fb7901411f5147022fca9e09d6c5793005a18",
+          "source_before_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+          "source_after_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+          "observed_seconds": 15.8,
+          "asset_set_sha256": "7d2f05df367867a44048d863d53a26d2aafdcb56f136747e11fbe25c12f46642",
+          "observations": {
+            "requests": 43,
+            "api_requests": 30,
+            "external_attempts": 0,
+            "console_leaks": 0,
+            "runtime_errors": 0,
+            "maximum_paused_requests": 7
+          },
+          "real_google_sdk_calls": 0,
+          "real_mail_provider_calls": 0,
+          "fake_jobs_started": 0,
+          "real_dataset_grants": 0,
+          "cleanup": "browser_profile_loopback_and_owned_fixtures_removed",
+          "backend_image": "sha256:990f869a6e67533fcda6a26ddce43de7ae165b35a37ae1b5e29f97dcc9cf45e9",
+          "action_attempts": 4,
+          "observed_mutation_attempts": 4,
+          "secure_fixture": {
+            "mode": "cdp_fulfilled_reserved_https_origin",
+            "dns_socket_tls_transport_tested": false
+          }
+        },
+        "email": {
+          "status": "passed",
+          "cases": 11,
+          "checked_utc": "2026-10-31T02:47:16.966Z",
+          "report_sha256": "d77509c9fe28d14d6842317e9a11f2f2cda12403537d21bc65f90d58317da46d",
+          "source_before_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+          "source_after_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+          "observed_seconds": 17.8,
+          "asset_set_sha256": "7d2f05df367867a44048d863d53a26d2aafdcb56f136747e11fbe25c12f46642",
+          "observations": {
+            "requests": 42,
+            "api_requests": 29,
+            "external_attempts": 0,
+            "console_leaks": 0,
+            "runtime_errors": 0,
+            "maximum_paused_requests": 7
+          },
+          "real_google_sdk_calls": 0,
+          "real_mail_provider_calls": 0,
+          "fake_jobs_started": 0,
+          "real_dataset_grants": 0,
+          "cleanup": "browser_profile_loopback_and_owned_fixtures_removed",
+          "backend_image": "sha256:990f869a6e67533fcda6a26ddce43de7ae165b35a37ae1b5e29f97dcc9cf45e9",
+          "action_attempts": 4,
+          "observed_mutation_attempts": 4,
+          "secure_fixture": {
+            "mode": "cdp_fulfilled_reserved_https_origin",
+            "dns_socket_tls_transport_tested": false
+          }
+        },
+        "notifications": {
+          "status": "passed",
+          "cases": 3,
+          "checked_utc": "2026-10-31T02:47:40.433Z",
+          "report_sha256": "7453c7a487a84844253bea087ff2c1801f47bfeed877fe64fc2fec0b0fd306f8",
+          "source_before_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+          "source_after_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+          "observed_seconds": 18.3,
+          "asset_set_sha256": "7d2f05df367867a44048d863d53a26d2aafdcb56f136747e11fbe25c12f46642",
+          "observations": {
+            "requests": 59,
+            "api_requests": 33,
+            "external_attempts": 0,
+            "console_leaks": 0,
+            "runtime_errors": 0,
+            "maximum_paused_requests": 7
+          },
+          "real_google_sdk_calls": 0,
+          "real_mail_provider_calls": 0,
+          "fake_jobs_started": 0,
+          "real_dataset_grants": 0,
+          "cleanup": "browser_profile_loopback_and_owned_fixtures_removed",
+          "backend_image": "sha256:990f869a6e67533fcda6a26ddce43de7ae165b35a37ae1b5e29f97dcc9cf45e9",
+          "action_attempts": 2,
+          "observed_mutation_attempts": 2,
+          "secure_fixture": {
+            "mode": "cdp_fulfilled_reserved_https_origin",
+            "dns_socket_tls_transport_tested": false
+          }
+        },
+        "last-method": {
+          "status": "passed",
+          "cases": 1,
+          "checked_utc": "2026-10-31T02:47:56.727Z",
+          "report_sha256": "bbb63ea8b93fa53538a21b28eea13a95e2e61d168b6c2f1793dbbe95585f777c",
+          "source_before_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+          "source_after_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+          "observed_seconds": 10.8,
+          "asset_set_sha256": "7d2f05df367867a44048d863d53a26d2aafdcb56f136747e11fbe25c12f46642",
+          "observations": {
+            "requests": 26,
+            "api_requests": 15,
+            "external_attempts": 0,
+            "console_leaks": 0,
+            "runtime_errors": 0,
+            "maximum_paused_requests": 7
+          },
+          "real_google_sdk_calls": 0,
+          "real_mail_provider_calls": 0,
+          "fake_jobs_started": 0,
+          "real_dataset_grants": 0,
+          "cleanup": "browser_profile_loopback_and_owned_fixtures_removed",
+          "backend_image": "sha256:990f869a6e67533fcda6a26ddce43de7ae165b35a37ae1b5e29f97dcc9cf45e9",
+          "action_attempts": 0,
+          "observed_mutation_attempts": 0,
+          "secure_fixture": {
+            "mode": "cdp_fulfilled_reserved_https_origin",
+            "dns_socket_tls_transport_tested": false
+          }
+        }
+      }
+    },
+    "legacy": {
+      "synthetic": {
+        "status": "passed",
+        "canonical_backend_image": "sha256:990f869a6e67533fcda6a26ddce43de7ae165b35a37ae1b5e29f97dcc9cf45e9",
+        "cases": 136,
+        "checked_utc": "2026-10-31T02:51:09.758Z",
+        "source_before_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+        "source_after_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+        "report_sha256": "a95cd280275ff0f7a9b5919685a98a96c3ebce197ff50cd37b06185383a083de",
+        "observed_seconds": 31.78,
+        "asset_set_sha256": "de2fff21a76b7d6e79f4a466157c826bfd85c01444de3dad4dbd2cab53b4478b",
+        "observations": {
+          "requestCount": 450,
+          "apiRequests": 306,
+          "staticRequests": 149,
+          "external_attempts": 0,
+          "consoleLeaks": 0,
+          "runtimeErrors": 0,
+          "forbidden_api_calls": 0
+        },
+        "cleanup": "browser_profile_loopback_and_owned_fixtures_removed",
+        "menu_text": {
+          "root_text_percent": 200,
+          "model_base_pixels": 14,
+          "model_enlarged_pixels": 28,
+          "model_scale": 2,
+          "account_base_pixels": 14,
+          "account_enlarged_pixels": 28,
+          "account_scale": 2
+        },
+        "composer_controls": {
+          "width_css_pixels": 320,
+          "root_text_percent": 200,
+          "non_overlapping": true,
+          "model_width": 160,
+          "saved_prompts_width": 44,
+          "send_width": 44
+        }
+      },
+      "workspace": {
+        "status": "passed",
+        "canonical_backend_image": "sha256:990f869a6e67533fcda6a26ddce43de7ae165b35a37ae1b5e29f97dcc9cf45e9",
+        "cases": 43,
+        "checked_utc": "2026-10-31T02:52:54.737Z",
+        "source_before_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+        "source_after_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+        "report_sha256": "13d924ff57ba3bd7d9ed84a2bbe69aa3425a3895205c178e3e3ad7604e21145c",
+        "observed_seconds": 103.34,
+        "asset_set_sha256": "de2fff21a76b7d6e79f4a466157c826bfd85c01444de3dad4dbd2cab53b4478b",
+        "observations": {
+          "requests": 396,
+          "apiRequests": 292,
+          "external_attempts": 0,
+          "consoleLeaks": 0
+        },
+        "cleanup": "browser_profile_loopback_and_owned_fixtures_removed"
+      },
+      "settings": {
+        "status": "passed",
+        "canonical_backend_image": "sha256:990f869a6e67533fcda6a26ddce43de7ae165b35a37ae1b5e29f97dcc9cf45e9",
+        "cases": 41,
+        "checked_utc": "2026-10-31T02:53:26.847Z",
+        "source_before_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+        "source_after_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+        "report_sha256": "f7261284fda8afac2180e8c2d174c31d95943774ca6ba726a1087b69ba2b65a5",
+        "observed_seconds": 27.7,
+        "asset_set_sha256": "de2fff21a76b7d6e79f4a466157c826bfd85c01444de3dad4dbd2cab53b4478b",
+        "observations": {
+          "requests": 85,
+          "api_requests": 49,
+          "external_attempts": 0,
+          "console_leaks": 0,
+          "runtime_errors": 0,
+          "maximum_paused_requests": 8
+        },
+        "cleanup": "browser_profile_loopback_and_owned_fixtures_removed",
+        "appearance": {
+          "combinations": 128,
+          "minimum_select_text_contrast": 14.64845708722105,
+          "minimum_enabled_button_text_contrast": 6.991986463688356,
+          "minimum_label_text_contrast": 14.64845708722105,
+          "minimum_breadcrumb_text_contrast": 14.680549772941458,
+          "sidebar_input_cases": 0,
+          "minimum_sidebar_input_text_contrast": null,
+          "minimum_control_height": 44,
+          "minimum_control_width": 114.15625,
+          "system_theme_media_cases": 2,
+          "forced_colors_and_reduced_motion": true
+        },
+        "mobile": {
+          "width_css_pixels": 320,
+          "actual_control_text_scale": 2,
+          "categories_reachable": 9
+        },
+        "accessibility_tree": {
+          "settings_heading": true,
+          "named_category_navigation": true,
+          "named_comboboxes": 5,
+          "save_and_cancel_named": true
+        },
+        "actual_provider_calls": 0,
+        "fake_jobs_started": 0
+      },
+      "visuals": {
+        "status": "passed",
+        "canonical_backend_image": "sha256:990f869a6e67533fcda6a26ddce43de7ae165b35a37ae1b5e29f97dcc9cf45e9",
+        "cases": 37,
+        "checked_utc": "2026-10-31T02:54:01.296Z",
+        "source_before_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+        "source_after_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+        "report_sha256": "4cbccd2e34f3a981dcf59fc87dfbeb1cd03c984bcf27d49a6b1a7cdfa6c11bef",
+        "observed_seconds": 30,
+        "asset_set_sha256": "de2fff21a76b7d6e79f4a466157c826bfd85c01444de3dad4dbd2cab53b4478b",
+        "observations": {
+          "requests": 117,
+          "api_requests": 86,
+          "external_attempts": 0,
+          "console_leaks": 0,
+          "runtime_errors": 0,
+          "maximum_paused_requests": 9
+        },
+        "cleanup": "browser_profile_loopback_and_owned_fixtures_removed",
+        "actual_provider_calls": 0,
+        "fake_jobs_started": 12
+      },
+      "account": {
+        "status": "passed",
+        "backend_image": "sha256:990f869a6e67533fcda6a26ddce43de7ae165b35a37ae1b5e29f97dcc9cf45e9",
+        "cases": 27,
+        "checked_utc": "2026-10-31T02:54:28.833Z",
+        "report_sha256": "2a2fb9a16c7246e192022898bc08261f78b1b75b509a9e68810acc8d9a1361ba",
+        "source_before_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+        "source_after_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+        "observed_seconds": 22.9,
+        "asset_set_sha256": "de2fff21a76b7d6e79f4a466157c826bfd85c01444de3dad4dbd2cab53b4478b",
+        "observations": {
+          "requests": 81,
+          "api_requests": 54,
+          "external_attempts": 0,
+          "console_leaks": 0,
+          "runtime_errors": 0,
+          "maximum_paused_requests": 8
+        },
+        "actual_provider_calls": 0,
+        "fake_jobs_started": 0,
+        "dataset_grant": false,
+        "cleanup": "browser_profile_loopback_and_owned_fixtures_removed"
+      },
+      "security": {
+        "password": {
+          "status": "passed",
+          "backend_image": "sha256:990f869a6e67533fcda6a26ddce43de7ae165b35a37ae1b5e29f97dcc9cf45e9",
+          "cases": 26,
+          "checked_utc": "2026-10-31T02:54:53.594Z",
+          "report_sha256": "c94d50eec0ae2a04d804524c96164b1208dde9c3b97ecdd83ea031b3c524bb48",
+          "source_before_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+          "source_after_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+          "observed_seconds": 20.3,
+          "asset_set_sha256": "de2fff21a76b7d6e79f4a466157c826bfd85c01444de3dad4dbd2cab53b4478b",
+          "observations": {
+            "requests": 70,
+            "api_requests": 46,
+            "external_attempts": 0,
+            "console_leaks": 0,
+            "runtime_errors": 0,
+            "maximum_paused_requests": 8
+          },
+          "actual_provider_calls": 0,
+          "fake_jobs_started": 0,
+          "dataset_grant": false,
+          "cleanup": "browser_profile_loopback_and_owned_fixtures_removed",
+          "secure_fixture": {
+            "mode": "cdp_fulfilled_reserved_https_origin",
+            "dns_socket_tls_transport_tested": false,
+            "real_chrome_secure_context_and_cookie_semantics": true
+          },
+          "security_post_put_attempts": 5,
+          "copied_session_authority_probes": 2,
+          "server_quota_clock_or_limit_changes": 0
+        },
+        "revoke-current": {
+          "status": "passed",
+          "backend_image": "sha256:990f869a6e67533fcda6a26ddce43de7ae165b35a37ae1b5e29f97dcc9cf45e9",
+          "cases": 22,
+          "checked_utc": "2026-10-31T02:55:16.815Z",
+          "report_sha256": "f03024f3cb5ed978041d09b8dad6606dbce723cbfbdc587a19afea0f4e4e4065",
+          "source_before_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+          "source_after_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+          "observed_seconds": 18.8,
+          "asset_set_sha256": "de2fff21a76b7d6e79f4a466157c826bfd85c01444de3dad4dbd2cab53b4478b",
+          "observations": {
+            "requests": 62,
+            "api_requests": 39,
+            "external_attempts": 0,
+            "console_leaks": 0,
+            "runtime_errors": 0,
+            "maximum_paused_requests": 8
+          },
+          "actual_provider_calls": 0,
+          "fake_jobs_started": 0,
+          "dataset_grant": false,
+          "cleanup": "browser_profile_loopback_and_owned_fixtures_removed",
+          "secure_fixture": {
+            "mode": "cdp_fulfilled_reserved_https_origin",
+            "dns_socket_tls_transport_tested": false,
+            "real_chrome_secure_context_and_cookie_semantics": true
+          },
+          "security_post_put_attempts": 5,
+          "copied_session_authority_probes": 2,
+          "server_quota_clock_or_limit_changes": 0
+        },
+        "revoke-other": {
+          "status": "passed",
+          "backend_image": "sha256:990f869a6e67533fcda6a26ddce43de7ae165b35a37ae1b5e29f97dcc9cf45e9",
+          "cases": 22,
+          "checked_utc": "2026-10-31T02:55:39.445Z",
+          "report_sha256": "99d50a447d5dc0f5f84e758a12e22d5d0f43e3cb5ba9c5c18314d6f0d8cc2187",
+          "source_before_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+          "source_after_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+          "observed_seconds": 18.2,
+          "asset_set_sha256": "de2fff21a76b7d6e79f4a466157c826bfd85c01444de3dad4dbd2cab53b4478b",
+          "observations": {
+            "requests": 60,
+            "api_requests": 38,
+            "external_attempts": 0,
+            "console_leaks": 0,
+            "runtime_errors": 0,
+            "maximum_paused_requests": 8
+          },
+          "actual_provider_calls": 0,
+          "fake_jobs_started": 0,
+          "dataset_grant": false,
+          "cleanup": "browser_profile_loopback_and_owned_fixtures_removed",
+          "secure_fixture": {
+            "mode": "cdp_fulfilled_reserved_https_origin",
+            "dns_socket_tls_transport_tested": false,
+            "real_chrome_secure_context_and_cookie_semantics": true
+          },
+          "security_post_put_attempts": 5,
+          "copied_session_authority_probes": 2,
+          "server_quota_clock_or_limit_changes": 0
+        },
+        "revoke-all": {
+          "status": "passed",
+          "backend_image": "sha256:990f869a6e67533fcda6a26ddce43de7ae165b35a37ae1b5e29f97dcc9cf45e9",
+          "cases": 22,
+          "checked_utc": "2026-10-31T02:56:02.726Z",
+          "report_sha256": "83476320fa1f1d0b5cc89940bced8ce31fd4a3ecc75947fa8a771a8055f1c92a",
+          "source_before_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+          "source_after_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+          "observed_seconds": 18.8,
+          "asset_set_sha256": "de2fff21a76b7d6e79f4a466157c826bfd85c01444de3dad4dbd2cab53b4478b",
+          "observations": {
+            "requests": 62,
+            "api_requests": 39,
+            "external_attempts": 0,
+            "console_leaks": 0,
+            "runtime_errors": 0,
+            "maximum_paused_requests": 8
+          },
+          "actual_provider_calls": 0,
+          "fake_jobs_started": 0,
+          "dataset_grant": false,
+          "cleanup": "browser_profile_loopback_and_owned_fixtures_removed",
+          "secure_fixture": {
+            "mode": "cdp_fulfilled_reserved_https_origin",
+            "dns_socket_tls_transport_tested": false,
+            "real_chrome_secure_context_and_cookie_semantics": true
+          },
+          "security_post_put_attempts": 5,
+          "copied_session_authority_probes": 2,
+          "server_quota_clock_or_limit_changes": 0
+        },
+        "lost-other": {
+          "status": "passed",
+          "backend_image": "sha256:990f869a6e67533fcda6a26ddce43de7ae165b35a37ae1b5e29f97dcc9cf45e9",
+          "cases": 23,
+          "checked_utc": "2026-10-31T02:56:25.596Z",
+          "report_sha256": "2bc273f6577f79acf7bf75e9d7ce318fa7a086cc3ecc9cb6f8558323c1495d31",
+          "source_before_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+          "source_after_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+          "observed_seconds": 18.4,
+          "asset_set_sha256": "de2fff21a76b7d6e79f4a466157c826bfd85c01444de3dad4dbd2cab53b4478b",
+          "observations": {
+            "requests": 61,
+            "api_requests": 39,
+            "external_attempts": 0,
+            "console_leaks": 0,
+            "runtime_errors": 0,
+            "maximum_paused_requests": 8
+          },
+          "actual_provider_calls": 0,
+          "fake_jobs_started": 0,
+          "dataset_grant": false,
+          "cleanup": "browser_profile_loopback_and_owned_fixtures_removed",
+          "secure_fixture": {
+            "mode": "cdp_fulfilled_reserved_https_origin",
+            "dns_socket_tls_transport_tested": false,
+            "real_chrome_secure_context_and_cookie_semantics": true
+          },
+          "security_post_put_attempts": 5,
+          "copied_session_authority_probes": 2,
+          "server_quota_clock_or_limit_changes": 0
+        },
+        "verification-failure": {
+          "status": "passed",
+          "backend_image": "sha256:990f869a6e67533fcda6a26ddce43de7ae165b35a37ae1b5e29f97dcc9cf45e9",
+          "cases": 20,
+          "checked_utc": "2026-10-31T02:56:47.694Z",
+          "report_sha256": "b7635fc70a7caa0ff04d8626cffc317733923f6c14acb817c44696cba14264bf",
+          "source_before_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+          "source_after_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+          "observed_seconds": 17.7,
+          "asset_set_sha256": "de2fff21a76b7d6e79f4a466157c826bfd85c01444de3dad4dbd2cab53b4478b",
+          "observations": {
+            "requests": 57,
+            "api_requests": 35,
+            "external_attempts": 0,
+            "console_leaks": 0,
+            "runtime_errors": 0,
+            "maximum_paused_requests": 8
+          },
+          "actual_provider_calls": 0,
+          "fake_jobs_started": 0,
+          "dataset_grant": false,
+          "cleanup": "browser_profile_loopback_and_owned_fixtures_removed",
+          "secure_fixture": {
+            "mode": "cdp_fulfilled_reserved_https_origin",
+            "dns_socket_tls_transport_tested": false,
+            "real_chrome_secure_context_and_cookie_semantics": true
+          },
+          "security_post_put_attempts": 5,
+          "copied_session_authority_probes": 2,
+          "server_quota_clock_or_limit_changes": 0
+        }
+      },
+      "notices": {
+        "status": "passed",
+        "cases": 6,
+        "checked_utc": "2026-10-31T02:56:56.917Z",
+        "report_sha256": "c376d9546d69b3cd593542ed12f52fe11489562ec9b0299a721b3721f40c2dd1",
+        "source_before_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+        "source_after_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+        "observed_seconds": 4.62,
+        "asset_set_sha256": "de2fff21a76b7d6e79f4a466157c826bfd85c01444de3dad4dbd2cab53b4478b",
+        "observations": {
+          "requestCount": 80,
+          "apiRequests": 48,
+          "staticRequests": 33,
+          "external_attempts": 0,
+          "consoleLeaks": 0,
+          "runtimeErrors": 0,
+          "forbidden_api_calls": 0
+        },
+        "real_google_sdk_calls": 0,
+        "real_mail_provider_calls": 0,
+        "fake_jobs_started": 0,
+        "real_dataset_grants": 0,
+        "cleanup": "browser_profile_loopback_and_owned_fixtures_removed",
+        "canonical_backend_image": "sha256:990f869a6e67533fcda6a26ddce43de7ae165b35a37ae1b5e29f97dcc9cf45e9",
+        "mode": "synthetic_contract_only",
+        "real_backend_executed": false
+      },
+      "identity": {
+        "lost-email": {
+          "status": "passed",
+          "cases": 13,
+          "checked_utc": "2026-10-31T02:40:30.062Z",
+          "report_sha256": "786b033826ead387323448ae08d9e432841aaaff4fda102ca2110d33f37b5686",
+          "source_before_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+          "source_after_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+          "observed_seconds": 16.9,
+          "asset_set_sha256": "de2fff21a76b7d6e79f4a466157c826bfd85c01444de3dad4dbd2cab53b4478b",
+          "observations": {
+            "requests": 46,
+            "api_requests": 31,
+            "external_attempts": 0,
+            "console_leaks": 0,
+            "runtime_errors": 0,
+            "maximum_paused_requests": 8
+          },
+          "real_google_sdk_calls": 0,
+          "real_mail_provider_calls": 0,
+          "fake_jobs_started": 0,
+          "real_dataset_grants": 0,
+          "cleanup": "browser_profile_loopback_and_owned_fixtures_removed",
+          "backend_image": "sha256:990f869a6e67533fcda6a26ddce43de7ae165b35a37ae1b5e29f97dcc9cf45e9",
+          "action_attempts": 4,
+          "observed_mutation_attempts": 4,
+          "secure_fixture": {
+            "mode": "cdp_fulfilled_reserved_https_origin",
+            "dns_socket_tls_transport_tested": false
+          }
+        },
+        "google-session": {
+          "status": "passed",
+          "cases": 2,
+          "checked_utc": "2026-10-31T02:48:13.861Z",
+          "report_sha256": "3a6be930c8fd44b093863f2f743a4128210c88de29a1bc665e6e9b9cc69e0274",
+          "source_before_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+          "source_after_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+          "observed_seconds": 12.4,
+          "asset_set_sha256": "de2fff21a76b7d6e79f4a466157c826bfd85c01444de3dad4dbd2cab53b4478b",
+          "observations": {
+            "requests": 35,
+            "api_requests": 21,
+            "external_attempts": 0,
+            "console_leaks": 0,
+            "runtime_errors": 0,
+            "maximum_paused_requests": 8
+          },
+          "real_google_sdk_calls": 0,
+          "real_mail_provider_calls": 0,
+          "fake_jobs_started": 0,
+          "real_dataset_grants": 0,
+          "cleanup": "browser_profile_loopback_and_owned_fixtures_removed",
+          "backend_image": "sha256:990f869a6e67533fcda6a26ddce43de7ae165b35a37ae1b5e29f97dcc9cf45e9",
+          "action_attempts": 3,
+          "observed_mutation_attempts": 3,
+          "secure_fixture": {
+            "mode": "cdp_fulfilled_reserved_https_origin",
+            "dns_socket_tls_transport_tested": false
+          }
+        },
+        "google-failure": {
+          "status": "passed",
+          "cases": 1,
+          "checked_utc": "2026-10-31T02:48:31.537Z",
+          "report_sha256": "3dcb2d0f13738be58bc2a35abe4a90e743bca35e7b56290af453219ccda707bd",
+          "source_before_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+          "source_after_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+          "observed_seconds": 11.8,
+          "asset_set_sha256": "de2fff21a76b7d6e79f4a466157c826bfd85c01444de3dad4dbd2cab53b4478b",
+          "observations": {
+            "requests": 32,
+            "api_requests": 19,
+            "external_attempts": 0,
+            "console_leaks": 0,
+            "runtime_errors": 0,
+            "maximum_paused_requests": 8
+          },
+          "real_google_sdk_calls": 0,
+          "real_mail_provider_calls": 0,
+          "fake_jobs_started": 0,
+          "real_dataset_grants": 0,
+          "cleanup": "browser_profile_loopback_and_owned_fixtures_removed",
+          "backend_image": "sha256:990f869a6e67533fcda6a26ddce43de7ae165b35a37ae1b5e29f97dcc9cf45e9",
+          "action_attempts": 2,
+          "observed_mutation_attempts": 2,
+          "secure_fixture": {
+            "mode": "cdp_fulfilled_reserved_https_origin",
+            "dns_socket_tls_transport_tested": false
+          }
+        },
+        "link": {
+          "status": "passed",
+          "cases": 7,
+          "checked_utc": "2026-10-31T02:48:56.614Z",
+          "report_sha256": "491cd9cf2103b20a119b5a0167a9419a1c1fe82891bb55facd861613bf58602b",
+          "source_before_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+          "source_after_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+          "observed_seconds": 20.3,
+          "asset_set_sha256": "de2fff21a76b7d6e79f4a466157c826bfd85c01444de3dad4dbd2cab53b4478b",
+          "observations": {
+            "requests": 63,
+            "api_requests": 39,
+            "external_attempts": 0,
+            "console_leaks": 0,
+            "runtime_errors": 0,
+            "maximum_paused_requests": 8
+          },
+          "real_google_sdk_calls": 0,
+          "real_mail_provider_calls": 0,
+          "fake_jobs_started": 0,
+          "real_dataset_grants": 0,
+          "cleanup": "browser_profile_loopback_and_owned_fixtures_removed",
+          "backend_image": "sha256:990f869a6e67533fcda6a26ddce43de7ae165b35a37ae1b5e29f97dcc9cf45e9",
+          "action_attempts": 5,
+          "observed_mutation_attempts": 5,
+          "secure_fixture": {
+            "mode": "cdp_fulfilled_reserved_https_origin",
+            "dns_socket_tls_transport_tested": false
+          }
+        },
+        "unlink": {
+          "status": "passed",
+          "cases": 8,
+          "checked_utc": "2026-10-31T02:50:27.021Z",
+          "report_sha256": "97c8b0a3aacd46bde2c18c928cfb4b62b87aa36d2f84a4330966a571122ef3d3",
+          "source_before_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+          "source_after_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+          "observed_seconds": 85.7,
+          "asset_set_sha256": "de2fff21a76b7d6e79f4a466157c826bfd85c01444de3dad4dbd2cab53b4478b",
+          "observations": {
+            "requests": 91,
+            "api_requests": 57,
+            "external_attempts": 0,
+            "console_leaks": 0,
+            "runtime_errors": 0,
+            "maximum_paused_requests": 8
+          },
+          "real_google_sdk_calls": 0,
+          "real_mail_provider_calls": 0,
+          "fake_jobs_started": 0,
+          "real_dataset_grants": 0,
+          "cleanup": "browser_profile_loopback_and_owned_fixtures_removed",
+          "backend_image": "sha256:990f869a6e67533fcda6a26ddce43de7ae165b35a37ae1b5e29f97dcc9cf45e9",
+          "action_attempts": 8,
+          "observed_mutation_attempts": 8,
+          "secure_fixture": {
+            "mode": "cdp_fulfilled_reserved_https_origin",
+            "dns_socket_tls_transport_tested": false
+          }
+        },
+        "password-add": {
+          "status": "passed",
+          "cases": 8,
+          "checked_utc": "2026-10-31T02:50:47.242Z",
+          "report_sha256": "82b8b86d3ad51672523283655664d908b4ac9dba3980905eb76c968fb9f1cc93",
+          "source_before_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+          "source_after_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+          "observed_seconds": 15.7,
+          "asset_set_sha256": "de2fff21a76b7d6e79f4a466157c826bfd85c01444de3dad4dbd2cab53b4478b",
+          "observations": {
+            "requests": 45,
+            "api_requests": 30,
+            "external_attempts": 0,
+            "console_leaks": 0,
+            "runtime_errors": 0,
+            "maximum_paused_requests": 8
+          },
+          "real_google_sdk_calls": 0,
+          "real_mail_provider_calls": 0,
+          "fake_jobs_started": 0,
+          "real_dataset_grants": 0,
+          "cleanup": "browser_profile_loopback_and_owned_fixtures_removed",
+          "backend_image": "sha256:990f869a6e67533fcda6a26ddce43de7ae165b35a37ae1b5e29f97dcc9cf45e9",
+          "action_attempts": 4,
+          "observed_mutation_attempts": 4,
+          "secure_fixture": {
+            "mode": "cdp_fulfilled_reserved_https_origin",
+            "dns_socket_tls_transport_tested": false
+          }
+        },
+        "email": {
+          "status": "passed",
+          "cases": 11,
+          "checked_utc": "2026-10-31T02:51:08.469Z",
+          "report_sha256": "f1a30ce37e77f594f73d1bacc510f15d5cf3e8a65f1e1deb7e2b817322d9ccdc",
+          "source_before_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+          "source_after_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+          "observed_seconds": 16.5,
+          "asset_set_sha256": "de2fff21a76b7d6e79f4a466157c826bfd85c01444de3dad4dbd2cab53b4478b",
+          "observations": {
+            "requests": 44,
+            "api_requests": 29,
+            "external_attempts": 0,
+            "console_leaks": 0,
+            "runtime_errors": 0,
+            "maximum_paused_requests": 8
+          },
+          "real_google_sdk_calls": 0,
+          "real_mail_provider_calls": 0,
+          "fake_jobs_started": 0,
+          "real_dataset_grants": 0,
+          "cleanup": "browser_profile_loopback_and_owned_fixtures_removed",
+          "backend_image": "sha256:990f869a6e67533fcda6a26ddce43de7ae165b35a37ae1b5e29f97dcc9cf45e9",
+          "action_attempts": 4,
+          "observed_mutation_attempts": 4,
+          "secure_fixture": {
+            "mode": "cdp_fulfilled_reserved_https_origin",
+            "dns_socket_tls_transport_tested": false
+          }
+        },
+        "notifications": {
+          "status": "passed",
+          "cases": 3,
+          "checked_utc": "2026-10-31T02:51:31.442Z",
+          "report_sha256": "aee32961b27e30e3f82d09d0ac80aaaef11f929db857c808a5c5a3bff20db118",
+          "source_before_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+          "source_after_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+          "observed_seconds": 18.7,
+          "asset_set_sha256": "de2fff21a76b7d6e79f4a466157c826bfd85c01444de3dad4dbd2cab53b4478b",
+          "observations": {
+            "requests": 62,
+            "api_requests": 33,
+            "external_attempts": 0,
+            "console_leaks": 0,
+            "runtime_errors": 0,
+            "maximum_paused_requests": 8
+          },
+          "real_google_sdk_calls": 0,
+          "real_mail_provider_calls": 0,
+          "fake_jobs_started": 0,
+          "real_dataset_grants": 0,
+          "cleanup": "browser_profile_loopback_and_owned_fixtures_removed",
+          "backend_image": "sha256:990f869a6e67533fcda6a26ddce43de7ae165b35a37ae1b5e29f97dcc9cf45e9",
+          "action_attempts": 2,
+          "observed_mutation_attempts": 2,
+          "secure_fixture": {
+            "mode": "cdp_fulfilled_reserved_https_origin",
+            "dns_socket_tls_transport_tested": false
+          }
+        },
+        "last-method": {
+          "status": "passed",
+          "cases": 1,
+          "checked_utc": "2026-10-31T02:51:47.029Z",
+          "report_sha256": "424dbb340347a356c48ea3db6dc1052f5553129f7abd579b78493197f16aecd3",
+          "source_before_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+          "source_after_sha256": "1fc0bd8e24410fd0e5518e208a5a852c91306b2b99fa34eb56740d7939eeff28",
+          "observed_seconds": 10.8,
+          "asset_set_sha256": "de2fff21a76b7d6e79f4a466157c826bfd85c01444de3dad4dbd2cab53b4478b",
+          "observations": {
+            "requests": 28,
+            "api_requests": 15,
+            "external_attempts": 0,
+            "console_leaks": 0,
+            "runtime_errors": 0,
+            "maximum_paused_requests": 8
+          },
+          "real_google_sdk_calls": 0,
+          "real_mail_provider_calls": 0,
+          "fake_jobs_started": 0,
+          "real_dataset_grants": 0,
+          "cleanup": "browser_profile_loopback_and_owned_fixtures_removed",
+          "backend_image": "sha256:990f869a6e67533fcda6a26ddce43de7ae165b35a37ae1b5e29f97dcc9cf45e9",
+          "action_attempts": 0,
+          "observed_mutation_attempts": 0,
+          "secure_fixture": {
+            "mode": "cdp_fulfilled_reserved_https_origin",
+            "dns_socket_tls_transport_tested": false
+          }
+        }
+      }
+    }
+  },
+  "prior_failed_attempts": [
+    {
+      "shell": "opal",
+      "gate": "identity",
+      "scenario": "link",
+      "category": "browser_or_postflight_failure",
+      "classification": "historical_frontend_snapshot_only",
+      "checked_utc": "2026-10-31T02:14:07.897Z"
+    },
+    {
+      "shell": "opal",
+      "gate": "identity",
+      "scenario": "email",
+      "category": "browser_or_postflight_failure",
+      "classification": "historical_frontend_snapshot_only",
+      "checked_utc": "2026-10-31T02:29:56.154Z"
+    },
+    {
+      "shell": "opal",
+      "gate": "settings",
+      "category": "browser_or_postflight_failure",
+      "classification": "historical_frontend_snapshot_only",
+      "checked_utc": "2026-10-31T02:32:22.152Z"
+    },
+    {
+      "shell": "opal",
+      "gate": "identity",
+      "scenario": "lost-email",
+      "category": "browser_or_postflight_failure",
+      "classification": "historical_frontend_snapshot_only",
+      "checked_utc": "2026-10-31T02:35:04.733Z"
+    },
+    {
+      "shell": "opal",
+      "gate": "workspace",
+      "category": "browser_or_postflight_failure",
+      "classification": "historical_frontend_snapshot_only",
+      "checked_utc": "2026-10-31T02:37:19.144Z"
+    }
+  ],
+  "screenshots": [
+    {
+      "file": "screenshots/opal-home-desktop-1440x980.png",
+      "bytes": 187026,
+      "sha256": "e073c71e0c6b8dd7a57e25d35a0aef696ed119e6862141022834972c5606a903",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/opal-p06-private-prompts-project-history.png",
+      "bytes": 171013,
+      "sha256": "1b8960005b1e25b3439984f83b8947d5591600c49929f25d68c3394a0f234fc6",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/opal-homepage-model-menu-desktop.png",
+      "bytes": 172569,
+      "sha256": "0c4a75a0c69ba408827c76973aeadf7bc9cae0d611a56da9db1a2e6168e43408",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/opal-homepage-account-menu-desktop.png",
+      "bytes": 187248,
+      "sha256": "f6f8e9a50be8c0043ce0b56a6438e878e9c2a37ba720a4af3174f8519603ff25",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/opal-homepage-model-menu-mobile-double-text.png",
+      "bytes": 61288,
+      "sha256": "75050f6db784425ba5ff3dd473ba587f3d490ce54e4877d4bf6c459d31992d9e",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/opal-homepage-account-menu-mobile-double-text.png",
+      "bytes": 49268,
+      "sha256": "ec677a7473c77911e4decf2ab63cd88e9ba1eddac22c00467c22f0ce057be7fe",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/opal-settings-desktop.png",
+      "bytes": 148782,
+      "sha256": "b37cde70301d07103b50969858b0d4e21bcfadc6da470bf9908e6e495dbf8ffb",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/opal-settings-light-increased.png",
+      "bytes": 172059,
+      "sha256": "5cee009fb3a5a2d4650a34e6f74229ab77cd7e50d3d2c4e40d8e4d464fc873e2",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/opal-settings-320-double-text.png",
+      "bytes": 48439,
+      "sha256": "c603f42dfebdd50d97a4806e4302cda9e04700fc473a121f23b189736ee86999",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/opal-desktop-actual-plotly.png",
+      "bytes": 141460,
+      "sha256": "5f0b89d24fcaf8f7223d10cb523e157eb71ddbc8ab3d1243bfe8e35d388ea06a",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/legacy-home-desktop-1440x980.png",
+      "bytes": 172057,
+      "sha256": "e8913ed20b7fe1dd480fa10d41c51e154cce5ebe4dec2038d3410e18937db9e0",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/legacy-p06-private-prompts-project-history.png",
+      "bytes": 154148,
+      "sha256": "4e123ec669b56ee3f96328ef02149e7eb52c486598a9cbc43f59db8a6cac1719",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/legacy-homepage-model-menu-desktop.png",
+      "bytes": 179807,
+      "sha256": "feac4b53239b7c3eaa193026a0238e46f5d3dcab054570cf401fd1d896e3c712",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/legacy-homepage-account-menu-desktop.png",
+      "bytes": 167418,
+      "sha256": "3d3b1416617eca634d8f03dff3b3a7e86090afe753a8d0d8f74b2c3ccbd99996",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/legacy-homepage-model-menu-mobile-double-text.png",
+      "bytes": 67464,
+      "sha256": "45b6414e6aed5c5e866edbb282a969cb357553f0cac09dabb93ac27f0f7383e6",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/legacy-homepage-account-menu-mobile-double-text.png",
+      "bytes": 50539,
+      "sha256": "5e535629cb7c84ed2d23c3d226896259f2fcb2517e86c11e95a5f74a8e956145",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/legacy-settings-desktop.png",
+      "bytes": 137745,
+      "sha256": "340244748fd0fa6c3dfa7745f4114d57a783a60e16e51dc40de3dc7d98dd4d9e",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/legacy-settings-light-increased.png",
+      "bytes": 170137,
+      "sha256": "009fcfe195dd901be9ae7163da20358eb579f0695ff207abf8ede794dfbe2884",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/legacy-settings-320-double-text.png",
+      "bytes": 47592,
+      "sha256": "40fe30029671563ced77a74b3af61e3593d9b4555b6ca5a75777b4a966af9366",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/legacy-desktop-actual-plotly.png",
+      "bytes": 134238,
+      "sha256": "4a4da0a3d526acbf0057bcbb3a4cab44bbb6b052f5c1896ccdf9b3285e4fab0c",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/opal-p10a-account-desktop.png",
+      "bytes": 148156,
+      "sha256": "1670771722a02e262ef8ceb7f4229865a23d922dc9878f4a85fe099823e20f72",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/opal-p10a-account-mobile-name.png",
+      "bytes": 35910,
+      "sha256": "16a944a183dcd3a64687e359d94eb9e73caf6405c7755e297b7bb907dbc5af14",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/opal-p10a-account-mobile-settings.png",
+      "bytes": 99148,
+      "sha256": "f324a748512fa4aa7b6711ddb452dba0cb5012c3b10bd794d94ba63544479632",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/opal-p10b-password-confirm.png",
+      "bytes": 84032,
+      "sha256": "178977a8e441df7ff6942e6ce96b35c8c4f81faab9a4819e77f7c27162bd9013",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/opal-p10b-password-mobile-confirm.png",
+      "bytes": 46055,
+      "sha256": "2626463fdca8eadeb90fabec0a831963eeb5e4016a7bf35443e30bd3ccf26dc5",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/opal-p10b-password-result.png",
+      "bytes": 160789,
+      "sha256": "d008c7e9fc84f15e2e3a82172b5e5e4bf63651afb15594c25f91fd60addacd23",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/opal-p10b-revoke-current-confirm.png",
+      "bytes": 97053,
+      "sha256": "17014c78d97f5d31727341428fbbdf795c433ce370aef990b51892bed7163dea",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/opal-p10b-revoke-current-mobile-confirm.png",
+      "bytes": 39052,
+      "sha256": "c506ceae0000ffa7bc9c5bd94a1773e7791721e380a1c7bbde93a79bfd43b6b4",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/opal-p10b-revoke-current-result.png",
+      "bytes": 217150,
+      "sha256": "bc70f96e5dde565277f22057de6317a9d6aaa91545ff03c86538b1fc8bc09b89",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/opal-p10b-revoke-other-confirm.png",
+      "bytes": 92061,
+      "sha256": "3f0ee9cb163ea38baa660954536bac76543d6c89ed898626443100f789604abe",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/opal-p10b-revoke-other-mobile-confirm.png",
+      "bytes": 40969,
+      "sha256": "bb52fd37645943a2751662e0ae45a66a5d0d7671fb61c33941e108dbc1a4c9f1",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/opal-p10b-revoke-other-result.png",
+      "bytes": 89698,
+      "sha256": "205bada464e424c4696d41acf5e6574ae1b4a3009ea29c4c93f27316a1da53c4",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/opal-p10b-revoke-all-confirm.png",
+      "bytes": 96738,
+      "sha256": "3243e494d6ba75c33745c5b96ef0b0395e4120157452b65ef5a631899f57469b",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/opal-p10b-revoke-all-mobile-confirm.png",
+      "bytes": 42144,
+      "sha256": "0dcce7342991f38ad6763008963081e0b98ec3d25c16a87e04df34b98160658d",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/opal-p10b-revoke-all-result.png",
+      "bytes": 217150,
+      "sha256": "bc70f96e5dde565277f22057de6317a9d6aaa91545ff03c86538b1fc8bc09b89",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/opal-p10b-lost-other-confirm.png",
+      "bytes": 92061,
+      "sha256": "3f0ee9cb163ea38baa660954536bac76543d6c89ed898626443100f789604abe",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/opal-p10b-lost-other-mobile-confirm.png",
+      "bytes": 40969,
+      "sha256": "bb52fd37645943a2751662e0ae45a66a5d0d7671fb61c33941e108dbc1a4c9f1",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/opal-p10b-lost-other-result.png",
+      "bytes": 87969,
+      "sha256": "8ebbe4fc44798f9402244077fa6cb2d8ccd78bf0a398e2075c2f2ca9d4d1a93a",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/opal-p10b-verification-failure-confirm.png",
+      "bytes": 91868,
+      "sha256": "7df63205a23d141da5b27904a3f50ade6e0b4415071284e5e1aa58e9069517e7",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/opal-p10b-verification-failure-mobile-confirm.png",
+      "bytes": 40969,
+      "sha256": "bb52fd37645943a2751662e0ae45a66a5d0d7671fb61c33941e108dbc1a4c9f1",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/opal-p10b-verification-failure-result.png",
+      "bytes": 89698,
+      "sha256": "205bada464e424c4696d41acf5e6574ae1b4a3009ea29c4c93f27316a1da53c4",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/legacy-p10a-account-desktop.png",
+      "bytes": 139229,
+      "sha256": "511707a5c0c70805cc3ac1413a98308196a5021cce7fbc7f83dd909ed39ee33e",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/legacy-p10a-account-mobile-name.png",
+      "bytes": 37236,
+      "sha256": "3079eb8781f11b20608144176ca80706ea639fd415a8ac7bc84a1083e7bd0636",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/legacy-p10a-account-mobile-settings.png",
+      "bytes": 97272,
+      "sha256": "2336beed055229efab450323776e26543c1bae909bab702d229cd02b01d0d506",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/legacy-p10b-password-confirm.png",
+      "bytes": 75376,
+      "sha256": "0611d6bf548dc52e010ee09ee431510b3372d92d7649baa95ce4331b0e932a6e",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/legacy-p10b-password-mobile-confirm.png",
+      "bytes": 45577,
+      "sha256": "32215a433a598b92b1a8bd71541ce245fca8c09eb21ad34994e3f3221f2f161e",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/legacy-p10b-password-result.png",
+      "bytes": 152118,
+      "sha256": "4367fe611ef4dfdd7814641a6117bb36e2404ea5386088f53c32160ac0235847",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/legacy-p10b-revoke-current-confirm.png",
+      "bytes": 91860,
+      "sha256": "143d4344c167c07c47e52c9efea08458ee670e479a34e0a064283974d42dfe12",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/legacy-p10b-revoke-current-mobile-confirm.png",
+      "bytes": 38537,
+      "sha256": "a3bb7181b438e12f4b2caebc097a0eac8e66008655b4ecfb04a524d8d078328e",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/legacy-p10b-revoke-current-result.png",
+      "bytes": 217150,
+      "sha256": "bc70f96e5dde565277f22057de6317a9d6aaa91545ff03c86538b1fc8bc09b89",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/legacy-p10b-revoke-other-confirm.png",
+      "bytes": 85947,
+      "sha256": "0962d24b38c8fc10f16dd8afeb68cce62252896456a84898c93fc12413b99164",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/legacy-p10b-revoke-other-mobile-confirm.png",
+      "bytes": 40231,
+      "sha256": "0d2fac4908fb017a67514203429231455b8f1288b389e90ddf0f130a77fdc4d9",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/legacy-p10b-revoke-other-result.png",
+      "bytes": 84082,
+      "sha256": "bff3a8506819e6f845cc5d7eab841d1e703c2c2dd29c3ae92b26e03e8cf8a9f1",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/legacy-p10b-revoke-all-confirm.png",
+      "bytes": 89194,
+      "sha256": "0ca2745d89690d9a0cb835305436b7aeb21a2986e2b0047ef4171950e67070e5",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/legacy-p10b-revoke-all-mobile-confirm.png",
+      "bytes": 41694,
+      "sha256": "56cb030fce46fb2386b261e44faca96d801096e0680f088f78878eeb6585b53a",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/legacy-p10b-revoke-all-result.png",
+      "bytes": 217150,
+      "sha256": "bc70f96e5dde565277f22057de6317a9d6aaa91545ff03c86538b1fc8bc09b89",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/legacy-p10b-lost-other-confirm.png",
+      "bytes": 85994,
+      "sha256": "36b83c6f0a6b0cd422be3a6193b55f319216638d7eac9d8e19d8f4e267a4e6eb",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/legacy-p10b-lost-other-mobile-confirm.png",
+      "bytes": 40231,
+      "sha256": "0d2fac4908fb017a67514203429231455b8f1288b389e90ddf0f130a77fdc4d9",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/legacy-p10b-lost-other-result.png",
+      "bytes": 78624,
+      "sha256": "33c5606eba8707061d5f16c56b852b7187d217e377a68fa70db5e615c53d63ae",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/legacy-p10b-verification-failure-confirm.png",
+      "bytes": 86023,
+      "sha256": "16ea369c1be8c72d5d3dc4f3058bf5203ccc986acd8c0dcd93ea6de6b4335c4c",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/legacy-p10b-verification-failure-mobile-confirm.png",
+      "bytes": 40231,
+      "sha256": "0d2fac4908fb017a67514203429231455b8f1288b389e90ddf0f130a77fdc4d9",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/legacy-p10b-verification-failure-result.png",
+      "bytes": 84082,
+      "sha256": "bff3a8506819e6f845cc5d7eab841d1e703c2c2dd29c3ae92b26e03e8cf8a9f1",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/opal-p10c-generic-live-success-notice.png",
+      "bytes": 166164,
+      "sha256": "21c4f5c6ffe9a12ab2d2da3dc3d57273d2af7df1b020c4580e769a6bf15e1c3e",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/legacy-p10c-generic-live-success-notice.png",
+      "bytes": 155861,
+      "sha256": "e4852a2de7905f61e6d9427e2ee889478b3e3ebb7ddc4af3e9f450fe7cd422fa",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/opal-p10c-lost-email-mobile-confirm.png",
+      "bytes": 47343,
+      "sha256": "ac07a0ae9aac2ce2b76ebcc38de04404dcbbb8f4bacee703f4f62965974a62ad",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/opal-p10c-lost-email-confirm.png",
+      "bytes": 85457,
+      "sha256": "1422adf5aa4757cef910763f2d98308b73dc9be864280a3107fef5865c3c23a5",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/opal-p10c-lost-email-uncertain.png",
+      "bytes": 96321,
+      "sha256": "328a9b2526b3c8d3d107f49f10129a26ab54e95a5f19f94ddc63e8d089ac25cd",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/opal-p10c-lost-email-result.png",
+      "bytes": 158483,
+      "sha256": "8d2de170eddcc7de1d5c0dae377dac75bb761c3c647a760142ea688788a7a4a0",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/legacy-p10c-lost-email-mobile-confirm.png",
+      "bytes": 46543,
+      "sha256": "c7fcdaaa6a92b3159889eeea6ccad3b356465dbf24c325609ded1b0d45ca1484",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/legacy-p10c-lost-email-confirm.png",
+      "bytes": 75374,
+      "sha256": "e3d321b8c86c97694a24b0a617c4c4a713dbe0f12c22ee49e0e96e38326e1da1",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/legacy-p10c-lost-email-uncertain.png",
+      "bytes": 87342,
+      "sha256": "d2d6029f9cfb44a24b417518cb6dffe8e073f9d0e22808e82f70bec46cb8fdd7",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/legacy-p10c-lost-email-result.png",
+      "bytes": 150648,
+      "sha256": "981800e437a1708b909d49e30bb35a5dcf32f5dd015613b7e0e9939fc4a6827a",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/opal-p10c-google-session-result.png",
+      "bytes": 218598,
+      "sha256": "a4fed4625d31fc5e1937a31068b6160e6967079eef4c1d7ed1a4191675fcaaff",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/opal-p10c-google-failure-result.png",
+      "bytes": 87399,
+      "sha256": "76a201215344201b636c80d071e742c02f549a556a7d3de11fba11b62e752404",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/opal-p10c-link-mobile-confirm.png",
+      "bytes": 53738,
+      "sha256": "467ed7e93a3986bae6bb65806415bc2bffbac0f7a17a1f50eab33e39ab5d2482",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/opal-p10c-link-confirm.png",
+      "bytes": 92601,
+      "sha256": "95e0c177ed39c9ec9b41b00922b15c035785c34423ffa484942e4b03e66c0f06",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/opal-p10c-link-result.png",
+      "bytes": 157941,
+      "sha256": "e9755701b4623f5e199ee877bbd26d4f29606626cd2036e75ca1140e5e8fba1d",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/opal-p10c-unlink-mobile-confirm.png",
+      "bytes": 53738,
+      "sha256": "467ed7e93a3986bae6bb65806415bc2bffbac0f7a17a1f50eab33e39ab5d2482",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/opal-p10c-unlink-confirm.png",
+      "bytes": 92507,
+      "sha256": "0892bf7d05cce1a2cf18bb6c260da5bc67c26499f8a02fa0ccbfead28a5fd2e3",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/opal-p10c-unlink-result.png",
+      "bytes": 157941,
+      "sha256": "e9755701b4623f5e199ee877bbd26d4f29606626cd2036e75ca1140e5e8fba1d",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/opal-p10c-password-add-mobile-confirm.png",
+      "bytes": 54917,
+      "sha256": "973e7faa56671081f05fa961cf41179ccc6c570337b2ff7da38cf1a33eb85d5c",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/opal-p10c-password-add-confirm.png",
+      "bytes": 88848,
+      "sha256": "a44175b42d1fa780659b9d42268e2ec892d1fcd23b76a61f0ce8b0655c26c5c5",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/opal-p10c-password-add-result.png",
+      "bytes": 158483,
+      "sha256": "8d2de170eddcc7de1d5c0dae377dac75bb761c3c647a760142ea688788a7a4a0",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/opal-p10c-email-mobile-confirm.png",
+      "bytes": 47343,
+      "sha256": "ac07a0ae9aac2ce2b76ebcc38de04404dcbbb8f4bacee703f4f62965974a62ad",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/opal-p10c-email-confirm.png",
+      "bytes": 85480,
+      "sha256": "0856a52e1c396f2446731f3f9244ac2195fa45adacdde233fd8cd272fb155716",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/opal-p10c-email-result.png",
+      "bytes": 158483,
+      "sha256": "8d2de170eddcc7de1d5c0dae377dac75bb761c3c647a760142ea688788a7a4a0",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/opal-p10c-notifications-saved.png",
+      "bytes": 176954,
+      "sha256": "758960792f3fd179fa353b421b1e4e1f8d5c6df1ec88b7ac2ae26b8fb7931c0a",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/opal-p10c-last-method-preserved.png",
+      "bytes": 151668,
+      "sha256": "4b75b5fab8a1466b8dc5f8ff3b244fe4f64078c180503f38039037521414c516",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/legacy-p10c-google-session-result.png",
+      "bytes": 218598,
+      "sha256": "a4fed4625d31fc5e1937a31068b6160e6967079eef4c1d7ed1a4191675fcaaff",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/legacy-p10c-google-failure-result.png",
+      "bytes": 79838,
+      "sha256": "7a4e7b8882ddd5a7bab5cf5bbb1b3295840f322bd4586f1451ff90842a25f051",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/legacy-p10c-link-mobile-confirm.png",
+      "bytes": 52860,
+      "sha256": "eb99ad1e342bf9d03fed116638c16278b5685ce2c51098f9ee2937cf04b909ed",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/legacy-p10c-link-confirm.png",
+      "bytes": 84952,
+      "sha256": "86a0080bf82fca3405c40ab4c9018ce3f178786b37251d9f76c540e9e483707b",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/legacy-p10c-link-result.png",
+      "bytes": 150138,
+      "sha256": "66ef38ad1939d88d6cfa950471e500ee778c17a694ef8c1dc632bf231fb68a18",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/legacy-p10c-unlink-mobile-confirm.png",
+      "bytes": 52860,
+      "sha256": "eb99ad1e342bf9d03fed116638c16278b5685ce2c51098f9ee2937cf04b909ed",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/legacy-p10c-unlink-confirm.png",
+      "bytes": 84952,
+      "sha256": "86a0080bf82fca3405c40ab4c9018ce3f178786b37251d9f76c540e9e483707b",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/legacy-p10c-unlink-result.png",
+      "bytes": 150138,
+      "sha256": "66ef38ad1939d88d6cfa950471e500ee778c17a694ef8c1dc632bf231fb68a18",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/legacy-p10c-password-add-mobile-confirm.png",
+      "bytes": 53958,
+      "sha256": "20b593763aea71ba91eff5eb809c487e0392d9ea9e24edb6c81d754f1154a2d7",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/legacy-p10c-password-add-confirm.png",
+      "bytes": 78258,
+      "sha256": "426326c9f4e80a9087dc65360bd46e4809b64b4148a3ae5147484e0c5ad3756b",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/legacy-p10c-password-add-result.png",
+      "bytes": 150648,
+      "sha256": "981800e437a1708b909d49e30bb35a5dcf32f5dd015613b7e0e9939fc4a6827a",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/legacy-p10c-email-mobile-confirm.png",
+      "bytes": 46543,
+      "sha256": "c7fcdaaa6a92b3159889eeea6ccad3b356465dbf24c325609ded1b0d45ca1484",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/legacy-p10c-email-confirm.png",
+      "bytes": 75374,
+      "sha256": "e3d321b8c86c97694a24b0a617c4c4a713dbe0f12c22ee49e0e96e38326e1da1",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/legacy-p10c-email-result.png",
+      "bytes": 150648,
+      "sha256": "981800e437a1708b909d49e30bb35a5dcf32f5dd015613b7e0e9939fc4a6827a",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/legacy-p10c-notifications-saved.png",
+      "bytes": 162684,
+      "sha256": "9e54cc4079c09c27300cb8e3d8373e19a083f26d3ea33ac5ebe0362c7eae0104",
+      "content": "fixed_synthetic_fixture_only"
+    },
+    {
+      "file": "screenshots/legacy-p10c-last-method-preserved.png",
+      "bytes": 142873,
+      "sha256": "73a19d687d6b78a00abbdea93ee395bcf8c3caef769a1e0120eca70d55c25596",
+      "content": "fixed_synthetic_fixture_only"
+    }
+  ],
+  "visual_review": "reviewed_by_root",
+  "visual_review_receipt": {
+    "status": "reviewed_by_root",
+    "reviewer": "/root",
+    "reviewed_utc": "2026-10-31T03:08:16.211Z",
+    "review_method": "contact_sheets_and_detail_pngs",
+    "pngs": 104,
+    "receipt_sha256": "f68582c662bd9111805f3ff4c068b9672ba39db82ad09214a68fdd564cf43e44"
+  },
+  "homepage_verification": [
+    "Conditional New chat and compact same-node composer",
+    "Single bottom account entry and single advertised model chooser",
+    "Explicit owner-scoped project/chat menus and literal title search",
+    "Saved prompts remain accessible through the composer with bounded pagination",
+    "Late prompt use and native modal ancestry cannot restore hidden private state",
+    "Doubled text, narrow viewport, keyboard and reduced-motion journeys",
+    "All prior auth, CSRF, account isolation, cancellation, exact-value, Settings and Plotly gates retained"
+  ],
+  "release_gates": {
+    "required_pr_ci": "pending",
+    "merged_main_ci": "pending",
+    "production_verification": "pending",
+    "phase_complete_claimed": false
+  },
+  "limitations": [
+    "All browser/API/database rows and accounts are disposable synthetic fixtures.",
+    "Closed synthetic Google assertions replace provider signature verification; no real Google provider, MFA assurance or real inbox delivery is claimed.",
+    "No production backup/restore, real email, real analytical query or live AI provider was exercised.",
+    "Security scenarios use a CDP-fulfilled reserved HTTPS origin: real Chrome secure-context and cookie semantics, with no DNS, socket or TLS transport exercised.",
+    "Automated keyboard/AX/contrast checks are bounded evidence, not a complete assistive-technology audit.",
+    "No private records, tokens, raw responses, absolute workstation paths or credential files are included."
+  ]
+}

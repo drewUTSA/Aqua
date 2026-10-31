@@ -5,6 +5,7 @@ import { readAccount, saveAccountName, readAccountMethods, readAccountSessions, 
 import { acceptsAccountSnapshot, accountFailure, nameEditor, nameEditorReducer } from "./accountState.js";
 import useAccountScope from "./useAccountScope.js";
 import AccountSecurityDialog from "./AccountSecurityDialog.jsx";
+import AccountIdentityDialog from "./AccountIdentityDialog.jsx";
 import { canAccountAction } from "./accountSecurityState.js";
 import { validId } from "../services/workspaceContract.js";
 import { formatTimestamp } from "../services/preferenceFormatting.js";
@@ -89,13 +90,13 @@ function NameEditor({ auth, profile, onConfirmed, onClose }) {
   </PreferenceDialog>;
 }
 
-export function AccountMethods({ data }) {
-  return <dl className="account-detail-list" data-account-methods>
+export function AccountMethods({ data, onUnlink, canUnlink = () => false }) {
+  return <><dl className="account-detail-list" data-account-methods>
     <div><dt>Password</dt><dd>{data.password.linked ? "Linked" : "Not linked"}
       <span className="account-muted">{data.password.available ? "Sign-in available" : "Sign-in currently unavailable"}</span></dd></div>
     <div><dt>Google</dt><dd>{data.google.linked ? `Linked · ${data.google.identities.length} ${data.google.identities.length === 1 ? "identity" : "identities"}` : "Not linked"}
       <span className="account-muted">{data.google.available ? "Sign-in available" : "Sign-in currently unavailable"}</span></dd></div>
-  </dl>;
+  </dl>{data.google.identities.length>0&&<><ul className="account-identity-list">{data.google.identities.map((identity,index)=><li key={identity.id}><span>{identity.email||"Google account"}{data.google.identities.length>1?` · ${index+1}`:""}</span>{onUnlink&&<button type="button" data-account-unlink-google={index} disabled={!canUnlink(identity)} onClick={()=>onUnlink(identity)}>Remove this Google identity</button>}</li>)}</ul><p className="account-muted">Google addresses are provider-reported labels. They do not verify your AQUA primary mailbox.</p></>}</>;
 }
 
 export function AccountSessions({ data, preferences, onRevoke, canRevoke = () => false }) {
@@ -157,19 +158,22 @@ function OwnedAccount({ auth }) {
       {profile && <dl className="account-detail-list" data-account-profile><div><dt>Display name</dt><dd data-account-saved-name>{profile.user.name || "Not set"}</dd></div>
         <div><dt>Primary email</dt><dd><span data-account-primary-email>{profile.user.email}</span><span className="account-muted">Verified</span></dd></div></dl>}
       <p className="account-muted">Name changes save here. Preference Save, Cancel, import and reset do not change your account.</p>
+      <div className="account-security-action"><button type="button" data-account-change-email disabled={!can({operation:"email_change"})} onClick={()=>startSecurity({operation:"email_change"})}>Change primary email</button><p className="account-muted">Requires fresh verification and confirmation from both the current and new mailbox.</p></div>
       {status && <p role="status">{status}</p>}
     </section>
     <section className="account-section" aria-labelledby="account-methods-heading"><div className="account-section-heading"><div><h3 id="account-methods-heading">Sign-in methods</h3>
       <p>Review which methods are linked and available.</p></div><button type="button" data-account-load-methods disabled={!active || resources.methods.busy} onClick={() => load("methods")}>
         {resources.methods.busy ? "Loading methods…" : resources.methods.data ? "Refresh methods" : "Review methods"}</button></div>
       {resources.methods.error && <p className="settings-error" role="alert">{resources.methods.error}</p>}
-      {resources.methods.data && <AccountMethods data={resources.methods.data} />}
+      {resources.methods.data && <AccountMethods data={resources.methods.data} canUnlink={identity=>can({operation:"google_unlink",identity})} onUnlink={identity=>startSecurity({operation:"google_unlink",identity})} />}
       <div className="account-security-action"><button type="button" data-account-change-password disabled={!can({ operation: "password_change" })}
         onClick={() => startSecurity({ operation: "password_change" })}>Change password</button>
         <p className="account-muted">{!resources.methods.data ? "Review your sign-in methods to check available password actions."
-          : !resources.methods.data.password.linked ? "Adding a first password is not available. Your linked sign-in methods are shown above."
+          : !resources.methods.data.password.linked ? "A first password requires an available linked Google identity and confirmation from your current primary mailbox."
             : !can({ operation: "password_change" }) ? "Password changes are currently unavailable. Your linked sign-in methods are shown above."
               : "Changing your password signs out every active session."}</p></div>
+      {resources.methods.data?.password.linked===false&&<div className="account-security-action"><button type="button" data-account-add-password disabled={!can({operation:"password_add"})} onClick={()=>startSecurity({operation:"password_add"})}>Add a password</button></div>}
+      <div className="account-security-action"><button type="button" data-account-link-google disabled={!can({operation:"google_link"})} onClick={()=>startSecurity({operation:"google_link"})}>Link a Google identity</button><p className="account-muted">Your existing method and the new Google identity are verified separately. Accounts are never merged.</p></div>
     </section>
     <section className="account-section" aria-labelledby="account-sessions-heading"><div className="account-section-heading"><div><h3 id="account-sessions-heading">Active sessions</h3>
       <p>Review your current session and other active sign-ins.</p></div><button type="button" data-account-load-sessions disabled={!active || resources.sessions.busy} onClick={() => load("sessions")}>
@@ -179,11 +183,12 @@ function OwnedAccount({ auth }) {
         canRevoke={session => can({ operation: "session_revoke", session })} onRevoke={session => startSecurity({ operation: "session_revoke", session })} />
         <div className="account-security-action"><button type="button" data-account-revoke-all disabled={!can({ operation: "sessions_revoke_all" })}
           onClick={() => startSecurity({ operation: "sessions_revoke_all" })}>End all sessions</button>
-          <p className="account-muted">Ending sessions requires a linked, available password method and fresh verification.</p></div></>}
+          <p className="account-muted">Ending sessions requires an available linked sign-in method and fresh verification.</p></div></>}
     </section>
-    <p className="account-future">Email changes, adding a first password and linking or removing sign-in methods are not available yet. Optional notification delivery is unavailable. Current sign-out is in your account menu.</p>
+    <p className="account-future">Account security notices are required for supported identity changes and are separate from optional in-app success messages. Optional email subscriptions and browser notifications are unavailable. Current sign-out is in your account menu.</p>
     {editing && profile && <NameEditor auth={auth} profile={profile} onConfirmed={confirm} onClose={() => setEditing(false)} />}
-    {securityAction && <AccountSecurityDialog auth={auth} action={securityAction} allowed={can(securityAction)} onClose={() => setSecurityAction(null)}
+    {securityAction&&["google_link","google_unlink","password_add","email_change"].includes(securityAction.operation)&&<AccountIdentityDialog auth={auth} action={securityAction} methods={resources.methods.data} allowed={can(securityAction)} onClose={()=>setSecurityAction(null)} onProfile={next=>confirm(next,false)} onMethods={data=>update("methods",{data,error:"",busy:false})}/>}
+    {securityAction && !["google_link","google_unlink","password_add","email_change"].includes(securityAction.operation)&&<AccountSecurityDialog auth={auth} action={securityAction} methods={resources.methods.data} allowed={can(securityAction)} onClose={() => setSecurityAction(null)}
       onProfile={next => confirm(next, false)}
       onSessions={data => update("sessions", { data, error: "", busy: false })} onRevoked={id => {
         setResources(current => ({ ...current, sessions: { ...current.sessions, data: { ...current.sessions.data, items: current.sessions.data.items.filter(item => item.id !== id) } } }));

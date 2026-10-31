@@ -8,6 +8,7 @@ from psycopg import Connection
 
 from auth.mailconfig import MailPolicy
 from auth.mailoutbox import MailJob
+from auth.mailpurposes import ELIGIBLE_MAIL_SQL, GROUPS, group
 from storage.pool import Storage
 
 # Partitions sum to the global 20/hour and 60/day. Anonymous verification mail
@@ -25,21 +26,13 @@ def _claimable(
     for purpose in allowed:
         row = conn.execute(
             "SELECT m.id,m.purpose,m.recipient_digest,m.ciphertext,m.expires_at,m.attempts "
-            "FROM app.account_mail m WHERE m.state IN ('pending','sending') AND m.purpose=%s "
+            "FROM app.account_mail m WHERE m.state IN ('pending','sending') AND m.purpose=ANY(%s) "
             "AND m.available_at<=%s AND (m.lease_expires_at IS NULL OR m.lease_expires_at<=%s) "
             "AND m.expires_at>%s AND m.attempts<3 "
             "AND (m.first_attempt_at IS NULL OR m.first_attempt_at>%s-interval '23 hours') "
-            "AND (m.purpose='password_changed' OR EXISTS (SELECT 1 FROM app.auth_challenges c "
-            "WHERE c.id=m.challenge_id AND c.consumed_at IS NULL AND c.expires_at>%s "
-            "AND c.expires_at=m.expires_at AND sha256(convert_to(c.target_email_key,'UTF8'))=m.recipient_digest "
-            "AND ((m.purpose='verify_email' AND c.purpose='verify_email' AND c.user_id IS NULL) "
-            "OR (m.purpose='reset_password' AND c.purpose='password_reset' AND EXISTS "
-            "(SELECT 1 FROM app.users u JOIN app.user_emails e ON e.user_id=u.id "
-            "JOIN app.password_credentials p ON p.user_id=u.id WHERE u.id=c.user_id "
-            "AND u.status='active' AND u.auth_epoch=c.password_auth_epoch "
-            "AND e.email_key=c.target_email_key AND e.is_primary AND e.verified_at IS NOT NULL))))) "
+            "AND " + ELIGIBLE_MAIL_SQL + " "
             "ORDER BY m.available_at,m.id LIMIT 1 FOR UPDATE OF m SKIP LOCKED",
-            (purpose, instant, instant, instant, instant, instant),
+            (list(GROUPS[purpose]), instant, instant, instant, instant),
         ).fetchone()
         if row is not None:
             return row
@@ -105,8 +98,8 @@ class MailOutbox:
             if row is None:
                 return None
             lease = uuid.uuid4()
-            purpose_hits[row[1]][0] += 1
-            purpose_hits[row[1]][1] += 1
+            purpose_hits[group(row[1])][0] += 1
+            purpose_hits[group(row[1])][1] += 1
             conn.execute(
                 "UPDATE app.account_mail SET state='sending',attempts=attempts+1,lease_id=%s,"
                 "lease_expires_at=%s+interval '90 seconds',first_attempt_at=COALESCE(first_attempt_at,%s) WHERE id=%s",

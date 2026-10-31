@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "phase": "P10b Account security",
+  "status": "deployed",
+  "pull_request": "https://github.com/drewUTSA/Aqua/pull/55",
+  "reviewed_pr_head": "1590a6fbe3a7987b086b2a7080c77bf81fd41499",
+  "merge_commit": "7477e28d713f95068a6e6c73bdff47913b98b40b",
+  "application_schema_version": 6,
+  "migration": "none",
+  "backend_image": "sha256:da36b42553b6231649e5a927f85ee0f0f988d7b2aec84fe1d600f05451538845",
+  "frontend_image": "sha256:3fddfc71466b89158ceca22641cd46a0b43b17c36c72dcb72c5c7bac6dfb2f39",
+  "deployed_utc": "2026-10-31T01:50:04.383058+00:00",
+  "verification_artifact": "docs/implementation/evidence/p10b/verification.json",
+  "verification_sha256": "a484245a94515cd2b96f0c2b790c7936943e0ae665954b668c5d8705b8112e91",
+  "canonical": {
+    "run": "p10b-checks-20261031004553120-6fbb9123",
+    "summary_sha256": "07f2c95f619c514c537469371fd13d473d8b0a2f901020b1d69e10cb5df385dc",
+    "manifest_sha256": "86edd76a14d93a0c030d1f4322caff9372f5f374c161c27015b69e1dd90ea349",
+    "backend_image": "sha256:da36b42553b6231649e5a927f85ee0f0f988d7b2aec84fe1d600f05451538845",
+    "unique_tests": 1519
+  },
+  "ci": {
+    "pr": {
+      "status": "passed",
+      "run_id": 41154767102,
+      "head": "1590a6fbe3a7987b086b2a7080c77bf81fd41499",
+      "jobs": {
+        "Account security (legacy)": "passed",
+        "Account security (opal)": "passed",
+        "checks": "passed"
+      }
+    },
+    "main": {
+      "status": "passed",
+      "run_id": 41155833742,
+      "head": "7477e28d713f95068a6e6c73bdff47913b98b40b",
+      "jobs": {
+        "Account security (legacy)": "passed",
+        "Account security (opal)": "passed",
+        "checks": "passed"
+      }
+    }
+  },
+  "checks": {
+    "backend_cases": 1519,
+    "frontend_units": 492,
+    "browser_gates": 22,
+    "root_reviewed_screenshots": 62,
+    "all_previous_backend_cases_retained": true,
+    "current_dependency_audits_passed": true,
+    "both_original_bounded_proxy_checks_passed": true
+  },
+  "frontend_entry_supplement": {
+    "historical_input_files": 245,
+    "additional_rebuild_input_files": 246,
+    "historical_capture_rewritten": false,
+    "all_nine_assets_per_shell_identical": true,
+    "receipt_sha256": "19f0b7843e7d6fb80e587c2150fc18e719dbc8e7c248188af01bad4601ae3210",
+    "before_sha256": "2c90df7598acfa4b4700bb827c66a8273520d0a96317c0277fd7163d401a9a00",
+    "raw_LF_failure_sha256": "9842b623e1c8414b52b5a62841cacb8e23525355eb3b7a18483f11007becdde8"
+  },
+  "deployment": {
+    "raw_report_sha256": "8ce580442f66b685cfcc61f9f5bdc51b5eacb9367b99377eed556dc6ae368d43",
+    "schema_unchanged": true,
+    "stopped_writer_rows_preserved": true,
+    "database_identity_and_volumes_preserved": true,
+    "environment_and_activation_preserved": true,
+    "scheduler_preserved": true,
+    "worker_private_file_preserved": true,
+    "exact_images_healthy": true,
+    "rollback": "not_needed",
+    "database_rewind": false
+  },
+  "public_smoke": {
+    "raw_report_sha256": "8d786cb11a275517233f25beeec7c4dcb96f7de1ae65d19983b2939bd1b2c360",
+    "request_count": 22,
+    "api_requests": 2,
+    "methods": "GET_only",
+    "authenticated_account_used": false,
+    "provider_or_analytical_request": false,
+    "browser_cleanup": true,
+    "profile_removed": true,
+    "png_sha256": "9e2b932836de23f0ebcf9b54553f5ea1eafd2ef9e35a880a3f1c18b7bf5b6807",
+    "visual_review": {
+      "reviewer": "/root",
+      "approved": true,
+      "reviewed_utc": "2026-10-31T01:51:59.747Z"
+    }
+  },
+  "compatible_fallback": {
+    "commit": "f5f5b2d16fab261173fd2572e620f266dc64168e",
+    "backend_image": "sha256:a3b2fd374ad987202d2c79b02df1517c702106c468e422c7128b86e30b2c0b43",
+    "frontend_image": "sha256:078f38462e55b1245dccc8e1ce252959cecebd91c8e5bf4d309784d9fd1a7331",
+    "schema_version": 6
+  },
+  "limitations": [
+    "P10 remains incomplete until the separate identity slice passes and is released.",
+    "Public checks used no authenticated account, real Google sign-in, real mail recipient or analytical/model request.",
+    "Encrypted backup retention is30days; automatic pruning remains disabled."
+  ]
+}

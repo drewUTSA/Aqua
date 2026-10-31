@@ -11,7 +11,7 @@ async function action(path, method, body, options, decode) {
   try { return decode(value); } catch { throw new WorkspaceError("invalid_response"); }
 }
 export function createAccountChallenge(target, options) {
-  return action("/me/reauth-challenges", "POST", input(() => actionTarget(target)), options, actionChallenge);
+  return action("/me/reauth-challenges", "POST", input(() => { const value = actionTarget(target); if (value.operation === "password_add") throw Error(); return value; }), options, actionChallenge);
 }
 export function verifyAccountPassword(target, challenge, password, options) {
   const checked = input(() => actionChallenge(challenge));

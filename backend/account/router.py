@@ -36,7 +36,10 @@ def account_request(
     with store.storage.transaction() as conn:
         guard(conn, session, store.policy)
         available = capabilities(
-            conn, session.user["id"], request.app.state.settings.app_origin
+            conn,
+            session.user["id"],
+            request.app.state.settings.app_origin,
+            google_enabled=bool(request.app.state.settings.google_client_id),
         )
         if operation == "profile":
             result = repository.profile(conn, session.user["id"])

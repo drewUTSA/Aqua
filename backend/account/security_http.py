@@ -18,6 +18,11 @@ def binding_cookie(settings: Settings) -> str:
     return prefix + "aqua_account_action"
 
 
+def identity_cookie(settings: Settings) -> str:
+    prefix = "__Host-" if settings.app_origin.startswith("https://") else ""
+    return prefix + "aqua_identity_action"
+
+
 def perform(action: str, work: Callable[[], Any]) -> Any:
     try:
         return work()

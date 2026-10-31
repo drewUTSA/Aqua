@@ -1,23 +1,24 @@
 import React, { useEffect, useId, useLayoutEffect, useReducer, useRef } from "react";
 import PreferenceDialog from "./PreferenceDialog.jsx";
+import AccountProofStep from "./AccountProofStep.jsx";
 import useAccountScope from "./useAccountScope.js";
-import { createAccountChallenge, verifyAccountPassword, changeAccountPassword, revokeAccountSession, revokeAllAccountSessions } from "./accountSecurityClient.js";
+import { changeAccountPassword, revokeAccountSession, revokeAllAccountSessions } from "./accountSecurityClient.js";
 import { readAccount, readAccountSessions } from "./accountClient.js";
 import { createActionProofVault, securityActionReducer, securityActionState } from "./accountSecurityState.js";
 import { validateNewPassword } from "../components/auth/authFormPolicy.js";
 
 const titles = { password_change: "Change password", session_revoke: "End session", sessions_revoke_all: "End all sessions" };
-export default function AccountSecurityDialog({ auth, action, allowed, onClose, onProfile, onSessions, onRevoked }) {
+export default function AccountSecurityDialog({ auth, action, methods, allowed, onClose, onProfile, onSessions, onRevoked }) {
   const [state, dispatch] = useReducer(securityActionReducer, undefined, securityActionState), stateRef = useRef(state);
   stateRef.current = state;
   // Uncontrolled password fields keep live values out of React state and HTML
   // value attributes. Read them only for the user's explicit submission.
-  const password = useRef(null), newPassword = useRef(null), confirmation = useRef(null);
+  const newPassword = useRef(null), confirmation = useRef(null);
   const scope = useAccountScope(auth), identity = useRef(null), vault = useRef(null), locked = useRef(false), cancel = useRef(null), authority = useRef(auth.csrfToken), id = useId();
   const authorityActive = auth.status === "authenticated", active = authorityActive && allowed;
   identity.current = { owner: auth.user.id, csrfToken: auth.csrfToken, active };
   if (!vault.current) vault.current = createActionProofVault(auth.user.id, action, () => identity.current);
-  const clearFields = () => { for (const ref of [password, newPassword, confirmation]) if (ref.current) { ref.current.value = ""; ref.current.defaultValue = ""; } };
+  const clearFields = () => { for (const ref of [newPassword, confirmation]) if (ref.current) { ref.current.value = ""; ref.current.defaultValue = ""; } };
   const clearSecrets = () => { vault.current.clear(); clearFields(); };
   const target = action.operation === "session_revoke" ? { operation: action.operation, target_session_id: action.session.id } : { operation: action.operation };
   const busy = ["verifying", "mutating", "checking"].includes(state.phase);
@@ -38,25 +39,6 @@ export default function AccountSecurityDialog({ auth, action, allowed, onClose, 
     const timer = setTimeout(() => { clearSecrets(); dispatch({ type: "expired" }); }, Math.max(0, vault.current.deadline() - Date.now()));
     return () => clearTimeout(timer);
   }, [state.phase]);
-
-  const verify = async event => {
-    event.preventDefault();
-    const enteredPassword = password.current?.value || "";
-    if (locked.current || stateRef.current.phase !== "verify" || !active || !enteredPassword) return;
-    const request = scope.begin("security");
-    if (!request) return;
-    clearSecrets(); locked.current = true; dispatch({ type: "verify" });
-    try {
-      const challenge = await createAccountChallenge(target, { csrfToken: auth.csrfToken, signal: request.signal });
-      if (!request.current()) return;
-      const proof = await verifyAccountPassword(target, challenge, enteredPassword, { csrfToken: auth.csrfToken, signal: request.signal });
-      if (!request.current()) return;
-      if (!vault.current.store(proof)) throw Error("verification_unavailable");
-      dispatch({ type: "verified" });
-    } catch (error) {
-      if (request.current()) { vault.current.clear(); dispatch({ type: "verification-failed", error }); if (error?.status === 401) void auth.refresh?.(); }
-    } finally { locked.current = false; request.finish(); }
-  };
 
   const commit = async event => {
     event.preventDefault();
@@ -118,15 +100,11 @@ export default function AccountSecurityDialog({ auth, action, allowed, onClose, 
           : action.session.current ? "This ends your current session. You will need to sign in again." : "This ends the selected session. Your current session will stay signed in."}</p>
       {action.operation === "session_revoke" && <p><strong>{action.session.device_label}</strong>{action.session.current ? " · This session" : " · Other session"}</p>}
       {state.error && <p className="settings-error" role="alert">{state.error}</p>}
-      {["verify", "verifying"].includes(state.phase) && <form onSubmit={verify}>
-        <p>Verify your current password for this action. Verification lasts at most five minutes and can be used once.</p>
-        <label className="account-security-field" htmlFor={`${id}-current`}>Current password<input ref={password} id={`${id}-current`} data-account-current-password type="password"
-          autoComplete="current-password" autoCapitalize="none" spellCheck={false} required maxLength={1024} disabled={!active || state.phase === "verifying"} /></label>
-        <div className="settings-dialog-actions"><button ref={cancel} type="button" onClick={close}>Cancel</button>
-          <button type="submit" data-account-verify-password disabled={!active || state.phase === "verifying"}>{state.phase === "verifying" ? "Verifying…" : "Verify password"}</button></div>
-      </form>}
+      {["verify", "verifying"].includes(state.phase) && <AccountProofStep auth={auth} target={target} methods={methods} allowed={active} phase={state.phase} cancelRef={cancel} onClose={close}
+        onStart={() => dispatch({ type: "verify" })} onProof={proof => { if (!vault.current.store(proof)) throw Error("verification_unavailable"); dispatch({ type: "verified" }); }}
+        onFailure={error => { vault.current.clear(); dispatch({ type: "verification-failed", error }); }} />}
       {state.phase === "confirm" && <form onSubmit={commit}>
-        <p role="status">Password verified for this action. Review before confirming.</p>
+        <p role="status">Sign-in method verified for this action. Review before confirming.</p>
         {action.operation === "password_change" && <><label className="account-security-field" htmlFor={`${id}-new`}>New password<input ref={newPassword} id={`${id}-new`} data-account-new-password type="password"
           autoComplete="new-password" autoCapitalize="none" spellCheck={false} required maxLength={1024} disabled={!active} /></label>
           <label className="account-security-field" htmlFor={`${id}-confirm`}>Confirm new password<input ref={confirmation} id={`${id}-confirm`} data-account-confirm-password type="password"

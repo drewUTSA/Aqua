@@ -6,7 +6,8 @@ import signal
 import subprocess
 
 from p05_browser_host import close_worker, timeout_signal
-from p05_browser_protocol import MAX_LINE, emit, message
+from p05_browser_protocol import MAX_LINE, emit, fixture_schema, message
+from p05_browser_docker import ROOT
 from p05_browser_resources import Resources
 
 MAX_OPERATIONS = 200
@@ -16,12 +17,13 @@ MAX_SECONDS = 180
 def host(origin: str, image: str) -> int:
     """One network-none fixture, fixed worker path, no production configuration."""
     name = "aqua-p05-browser-" + secrets.token_hex(12)
+    schema = fixture_schema(ROOT)
     resources, child, final_id = Resources(name), None, "finish"
     report = {
         "run": name,
         "status": "failed",
         "network": "none",
-        "schema_version": 6,
+        "schema_version": schema,
         "max_operations": MAX_OPERATIONS,
         "max_seconds": MAX_SECONDS,
         "real_data_accessed": False,
@@ -65,7 +67,7 @@ def host(origin: str, image: str) -> int:
         ready = json.loads(child.stdout.readline(MAX_LINE + 1))
         if (
             ready.get("kind") != "ready"
-            or ready.get("schema_version") != 6
+            or ready.get("schema_version") != schema
             or ready.get("workspace_analysis_fixture") is not True
         ):
             if ready.get("kind") == "error":
