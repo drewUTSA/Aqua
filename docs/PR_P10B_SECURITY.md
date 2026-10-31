@@ -13,12 +13,19 @@ proofs on authority changes, and reconciles uncertain responses without replayin
 a mutation. Native sensitive-action dialogs focus Cancel after opening. The
 simplified homepage, Settings drafts and both UI shells are retained.
 
-Validation:
+This follow-up pins `pyasn1` to the reviewed security update and preserves the
+mail cleanup lock order. The Plotly browser check waits for the existing failure
+banner to render before asserting the same chart and failure state.
+Browser checks classify cloud-backed files with `lstat` while retaining link,
+resolved-path, size and full-byte checks.
 
-- 1,516 backend cases across both disposable datasets; all 1,440 prior test
-  identities retained, with 76 additional cases.
+Validation required before publication:
+
+- 1,519 backend cases across both disposable datasets; all 1,440 P10a and
+  all 1,516 previous P10b test identities retained, with three additional
+  cleanup regression cases.
 - 492 frontend tests, both production builds, zero runtime dependency findings,
-  all 22 browser gates, and 62 screenshots reviewed by root.
+  all 22 fresh browser gates, and 62 fresh screenshots reviewed by root.
 - Source/lock/format/lint/runtime-byte, privacy, telemetry, actual synthetic
   dump/restore, storage, rate-limit/proxy and absence-confirmed cleanup checks.
 - Secure-context browser scenarios use a reserved HTTPS origin fulfilled through

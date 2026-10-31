@@ -132,12 +132,14 @@ try {
   async function preload(directory, prefix = "") {
     for (const item of await readdir(directory, { withFileTypes: true })) {
       const file = path.join(directory, item.name), key = `${prefix}/${item.name}`;
-      if ((await lstat(file)).isSymbolicLink()) throw new Error("dist_symlink_rejected");
-      if (item.isDirectory()) await preload(file, key);
-      else if (item.isFile()) { const data = await readFile(file); bytes += data.length; if (data.length > 8 * 1024 * 1024 || bytes > 32 * 1024 * 1024 || files.size >= 300) throw new Error("dist_bound"); files.set(key, data); }
+      const stat=await lstat(file),inside=path.relative(scope,await realpath(file));
+      if (stat.isSymbolicLink()||!inside||inside.startsWith('..')||path.isAbsolute(inside)) throw new Error("dist_symlink_rejected");
+      if (stat.isDirectory()) await preload(file, key);
+      else if (stat.isFile()) { const data = await readFile(file); bytes += data.length; if (data.length > 8 * 1024 * 1024 || bytes > 32 * 1024 * 1024 || files.size >= 300) throw new Error("dist_bound"); files.set(key, data); }else throw new Error("dist_regular_file_required");
     }
   }
   if ((await lstat(distRoot)).isSymbolicLink() || !(await lstat(distRoot)).isDirectory()) throw new Error("dist_root_rejected");
+  const scope=await realpath(distRoot);
   await preload(distRoot); assert.ok(files.has("/index.html"), "production_build_required");
   loadedAssets = [...files].filter(([name]) => name !== "/50x.html").map(([name, bytes]) => ({ name, sha256: createHash("sha256").update(bytes).digest("hex") }));
   await ensureArtifacts();

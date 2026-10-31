@@ -1,7 +1,7 @@
 // Usage: node checks/plotly-bundle.mjs <Vite dist with --manifest> [P07 dist]
 // Reports actual byte counts. It never imports/evaluates the browser engine.
 import assert from "node:assert/strict";
-import { readFile, lstat } from "node:fs/promises";
+import { readFile, lstat,realpath } from "node:fs/promises";
 import path from "node:path";
 import { gzipSync } from "node:zlib";
 import { createHash } from "node:crypto";
@@ -12,6 +12,8 @@ async function asset(directory, name) {
   const file = path.resolve(directory, name.replace(/^\//, ""));
   assert.ok(file.startsWith(directory + path.sep), "asset_outside_dist");
   const info = await lstat(file); assert.ok(info.isFile() && !info.isSymbolicLink() && info.size <= 8 * 1024 * 1024, "asset_file_rejected");
+  for(let cursor=path.dirname(file);;cursor=path.dirname(cursor)){assert.ok(!(await lstat(cursor)).isSymbolicLink(),'asset_symlink_ancestor_rejected');if(cursor===directory)break;}
+  const inside=path.relative(await realpath(directory),await realpath(file));assert.ok(inside&&!inside.startsWith('..')&&!path.isAbsolute(inside),'asset_resolved_outside_dist');
   return readFile(file);
 }
 async function counts(directory, names) {

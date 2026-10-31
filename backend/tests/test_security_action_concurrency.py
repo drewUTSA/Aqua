@@ -7,11 +7,15 @@ from threading import Barrier
 import pytest
 
 from account.reauth import RecentAuth
+from account.authority import current_id
 from account.security_actions import SecurityActions
+from auth.admission import cleanup
 from auth.config import AuthDenied
+from auth.mailoutbox import ensure_capacity
 from auth.passwords import PasswordStore
 from auth.sessions import token_digest
 from storage.pool import Storage
+from storage.migrate import apply, migrations
 from workspace.errors import WorkspaceError
 from security_action_fixtures import NEW, OLD
 from test_security_action_failures import seed_reset
@@ -209,3 +213,78 @@ def test_parallel_revocation_can_commit_only_once_across_pools(
             ).fetchone() == (int(all_sessions),)
     finally:
         storage.close()
+
+
+def test_login_cleanup_skips_mail_children_held_by_sensitive_action(account_security):
+    secure = account_security
+    client, owner = secure.client()
+    principal = secure.principal(client)
+    _, ticket = seed_reset(secure, owner)
+    with secure.world.storage.transaction() as conn:
+        conn.execute(
+            "UPDATE app.auth_challenges SET created_at=now()-interval '5 minutes',expires_at=now()-interval '1 second' WHERE id=%s",
+            (ticket,),
+        )
+        conn.execute(
+            "UPDATE app.account_mail SET created_at=now()-interval '5 minutes',expires_at=now()-interval '1 second' WHERE challenge_id=%s",
+            (ticket,),
+        )
+        before = conn.execute(
+            "SELECT u.auth_epoch,p.encoded_hash FROM app.users u JOIN app.password_credentials p ON p.user_id=u.id WHERE u.id=%s",
+            (owner,),
+        ).fetchone()
+    pool, other = second_store(secure)
+
+    def login_cleanup():
+        with pool.transaction() as conn:
+            # Same user -> expired challenge ordering as final Google login;
+            # keep the established one-second lock timeout unchanged.
+            current_id(conn, principal, other.auth_policy)
+            cleanup(conn, other.auth_policy)
+
+    try:
+        with ThreadPoolExecutor(max_workers=1) as worker:
+            with secure.world.storage.transaction() as conn:
+                # Purge holds the expired child DELETE lock until commit. The
+                # old parent cascade would block here and then invert user lock.
+                ensure_capacity(conn, secure.passwords.mail_policy, "password_changed")
+                assert conn.execute(
+                    "SELECT count(*) FROM app.account_mail WHERE challenge_id=%s",
+                    (ticket,),
+                ).fetchone() == (0,)
+                worker.submit(login_cleanup).result(timeout=3)
+                current_id(conn, principal, secure.passwords.auth_policy)
+                assert conn.execute(
+                    "SELECT count(*) FROM app.auth_challenges WHERE id=%s", (ticket,)
+                ).fetchone() == (1,)
+        with secure.world.storage.transaction() as conn:
+            cleanup(conn, secure.passwords.auth_policy)
+            assert conn.execute(
+                "SELECT count(*) FROM app.auth_challenges WHERE id=%s", (ticket,)
+            ).fetchone() == (0,)
+            assert (
+                conn.execute(
+                    "SELECT u.auth_epoch,p.encoded_hash FROM app.users u JOIN app.password_credentials p ON p.user_id=u.id WHERE u.id=%s",
+                    (owner,),
+                ).fetchone()
+                == before
+            )
+        assert secure.hasher.calls == []
+    finally:
+        pool.close()
+
+
+@pytest.mark.parametrize("version", [1, 2])
+def test_login_cleanup_remains_compatible_before_mail_schema(app_database, version):
+    assert apply(app_database, migrations()[:version]) == version
+    app_database.execute("SET ROLE aqua_app_owner")
+    app_database.execute(
+        "INSERT INTO app.auth_challenges(purpose,secret_digest,created_at,expires_at) VALUES('google_login',%s,now()-interval '2 minutes',now()-interval '1 second')",
+        (b"x" * 32,),
+    )
+    from auth.config import AuthPolicy
+
+    cleanup(app_database, AuthPolicy())
+    assert app_database.execute(
+        "SELECT count(*) FROM app.auth_challenges"
+    ).fetchone() == (0,)

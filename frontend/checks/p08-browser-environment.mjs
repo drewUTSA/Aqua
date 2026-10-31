@@ -90,10 +90,12 @@ export async function openP08Browser(options) {
   try {
     const files = new Map(); let total = 0;
     async function preload(directory, prefix = "") { for (const item of await readdir(directory, { withFileTypes: true })) { const full = path.join(directory, item.name), key = prefix + "/" + item.name;
-      if ((await lstat(full)).isSymbolicLink()) throw Error("dist_symlink_denied");
-      if (item.isDirectory()) await preload(full, key); else if (item.isFile()) { const data = await readFile(full); total += data.length;
-        if (data.length > 8 * 1024 * 1024 || total > 32 * 1024 * 1024 || files.size >= 300) throw Error("dist_bound"); files.set(key, data); } } }
+      const stat=await lstat(full),inside=path.relative(scope,await realpath(full));
+      if (stat.isSymbolicLink()||!inside||inside.startsWith('..')||path.isAbsolute(inside)) throw Error("dist_symlink_denied");
+      if (stat.isDirectory()) await preload(full, key); else if (stat.isFile()) { const data = await readFile(full); total += data.length;
+        if (data.length > 8 * 1024 * 1024 || total > 32 * 1024 * 1024 || files.size >= 300) throw Error("dist_bound"); files.set(key, data); }else throw Error("dist_regular_file_required"); } }
     if ((await lstat(dist)).isSymbolicLink() || !(await lstat(dist)).isDirectory()) throw Error("dist_invalid");
+    const scope=await realpath(dist);
     await preload(dist); if (!files.has("/index.html")) throw Error("production_build_required");
     ctx.assets = [...files].map(([name, data]) => ({ name, bytes: data.length, sha256: createHash("sha256").update(data).digest("hex") }));
     if (secureAccountFixture) {

@@ -12,6 +12,10 @@ itsdangerous>=2.2,<3
 # Remove the compromised certificate chain identified in PYSEC-2026-4320.
 certifi>=2026.10.19
 
+# Security floor for CVE-2026-119194, CVE-2026-119195,
+# CVE-2026-119196 and CVE-2026-119197.
+pyasn1>=0.6.5,<0.7
+
 # Maintained bounded connection pool for private application storage.
 psycopg-pool>=3.3,<4
 
