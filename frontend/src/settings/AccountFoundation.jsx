@@ -1,21 +1,14 @@
-import React, { useEffect, useId, useLayoutEffect, useReducer, useRef, useState } from "react";
+import React, { useEffect, useId, useReducer, useRef, useState } from "react";
 import PreferenceDialog from "./PreferenceDialog.jsx";
 import { usePreferences } from "./PreferencesProvider.jsx";
 import { readAccount, saveAccountName, readAccountMethods, readAccountSessions, normalizeDisplayName } from "./accountClient.js";
-import { acceptsAccountSnapshot, accountFailure, createAccountRequestScope, nameEditor, nameEditorReducer } from "./accountState.js";
+import { acceptsAccountSnapshot, accountFailure, nameEditor, nameEditorReducer } from "./accountState.js";
+import useAccountScope from "./useAccountScope.js";
+import AccountSecurityDialog from "./AccountSecurityDialog.jsx";
+import { canAccountAction } from "./accountSecurityState.js";
 import { validId } from "../services/workspaceContract.js";
 import { formatTimestamp } from "../services/preferenceFormatting.js";
 import "../styles/account-foundation.css";
-
-function useAccountScope(auth) {
-  const identity = useRef(null);
-  identity.current = { owner: auth.user?.id, active: auth.status === "authenticated" && !auth.demoMode };
-  const scope = useRef(null);
-  if (!scope.current) scope.current = createAccountRequestScope(auth.user.id, () => identity.current);
-  useLayoutEffect(() => { scope.current.activate(); return () => scope.current.dispose(); }, []);
-  useLayoutEffect(() => { if (!identity.current.active) scope.current.abort(); }, [auth.status, auth.demoMode]);
-  return scope.current;
-}
 
 function NameEditor({ auth, profile, onConfirmed, onClose }) {
   const [state, dispatch] = useReducer(nameEditorReducer, profile, nameEditor), stateRef = useRef(state);
@@ -105,10 +98,12 @@ export function AccountMethods({ data }) {
   </dl>;
 }
 
-export function AccountSessions({ data, preferences }) {
+export function AccountSessions({ data, preferences, onRevoke, canRevoke = () => false }) {
   const current = data.items.filter((item) => item.current), others = data.items.filter((item) => !item.current);
   const item = (session) => <li key={session.id} className="account-session">
-    <div className="account-session-heading"><strong>{session.device_label}</strong>{session.current && <span className="account-current">This session</span>}</div>
+    <div className="account-session-heading"><strong>{session.device_label}</strong>{session.current && <span className="account-current">This session</span>}
+      {onRevoke && <button type="button" data-account-revoke-session={session.current ? "current" : "other"} disabled={!canRevoke(session)}
+        onClick={() => onRevoke(session)}>{session.current ? "End this session" : "End this other session"}</button>}</div>
     <p>{session.method === "password" ? "Password" : session.method === "google" ? "Google" : "Sign-in"}</p>
     <dl><div><dt>Signed in</dt><dd><time dateTime={session.authenticated_at}>{formatTimestamp(session.authenticated_at, preferences)}</time></dd></div>
       <div><dt>Last active</dt><dd><time dateTime={session.last_activity_at}>{formatTimestamp(session.last_activity_at, preferences)}</time></dd></div>
@@ -124,8 +119,11 @@ function OwnedAccount({ auth }) {
   const { effective } = usePreferences(), scope = useAccountScope(auth), owner = auth.user.id;
   const [profile, setProfile] = useState(null), profileRef = useRef(null);
   const [status, setStatus] = useState(""), [editing, setEditing] = useState(false);
+  const [securityAction, setSecurityAction] = useState(null);
   const [resources, setResources] = useState({ profile: { busy: false, error: "" }, methods: { busy: false, error: "", data: null }, sessions: { busy: false, error: "", data: null } });
   const active = auth.status === "authenticated";
+  const can = action => active && canAccountAction({ profile, methods: resources.methods.data, sessions: resources.sessions.data }, action);
+  const startSecurity = action => { if (!editing && !securityAction && can(action)) setSecurityAction(action); };
   const update = (kind, next) => setResources((current) => ({ ...current, [kind]: { ...current[kind], ...next } }));
   const confirm = (next, saved = true) => {
     if (!acceptsAccountSnapshot(profileRef.current, next)) return;
@@ -166,15 +164,31 @@ function OwnedAccount({ auth }) {
         {resources.methods.busy ? "Loading methods…" : resources.methods.data ? "Refresh methods" : "Review methods"}</button></div>
       {resources.methods.error && <p className="settings-error" role="alert">{resources.methods.error}</p>}
       {resources.methods.data && <AccountMethods data={resources.methods.data} />}
+      <div className="account-security-action"><button type="button" data-account-change-password disabled={!can({ operation: "password_change" })}
+        onClick={() => startSecurity({ operation: "password_change" })}>Change password</button>
+        <p className="account-muted">{!resources.methods.data ? "Review your sign-in methods to check available password actions."
+          : !resources.methods.data.password.linked ? "Adding a first password is not available. Your linked sign-in methods are shown above."
+            : !can({ operation: "password_change" }) ? "Password changes are currently unavailable. Your linked sign-in methods are shown above."
+              : "Changing your password signs out every active session."}</p></div>
     </section>
     <section className="account-section" aria-labelledby="account-sessions-heading"><div className="account-section-heading"><div><h3 id="account-sessions-heading">Active sessions</h3>
       <p>Review your current session and other active sign-ins.</p></div><button type="button" data-account-load-sessions disabled={!active || resources.sessions.busy} onClick={() => load("sessions")}>
         {resources.sessions.busy ? "Loading sessions…" : resources.sessions.data ? "Refresh sessions" : "Review sessions"}</button></div>
       {resources.sessions.error && <p className="settings-error" role="alert">{resources.sessions.error}</p>}
-      {resources.sessions.data && <AccountSessions data={resources.sessions.data} preferences={effective.account} />}
+      {resources.sessions.data && <><AccountSessions data={resources.sessions.data} preferences={effective.account}
+        canRevoke={session => can({ operation: "session_revoke", session })} onRevoke={session => startSecurity({ operation: "session_revoke", session })} />
+        <div className="account-security-action"><button type="button" data-account-revoke-all disabled={!can({ operation: "sessions_revoke_all" })}
+          onClick={() => startSecurity({ operation: "sessions_revoke_all" })}>End all sessions</button>
+          <p className="account-muted">Ending sessions requires a linked, available password method and fresh verification.</p></div></>}
     </section>
-    <p className="account-future">Email and password changes, linking or removing methods, additional verification and session revocation are not available yet. Current sign-out is in your account menu.</p>
+    <p className="account-future">Email changes, adding a first password and linking or removing sign-in methods are not available yet. Optional notification delivery is unavailable. Current sign-out is in your account menu.</p>
     {editing && profile && <NameEditor auth={auth} profile={profile} onConfirmed={confirm} onClose={() => setEditing(false)} />}
+    {securityAction && <AccountSecurityDialog auth={auth} action={securityAction} allowed={can(securityAction)} onClose={() => setSecurityAction(null)}
+      onProfile={next => confirm(next, false)}
+      onSessions={data => update("sessions", { data, error: "", busy: false })} onRevoked={id => {
+        setResources(current => ({ ...current, sessions: { ...current.sessions, data: { ...current.sessions.data, items: current.sessions.data.items.filter(item => item.id !== id) } } }));
+        setStatus("Session ended.");
+      }} />}
   </div>;
 }
 

@@ -3,7 +3,8 @@
 This separate slice adds profile editing and read-only method/session reviews
 after the P09 homepage change. P10 remains incomplete. Candidate verification
 uses disposable private databases, fake providers/mail and bounded browsers;
-it does not establish a production migration or real provider/mailbox operation.
+the separate verified release below records the production migration and backup,
+without a real provider/mailbox test or a production restore claim.
 Shared/Tiger databases, signup policy and analytical grants are outside this change.
 
 ## Supported contract
@@ -106,8 +107,9 @@ older-schema backup compatibility. No ordinary startup invokes migrations.
 Disposable migration/repeat/interruption/restore/role/index tests and the full
 backend matrix remain required before an operator applies 0006.
 
-P09's schema 5 deployment remains untouched and safe while this candidate is
-isolated. Do not bypass readiness to run the P09 image on schema 6. The new
+The verified release advanced the private database from schema 5 to 6 and
+started the matching P10a images. Do not bypass readiness to run the P09 image
+on schema 6. The new
 inactive state is all-active by default and no removal operation is enabled, but
 P09 still has the old Google overwrite behavior. Prefer a compatible forward fix
 with new capabilities disabled and data retained if a deployed P10a needs
@@ -144,8 +146,8 @@ The eight existing workspace/Settings/Plotly gates also passed on the same
 final assets: 136 synthetic, 43 real workspace, 41 Settings, 37 Plotly and 27
 Account checks per shell, 568 total. All 234 frontend source/check inputs and
 all nine static assets, including lazy Settings chunks, were bound to those
-reports. Twenty-six current screenshots were reviewed. PR/main CI and the
-private-schema release remain pending. Portable evidence is in
+reports. Twenty-six current screenshots were reviewed. Required PR/main CI and
+the private-schema release passed. Portable isolated evidence is in
 `docs/implementation/evidence/p10a/verification.json`.
 
 Nonroutine integration prerequisites:
@@ -154,8 +156,9 @@ Nonroutine integration prerequisites:
   bridge allows only exact current-owner GET/PATCH profile and GET method/session
   routes without query authority. It rejects foreign paths and future mutations.
   CI retains all eight existing gates and adds both Account journeys.
-- Obtain the existing encrypted backup and operator migration/recovery review
-  before any real schema change. No shared/Tiger DDL is in scope.
+- The P10a release used a fresh authenticated encrypted schema-5 backup after
+  writers stopped and the reviewed explicit migration/recovery procedure. Future
+  private schema changes retain that gate. No shared/Tiger DDL was performed.
 - Before future proof issuance, implement bounded password/Google verification,
   exact method-snapshot recheck, freshness/nonce policy and safe error handling.
 - Before sensitive mutation, implement all-session revocation, last-method user
@@ -164,5 +167,27 @@ Nonroutine integration prerequisites:
 - Notification scope remains generic optional in-app notices in a later slice;
   no optional email, browser permission, sound or fabricated delivery claims.
 
-This is a reviewable P10a foundation candidate. P10b–d and the P10 phase checkpoint
-remain outstanding.
+## Verified production release
+
+[PR #54](https://github.com/drewUTSA/Aqua/pull/54) merged as `f5f5b2d16fab261173fd2572e620f266dc64168e`; both required CI runs passed.
+At 2026-10-28T23:42:41.253826+00:00, the reviewed guard stopped writers and held the mail
+worker lock, verified a fresh encrypted schema-5 backup and independent recovery
+identity, applied only migration 0006, then started the exact tested backend and
+frontend. Protected records, database/volumes, activation/environment, worker
+file and scheduler were preserved. Public account APIs denied anonymous access;
+all eight public/origin assets and healthy images were verified. The index HTML
+difference remains the pinned pre-existing Cloudflare Analytics insertion.
+The bounded public sign-in smoke passed; its screenshot was reviewed. The
+Google control was loading at capture, so no real Google flow is claimed.
+
+Encrypted backup SHA-256: `db21163455f2ba33f5c1ab1e10da78ada1160634ba80507a18cbf7248e313c02`. Authentication/decryption
+matched the streamed export; no plaintext dump was written. This is backup
+verification, not a production restore or an RPO/RTO guarantee. The ciphertext
+and metadata were hash-verified in protected storage outside the checkout with
+owner-only permissions; no credential copying or pruning occurred. No authenticated
+production account, AI/analytical query, real mail recipient, public Google
+audience or analytical grant was exercised or changed by release verification.
+Exact portable evidence: [release.json](evidence/p10a/release.json). Schema 6
+requires a compatible forward fix or maintenance; P09 image rollback remains
+unsupported. P10a is deployed. P10b onward and the overall P10 checkpoint remain
+outstanding.

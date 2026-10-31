@@ -65,9 +65,21 @@ def worker(
     workspace_analysis: bool = False,
     *,
     analysis_factory: Callable[[Any, Any], Any] | None = None,
+    account_security_fixture: bool = False,
 ) -> int:
     """Actual app/router/session/password code; only provider and mail are fakes."""
     global WORKER_STAGE
+    if type(account_security_fixture) is not bool:
+        raise ValueError("fixture_security_mode_invalid")
+    if account_security_fixture:
+        from p10b_browser_fixture import MAX_REQUESTS, secure_origin
+
+        secure_origin(origin)
+        if workspace_analysis is not True:
+            raise ValueError("fixture_security_mode_invalid")
+        operations = MAX_REQUESTS
+    else:
+        operations = request_limit(workspace_analysis)
     WORKER_STAGE = "environment"
     sys.path.insert(0, str(ROOT / "backend"))
     for key in list(os.environ):
@@ -158,9 +170,16 @@ def worker(
             )
 
         analysis.restart = restart_analysis
+    key = secrets.token_bytes(32)
     policy = MailPolicy(
-        enabled=True, key=secrets.token_bytes(32), public_origin=MAIL_ORIGIN
+        enabled=True,
+        key=key,
+        public_origin=origin if account_security_fixture else MAIL_ORIGIN,
     )
+    if account_security_fixture:
+        from p10b_browser_fixture import mail_environment
+
+        os.environ.update(mail_environment(origin, key))
     store = PasswordStore(service, load_auth_policy(settings), PasswordPolicy(), policy)
     main.app.dependency_overrides[password_router.get_password_store] = lambda: store
     captured: list[dict[str, str]] = []
@@ -214,14 +233,15 @@ def worker(
                     "kind": "ready",
                     "schema_version": 6,
                     "origin": origin,
-                    "mail_origin": MAIL_ORIGIN,
+                    "mail_origin": policy.public_origin,
+                    "account_security_fixture": account_security_fixture,
                     "google_email": GOOGLE_EMAIL,
                     "google_subject": GOOGLE_SUBJECT,
                     "dataset_grants": 0,
                     "workspace_analysis_fixture": workspace_analysis,
                     "network": "none",
                     "database_transport": "private_unix_socket",
-                    "max_requests": request_limit(workspace_analysis),
+                    "max_requests": operations,
                     "max_seconds": MAX_SECONDS,
                     "body_bytes_max": MAX_BODY,
                     "capabilities": {
@@ -230,17 +250,25 @@ def worker(
                         "durable_sessions": True,
                         "workspace_analysis": workspace_analysis,
                     },
-                    "mail_origin_override": "fixture-only canonical HTTPS mailbox links; app Origin is exact supplied loopback",
+                    "mail_origin_override": (
+                        "reserved HTTPS origin fulfilled by CDP; no DNS/socket/TLS transport claim"
+                        if account_security_fixture
+                        else "fixture-only canonical HTTPS mailbox links; app Origin is exact supplied loopback"
+                    ),
                 }
             )
-            for _ in range(request_limit(workspace_analysis)):
+            for _ in range(operations):
                 item = message()
                 if item is None:
                     return 0
                 WORKER_STAGE = "request_dispatch"
-                response = dispatch(
-                    item, client, service, mail.once, captured, analysis
-                )
+                if account_security_fixture:
+                    from p10b_browser_fixture import security_dispatch
+
+                    forward = security_dispatch
+                else:
+                    forward = dispatch
+                response = forward(item, client, service, mail.once, captured, analysis)
                 emit(response)
     finally:
         main.app.dependency_overrides.clear()

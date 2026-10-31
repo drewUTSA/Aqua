@@ -94,10 +94,22 @@ def admit(
 
 def cleanup(conn: psycopg.Connection, policy: AuthPolicy) -> None:
     """Bound deletion work and retain unexpired challenge replay tombstones."""
+    mail_exists = conn.execute(
+        "SELECT to_regclass('app.account_mail') IS NOT NULL"
+    ).fetchone()[0]
+    # Login already owns its user lock. Leave mail-backed parents for the
+    # mail-first job purge, so a cascade cannot invert a sensitive action's
+    # mail -> user ordering. Earlier-schema fixtures have no outbox table.
+    retained_mail = (
+        "AND NOT EXISTS(SELECT 1 FROM app.account_mail m WHERE m.challenge_id=c.id) "
+        if mail_exists
+        else ""
+    )
     conn.execute(
         "DELETE FROM app.auth_challenges WHERE id IN "
-        "(SELECT id FROM app.auth_challenges WHERE expires_at <= now() "
-        "ORDER BY expires_at,id LIMIT %s FOR UPDATE SKIP LOCKED)",
+        "(SELECT c.id FROM app.auth_challenges c WHERE c.expires_at <= now() "
+        + retained_mail
+        + "ORDER BY c.expires_at,c.id LIMIT %s FOR UPDATE OF c SKIP LOCKED)",
         (policy.cleanup_batch,),
     )
     conn.execute(

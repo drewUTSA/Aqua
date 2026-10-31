@@ -28,6 +28,7 @@ CAPABILITIES = {
     "recent_proof": False,
     "email_change": False,
     "password_change": False,
+    "password_add": False,
     "google_link": False,
     "google_unlink": False,
     "session_revoke": False,

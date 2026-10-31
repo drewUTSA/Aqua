@@ -12,12 +12,14 @@ Validation: 1,440 backend cases, runtime/source/lock audits, both fixture datase
 actual synthetic restore, storage/proxy gates, 455 frontend units, both builds,
 zero runtime dependency audit findings and all ten browser gates (568 checks)
 pass. All nine assets/source inputs are bound and 26 screenshots were reviewed.
-Required PR/main CI and production verification remain pending. See the phase
-evidence for exact results.
+Required PR/main CI passed; [PR #54](https://github.com/drewUTSA/Aqua/pull/54) merged as `f5f5b2d16fab261173fd2572e620f266dc64168e`.
+The 2026-10-28T23:42:41.253826+00:00 schema-6 production release passed after a fresh
+authenticated encrypted backup and preserved protected rows, private storage,
+environment and the mail schedule. See [release evidence](implementation/evidence/p10a/release.json).
 
 Migration 0006 is additive private schema 6; applied migrations 0001–0005 stay
-immutable. Release requires stopped writers/workers, a fresh verified encrypted
-schema-5 backup and the reviewed explicit migrator. After schema 6 commits,
+immutable. The verified release used stopped writers/workers, a fresh authenticated
+encrypted schema-5 backup and the reviewed explicit migrator. After schema 6 commits,
 preserve data and use compatible forward recovery or maintenance. A P09 schema-5
 image rollback is unsupported. No shared database, signup, provider audience,
 analytical grant or live provider/mailbox operation is part of this change.

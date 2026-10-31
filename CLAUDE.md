@@ -15,11 +15,15 @@ separate from preference saves. The candidate passed 1,440 backend cases,
 455 frontend units, both builds and ten browser gates (568 checks), with all
 234 frontend inputs/nine assets bound and 26 screenshots reviewed. Runtime
 audits, actual synthetic restore, storage/proxy checks and resource cleanup
-passed. PR/main CI and the private schema-6 migration/release remain pending.
+passed. Required PR/main CI passed and P10a was deployed at 2026-10-28T23:42:41.253826+00:00
+on private schema 6 after a fresh authenticated encrypted backup. Migration
+0006 preserved protected rows, environment, volumes and the mail scheduler.
+Main is `f5f5b2d16fab261173fd2572e620f266dc64168e` (PR #54, `Phase10 Accounts`).
+See `docs/implementation/evidence/p10a/release.json` for exact release evidence.
 Do not label P10 complete. P10b is being implemented separately; P11–P13 have
 not started. No public Google audience or analytical grant changes are authorized.
 
-### P10a account API (candidate; production remains P09 until verified release)
+### P10a account API (deployed; P10 remains incomplete)
 
 `GET/PATCH /api/v1/me` expose the current verified app profile and display-name
 revision. PATCH accepts only `{expectedRevision, display_name}`, enforces
@@ -54,7 +58,9 @@ Reads and writes share the durable 60/account/minute workspace budget. Device
 preferences have separate bounded owner-scoped storage, never a server-sync claim.
 Imports are versioned data only, at most 64 KiB; permissions, consent, secrets,
 custom instructions and destructive operations cannot enter preferences. Schema
-5 is reused without a migration. P10/P11 operational controls remain unavailable.
+5 was reused without a preference migration; the current app schema is 6.
+P10a profile editing and read-only reviews are deployed; sensitive security
+mutations and P11 privacy jobs remain unavailable.
 
 ## What this project is
 
@@ -86,11 +92,11 @@ The server runs the app with docker-compose. Code changes are made locally, revi
 | Concern | Choice |
 |---|---|
 | Backend language | Python 3.12 (not 3.14; the ML stack does not fully support 3.14 yet) |
-| API | FastAPI on 127.0.0.1:8000; public hostnames enter nginx on 127.0.0.1:5173. P08 code checkpoint `d76be9a` (PR #50) is deployed with schema 5 and verified public delivery |
+| API | FastAPI on 127.0.0.1:8000; public hostnames enter nginx on 127.0.0.1:5173. P10a checkpoint `f5f5b2d` (PR #54) is deployed with schema 6 and verified public delivery |
 | Sign-in | Canonical UUID accounts with revocable digest-only sessions, Google and password sign-in. Password login/registration/recovery and branded mail are active; the scheduler runs a separate worker and the web worker flag stays false |
 | Frontend | React 19 with Vite. Production: a static build served by nginx on port 5173, which forwards `/api` to the backend and rate-limits questions. Development: `npm run dev` forwards API calls but is not the production rate-limit boundary |
 | Analytical database | PostgreSQL on Tiger Cloud free service (TimescaleDB, pgvector, pgvectorscale); unchanged in P02 |
-| Application database | Private PostgreSQL 17 is active at schema 5, socket only, network none and separate roles. Applied migrations 0001–0005 are immutable |
+| Application database | Private PostgreSQL 17 is active at schema 6, socket only, network none and separate roles. Applied migrations 0001–0006 are immutable |
 | Sample data | Pagila (Postgres port of Sakila) |
 | LLM | Gemini API with the free `gemini-3.5-flash-lite` by default (`LLM_PROVIDER=gemini`). When it is out of quota or down: Ollama (`qwen3`) on Ben's server over Tailscale, then `gemma-4-26b-a4b-it`. Model names read from env |
 | Embeddings | `gemini-embedding-2` at 768 dimensions, stored in pgvector in the `retrieval` schema (Phase 4) |
@@ -205,7 +211,7 @@ The frontend talks to the backend only through `/api`, which in production goes 
 
 The shape matches what the React app renders, plus `sql` so every answer shows its query. Each table is `{"id", "title", "columns": [{"key", "label", "type"}], "rows": [{key: value}]}`, where `type` is `string`, `number`, `currency`, `percentage` or `date`; dates are ISO strings. A rejected or failed query returns HTTP 200 with `status` "error", the SQL the model wrote, and the reason, so the UI can show what was blocked. An unreachable model or database returns 503 with `retryable` true; a blank or over-long question returns 422. An unknown `model` is also a 422. Choosing `gemini` on a server with no key returns 400 with code `model_not_configured` and `retryable` false. `message` is a rule-based summary from `summarize.py`. `visualizations` and `kpis` come from `visualize.py`: a single number gives one KPI (`{"id", "label", "value", "type"}`) plus a `{"type": "kpi"}` visualization; labels with a measure give a `bar`, a date with a measure a `line`, each `{"id", "type", "title", "tableId": "result", "xKey", "yKey"}`; anything else leaves both empty. The frontend draws one x column, so a chart labelled by first and last name uses the first.
 
-Health and the model list remain public. Authentication requires the enabled private app DB at schema 5 and a valid session secret. Only new Google config/callbacks require the Google client ID; valid durable sessions can be checked and logged out during provider configuration failure. Invalid/expired sessions return 401, CSRF or dataset denial 403, bounded admission 429 with Retry-After, and unavailable storage/config/provider 503. Validation 422 responses contain a fixed detail string without reflecting submitted credentials/prompts. All `/api` responses use no-store.
+Health and the model list remain public. Authentication requires the enabled private app DB at schema 6 and a valid session secret. Only new Google config/callbacks require the Google client ID; valid durable sessions can be checked and logged out during provider configuration failure. Invalid/expired sessions return 401, CSRF or dataset denial 403, bounded admission 429 with Retry-After, and unavailable storage/config/provider 503. Validation 422 responses contain a fixed detail string without reflecting submitted credentials/prompts. All `/api` responses use no-store.
 
 The auth response user is `{id,email,name,picture}`, where `id` is the canonical UUID; never fabricate a Google subject. Capabilities are explicit booleans (`google_login`, `password_login` (feature flag, default false), `durable_sessions=true`). The browser facade validates that contract and keys workspace state by canonical ID. Confirmed logout/401/account switch clears private state and aborts old requests. Pending/failed logout retains a hidden, inert workspace with retry; it never reports completion before server confirmation.
 

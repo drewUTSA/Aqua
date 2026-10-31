@@ -1,6 +1,7 @@
 """Bound bridge lifetime and guarantee owned-resource cleanup on every exit."""
 
 import json
+import re
 import secrets
 import signal
 import subprocess
@@ -31,8 +32,27 @@ def close_worker(child: subprocess.Popen[bytes]) -> bool:
     return False
 
 
-def host(origin: str, image: str, workspace_analysis: bool = False) -> int:
+def host(
+    origin: str,
+    image: str,
+    workspace_analysis: bool = False,
+    *,
+    account_security_fixture: bool = False,
+) -> int:
     """Bound all operations/lifetime; lifecycle mode explicitly allows 400."""
+    if type(account_security_fixture) is not bool:
+        raise ValueError("fixture_security_mode_invalid")
+    if account_security_fixture:
+        from p10b_browser_fixture import MAX_REQUESTS, secure_origin
+
+        secure_origin(origin)
+        if workspace_analysis is not True or not re.fullmatch(
+            r"sha256:[a-f0-9]{64}", image
+        ):
+            raise ValueError("fixture_security_mode_invalid")
+        operations = MAX_REQUESTS
+    else:
+        operations = request_limit(workspace_analysis)
     name = "aqua-p05-browser-" + secrets.token_hex(12)
     resources = Resources(name)
     child: subprocess.Popen[bytes] | None = None
@@ -43,7 +63,8 @@ def host(origin: str, image: str, workspace_analysis: bool = False) -> int:
         "network": "none",
         "database_transport": "private_unix_socket",
         "schema_version": 6,
-        "max_operations": request_limit(workspace_analysis),
+        "max_operations": operations,
+        "account_security_fixture": account_security_fixture,
         "real_data_accessed": False,
         "provider_calls": 0,
         "workspace_analysis_fixture": workspace_analysis,
@@ -65,11 +86,19 @@ def host(origin: str, image: str, workspace_analysis: bool = False) -> int:
                 "python",
                 "-B",
                 "-u",
-                "/checks/tools/checks/p05_browser_backend.py",
+                (
+                    "/checks/tools/checks/p10b_browser_backend.py"
+                    if account_security_fixture
+                    else "/checks/tools/checks/p05_browser_backend.py"
+                ),
                 "--worker",
                 "--origin",
                 origin,
-                *(["--workspace-analysis"] if workspace_analysis else []),
+                *(
+                    ["--image", image]
+                    if account_security_fixture
+                    else ["--workspace-analysis"] if workspace_analysis else []
+                ),
             ],
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
@@ -82,6 +111,11 @@ def host(origin: str, image: str, workspace_analysis: bool = False) -> int:
         )
         assert child.stdout is not None and child.stdin is not None
         ready = json.loads(child.stdout.readline(MAX_LINE + 1))
+        if (
+            account_security_fixture
+            and ready.get("account_security_fixture") is not True
+        ):
+            raise RuntimeError("fixture_security_worker_not_ready")
         if ready.get("kind") != "ready" or ready.get("schema_version") != 6:
             if ready.get("kind") == "error":
                 report["worker_error"] = {
@@ -89,7 +123,7 @@ def host(origin: str, image: str, workspace_analysis: bool = False) -> int:
                 }
             raise RuntimeError("fixture_worker_not_ready")
         emit(ready)
-        for _ in range(request_limit(workspace_analysis)):
+        for _ in range(operations):
             item = message()
             if item is None or item.get("kind") == "finish":
                 final_id = item["id"] if item is not None else "finish"

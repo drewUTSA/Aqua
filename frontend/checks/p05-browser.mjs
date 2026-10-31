@@ -43,16 +43,18 @@ const escaped = (value) => JSON.stringify(value);
 async function preload() {
   const files = new Map(); let bytes = 0;
   if ((await lstat(distRoot)).isSymbolicLink() || !(await lstat(distRoot)).isDirectory()) throw new Error("dist_root_rejected");
+  const scope=await realpath(distRoot);
   async function visit(directory, prefix = "") {
     for (const entry of await readdir(directory, { withFileTypes: true })) {
       const full = path.join(directory, entry.name), relative = `${prefix}/${entry.name}`;
-      if ((await lstat(full)).isSymbolicLink()) throw new Error("dist_symlink_rejected");
-      if (entry.isDirectory()) await visit(full, relative);
-      else if (entry.isFile()) {
+      const stat=await lstat(full),inside=path.relative(scope,await realpath(full));
+      if (stat.isSymbolicLink()||!inside||inside.startsWith('..')||path.isAbsolute(inside)) throw new Error("dist_symlink_rejected");
+      if (stat.isDirectory()) await visit(full, relative);
+      else if (stat.isFile()) {
         const data = await readFile(full); bytes += data.length;
         if (data.length > 8 * 1024 * 1024 || bytes > 32 * 1024 * 1024 || files.size >= 300) throw new Error("dist_budget_exceeded");
         files.set(relative, data);
-      }
+      }else throw new Error("dist_regular_file_required");
     }
   }
   await visit(distRoot);

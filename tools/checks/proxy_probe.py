@@ -28,6 +28,7 @@ def probe(baseline: bool = False) -> dict:
             self.answer()
 
         do_PATCH = do_POST
+        do_PUT = do_POST
         do_DELETE = do_POST
 
         def answer(self):
@@ -155,8 +156,20 @@ def probe(baseline: bool = False) -> dict:
         before = sum(calls.values())
         bootstrap = [
             request(
-                "/api/auth/config",
-                method="GET",
+                (
+                    "/api/v1/me/reauth-challenges"
+                    if n == 3
+                    else (
+                        "/api/v1/me/reauth-challenges/"
+                        if n == 6
+                        else (
+                            "/api/v1/me/%72eauth-challenges"
+                            if n == 8
+                            else "/api/auth/config"
+                        )
+                    )
+                ),
+                method="POST" if n in {3, 6, 8} else "GET",
                 headers={
                     "X-Forwarded-For": f"198.51.100.{n+1}",
                     "CF-Connecting-IP": f"192.0.2.{n+1}",
@@ -166,6 +179,8 @@ def probe(baseline: bool = False) -> dict:
             for n in range(9)
         ]
         assert any(r["status"] == 429 for r in bootstrap)
+        assert bootstrap[3]["status"] == 200
+        assert bootstrap[6]["status"] == bootstrap[8]["status"] == 429
         assert sum(calls.values()) - before == sum(
             r["status"] == 200 for r in bootstrap
         )
@@ -191,11 +206,26 @@ def probe(baseline: bool = False) -> dict:
             "email-verifications",
         )
         password_waves = {}
+        account_proof_paths = (
+            ("POST", "/api/v1/me/reauth/%70assword"),
+            ("PUT", "/api//v1/me/password"),
+            ("POST", "/api/v1/me/session-revocations/"),
+            ("POST", "/api/v1/me/sessions/synthetic-session/%72evocations"),
+        )
         for route in password_paths:
             before = sum(calls.values())
             wave = [
                 request(
-                    "/api/v1/auth/" + route,
+                    (
+                        account_proof_paths[n - 1][1]
+                        if route == "email-verifications" and 1 <= n <= 4
+                        else "/api/v1/auth/" + route
+                    ),
+                    method=(
+                        account_proof_paths[n - 1][0]
+                        if route == "email-verifications" and 1 <= n <= 4
+                        else "POST"
+                    ),
                     headers={
                         "CF-Connecting-IP": f"192.0.2.{n+1}",
                         "Cookie": f"churn={n}",
@@ -227,8 +257,19 @@ def probe(baseline: bool = False) -> dict:
             before = sum(calls.values())
             assert request(alias)["status"] == 429
             assert sum(calls.values()) == before
-        assert request("/api/auth/logout")["status"] == 200
-        assert request("/api/health")["status"] == 200
+        # Current profile/session reads retain metadata availability after the
+        # shared proof wave; logout/health were verified after auth flooding.
+        assert request("/api/v1/me", method="GET")["status"] == 200
+        assert request("/api/v1/me/sessions", method="GET")["status"] == 200
+        for method, path in (
+            ("POST", "/api/v1/me/reauth/password"),
+            ("PUT", "/api/v1/me/password"),
+            ("POST", "/api/v1/me/session-revocations"),
+            ("POST", "/api/v1/me/sessions/synthetic-session/revocations"),
+        ):
+            before = sum(calls.values())
+            assert request(path, method=method)["status"] == 429
+            assert sum(calls.values()) == before
         time.sleep(12)
         for route in password_paths:
             assert request("/api/v1/auth/" + route)["status"] == 200
@@ -255,6 +296,9 @@ def probe(baseline: bool = False) -> dict:
             "progressive_metadata_stream": stream,
             "challenge_bootstrap_budget": "passed",
             "password_route_budgets": "passed",
+            "account_challenge_shared_bootstrap_budget": "passed",
+            "account_action_shared_proof_budget_and_aliases": "passed",
+            "account_metadata_outside_proof_budget": "passed",
             "password_waves": password_waves,
             "duration_seconds": round(time.monotonic() - start, 2),
         }

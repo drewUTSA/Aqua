@@ -76,6 +76,7 @@ export async function runVisualChecks(ctx) {
   await evaluate("[...document.querySelectorAll('.visual-result-open')].at(-1).click();true");
   await ready(); await check("saved follow-up renders its own latest values", `${plot}.data[0].y[1]===-25`);
   await submit("P08 chart failure");
+  await waitFor(`${plot}.data[0].y[1]===-25&&${paneText}.includes('Showing the previous result.')`, "failed_visual_update_rendered");
   await check("failed visual update keeps previous chart with truthful failure", `${plot}.data[0].y[1]===-25&&${paneText}.includes('Showing the previous result.')`);
   await clickText("Retry visual update", ".visual-pane button"); jobs++;
   await waitFor(`${paneText}.includes('Showing the previous result.')&&!document.querySelector('.visual-pane button:disabled')`, "visual_retry_terminal");

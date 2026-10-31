@@ -1,0 +1,147 @@
+{
+  "schema_version": 1,
+  "phase": "P10a Account foundation",
+  "status": "deployed",
+  "merge_commit": "f5f5b2d16fab261173fd2572e620f266dc64168e",
+  "pull_request": {
+    "number": 54,
+    "title": "Phase10 Accounts",
+    "url": "https://github.com/drewUTSA/Aqua/pull/54"
+  },
+  "ci": {
+    "pr": {
+      "status": "passed",
+      "head": "f3910593fbf1f0849974f86cc245ed00b4990fb7",
+      "run_id": 40785967885
+    },
+    "main": {
+      "status": "passed",
+      "head": "f5f5b2d16fab261173fd2572e620f266dc64168e",
+      "run_id": 40787543962
+    },
+    "reviewed_steps_per_run": 31
+  },
+  "deployed_utc": "2026-10-28T23:42:41.253826+00:00",
+  "application_schema_version": 6,
+  "backend_image": "sha256:a3b2fd374ad987202d2c79b02df1517c702106c468e422c7128b86e30b2c0b43",
+  "frontend_image": "sha256:078f38462e55b1245dccc8e1ce252959cecebd91c8e5bf4d309784d9fd1a7331",
+  "shell": "opal",
+  "migration": "0006_account_security",
+  "preservation": {
+    "migration_protected_rows_preserved": true,
+    "database_identity_and_volumes_preserved": true,
+    "activation_and_environment_preserved": true,
+    "scheduler_unchanged": true,
+    "worker_private_file_unchanged": true,
+    "provider_key_absent_from_web": true
+  },
+  "backup": {
+    "source_schema": 5,
+    "encrypted_sha256": "db21163455f2ba33f5c1ab1e10da78ada1160634ba80507a18cbf7248e313c02",
+    "authenticated_decryption_matches_export": true,
+    "recovery_identity_verified": true,
+    "plaintext_dump_written": false,
+    "writers_stopped_before_export": true,
+    "protected_retention": {
+      "outside_checkout": true,
+      "owner_only_acl": true,
+      "recovery_verified": true,
+      "plaintext_written": false,
+      "credentials_copied": false,
+      "pruning_performed": false
+    }
+  },
+  "public_verification": {
+    "statuses": {
+      "/": 200,
+      "/api/auth/me": 401,
+      "/api/health": 200,
+      "/api/ready": 404,
+      "/api/v1/analysis-requests/00000000-0000-4000-8000-000000000001": 401,
+      "/api/v1/analysis-requests/00000000-0000-4000-8000-000000000001/events": 401,
+      "/api/v1/chats": 401,
+      "/api/v1/me": 401,
+      "/api/v1/me/methods": 401,
+      "/api/v1/me/preferences": 401,
+      "/api/v1/me/sessions": 401,
+      "/signin": 200
+    },
+    "public_asset_hashes": {
+      "assets/AQUA_V2_Final_static-cJJYBiOn.svg": "a610bf95498d5bbc765cf49879bc98ee9a33f385cdf88452622a6871ae825648",
+      "assets/PromptLibraryDialog-DNz97zvz.js": "b5f0d407a91ec45643c043bdd7581741fd291fadb3428a24fe30759424f4fc43",
+      "assets/SettingsShell-DlNCqO0P.css": "0c0f9b086568c93ba6c3ee760293a5ab0b31bf845f4736a4349d6c22139b7333",
+      "assets/SettingsShell-DrLVF5YX.js": "f1fdeca730958015e11208efde4f3189dbd81ff5bb9ee7b932b13d6f469bd9b6",
+      "assets/index-CEetZ6Nj.css": "6091739f404c12b647530a43b3a3c1a9735854555b4374c207d5a3f28da98cdf",
+      "assets/index-DPSnigV_.js": "2570cd61162de0cdcdcb71890e08710551dcc4401c4b191ddff710f13810c039",
+      "assets/plotly-basic.min-xwdtK5Zk.js": "915cbf161e97ec0bcac0402847f0a13e091b9e1415c21628d0b37b15f578b600",
+      "index.html": "bd310b2813d68b5f869edd7f9b7ac12643407f8b5af850471ede446fe3bebdb5"
+    },
+    "origin_asset_hashes": {
+      "assets/AQUA_V2_Final_static-cJJYBiOn.svg": "a610bf95498d5bbc765cf49879bc98ee9a33f385cdf88452622a6871ae825648",
+      "assets/PromptLibraryDialog-DNz97zvz.js": "b5f0d407a91ec45643c043bdd7581741fd291fadb3428a24fe30759424f4fc43",
+      "assets/SettingsShell-DlNCqO0P.css": "0c0f9b086568c93ba6c3ee760293a5ab0b31bf845f4736a4349d6c22139b7333",
+      "assets/SettingsShell-DrLVF5YX.js": "f1fdeca730958015e11208efde4f3189dbd81ff5bb9ee7b932b13d6f469bd9b6",
+      "assets/index-CEetZ6Nj.css": "6091739f404c12b647530a43b3a3c1a9735854555b4374c207d5a3f28da98cdf",
+      "assets/index-DPSnigV_.js": "2570cd61162de0cdcdcb71890e08710551dcc4401c4b191ddff710f13810c039",
+      "assets/plotly-basic.min-xwdtK5Zk.js": "915cbf161e97ec0bcac0402847f0a13e091b9e1415c21628d0b37b15f578b600",
+      "index.html": "5c077130a43cfa6e91ba4256d2ff56480164f40749411a258546011986607b12"
+    },
+    "index_html_transform": {
+      "origin_sha256": "5c077130a43cfa6e91ba4256d2ff56480164f40749411a258546011986607b12",
+      "pinned_script_sha256": "2765a11d900a367f5d9d2bb378ddeef7eb25852fe48aa9b2bbd2824f9cb7a284",
+      "public_sha256": "bd310b2813d68b5f869edd7f9b7ac12643407f8b5af850471ede446fe3bebdb5",
+      "removed_bytes": 367,
+      "script_count": 1,
+      "verified_public_origin_sha256": "5c077130a43cfa6e91ba4256d2ff56480164f40749411a258546011986607b12"
+    }
+  },
+  "source_evidence_sha256": {
+    "deployment": "0b6c06b0388e97126c67fccc4d76e9ab2968d108e291bee4a38c07c057fa992e",
+    "backup": "d5155c2fec266c92907e14b56b0b66505a7e881df4a7644123de12852f77d84f",
+    "reviewed_gates": "4f9f8248f01ae0a3612773a2adbc767e09c730639cfcce49bc9b67cbac06d74c",
+    "public_browser": "111e3281278be31efa809d1dc026ebae3aebb3efabdcc0f9340182e98a318106",
+    "screenshot_review": "84de7c315fffef131a0966091a73784e6f1bed76806d2be17b733321db054d99",
+    "protected_retention": "32611f6c5c685373fb7e4fbdc9e5ace845a35b49abe9267771cca4c6952f4633"
+  },
+  "limitations": {
+    "overall_P10_complete": false,
+    "production_restore": false,
+    "authenticated_production_account_test": false,
+    "real_provider_or_analytical_test": false,
+    "real_mail_test": false,
+    "Google_audience_change": false,
+    "analytical_grant_change": false,
+    "schema5_application_rollback_supported": false
+  },
+  "prior_release_attempts": {
+    "precondition_stops": 2,
+    "production_changed": false,
+    "reason": "evidence_directory_mode_rejected",
+    "resolution": "0700_verified_before_successful_cutover",
+    "historical_reports_retained": true
+  },
+  "public_browser": {
+    "status": "passed",
+    "authenticated_account_used": false,
+    "title": "Welcome back | AQUA",
+    "password_enabled": true,
+    "email_enabled": true,
+    "registration_link": true,
+    "recovery_link": true,
+    "assets": [
+      "/assets/index-DPSnigV_.js",
+      "/assets/index-CEetZ6Nj.css"
+    ],
+    "request_count": 20,
+    "api_requests": 2,
+    "blocked_api_requests": 0,
+    "model_or_analytical_request": false,
+    "api_methods": "GET_only",
+    "chart_engine_requested_at_signin": false,
+    "browser_cleanup": true,
+    "profile_removed": true,
+    "screenshot_sha256": "55e21629d0d2ef139e08e5f1a674acc657838c8418141d258176e28356174c53",
+    "screenshot_reviewed": true,
+    "real_Google_flow_tested": false
+  }
+}

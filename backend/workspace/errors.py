@@ -13,6 +13,8 @@ class WorkspaceError(Exception):
 
 
 MESSAGES = {
+    "method_unavailable": "This verification method is not available for your account.",
+    "security_unavailable": "This account action is temporarily unavailable.",
     "proof_invalid": "Start a new verification attempt for this action.",
     "unsupported_schema": "These preferences use a newer format. Update AQUA before editing them.",
     "analysis_busy": "All analysis slots are busy. Try again shortly.",

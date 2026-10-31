@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "phase": "P10a Account foundation",
-  "status": "local_checks_passed_release_pending",
+  "status": "isolated_checks_and_production_release_passed",
   "generated_utc": "2026-10-28T23:11:35.954Z",
   "application_schema_version": 6,
   "historical_baseline": {
@@ -850,15 +850,18 @@
     "All prior auth, CSRF, account isolation, cancellation, exact-value, Settings and Plotly gates retained"
   ],
   "release_gates": {
-    "required_pr_ci": "pending",
-    "merged_main_ci": "pending",
-    "production_verification": "pending",
-    "phase_complete_claimed": false
+    "required_pr_ci": "passed",
+    "merged_main_ci": "passed",
+    "production_verification": "passed",
+    "phase_complete_claimed": false,
+    "overall_phase": "P10 incomplete"
   },
   "limitations": [
     "All browser/API/database rows and accounts are disposable synthetic fixtures.",
-    "No production backup/restore, real email, real analytical query or live AI provider was exercised.",
+    "The separate release records authenticated encrypted production backup verification; no production restore, real email, real analytical query or live AI provider was exercised.",
     "Automated keyboard/AX/contrast checks are bounded evidence, not a complete assistive-technology audit.",
     "No private records, tokens, raw responses, absolute workstation paths or credential files are included."
-  ]
+  ],
+  "release_evidence": "release.json",
+  "release_updated_utc": "2026-10-28T23:42:41.253826+00:00"
 }

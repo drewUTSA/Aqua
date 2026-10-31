@@ -68,8 +68,8 @@ export async function runAccountChecks(ctx) {
   await check('Actual linked password and unlinked Google are distinguished without management controls', "document.querySelector('[data-account-methods]').textContent.includes('PasswordLinked')&&document.querySelector('[data-account-methods]').textContent.includes('GoogleNot linked')&&!document.querySelector('[data-account-methods] button')");
   await click('[data-account-load-sessions]');
   await waitFor("Boolean(document.querySelector('[data-account-sessions]'))", 'session_list_loaded');
-  await check('Current session is bounded and read-only with no invented location or MFA', "document.querySelectorAll('.account-session').length>=1&&document.querySelectorAll('.account-session').length<=20&&document.querySelectorAll('.account-current').length===1&&!document.querySelector('[data-account-sessions] button')&&!/IP address|MFA|verified location/.test(document.querySelector('[data-account-sessions]').textContent)");
-  await check('Unavailable security mutations have no enabled controls', "![...document.querySelectorAll('[data-account-foundation] button')].some(e=>!e.disabled&&/change email|change password|revoke|unlink|link google|verify identity/i.test(e.textContent))");
+  await check('Current session metadata is bounded and separate from explicit revocation', "document.querySelectorAll('.account-session').length>=1&&document.querySelectorAll('.account-session').length<=20&&document.querySelectorAll('.account-current').length===1&&!document.querySelector('.account-security-dialog[open]')&&!/IP address|MFA|verified location/.test(document.querySelector('[data-account-sessions]').textContent)");
+  await check('Unavailable security mutations have no enabled controls', "![...document.querySelectorAll('[data-account-foundation] button')].some(e=>!e.disabled&&/change email|add.*first password|unlink|link google/i.test(e.textContent))");
   const latestResponse = await ctx.rawRequest('GET', '/api/v1/me'), latest = JSON.parse(latestResponse.body);
   if (latestResponse.status !== 200) throw Error('account_canonical_read_failed');
   await click('[data-account-edit-name]');
