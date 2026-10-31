@@ -153,6 +153,9 @@ def delete(
     current = get_item(conn, table, owner, item_id, lock=True)
     if current["revision"] != revision:
         raise WorkspaceError("revision_conflict", 409)
+    from privacy.retirement import advance
+
+    advance(conn, owner)
     if table == "projects":
         conn.execute(
             "UPDATE app.chats SET project_id=NULL,revision=revision+1 WHERE user_id=%s AND project_id=%s",

@@ -51,7 +51,11 @@ def test_upgrade_invalidates_legacy_google_proof_without_inventing_snapshot(
     app_database,
 ):
     owner, identity, proof, old = legacy_six(app_database)
-    assert apply(app_database) == apply(app_database) == 7
+    assert (
+        apply(app_database, migrations()[:7])
+        == apply(app_database, migrations()[:7])
+        == 7
+    )
     app_database.execute("SET ROLE aqua_app_owner")
     assert (
         app_database.execute(
@@ -101,7 +105,7 @@ def test_failed_seventh_migration_rolls_back_every_new_object_and_legacy_consump
         (proof,),
     ).fetchone() == (True,)
     app_database.execute("RESET ROLE")
-    assert apply(app_database) == 7
+    assert apply(app_database, migrations()[:7]) == 7
 
 
 def test_new_request_fk_cannot_attach_another_owner_google_identity(identity_security):

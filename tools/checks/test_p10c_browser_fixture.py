@@ -74,11 +74,11 @@ class IdentityFixtureTests(unittest.TestCase):
         target.is_symlink.return_value = False
         target.is_file.return_value = True
         target.stat.return_value.st_size = 32
-        for schema in (6, 7):
+        for schema in (6, 7, 8):
             target.read_text.return_value = f"SCHEMA_VERSION = {schema}\n"
             self.assertEqual(fixture_schema(root), schema)
         for text in (
-            "SCHEMA_VERSION = 8",
+            "SCHEMA_VERSION = 9",
             "SCHEMA_VERSION = True",
             "SCHEMA_VERSION = 7.0",
             "SCHEMA_VERSION = int('7')",
@@ -661,7 +661,7 @@ class IdentityFixtureTests(unittest.TestCase):
         result, launch, resources, emit = self.host_case(
             {
                 "kind": "ready",
-                "schema_version": 7,
+                "schema_version": fixture_schema(host.ROOT),
                 "account_security_fixture": True,
                 "account_identity_fixture": True,
             }
@@ -682,7 +682,11 @@ class IdentityFixtureTests(unittest.TestCase):
                 "account_security_fixture": True,
                 "account_identity_fixture": True,
             },
-            {"kind": "ready", "schema_version": 7, "account_security_fixture": True},
+            {
+                "kind": "ready",
+                "schema_version": fixture_schema(host.ROOT),
+                "account_security_fixture": True,
+            },
         ):
             result, _, resources, _ = self.host_case(ready)
             self.assertEqual(result, 1)
@@ -690,7 +694,7 @@ class IdentityFixtureTests(unittest.TestCase):
         result, _, _, emitted = self.host_case(
             {
                 "kind": "ready",
-                "schema_version": 7,
+                "schema_version": fixture_schema(host.ROOT),
                 "account_security_fixture": True,
                 "account_identity_fixture": True,
             },
@@ -706,7 +710,7 @@ class IdentityFixtureTests(unittest.TestCase):
         result, _, resources, emitted = self.host_case(
             {
                 "kind": "ready",
-                "schema_version": 7,
+                "schema_version": fixture_schema(host.ROOT),
                 "account_security_fixture": True,
                 "account_identity_fixture": True,
             },

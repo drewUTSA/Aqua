@@ -94,9 +94,10 @@ def admit(
 
 def cleanup(conn: psycopg.Connection, policy: AuthPolicy) -> None:
     """Bound deletion work and retain unexpired challenge replay tombstones."""
-    mail_exists, requests_exist = conn.execute(
+    mail_exists, requests_exist, exports_exist = conn.execute(
         "SELECT to_regclass('app.account_mail') IS NOT NULL,"
-        "to_regclass('app.account_security_requests') IS NOT NULL"
+        "to_regclass('app.account_security_requests') IS NOT NULL,"
+        "to_regclass('app.data_exports') IS NOT NULL"
     ).fetchone()
     # Login already holds its current user lock. A parent deletion must not
     # cascade into mail rows held by a mail-first sensitive action. That path
@@ -122,11 +123,19 @@ def cleanup(conn: psycopg.Connection, policy: AuthPolicy) -> None:
         if requests_exist
         else ""
     )
+    # A private output keeps its exact originating session until the privacy
+    # worker has boundedly retired its chunks/job; never cascade under a user lock.
+    retained_export = (
+        "AND NOT EXISTS(SELECT 1 FROM app.data_exports e WHERE e.user_id=s.user_id AND e.session_id=s.id) "
+        if exports_exist
+        else ""
+    )
     conn.execute(
         "DELETE FROM app.sessions WHERE id IN "
         "(SELECT s.id FROM app.sessions s WHERE s.absolute_expires_at <= now() "
         "AND NOT EXISTS(SELECT 1 FROM app.auth_challenges c WHERE c.session_id=s.id) "
         + retained_request
+        + retained_export
         + "ORDER BY s.absolute_expires_at,s.id LIMIT %s FOR UPDATE OF s SKIP LOCKED)",
         (policy.cleanup_batch,),
     )

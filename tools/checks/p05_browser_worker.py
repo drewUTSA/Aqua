@@ -36,6 +36,7 @@ def guard_fixture() -> None:
 
     connect = socket.socket.connect
     database = psycopg.Connection.connect.__func__
+    asynchronous_database = psycopg.AsyncConnection.connect.__func__
 
     def socket_connect(sock: socket.socket, address: Any) -> Any:
         if sock.family != socket.AF_UNIX:
@@ -54,11 +55,27 @@ def guard_fixture() -> None:
             raise AssertionError("fixture_database_access_denied")
         return database(cls, conninfo, **kwargs)
 
+    async def asynchronous_database_connect(
+        cls: Any, conninfo: str = "", **kwargs: Any
+    ) -> Any:
+        # Async libpq bypasses Python sockets too. Only the download runtime
+        # connection is needed; no async migrator/backup or alternate host.
+        if (
+            conninfo != DSN
+            or set(kwargs) - {"autocommit", "connect_timeout", "prepare_threshold"}
+            or kwargs.get("autocommit", True) is not True
+            or kwargs.get("connect_timeout", 2) != 2
+            or kwargs.get("prepare_threshold") is not None
+        ):
+            raise AssertionError("fixture_database_access_denied")
+        return await asynchronous_database(cls, conninfo, **kwargs)
+
     socket.socket.connect = socket_connect
     socket.socket.connect_ex = refuse
     socket.getaddrinfo = refuse
     psycopg.Connection.connect = classmethod(database_connect)
     psycopg.connect = psycopg.Connection.connect
+    psycopg.AsyncConnection.connect = classmethod(asynchronous_database_connect)
 
 
 def worker(
@@ -68,18 +85,26 @@ def worker(
     analysis_factory: Callable[[Any, Any], Any] | None = None,
     account_security_fixture: bool = False,
     account_identity_fixture: bool = False,
+    personal_export_fixture: bool = False,
 ) -> int:
     """Actual app/router/session/password code; only provider and mail are fakes."""
     global WORKER_STAGE
     if (
         type(account_security_fixture) is not bool
         or type(account_identity_fixture) is not bool
+        or type(personal_export_fixture) is not bool
     ):
         raise ValueError("fixture_security_mode_invalid")
     if account_identity_fixture and (
-        not account_security_fixture or fixture_schema(ROOT) != 7
+        not account_security_fixture or fixture_schema(ROOT) not in {7, 8}
     ):
         raise ValueError("fixture_identity_mode_invalid")
+    if personal_export_fixture and (
+        not account_identity_fixture
+        or not account_security_fixture
+        or fixture_schema(ROOT) != 8
+    ):
+        raise ValueError("fixture_export_mode_invalid")
     if account_security_fixture:
         from p10b_browser_fixture import MAX_REQUESTS, secure_origin
 
@@ -93,6 +118,12 @@ def worker(
     sys.path.insert(0, str(ROOT / "backend"))
     for key in list(os.environ):
         if key.startswith(("PG", "APP_", "AUTH_", "PASSWORD_", "ACCOUNT_")) or key in {
+            "PRIVATE_DATA_EXPORT_ENABLED",
+            "WEB_CONCURRENCY",
+            "UVICORN_WORKERS",
+            "UVICORN_RELOAD",
+            "GUNICORN_CMD_ARGS",
+            "SERVER_SOFTWARE",
             "DATABASE_URL",
             "INDEXER_DATABASE_URL",
             "GEMINI_API_KEY",
@@ -134,7 +165,9 @@ def worker(
     with psycopg.connect(MIGRATOR, autocommit=True, connect_timeout=2) as conn:
         apply(conn)
     WORKER_STAGE = "runtime_configuration"
-    service = Storage(StorageSettings(True, DSN, 2, 4, 2))
+    service = Storage(
+        StorageSettings(True, DSN, 4 if personal_export_fixture else 2, 4, 2)
+    )
     settings = replace(
         main.app.state.settings,
         app_origin=origin,
@@ -224,9 +257,28 @@ def worker(
         raise AssertionError("fixture_private_query_pipeline_was_invoked")
 
     router.verify_google_token = verify
+    previous_runtime_context = None
+    if personal_export_fixture:
+        from privacy import policy as privacy_policy
+
+        # Explicit isolated test mode models only current-process argv. Actual
+        # deployment/container topology is a separate release proof, never this.
+        os.environ.update(
+            {
+                privacy_policy.ACTIVATION_FLAG: "true",
+                "WEB_CONCURRENCY": "1",
+                "UVICORN_WORKERS": "1",
+                "UVICORN_RELOAD": "false",
+            }
+        )
+        previous_runtime_context = privacy_policy.runtime_context
+        privacy_policy.runtime_context = lambda argv, *, child=False: not child
     identity_fixture = None
     if account_identity_fixture:
-        from p10c_browser_fixture import IdentityFixture
+        if personal_export_fixture:
+            from p11a_browser_fixture import PrivacyFixture as IdentityFixture
+        else:
+            from p10c_browser_fixture import IdentityFixture
 
         identity_fixture = IdentityFixture(service, settings, analysis)
         identity_fixture.install()
@@ -253,6 +305,7 @@ def worker(
                     "mail_origin": policy.public_origin,
                     "account_security_fixture": account_security_fixture,
                     "account_identity_fixture": account_identity_fixture,
+                    "personal_export_fixture": personal_export_fixture,
                     "identity_fixture": (
                         identity_fixture.metadata() if identity_fixture else None
                     ),
@@ -294,6 +347,8 @@ def worker(
                 response = forward(item, client, service, mail.once, captured, analysis)
                 emit(response)
     finally:
+        if previous_runtime_context is not None:
+            privacy_policy.runtime_context = previous_runtime_context
         if identity_fixture is not None:
             identity_fixture.clear()
         main.app.dependency_overrides.clear()

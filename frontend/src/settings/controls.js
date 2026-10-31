@@ -34,7 +34,7 @@ export const CATEGORIES = [
     field("account", "timezone", "Timezone", "Detect device uses the named timezone shown in the sample."),
     field("account", "date_style", "Date style"), field("account", "time_format", "Time format") ] },
   { id: "account", title: "Account & security", description: "Edit your name, review email and sign-in methods, and manage supported password, Google identity and session actions. Account changes save separately from preferences.", fields: [] },
-  { id: "privacy", title: "Privacy & data", description: "Move safe presentation preferences between devices.", fields: [] }
+  { id: "privacy", title: "Privacy & data", description: "Review personal exports and move safe presentation preferences between devices.", fields: [] }
 ];
 export const VALUE_LABELS = {
   opal: "Opal dark", light: "Light", system: "Follow device preference", pearl: "Pearl", sage: "Sage", slate: "Slate", amber: "Amber",

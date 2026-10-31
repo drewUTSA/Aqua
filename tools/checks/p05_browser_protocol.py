@@ -48,7 +48,7 @@ def fixture_schema(root: Path) -> int:
         or len(values) != 1
         or not isinstance(values[0], ast.Constant)
         or type(values[0].value) is not int
-        or values[0].value not in {6, 7}
+        or values[0].value not in {6, 7, 8}
     ):
         raise ValueError("fixture_schema_source_invalid")
     return values[0].value

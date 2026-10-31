@@ -20,6 +20,7 @@ OPERATIONS = frozenset(
         "google_unlink",
         "session_revoke",
         "sessions_revoke_all",
+        "data_export",
     }
 )
 CAPABILITIES = {
@@ -84,6 +85,10 @@ def target_digest(operation: object, target: object = None) -> bytes:
     """
     if type(operation) is not str or operation not in OPERATIONS:
         raise ValueError("account_operation_invalid")
+    if operation == "data_export":
+        from privacy.policy import target_digest as export_target
+
+        return export_target(target)
     if operation in {"google_unlink", "session_revoke"}:
         target = identifier(target)
     elif operation in {"email_change", "password_add"}:
