@@ -1,0 +1,135 @@
+{
+  "schema_version": 1,
+  "phase": "P10c Identity actions",
+  "status": "released",
+  "pr_number": 56,
+  "pr_url": "https://github.com/drewUTSA/Aqua/pull/56",
+  "reviewed_head": "76e4983f9a3b4e06e45cb888a019d3df4f121231",
+  "merge_commit": "d242d2ee1b4a91e2a7ffa1d2ed2568d87e63da09",
+  "previous_commit": "7477e28d713f95068a6e6c73bdff47913b98b40b",
+  "full_tree_equivalence": true,
+  "tree": "b8016893b5f12770e4ba796303ff34c81781d252",
+  "deployed_utc": "2026-10-31T04:08:14.829973+00:00",
+  "application_schema_version": 7,
+  "backend": {
+    "image": "sha256:990f869a6e67533fcda6a26ddce43de7ae165b35a37ae1b5e29f97dcc9cf45e9",
+    "runtime_files": 149,
+    "canonical_run": "p10c-checks-20261031014310618-b071a04a",
+    "canonical_cases": 1635,
+    "canonical_gates": 21,
+    "previous_security_cases_retained": 1519
+  },
+  "frontend": {
+    "image": "sha256:84681f2b7cc1d18db30ae7e247c8356fa332c8fd1524112f73d33909a461d97f",
+    "legacy_image": "sha256:d3f7da716abdaaed09447817b9fa5b9e9aa244bd837f8d7dc83ba6f5a669fd85",
+    "source_inputs": 266,
+    "assets_per_shell": 9,
+    "unit_cases": 528,
+    "browser_gates": 42,
+    "reviewed_screenshots": 104,
+    "verification_sha256": "b00066de3674927d5d428a5391072328f26f8c4c5bc3409f78485fb3b6397ba7"
+  },
+  "ci": {
+    "pr": {
+      "status": "passed",
+      "run_id": 41163469664,
+      "head": "76e4983f9a3b4e06e45cb888a019d3df4f121231",
+      "jobs": {
+        "checks": "passed",
+        "Account security (opal)": "passed",
+        "Account security (legacy)": "passed",
+        "Identity actions (opal)": "passed",
+        "Identity actions (legacy)": "passed"
+      },
+      "attempt": 2,
+      "successful_steps": 124
+    },
+    "main": {
+      "status": "passed",
+      "run_id": 41164987462,
+      "head": "d242d2ee1b4a91e2a7ffa1d2ed2568d87e63da09",
+      "jobs": {
+        "checks": "passed",
+        "Account security (opal)": "passed",
+        "Account security (legacy)": "passed",
+        "Identity actions (opal)": "passed",
+        "Identity actions (legacy)": "passed"
+      },
+      "attempt": 2,
+      "successful_steps": 124
+    }
+  },
+  "migration": {
+    "name": "0007_identity_actions",
+    "protected_rows_preserved": true,
+    "previous_migrations_unchanged": true,
+    "fresh_after_writer_stop_backup_verified": true
+  },
+  "backup": {
+    "encrypted_sha256": "5e4559a92b3857e95efccaa4738708558dd81fbfdf91704cea2bb285659d5433",
+    "authenticated_decryption_matches_export": true,
+    "independent_recovery_identity_verified": true,
+    "plaintext_dump_written": false,
+    "retention_days": 30,
+    "owner_only_external_copy_verified": true,
+    "retention_receipt_sha256": "8211a1db2a1f2090fef7d1718b601c8aa14cba11eb80e3762f5f32fa90f2e169",
+    "pruning_enabled": false,
+    "existing_backups_deleted": 0
+  },
+  "preservation": {
+    "database_identity_and_volumes": true,
+    "activation_and_environment": true,
+    "scheduler": true,
+    "worker_private_file": true,
+    "public_Google_audience_unchanged": true,
+    "analytical_grants_unchanged": true
+  },
+  "recovery": {
+    "kind": "B_API_schema7_C_mail",
+    "image": "sha256:9282dc9e1083da1de42674b3a71d2c3caf3b08ff2ae30cd7f220cf6e4cbfb40b",
+    "proof_sha256": "35c39ce9844586d62f733ecbf5895240f010d3ca2e57e6387ee9820ca68e192a",
+    "cases": 1530,
+    "browser_gates": 24,
+    "rollback_used": false
+  },
+  "public_verification": {
+    "status": "passed",
+    "authenticated_account_used": false,
+    "title": "Welcome back | AQUA",
+    "password_enabled": true,
+    "email_enabled": true,
+    "registration_link": true,
+    "recovery_link": true,
+    "assets": [
+      "/assets/index-DPiDbmIy.js",
+      "/assets/index-CRxlGAcs.css"
+    ],
+    "request_count": 22,
+    "api_requests": 2,
+    "blocked_api_requests": 0,
+    "model_or_analytical_request": false,
+    "api_methods": "GET_only",
+    "chart_engine_requested_at_signin": false,
+    "browser_cleanup": true,
+    "profile_removed": true,
+    "root_screenshot_reviewed": true,
+    "screenshot_sha256": "9e2b932836de23f0ebcf9b54553f5ea1eafd2ef9e35a880a3f1c18b7bf5b6807",
+    "report_sha256": "0b87678a4cf3b8a2653040915c299f55b170e3d92db074f337bb58193eca2c99"
+  },
+  "deployment_report_sha256": "c2efabe73ebcad86a62db00ccb2b29197618029f0432746a2a529ed710455e6e",
+  "operator_corrections": {
+    "all_core_13_guards_unchanged": true,
+    "missing_nonsecret_metadata_supplied": true,
+    "known_private_backup_preserved_without_reading": true,
+    "local_Git_ignore_only": true,
+    "known_UTF8_metadata_BOM_decoded_with_unchanged_retention_validator": true,
+    "successful_deployment_reports_downloaded_separately_after_wrapper_count_error": true,
+    "deployment_repeated": false
+  },
+  "limitations": [
+    "Two initial hosted backend jobs reached the unchanged120-second harness deadline; both unchanged retries passed. Cause remains unproven; retained for performance follow-up.",
+    "Live smoke used no authenticated account, provider, mail or analytical request.",
+    "Public audience expansion remains a later operator-reviewed launch gate.",
+    "Recovery targets remain24-hour RPO/four-hour restoration targets, not guarantees."
+  ]
+}

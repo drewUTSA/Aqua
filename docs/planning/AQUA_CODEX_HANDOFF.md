@@ -51,17 +51,17 @@ Setup has established a verified Resend sender domain, successful mode-600 email
 
 Maintain this table or an equivalent repository progress log during implementation. Do not mark a phase complete based on its documentation.
 
-| Field | October 30–31 P10b release checkpoint |
+| Field | October 31 P10 release/P11 implementation checkpoint |
 | --- | --- |
-| Current phase | P00–P09 complete; P10a account foundation and P10b security actions deployed on schema 6. P10c identity verification is active; P10 remains incomplete |
-| Code checkpoint | Main `7477e28d713f95068a6e6c73bdff47913b98b40b` (PR #55, `Phase10 Security`); PR and merged-main CI each passed all three jobs/73 steps |
-| Deployment | P10b backend/frontend live on schema 6 at 2026-10-31T01:50:04.383058+00:00. No migration; stopped-writer protected rows, configuration, volumes and scheduler preserved. Public GET-only smoke and root screenshot review passed |
+| Current phase | P00–P10 complete and deployed on schema 7. P11 exports/deletion implementation and verification are active |
+| Code checkpoint | Main `d242d2ee1b4a91e2a7ffa1d2ed2568d87e63da09` (PR #56, `Phase10 Identity`); PR and merged-main CI each passed all five jobs/124 steps |
+| Deployment | P10c backend/frontend live on schema 7 at 2026-10-31T04:08:14.829973+00:00 after a fresh encrypted stopped-writer backup and protected 30-day retention. Migration 0007 preserved protected rows, configuration, volumes and scheduler. Public GET-only smoke and root screenshot review passed |
 | Last accepted design | Opal home, dual login, on-demand right visuals, complete Settings and simplified Projects/Recents |
 | Historical verification | 47 existing frontend tests passed during audit; not a current security or backend result |
 | Phase evidence | P10b passed 1,519 backend cases, 492 frontend tests, all 22 browser gates and root review of 62 screenshots. See `docs/implementation/evidence/p10b/release.json`; historical P10a evidence remains retained |
-| Findings/blockers | P10c passes all 21 canonical gates/1,635 backend cases, 528 frontend units and all 42 browser gates; root reviewed 104 screenshots. Schema-compatible recovery and migration rehearsal pass. PR/main CI, exact images and the fresh after-stop encrypted backup/release remain required. Public Google audience and analytical grants remain unchanged |
+| Findings/blockers | P10c recovery, migration, CI and release passed. P11a passed 25 backend gates/1,680 cases, 564 frontend units and all 58 fresh browser gates; root reviewed 200 screenshots plus four supplemental unlink images. The compatible schema-8 fallback passed 23 isolated gates/1,651 cases and 35-table clone preservation. Fallback browser compatibility, release helpers, CI and deployment remain. P11b/c authority passed native and isolated PostgreSQL restore rehearsals; integrated deletion and host durability remain incomplete. See `docs/implementation/P11_PROGRESS.md`. Public Google audience and analytical grants remain unchanged |
 | Review checkpoint | `Phase10 Accounts` is separate from `Phase9 Homepage`; short titles and the same security gates remain required |
-| Next phase | Finish P10c CI and backup-gated release. P11a exports are isolated preparation and not enabled. P11 deletion, P12 capacity and P13 launch gates remain incomplete |
+| Next phase | Finish P11a exports/recovery/browser/CI/release and P11b/c deletion safeguards. P11 is not deployed. P12 capacity and P13 launch gates remain incomplete |
 
 ---
 

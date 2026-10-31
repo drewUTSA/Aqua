@@ -4,6 +4,7 @@ import { usePreferences } from "./PreferencesProvider.jsx";
 import AccountFoundation from "./AccountFoundation.jsx";
 import NotificationSettings from "./NotificationSettings.jsx";
 import { useNotifications } from "./NotificationProvider.jsx";
+import PrivacyExports from "./PrivacyExports.jsx";
 
 export default function SettingsInformation({ category, auth, onNavigate }) {
   const { draft } = usePreferences();
@@ -26,8 +27,7 @@ export default function SettingsInformation({ category, auth, onNavigate }) {
       <p>Source currency and timestamps remain unchanged. The interface is English; no unimplemented language packs or currency conversions are offered.</p></aside>;
   }
   if (category === "privacy") return <aside className="settings-information"><p>Preference files exclude identity, email, sessions, credentials, personal instructions, chats, chart data, permissions and consent.</p>
-    <p>Private data export, history deletion and account deletion require the separate privacy operations release. A preference reset does not delete data or revoke sessions.</p>
-    <button type="button" disabled>Private data operations unavailable</button><p>
+    <PrivacyExports auth={auth}/><p>Bulk history and account deletion remain unavailable. A preference reset does not delete data or revoke sessions.</p><p>
       <LocalLink to="/privacy" onNavigate={onNavigate}>Privacy Policy</LocalLink><span aria-hidden="true"> · </span>
       <LocalLink to="/terms" onNavigate={onNavigate}>Terms of Service</LocalLink></p></aside>;
   return null;

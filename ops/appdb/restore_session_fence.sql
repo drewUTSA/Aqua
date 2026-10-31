@@ -14,6 +14,16 @@ UPDATE app.account_mail_control SET lease_id=NULL,lease_expires_at=NULL WHERE si
 -- repeats a model call. Saved completed conversation results stay intact.
 DO $$
 BEGIN
+ IF to_regclass('app.data_exports') IS NOT NULL THEN
+  -- Offline restore only: no old download/worker session may remain attached.
+  UPDATE app.users SET privacy_epoch=privacy_epoch+1;
+  DELETE FROM app.data_export_chunks;
+  UPDATE app.data_exports SET state='expired',error_code=NULL,sha256=NULL,
+   lease_owner=NULL,lease_until=NULL,reserved_bytes=0,output_bytes=0,chunk_count=0;
+  UPDATE app.privacy_control SET reserved_bytes=0,stored_bytes=0,
+   worker_owner=NULL,worker_until=NULL,worker_job=NULL WHERE singleton;
+  -- Keep spent private-download admission, like existing model/mail budgets.
+ END IF;
  IF to_regclass('app.account_security_requests') IS NOT NULL THEN
   UPDATE app.account_security_requests SET consumed_at=now() WHERE consumed_at IS NULL;
   -- Bearers cannot revive. Mandatory token-free notices retain their stable

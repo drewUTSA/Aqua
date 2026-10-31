@@ -39,7 +39,7 @@ export async function openP08Browser(options) {
   if (!Array.isArray(argv) || !argv.length || argv.length > 12 || argv.some((arg) => typeof arg !== "string" || arg.length > 1024)) throw Error("fixture_arguments_invalid");
   const imageIndex = argv.indexOf("--image");
   if (imageIndex < 0 || argv.lastIndexOf("--image") !== imageIndex || !/^sha256:[a-f0-9]{64}$/.test(argv[imageIndex + 1] || "")) throw Error("immutable_fixture_image_required");
-  if (secureAccountFixture && !argv.some(arg => ["/tools/checks/p10b_browser_backend.py","/tools/checks/p10c_browser_backend.py"].some(entry=>arg.endsWith(entry)))) throw Error("secure_account_fixture_entry_required");
+  if (secureAccountFixture && !argv.some(arg => ["/tools/checks/p10b_browser_backend.py","/tools/checks/p10c_browser_backend.py","/tools/checks/p11a_browser_backend.py"].some(entry=>arg.endsWith(entry)))) throw Error("secure_account_fixture_entry_required");
   ctx.backendImage = argv[imageIndex + 1];
   await mkdir(artifacts, { recursive: true }); if ((await lstat(artifacts)).isSymbolicLink()) throw Error("artifact_symlink_denied");
   ctx.artifacts = artifacts;
@@ -110,8 +110,9 @@ export async function openP08Browser(options) {
     await new Promise((resolve) => ctx.server.listen(0, "127.0.0.1", resolve)); ctx.origin = `http://127.0.0.1:${ctx.server.address().port}`;
     }
     ctx.bridge = new FixtureBridge(executable, argv, ctx.origin); const ready = await ctx.bridge.ready;
-    if (ready.origin !== ctx.origin || ready.schema_version !== 7 || ready.dataset_grants !== 0 || ready.network !== "none" || ready.workspace_analysis_fixture !== true) throw Error("fixture_boundary_invalid");
+    if (ready.origin !== ctx.origin || ready.schema_version !== 8 || ready.dataset_grants !== 0 || ready.network !== "none" || ready.workspace_analysis_fixture !== true) throw Error("fixture_boundary_invalid");
     ctx.accountIdentityFixture=ready.account_identity_fixture===true;
+    ctx.personalExportFixture=ready.personal_export_fixture===true;
     if (secureAccountFixture && ready.account_security_fixture !== true) throw Error("secure_account_fixture_required");
     if ((await ctx.bridge.send("workspace_stats")).p08_presentation_fixture !== true) throw Error("p08_fixture_required");
     ctx.profile = await mkdtemp(path.join(await realpath(tmpdir()), "aqua-p08-browser-"));

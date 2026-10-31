@@ -13,7 +13,14 @@ from typing import Any
 from urllib.parse import parse_qsl, urlsplit
 from uuid import UUID
 
-from p05_browser_protocol import GOOGLE_EMAIL, GOOGLE_SUBJECT, MAX_BODY, PATHS
+from p05_browser_protocol import (
+    GOOGLE_EMAIL,
+    GOOGLE_SUBJECT,
+    MAX_BODY,
+    PATHS,
+    fixture_schema,
+)
+from p05_browser_docker import ROOT
 from p06_browser_routes import workspace_route
 from p10b_browser_fixture import ORIGIN, secure_origin, security_dispatch
 
@@ -160,7 +167,7 @@ class IdentityFixture:
     def metadata(self) -> dict:
         return {
             "mode": "closed_synthetic_assertion_registry",
-            "schema_version": 7,
+            "schema_version": fixture_schema(ROOT),
             "real_google_sdk_calls": 0,
             "real_mail_provider_calls": 0,
             "synthetic_google_assertions_issued": self.issued,

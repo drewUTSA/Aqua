@@ -2,7 +2,14 @@
 
 Instructions for coding agents working in this repository. Read this file before making changes.
 
-Latest verified checkpoint: P00 through P09 are complete and deployed.
+Latest verified checkpoint: P00 through P10 are complete and deployed at
+`d242d2ee1b4a91e2a7ffa1d2ed2568d87e63da09` (PR #56, `Phase10 Identity`),
+private schema 7. The 2026-10-31T04:08:14 UTC release passed after all five
+PR/main CI jobs, fresh stopped-writer encrypted backup and owner-only 30-day
+retention. Protected rows, environment, volumes and mail schedule were preserved;
+live GET-only sign-in smoke passed and its screenshot was reviewed. See
+`docs/implementation/evidence/p10c/release.json`. P11 is the current phase;
+exports and deletion are not deployed. The earlier slices below are historical.
 The simplified homepage merged as `7c0caae8ac0d5fa1c74866bd898d317c1fc984ea`
 (PR #53, `Phase9 Homepage`). Both required CI runs passed all 29 steps. The
 October 28 23:10:19 UTC frontend-only release preserved the exact P09 backend,
@@ -29,16 +36,15 @@ environment, volumes and scheduler; public sign-in smoke passed. See
 `docs/implementation/evidence/p10b/release.json`. The following P10a API
 description is historical slice scope.
 
-Do not label P10 complete. P10c identity passes 1,635 backend cases, 528 frontend
-units and all 42 browser gates; root reviewed all 104 selected screenshots.
-Schema-compatible fallback and migration rehearsal pass. PR/main CI and the
-fresh after-stop backup/release remain required. See
+P10c identity passed 1,635 backend cases, 528 frontend units and all 42 browser
+gates; root reviewed all 104 selected screenshots. Schema-compatible recovery,
+migration rehearsal, PR/main CI and the backup-gated release passed. See
 `docs/implementation/evidence/p10c/verification.json` and `docs/implementation/P10_PROGRESS.md`.
 P11a
 exports are isolated preparation; P11 deletion and P12–P13 remain incomplete.
 No public Google audience or analytical grant changes are authorized.
 
-### P10a account API (deployed; P10 remains incomplete)
+### P10a account API (historical foundation slice)
 
 `GET/PATCH /api/v1/me` expose the current verified app profile and display-name
 revision. PATCH accepts only `{expectedRevision, display_name}`, enforces
@@ -74,8 +80,8 @@ preferences have separate bounded owner-scoped storage, never a server-sync clai
 Imports are versioned data only, at most 64 KiB; permissions, consent, secrets,
 custom instructions and destructive operations cannot enter preferences. Schema
 5 was reused without a preference migration; the current app schema is 6.
-P10a profile editing and read-only reviews are deployed; sensitive security
-mutations and P11 privacy jobs remain unavailable.
+P10 account editing, sensitive security actions and identity operations are
+deployed. P11 privacy jobs remain unavailable in production.
 
 ## What this project is
 
