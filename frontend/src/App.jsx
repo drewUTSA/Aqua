@@ -3,7 +3,9 @@ import { useGoogleAuth } from "./hooks/useGoogleAuth.js";
 import AuthPage from "./pages/AuthPage.jsx";
 import LegalPage from "./pages/LegalPage.jsx";
 import Workspace from "./components/workspace/Workspace.jsx";
-import { AUTH_PATHS, consumeLocation, navigateLocal } from "./services/routes.js";
+import { AUTH_PATHS, ACCOUNT_ACTION_PATHS, consumeLocation, navigateLocal } from "./services/routes.js";
+import AccountActionLanding from "./pages/AccountActionLanding.jsx";
+import NotificationProvider from "./settings/NotificationProvider.jsx";
 import { PreferencesProvider } from "./settings/PreferencesProvider.jsx";
 import { purgeDevicePreferences } from "./settings/deviceStore.js";
 
@@ -41,6 +43,9 @@ export default function App() {
   const legal = ["/privacy", "/terms"].includes(route.path);
   const accountStarted = useRef(!legal);
   if (!legal) accountStarted.current = true;
+  // consumeLocation already scrubbed the fragment before React or any SDK.
+  // A mail landing never receives a bearer or bootstraps an account mutation.
+  if (ACCOUNT_ACTION_PATHS.has(route.path)) return <AccountActionLanding onNavigate={navigate} />;
   // Direct policy visits need no sign-in bootstrap. Once started, the account
   // owner must survive policy navigation, including an unresolved logout.
   if (!accountStarted.current) return <LegalPage kind={route.path.slice(1)} onNavigate={navigate} />;
@@ -70,7 +75,9 @@ function AccountApp({ route, navigate, clearProof, registerGuard }) {
   // this account mounted but hidden/inert; confirmed logout or switch clears it.
   return <>
     {retain && <PreferencesProvider key={accountId} auth={auth} previewEnabled={route.path === "/settings"} registerGuard={registerGuard}>
+      <NotificationProvider auth={auth}>
       <Workspace auth={auth} path={route.path} onNavigate={navigate} hidden={!unlocked || !workspaceRoute} />
+      </NotificationProvider>
     </PreferencesProvider>}
     {legal ? <LegalPage kind={route.path.slice(1)} onNavigate={navigate} /> : (!unlocked || !workspaceRoute) && (AUTH_PATHS.has(route.path) || workspaceRoute
       ? <AuthPage key={`${route.path}:${route.revision}`} path={workspaceRoute ? "/signin" : route.path} proof={route.proof}

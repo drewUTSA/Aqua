@@ -6,10 +6,10 @@ import { useAnalysisRequests } from "./useAnalysisRequests.js";
 import { acceptAnalysis, progressAnalysis, activeAnalysis, analysisRequests } from "./workspaceAnalysisState.js";
 import { terminalAnalysis, validId } from "../services/workspaceContract.js";
 
-export function useWorkspace({ canQuery, canReadResults = canQuery, csrfToken, onAuthFailure, suspended = false }) {
+export function useWorkspace({ canQuery, canReadResults = canQuery, csrfToken, onAuthFailure, suspended = false, onLiveCompletion }) {
   const [state, setState] = useState(initialWorkspace), [models, setModels] = useState([]), [selectedModelId, setModelId] = useState("");
   const current = useRef(state), access = useRef(null), alive = useRef(true), requests = useRef(new Map()), reads = useRef(new Set()), messageEpoch = useRef(new Map()), historyReads = useRef(new Map());
-  access.current = { canQuery, canReadResults, csrfToken, onAuthFailure, suspended }; current.current = state;
+  access.current = { canQuery, canReadResults, csrfToken, onAuthFailure, suspended, onLiveCompletion }; current.current = state;
   const update = useCallback((transform) => { if (!alive.current) return; const next = transform(current.current); current.current = next; setState(next); }, []);
   const onError = useCallback((error) => { update((previous) => ({ ...previous, notice: error.message || "AQUA could not complete this action." }));
     if ([401, 403].includes(error.status)) access.current.onAuthFailure?.(); }, [update]);
@@ -18,6 +18,8 @@ export function useWorkspace({ canQuery, canReadResults = canQuery, csrfToken, o
     messageEpoch.current.set(snapshot.chat.id, (messageEpoch.current.get(snapshot.chat.id) || 0) + 1);
     const prior = current.current.records[snapshot.chat.id]?.analyses?.[snapshot.request.id];
     update((previous) => acceptAnalysis(previous, snapshot, access.current.canReadResults));
+    const accepted=current.current.records[snapshot.chat.id]?.analyses?.[snapshot.request.id];
+    if(accepted?.state==="complete"&&accepted.version===snapshot.request.version&&accepted.sequence===snapshot.request.sequence&&["pending","queued","running"].includes(prior?.state))access.current.onLiveCompletion?.({requestId:snapshot.request.id,previousStatus:prior.state,status:"complete",live:true,alreadyVisible:current.current.activeId===snapshot.chat.id&&!access.current.suspended});
     if (terminalAnalysis(snapshot.request.state) && !terminalAnalysis(prior?.state)) void library.refreshChats();
   }, [update, library.refreshChats]);
   const onProgress = useCallback((event) => update((previous) => progressAnalysis(previous, event)), [update]);

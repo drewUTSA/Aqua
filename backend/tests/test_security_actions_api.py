@@ -225,10 +225,11 @@ def test_capabilities_are_method_and_configuration_specific_no_first_password_ad
         for key in (
             "password_add",
             "google_link",
-            "google_unlink",
-            "email_change",
             "notification_delivery",
         )
+    )
+    assert (
+        caps["google_unlink"] and caps["email_change"] and caps["in_app_notifications"]
     )
     assert not google_only.get(PATH).json()["capabilities"]["recent_proof"]
     assert (

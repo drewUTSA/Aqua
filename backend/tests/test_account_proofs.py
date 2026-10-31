@@ -52,12 +52,16 @@ def verified_fixture(world, session, *, method="password"):
     proof = token_digest(new_token())
     with world.storage.transaction() as conn:
         if method == "google":
-            identity = conn.execute(
-                "SELECT id FROM app.external_identities WHERE user_id=%s AND is_active",
+            identity, revision = conn.execute(
+                "SELECT id,revision FROM app.external_identities WHERE user_id=%s AND is_active",
                 (session.user["id"],),
-            ).fetchone()[0]
+            ).fetchone()
             conn.execute(
-                "INSERT INTO app.account_action_proofs(user_id,session_id,challenge_id,secret_digest,auth_epoch,operation,target_digest,method,external_identity_id,created_at,expires_at) VALUES(%s,%s,%s,%s,%s,'sessions_revoke_all',%s,'google',%s,statement_timestamp(),statement_timestamp()+interval '240 seconds')",
+                "UPDATE app.auth_challenges SET account_google_identity_id=%s,account_google_identity_revision=%s WHERE id=%s",
+                (identity, revision, challenge),
+            )
+            conn.execute(
+                "INSERT INTO app.account_action_proofs(user_id,session_id,challenge_id,secret_digest,auth_epoch,operation,target_digest,method,external_identity_id,external_identity_revision,created_at,expires_at) VALUES(%s,%s,%s,%s,%s,'sessions_revoke_all',%s,'google',%s,%s,statement_timestamp(),statement_timestamp()+interval '240 seconds')",
                 (
                     claimed.owner,
                     claimed.session_id,
@@ -66,6 +70,7 @@ def verified_fixture(world, session, *, method="password"):
                     claimed.auth_epoch,
                     target_digest("sessions_revoke_all"),
                     identity,
+                    revision,
                 ),
             )
         else:
@@ -193,8 +198,8 @@ def test_proof_consumption_rolls_back_with_the_mutation_and_replay_denies(world)
     [
         "proof_expired",
         "challenge_expired",
-        "identity_inactive",
         "password_changed",
+        "identity_inactive",
         "epoch",
         "revoked",
         "wrong_action",
@@ -205,8 +210,6 @@ def test_stale_or_differently_bound_proofs_never_become_authority(world, change)
     a, owner = world.client(grant=False)
     another, _ = world.client(grant=False)
     session = principal(world, a)
-    # Retain the prior identity-deactivation case alongside the new credential
-    # revision case. Schema6 deliberately rejects all Google action proofs.
     proof, challenge = verified_fixture(
         world, session, method="google" if change == "identity_inactive" else "password"
     )
@@ -221,14 +224,14 @@ def test_stale_or_differently_bound_proofs_never_become_authority(world, change)
                 "UPDATE app.auth_challenges SET created_at=now()-interval '5 minutes',expires_at=now()-interval '1 second' WHERE id=%s",
                 (challenge,),
             )
-        elif change == "identity_inactive":
-            conn.execute(
-                "UPDATE app.external_identities SET is_active=false,inactive_at=now() WHERE user_id=%s",
-                (owner,),
-            )
         elif change == "password_changed":
             conn.execute(
                 "UPDATE app.password_credentials SET changed_at=clock_timestamp() WHERE user_id=%s",
+                (owner,),
+            )
+        elif change == "identity_inactive":
+            conn.execute(
+                "UPDATE app.external_identities SET is_active=false,inactive_at=now(),revision=revision+1 WHERE user_id=%s",
                 (owner,),
             )
         elif change == "epoch":

@@ -204,7 +204,7 @@ def test_tokens_are_not_ordinary_password_reset_or_registration_proof(account_se
         client.post(
             PATH + "/reauth-challenges", json={"operation": "google_link"}
         ).status_code
-        == 422
+        == 200
     )
     assert (
         client.post(

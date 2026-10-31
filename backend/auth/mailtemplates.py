@@ -6,6 +6,10 @@ import re
 from auth.config import AuthDenied
 from auth.mailconfig import MailPolicy, MailUnavailable
 from auth.password_policy import normalize_email
+from auth.identity_templates import (
+    PURPOSES as IDENTITY_PURPOSES,
+    render as identity_render,
+)
 
 TOKEN = re.compile(r"[A-Za-z0-9_-]{43}\Z")
 NOTICE = "Your AQUA password was changed. If this was not you, contact AQUA support through the website."
@@ -134,9 +138,18 @@ def _html(purpose: str, token: str | None, origin: str) -> str:
 
 
 def render(
-    purpose: str, recipient: str, token: str | None, origin: str
+    purpose: str,
+    recipient: str,
+    token: str | None,
+    origin: str,
+    *,
+    request_id: str = "",
 ) -> dict[str, str]:
     """Persist the complete versioned body so retries do not re-render new content."""
+    if purpose in IDENTITY_PURPOSES:
+        return identity_render(purpose, recipient, token, origin, request_id=request_id)
+    if request_id:
+        raise MailUnavailable("account_mail_template_invalid")
     MailPolicy(public_origin=origin)
     payload = _legacy_render(purpose, recipient, token, origin)
     if purpose == "password_changed":
@@ -155,6 +168,23 @@ def render(
 
 
 def validate(purpose: str, payload: dict[str, str], origin: str) -> None:
+    if purpose in IDENTITY_PURPOSES:
+        if (
+            not isinstance(payload, dict)
+            or frozenset(payload) != VERSIONED_FIELDS | {"request_id"}
+            or any(not isinstance(value, str) for value in payload.values())
+        ):
+            raise MailUnavailable("account_mail_template_invalid")
+        found = re.search(r"&token=([A-Za-z0-9_-]{43})(?:\n|$)", payload["text"])
+        token = found[1] if found else None
+        if (
+            identity_render(
+                purpose, payload["to"], token, origin, request_id=payload["request_id"]
+            )
+            != payload
+        ):
+            raise MailUnavailable("account_mail_template_invalid")
+        return
     if (
         not isinstance(payload, dict)
         or frozenset(payload) not in {LEGACY_FIELDS, VERSIONED_FIELDS}

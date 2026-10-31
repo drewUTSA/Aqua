@@ -18,11 +18,12 @@ BINDINGS = (
     "AND c.purpose='reauth' AND c.account_operation=p.operation "
     "AND c.account_target_digest=p.target_digest AND c.account_auth_epoch=p.auth_epoch "
     "AND c.consumed_at IS NOT NULL AND c.expires_at>clock_timestamp() "
-    # Schema6 has no external-identity revision snapshot. Until P10c adds it
-    # and a real Google verifier, even this low-level primitive rejects Google
-    # proofs; active-again tombstones cannot revive synthetic/legacy authority.
-    "AND p.method='password' AND EXISTS(SELECT 1 FROM app.password_credentials k "
-    "WHERE k.user_id=p.user_id AND k.changed_at=p.password_changed_at)"
+    "AND ((p.method='password' AND EXISTS(SELECT 1 FROM app.password_credentials k "
+    "WHERE k.user_id=p.user_id AND k.changed_at=p.password_changed_at)) OR "
+    "(p.method='google' AND p.external_identity_revision IS NOT NULL "
+    "AND p.external_identity_id=c.account_google_identity_id AND p.external_identity_revision=c.account_google_identity_revision AND EXISTS "
+    "(SELECT 1 FROM app.external_identities e WHERE e.user_id=p.user_id AND e.id=p.external_identity_id "
+    "AND e.is_active AND e.revision=p.external_identity_revision)))"
 )
 
 

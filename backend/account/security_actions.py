@@ -37,7 +37,6 @@ class SecurityActions:
                 "password_change",
                 None,
                 secret,
-                method="password",
             )
             before = password_snapshot(conn, session.user["id"])
         if not self.passwords.mail_policy.enabled:
@@ -59,7 +58,6 @@ class SecurityActions:
                 "password_change",
                 None,
                 secret,
-                method="password",
             )
             if password_snapshot(conn, session.user["id"]) != before:
                 raise WorkspaceError("proof_invalid", 403)
@@ -93,10 +91,7 @@ class SecurityActions:
         operation = "sessions_revoke_all" if target is None else "session_revoke"
         with self.storage.transaction() as conn:
             sid = current_id(conn, session, self.policy)
-            password_snapshot(conn, session.user["id"])
-            consume_proof(
-                conn, self.policy, session, operation, target, secret, method="password"
-            )
+            consume_proof(conn, self.policy, session, operation, target, secret)
             if target is None:
                 revoke_all(conn, session.user["id"], session.auth_epoch)
             else:

@@ -13,6 +13,8 @@ class WorkspaceError(Exception):
 
 
 MESSAGES = {
+    "identity_conflict": "This sign-in method or email cannot be used for this account.",
+    "last_method": "Keep at least one usable sign-in method before removing this one.",
     "method_unavailable": "This verification method is not available for your account.",
     "security_unavailable": "This account action is temporarily unavailable.",
     "proof_invalid": "Start a new verification attempt for this action.",

@@ -13,10 +13,12 @@ import { accountAction, openAccount, recentsAction, openPrompts, closePrompts } 
 import { initialHomepageChecks, mobileHomepageChecks } from './homepage-browser-checks.mjs';
 import { workspaceJourneys, pendingWorkspaceJourney } from "./p06-browser-checks.mjs";
 import { analysisJourneys } from "./p07-browser-checks.mjs";
+import { runSyntheticNoticeChecks } from "./p10c-notice-browser-checks.mjs";
 import { makeFixture, GOOGLE_STUB, EMAIL_A, EMAIL_B, PASSWORD, VERIFY_PROOF, RESET_PROOF } from "./p05-browser-fixture.mjs";
 import { EXPECTED_SHELL, assertShell, assertLoginDelivery, capturePerformance, assertEssentialControls, assertSafeAreaStyles, enlargeText, captureControlBounds } from "./p05-shell-browser-checks.mjs";
 
 const MAX_MS = 240000, MAX_REQUESTS = 900, MAX_API = 320;
+const NOTICE_ONLY=new URL(import.meta.url).searchParams.get("journey")==="c-notices";
 const started = performance.now();
 const frontend = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 function configuredPath(name, fallback) {
@@ -26,7 +28,7 @@ function configuredPath(name, fallback) {
 }
 const artifacts = configuredPath("AQUA_P05_ARTIFACT_DIR", path.resolve(frontend, "../../browser-evidence"));
 const distRoot = configuredPath("AQUA_P05_DIST", path.join(frontend, "dist"));
-let loadedAssets = [];
+let loadedAssets = [],notificationPrivacyJourney=null;
 async function ensureArtifacts() {
   await mkdir(artifacts, { recursive: true });
   if ((await lstat(artifacts)).isSymbolicLink()) throw new Error("artifact_directory_symlink_rejected");
@@ -233,6 +235,7 @@ try {
     });
   };
   await preparePage();
+  if(!NOTICE_ONLY){
   await viewport(1440, 900); await navigate();
   await waitFor("Boolean(document.querySelector('[data-testid=fixture-google-button]'))", "google_fixture_ready");
   await assertLoginDelivery(check); performanceSamples.push(await capturePerformance(evaluate, "desktop-signin"));
@@ -519,6 +522,9 @@ try {
   assert.equal(runtimeErrors, 0, "uncaught_browser_error"); assert.equal(protocolFailures.length, 0, "interception_failure");
   assert.equal(external.length, 0, "unexpected_external_request_attempt"); assert.ok(apiRequests <= MAX_API && requestCount <= MAX_REQUESTS);
   results.push({ check: "all traffic bounded to loopback fixtures; no external calls or console bearer leak", passed: true });
+  }
+  if(NOTICE_ONLY)notificationPrivacyJourney=await runSyntheticNoticeChecks({check,click,fill,waitFor,evaluate,navigate,signIn,viewport,screenshot,fixture},{emailA:EMAIL_A,emailB:EMAIL_B});
+  assert.equal(fixture.forbiddenCalls,0);assert.equal(consoleLeaks,0);assert.equal(runtimeErrors,0);assert.equal(protocolFailures.length,0);assert.equal(external.length,0);assert.ok(apiRequests<=MAX_API&&requestCount<=MAX_REQUESTS&&performance.now()-started<=MAX_MS);
   await writeFile(path.join(artifacts, "browser-version.json"), JSON.stringify({ browser: version.product }, null, 2) + "\n");
   await writeFile(path.join(artifacts, "font-diagnostics.json"), JSON.stringify(fonts, null, 2) + "\n");
 } catch (error) {
@@ -541,9 +547,9 @@ try {
 }
 if (!failure && protocolFailures.length) failure = "interception_failure";
 const report = { status: failure ? "failed" : "passed", failure, failureLayout, checked_utc: new Date().toISOString(),
-  mode: "production_build_synthetic_api_browser", expected_shell: EXPECTED_SHELL, browser_diagnostic: failureDiagnostic ?? cdp?.diagnostic ?? null, homepage_menu_text_audit:homepageMenuTextAudit, loadedAssets, results, screenshots, performanceSamples,
+  mode: NOTICE_ONLY?"production_build_c_notification_synthetic_api_browser":"production_build_synthetic_api_browser", expected_shell: EXPECTED_SHELL, browser_diagnostic: failureDiagnostic ?? cdp?.diagnostic ?? null, homepage_menu_text_audit:homepageMenuTextAudit, loadedAssets, results, screenshots, performanceSamples,
   limits: { maximum_seconds: MAX_MS / 1000, maximum_requests: MAX_REQUESTS, maximum_api_requests: MAX_API },
-  observations: { requestCount, staticRequests, apiRequests, external_attempts: external.length, consoleLeaks, runtimeErrors, forbidden_api_calls: fixture.forbiddenCalls, protocolFailures, canceledInterceptions, scrollObservations },
+  observations: { requestCount, staticRequests, apiRequests, external_attempts: external.length, consoleLeaks, runtimeErrors, forbidden_api_calls: fixture.forbiddenCalls, protocolFailures, canceledInterceptions, scrollObservations },notification_privacy_journey:notificationPrivacyJourney,
   cleanup: cleanup ? "browser_stopped_loopback_closed_temporary_profile_removed" : "failed",
   elapsed_seconds: Math.round((performance.now() - started) / 10) / 100,
   limitations: ["Synthetic intercepted API and GIS contracts; no actual backend, Google, email, database or production-origin validation.", "400% reflow represented by a 320 CSS-pixel viewport; 200% text doubles computed text sizes.", "Small viewport models keyboard-constrained space; it is not an actual mobile OS keyboard test.", "Navigation timings are local observations, not production performance guarantees; initial delivery byte limits are deterministic.", "Keyboard and semantic assertions are not a complete screen-reader or contrast audit.", "Screenshots require human/agent visual review; saving them alone is not visual approval."] };

@@ -28,12 +28,12 @@ export const CATEGORIES = [
     field("device", "text_scale", "Text size"), field("device", "line_spacing", "Reading line spacing"),
     field("device", "announcements", "Announcements", "Reduced announcements retain essential status and error feedback."),
     field("account", "expanded_summaries", "Expanded chart summaries", "Basic text alternatives are always available.") ] },
-  { id: "notifications", title: "Notifications", description: "Essential errors and account security notices remain visible.", fields: [] },
+  { id: "notifications", title: "Notifications", description: "Choose optional generic in-app success messages with a separate saved consent. Essential errors and account security notices remain visible.", fields: [] },
   { id: "region", title: "Language & region", description: "Format source values without changing their meaning.", fields: [
     field("account", "locale", "Dates and numbers", "The interface is available in English. These options change regional formatting only."),
     field("account", "timezone", "Timezone", "Detect device uses the named timezone shown in the sample."),
     field("account", "date_style", "Date style"), field("account", "time_format", "Time format") ] },
-  { id: "account", title: "Account & security", description: "Edit your name, review sign-in methods, and manage supported password and session actions. Account changes save separately from preferences.", fields: [] },
+  { id: "account", title: "Account & security", description: "Edit your name, review email and sign-in methods, and manage supported password, Google identity and session actions. Account changes save separately from preferences.", fields: [] },
   { id: "privacy", title: "Privacy & data", description: "Move safe presentation preferences between devices.", fields: [] }
 ];
 export const VALUE_LABELS = {

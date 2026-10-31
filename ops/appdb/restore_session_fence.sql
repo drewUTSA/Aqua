@@ -6,15 +6,34 @@ UPDATE app.users SET auth_epoch = auth_epoch + 1;
 UPDATE app.sessions SET revoked_at = now() WHERE revoked_at IS NULL;
 UPDATE app.auth_challenges SET consumed_at = now() WHERE consumed_at IS NULL;
 -- Only a separate recovered DB with no attached workers reaches this fence.
--- Retired hash workers cannot release slots; restored mail must not replay.
+-- Retired hash workers cannot release slots. Bearer mail cannot replay;
+-- schema-7 token-free notice obligations are fenced separately below.
 DELETE FROM app.password_hash_slots;
-UPDATE app.account_mail SET state='expired',ciphertext=decode(repeat('00',30),'hex'),
- lease_id=NULL,lease_expires_at=NULL WHERE state IN ('pending','sending');
 UPDATE app.account_mail_control SET lease_id=NULL,lease_expires_at=NULL WHERE singleton;
 -- Older backups remain restorable. Recovery never resumes an analysis or
 -- repeats a model call. Saved completed conversation results stay intact.
 DO $$
 BEGIN
+ IF to_regclass('app.account_security_requests') IS NOT NULL THEN
+  UPDATE app.account_security_requests SET consumed_at=now() WHERE consumed_at IS NULL;
+  -- Bearers cannot revive. Mandatory token-free notices retain their stable
+  -- UUID/body/attempt history and provider idempotency window; they are not
+  -- optional consent and are independent of the now-consumed requests.
+  UPDATE app.account_mail SET state='expired',ciphertext=decode(repeat('00',30),'hex'),
+   lease_id=NULL,lease_expires_at=NULL WHERE state IN ('pending','sending')
+   AND purpose NOT IN ('password_changed','password_added','email_changed','google_linked','google_unlinked');
+  UPDATE app.account_mail SET
+   state=CASE WHEN expires_at<=now() THEN 'expired'
+    WHEN attempts>=3 OR first_attempt_at<=now()-interval '23 hours' THEN 'failed' ELSE 'pending' END,
+   ciphertext=CASE WHEN expires_at<=now() OR attempts>=3 OR first_attempt_at<=now()-interval '23 hours'
+    THEN decode(repeat('00',30),'hex') ELSE ciphertext END,
+   lease_id=NULL,lease_expires_at=NULL WHERE state IN ('pending','sending')
+   AND purpose IN ('password_changed','password_added','email_changed','google_linked','google_unlinked');
+ ELSE
+  -- Older schema backups retain their reviewed historical fence behavior.
+  UPDATE app.account_mail SET state='expired',ciphertext=decode(repeat('00',30),'hex'),
+   lease_id=NULL,lease_expires_at=NULL WHERE state IN ('pending','sending');
+ END IF;
  IF to_regclass('app.account_action_proofs') IS NOT NULL THEN
   UPDATE app.account_action_proofs SET consumed_at=now() WHERE consumed_at IS NULL;
  END IF;

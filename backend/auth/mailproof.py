@@ -7,6 +7,7 @@ import uuid
 from psycopg import Connection
 
 from auth.mailconfig import MailUnavailable
+from auth.mailpurposes import ACCOUNT_TOKENS, ACCOUNT_MAIL_SQL
 
 
 def validate_challenge(
@@ -19,7 +20,26 @@ def validate_challenge(
 ) -> None:
     if challenge_id is None:
         raise MailUnavailable("account_mail_challenge_invalid")
-    expected = "verify_email" if purpose == "verify_email" else "password_reset"
+    if purpose in ACCOUNT_TOKENS:
+        row = conn.execute(
+            "SELECT c.id FROM app.auth_challenges c WHERE c.id=%s AND c.purpose=%s AND c.target_email_key=%s AND c.secret_digest=%s AND c.expires_at=%s AND c.consumed_at IS NULL AND c.expires_at>clock_timestamp() AND "
+            + ACCOUNT_MAIL_SQL,
+            (
+                challenge_id,
+                purpose,
+                recipient,
+                hashlib.sha256(token.encode("ascii")).digest(),
+                expires_at,
+            ),
+        ).fetchone()
+        if row is None:
+            raise MailUnavailable("account_mail_challenge_invalid")
+        return
+    if purpose not in {"verify_email", "reset_password"}:
+        raise MailUnavailable("account_mail_purpose_invalid")
+    expected = {"verify_email": "verify_email", "reset_password": "password_reset"}[
+        purpose
+    ]
     row = conn.execute(
         "SELECT c.id FROM app.auth_challenges c WHERE c.id=%s AND c.purpose=%s "
         "AND c.target_email_key=%s AND c.secret_digest=%s AND c.expires_at=%s "

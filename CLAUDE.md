@@ -20,8 +20,23 @@ on private schema 6 after a fresh authenticated encrypted backup. Migration
 0006 preserved protected rows, environment, volumes and the mail scheduler.
 Main is `f5f5b2d16fab261173fd2572e620f266dc64168e` (PR #54, `Phase10 Accounts`).
 See `docs/implementation/evidence/p10a/release.json` for exact release evidence.
-Do not label P10 complete. P10b is being implemented separately; P11–P13 have
-not started. No public Google audience or analytical grant changes are authorized.
+
+P10b security is now deployed from PR55/main `7477e28` at
+2026-10-31T01:50:04.383058+00:00, still schema 6. All 1,519 backend cases,
+492 frontend units, 22 browser gates and 62 root-reviewed screenshots passed;
+both PR/main runs passed all three jobs. The cutover preserved protected state,
+environment, volumes and scheduler; public sign-in smoke passed. See
+`docs/implementation/evidence/p10b/release.json`. The following P10a API
+description is historical slice scope.
+
+Do not label P10 complete. P10c identity passes 1,635 backend cases, 528 frontend
+units and all 42 browser gates; root reviewed all 104 selected screenshots.
+Schema-compatible fallback and migration rehearsal pass. PR/main CI and the
+fresh after-stop backup/release remain required. See
+`docs/implementation/evidence/p10c/verification.json` and `docs/implementation/P10_PROGRESS.md`.
+P11a
+exports are isolated preparation; P11 deletion and P12–P13 remain incomplete.
+No public Google audience or analytical grant changes are authorized.
 
 ### P10a account API (deployed; P10 remains incomplete)
 

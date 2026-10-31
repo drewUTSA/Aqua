@@ -94,7 +94,7 @@ def check(image: str) -> dict:
             "import os,psycopg; psycopg.connect(os.environ['APP_MIGRATOR_DATABASE_URL'],connect_timeout=2).close()",
         )
         for _ in range(2):
-            assert manager.migrate()["schema_version"] == 6
+            assert manager.migrate()["schema_version"] == 7
         # The image gets only the generated runtime fixture DSN, no live env.
         program = (ROOT / "tools/checks/storage_probe.py").read_text()
         result = manager.docker(

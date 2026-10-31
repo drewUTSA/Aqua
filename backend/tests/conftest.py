@@ -11,6 +11,7 @@ pytest_plugins = (
     "workspace_fixtures",
     "p07_security_fixture",
     "security_action_fixtures",
+    "identity_action_fixtures",
 )
 
 from nl2sql.config import load_settings  # noqa: E402

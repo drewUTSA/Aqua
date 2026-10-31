@@ -7,7 +7,7 @@ import psycopg
 
 from auth.config import AuthDenied
 from auth.mailconfig import MailPolicy
-from auth.mailoutbox import enqueue, ensure_capacity
+from auth.mailoutbox import LOCK as MAIL_LOCK, enqueue, ensure_capacity
 from auth.password_limits import digest_key
 
 
@@ -52,6 +52,10 @@ def find_ticket(
 def create_verified_account(
     conn: psycopg.Connection, ticket: EmailTicket, encoded: str, version: int
 ) -> str:
+    # Completion retires old verification jobs, so it participates in the same
+    # mail -> address ordering as an authenticated primary-mail change. Merely
+    # taking the closed lock does not require mail delivery to remain enabled.
+    conn.execute("SELECT pg_advisory_xact_lock(%s)", (MAIL_LOCK,))
     lock = int.from_bytes(digest_key(ticket.email)[:8], "big", signed=True)
     conn.execute("SELECT pg_advisory_xact_lock(%s)", (lock,))
     # Reload after acquiring the per-address lock: parallel tokens may have

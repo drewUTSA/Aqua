@@ -15,7 +15,7 @@ def test_recovery_fence_remains_compatible_with_older_encrypted_snapshots(
     fence = Path(__file__).resolve().parents[2] / "ops/appdb/restore_session_fence.sql"
     app_database.execute(fence.read_text())
     app_database.execute("RESET ROLE")
-    assert apply(app_database) == 6
+    assert apply(app_database) == 7
 
 
 def test_schema4_pending_reservation_is_interrupted_and_refunded_only_once(
@@ -38,7 +38,7 @@ INSERT INTO app.workspace_usage(user_id,content_bytes) VALUES
  ('00000000-0000-4000-8000-000000000001',1050);
 UPDATE app.workspace_totals SET content_bytes=1050 WHERE singleton;
 """)
-    assert apply(app_database) == 6
+    assert apply(app_database) == 7
 
     def observed():
         app_database.execute("SET ROLE aqua_app_owner")
@@ -56,5 +56,5 @@ CROSS JOIN app.workspace_totals t WHERE t.singleton;
         return state
 
     assert observed() == ("interrupted", 0, "interrupted", 26, 26)
-    assert apply(app_database) == 6
+    assert apply(app_database) == 7
     assert observed() == ("interrupted", 0, "interrupted", 26, 26)

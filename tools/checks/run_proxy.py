@@ -15,12 +15,22 @@ NGINX = "nginx@sha256:970364228b1e4f932abc22d321932816782cca8a20b85a77552a7cfe9a
 
 
 def run(
-    config: Path, output: Path, baseline: bool = False, nginx_image: str = NGINX
+    config: Path,
+    output: Path,
+    baseline: bool = False,
+    nginx_image: str = NGINX,
+    *,
+    identity_actions: bool = False,
 ) -> int:
     """No host mounts/ports/sockets; only the synthetic upstream shares the netns."""
+    if baseline and identity_actions:
+        raise ValueError("identity_actions_have_no_unsafe_baseline")
+    probe_name = "p10c_proxy_probe.py" if identity_actions else "proxy_probe.py"
     name = "aqua-proxy-check-" + secrets.token_hex(12)
     containers = []
     report = {"name": name, "network": "none", "status": "failed", "cleanup": "pending"}
+    if identity_actions:
+        report["exercise_kind"] = "p10c_identity_actions"
     content = config.read_bytes()
     report["config_sha256"] = hashlib.sha256(content).hexdigest()
     started = time.monotonic()
@@ -74,7 +84,7 @@ def run(
             client,
             "tee",
             "/tmp/proxy_probe.py",
-            data=(ROOT / "tools/checks/proxy_probe.py").read_bytes(),
+            data=(ROOT / "tools/checks" / probe_name).read_bytes(),
         )
         docker(
             "exec",
@@ -134,5 +144,16 @@ if __name__ == "__main__":
     )
     parser.add_argument("--baseline", action="store_true")
     parser.add_argument("--nginx-image", default=NGINX)
+    parser.add_argument("--identity-actions", action="store_true")
     args = parser.parse_args()
-    raise SystemExit(run(args.config, args.output, args.baseline, args.nginx_image))
+    if args.baseline and args.identity_actions:
+        parser.error("identity-actions cannot use an unsafe baseline")
+    raise SystemExit(
+        run(
+            args.config,
+            args.output,
+            args.baseline,
+            args.nginx_image,
+            identity_actions=args.identity_actions,
+        )
+    )

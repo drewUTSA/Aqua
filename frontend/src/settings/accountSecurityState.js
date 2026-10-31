@@ -1,15 +1,23 @@
-const OPERATIONS = new Set(["password_change", "session_revoke", "sessions_revoke_all"]);
+import { accountOwner } from "./accountContract.js";
+import { actionEmail } from "./accountSecurityContract.js";
+const OPERATIONS = new Set(["password_change", "password_add", "email_change", "google_link", "google_unlink", "session_revoke", "sessions_revoke_all"]);
 export function actionKey(action) {
   if (!action || !OPERATIONS.has(action.operation)) throw Error("account_action_invalid");
-  return action.operation + ":" + (action.session?.id || "");
+  const target = action.operation === "session_revoke" ? accountOwner(action.session?.id) : action.operation === "google_unlink" ? accountOwner(action.identity?.id)
+    : action.operation === "email_change" ? actionEmail(action.email) : "";
+  return action.operation + ":" + target;
 }
 
 export function canAccountAction({ profile, methods, sessions }, action) {
-  if (!action || !OPERATIONS.has(action.operation) || methods?.password?.linked !== true || methods.password.available !== true) return false;
+  const password = methods?.password?.linked === true && methods.password.available === true, google = methods?.google?.available === true && methods.google.identities?.length > 0;
+  if (!action || !OPERATIONS.has(action.operation) || !password && !google) return false;
   for (const caps of [profile?.capabilities, methods.capabilities]) {
     if (caps?.recent_proof !== true || caps?.[action.operation] !== true) return false;
   }
-  if (action.operation === "password_change") return true;
+  if (action.operation === "password_change") return password;
+  if (action.operation === "password_add") return methods.password.linked === false && google;
+  if (action.operation === "google_unlink") return methods.google.identities.some(item => item.id === action.identity?.id);
+  if (["email_change", "google_link"].includes(action.operation)) return true;
   if (action.operation === "sessions_revoke_all") return sessions?.capabilities?.revoke_all === true && sessions.items.some(item => item.current);
   return sessions?.capabilities?.revoke_one === true && sessions.items.some(item => item.id === action.session?.id && item.current === action.session.current);
 }
@@ -57,6 +65,12 @@ export function createActionProofVault(owner, action, currentIdentity, now = Dat
   let token = null, expiresAt = 0, csrfToken = null;
   const clear = () => { token = null; expiresAt = 0; csrfToken = null; };
   const current = () => currentIdentity()?.owner === owner && currentIdentity()?.active === true;
+  const peek = expectedAction => {
+    let expected;
+    try { expected = actionKey(expectedAction); } catch { clear(); return null; }
+    if (!current() || currentIdentity()?.csrfToken !== csrfToken || now() >= expiresAt || expected !== key) { clear(); return null; }
+    return token;
+  };
   return {
     clear,
     store(proof) {
@@ -71,11 +85,9 @@ export function createActionProofVault(owner, action, currentIdentity, now = Dat
       return true;
     },
     deadline: () => expiresAt,
+    peek,
     take(expectedAction) {
-      let expected;
-      try { expected = actionKey(expectedAction); } catch { clear(); return null; }
-      if (!current() || currentIdentity()?.csrfToken !== csrfToken || now() >= expiresAt || expected !== key) { clear(); return null; }
-      const result = token;
+      const result = peek(expectedAction);
       clear();
       return result;
     }

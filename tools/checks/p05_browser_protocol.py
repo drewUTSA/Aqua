@@ -1,6 +1,8 @@
 """Bounds, fixed fixture identities and JSONL framing; no service access."""
 
+import ast
 import json
+from pathlib import Path
 import sys
 from typing import Any
 from urllib.parse import urlsplit
@@ -18,6 +20,38 @@ MAX_LINE = 65536
 MAX_BODY = 16384
 MAX_REQUESTS = 256
 MAX_SECONDS = 300
+
+
+def fixture_schema(root: Path) -> int:
+    """Read one bounded literal from the frozen source, without backend import."""
+    path = root / "backend/storage/pool.py"
+    if path.is_symlink() or not path.is_file() or not 0 < path.stat().st_size <= 131072:
+        raise ValueError("fixture_schema_source_invalid")
+    tree = ast.parse(path.read_text())
+    writes = [
+        node
+        for node in ast.walk(tree)
+        if isinstance(node, ast.Name)
+        and node.id == "SCHEMA_VERSION"
+        and isinstance(node.ctx, ast.Store)
+    ]
+    values = [
+        node.value
+        for node in tree.body
+        if isinstance(node, ast.Assign)
+        and len(node.targets) == 1
+        and isinstance(node.targets[0], ast.Name)
+        and node.targets[0].id == "SCHEMA_VERSION"
+    ]
+    if (
+        len(writes) != 1
+        or len(values) != 1
+        or not isinstance(values[0], ast.Constant)
+        or type(values[0].value) is not int
+        or values[0].value not in {6, 7}
+    ):
+        raise ValueError("fixture_schema_source_invalid")
+    return values[0].value
 
 
 def request_limit(workspace_analysis: bool = False) -> int:

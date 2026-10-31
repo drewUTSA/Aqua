@@ -475,3 +475,20 @@ unavailable. P10/P11 must implement their actual services before enabling them.
 No migration, new dependency or secret is required. This records an implementation
 choice; final canonical/browser/security gates, phase review and any production
 release are recorded separately in `implementation/P09_SETTINGS_PREFERENCES.md`.
+
+## October 30: encrypted backups and recovery targets
+
+The operator selected 30 days for encrypted-backup retention and approved a
+24-hour recovery-point target and four-hour restoration target. These targets
+require measured recovery evidence; they are not achieved guarantees. Backup
+pruning remains disabled, and this decision deleted no existing backup.
+
+The backup period does not set active-content or security/retirement-ledger
+retention. Deletion reconciliation must cover every still-restorable older
+backup, including legacy copies that have not physically aged out. The P11
+privacy work and P13 release evidence must describe actual behavior.
+
+The operator also explicitly authorized Aqua source/test-helper transfers and
+necessary work on the existing verified Aqua server. Existing exclusions for
+public Google audience changes, analytical grants, shared/Tiger DDL and real
+provider/mail tests remain in force.

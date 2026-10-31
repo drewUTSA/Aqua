@@ -15,7 +15,7 @@ const json = (body, status = 200, extra = {}) => new Response(JSON.stringify(bod
 const safe = code => error => error instanceof WorkspaceError && error.code === code && !JSON.stringify(error).includes(TOKEN)
   && !error.message.includes(CURRENT) && !error.message.includes(NEW) && !error.message.includes("private-server-data");
 const caps = { profile_edit: true, method_list: true, session_list: true, recent_proof: true, password_change: true, password_add: false,
-  email_change: false, google_link: false, google_unlink: false, session_revoke: true, sessions_revoke_all: true, notification_delivery: false };
+  email_change: false, google_link: false, google_unlink: false, session_revoke: true, sessions_revoke_all: true, notification_delivery: false, in_app_notifications: true };
 
 test("all five security actions use exact private routes, closed bodies and independent CSRF", async t => {
   const calls = [], issued = challenge();
@@ -60,7 +60,7 @@ test("challenge and proof replies are exact, expiring, method-bounded and copied
 
 test("action targets exclude owner authority, future operations and target aliases before network", t => {
   const fetch = t.mock.method(globalThis, "fetch", async () => { throw Error("must not send"); });
-  for (const value of [{ operation: "email_change" }, { operation: "password_add" }, { operation: "google_link" }, { operation: "session_revoke" },
+  for (const value of [{ operation: "email_change" }, { operation: "password_add" }, { operation: "account_delete" }, { operation: "session_revoke" },
     { ...target, target_session_id: "../other" }, { ...target, owner_id: ID }, { operation: "password_change", target_session_id: OTHER },
     { operation: "sessions_revoke_all", target_session_id: OTHER }, Object.defineProperty({}, "operation", { get() { throw Error("private-server-data"); }, enumerable: true })]) {
     assert.throws(() => createAccountChallenge(value, { csrfToken: "csrf" }), safe("invalid_input"));
@@ -142,7 +142,7 @@ test("P10b capability decoder accepts only coherent finite implemented actions",
   const snapshot = { schemaVersion: 1, revision: 1, user: { id: ID, name: "Synthetic", email: "synthetic@example.invalid", picture: "" }, email_verified: true, capabilities: caps };
   assert.equal(accountProfile(snapshot, ID).capabilities.password_change, true);
   assert.equal(accountProfile({ ...snapshot, capabilities: { ...caps, password_change: false } }, ID).capabilities.recent_proof, true);
-  for (const capabilities of [{ ...caps, password_add: true }, { ...caps, google_link: true }, { ...caps, recent_proof: false },
+  for (const capabilities of [{ ...caps, password_add: "yes" }, { ...caps, google_link: "yes" }, { ...caps, recent_proof: false },
     { ...caps, session_revoke: false }, { ...caps, password_change: "true" }, { ...caps, proof_token: PROOF }]) assert.throws(() => accountProfile({ ...snapshot, capabilities }, ID));
   const legacy = { ...caps }; delete legacy.password_add; assert.throws(() => accountProfile({ ...snapshot, capabilities: legacy }, ID));
 });

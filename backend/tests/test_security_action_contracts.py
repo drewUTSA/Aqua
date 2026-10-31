@@ -17,14 +17,13 @@ TOKEN = "v2." + "x" * 43
 
 class ActionContractTests(unittest.TestCase):
     def test_only_three_implemented_operations_are_accepted(self):
-        for operation in ["password_change", "sessions_revoke_all"]:
+        for operation in ["password_change", "sessions_revoke_all", "google_link"]:
             self.assertEqual(
                 ActionTarget.model_validate({"operation": operation}).operation,
                 operation,
             )
         for operation in [
             "password_add",
-            "google_link",
             "google_unlink",
             "email_change",
             "mfa",

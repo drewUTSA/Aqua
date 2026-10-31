@@ -12,8 +12,9 @@ from account.action_contracts import (
 )
 from account.policy import PROOF_SECONDS, identifier
 from account.reauth import RecentAuth
+from account.identity_runtime import action_target, get_identity_passwords
 from account.security_actions import SecurityActions
-from account.security_http import binding_cookie, perform
+from account.security_http import binding_cookie, identity_cookie, perform
 from auth.password_settings import get_password_store
 from auth.passwords import PasswordStore
 from auth.security import UserSession, get_settings, require_user
@@ -32,6 +33,7 @@ from workspace.errors import WorkspaceError
 router = APIRouter(prefix="/api/v1/me", tags=["private account security"])
 Session = Annotated[UserSession, Depends(require_user)]
 Passwords = Annotated[PasswordStore, Depends(get_password_store)]
+IdentityPasswords = Annotated[PasswordStore, Depends(get_identity_passwords)]
 Config = Annotated[Settings, Depends(get_settings)]
 
 
@@ -45,6 +47,7 @@ def clear_current(response: Response, settings: Settings) -> None:
         session_cookie_name(settings),
         challenge_cookie_name(settings),
         binding_cookie(settings),
+        identity_cookie(settings),
     ):
         clear_auth_cookie(response, settings, name)
 
@@ -64,7 +67,7 @@ def start_challenge(
         result = RecentAuth(passwords).start(
             session,
             body.operation,
-            body.target_session_id,
+            action_target(session, body),
             token_digest(token),
             token_digest(binding),
         )
@@ -93,7 +96,7 @@ def verify_password(
             session,
             body.challenge_id,
             body.operation,
-            body.target_session_id,
+            action_target(session, body),
             token_digest(body.challenge_token),
             token_digest(binding or ""),
             body.password,
@@ -129,7 +132,7 @@ def revoke_session(
     request: Request,
     response: Response,
     session: Session,
-    passwords: Passwords,
+    passwords: IdentityPasswords,
     settings: Config,
 ) -> Any:
     def work() -> dict:
@@ -154,7 +157,7 @@ def revoke_sessions(
     request: Request,
     response: Response,
     session: Session,
-    passwords: Passwords,
+    passwords: IdentityPasswords,
     settings: Config,
 ) -> Any:
     def work() -> dict:

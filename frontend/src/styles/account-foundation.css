@@ -30,6 +30,15 @@
 .account-security-dialog .account-security-field input { box-sizing: border-box; width: 100%; min-width: 0; min-height: 2.75rem; padding: .7rem .8rem; font: inherit; color: var(--pref-text, #0f172a); background: var(--pref-raised, #f8fafc); border: 1px solid var(--pref-border, #cbd5e1); border-radius: .65rem; }
 .account-security-dialog .settings-dialog-actions > button { max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
 @media (max-width: 42rem) {
+  .preference-dialog:is(.account-security-dialog,.account-identity-dialog) { box-sizing: border-box; width: calc(100vw - 24px); max-width: calc(100vw - 24px); max-height: calc(100dvh - 24px); margin: auto; padding: 14px; }
   .account-foundation :is(.account-detail-list,.account-session dl) > div { grid-template-columns: minmax(0, 1fr); gap: .2rem; }
   .account-foundation .account-session { padding: .75rem; }
 }
+.notification-settings { min-width: 0; margin-block: 1.25rem; overflow-wrap: anywhere; }
+.notification-settings .notification-option { display: flex; align-items: start; gap: .6rem; margin-block: 1rem; }
+.notification-settings .notification-preview { display: grid; gap: .5rem; margin-block: 1rem; }
+.notification-settings select { min-width: 0; max-width: 100%; min-height: 44px; font: inherit; color: var(--pref-text); background: var(--pref-panel); border: 1px solid var(--pref-border); border-radius: .65rem; padding: .5rem; }
+.account-google-action { min-width: 0; margin-block: 1rem; }
+.account-identity-list { list-style: none; margin: .75rem 0; padding: 0; }
+.account-identity-list li { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .75rem; padding-block: .75rem; border-top: 1px solid var(--pref-border); }
+.account-proof-google > button { margin: .3rem; }

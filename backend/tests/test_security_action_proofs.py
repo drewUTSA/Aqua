@@ -209,18 +209,28 @@ def test_google_proof_is_unavailable_even_after_identity_reactivation(
     google_proof, _ = verified_fixture(
         account_security.world, principal, method="google"
     )
-    if reactivated:
-        with account_security.world.storage.transaction() as conn:
-            conn.execute(
-                "UPDATE app.external_identities SET is_active=false,inactive_at=now(),revision=revision+1 WHERE user_id=%s",
-                (principal.user["id"],),
-            )
+    from account.proof_consumption import check_proof
+
+    with account_security.world.storage.transaction() as conn:
+        check_proof(
+            conn,
+            account_security.world.policy,
+            principal,
+            "sessions_revoke_all",
+            None,
+            google_proof,
+            method="google",
+        )
+        conn.execute(
+            "UPDATE app.external_identities SET is_active=false,inactive_at=now(),revision=revision+1 WHERE user_id=%s",
+            (principal.user["id"],),
+        )
+        if reactivated:
             conn.execute(
                 "UPDATE app.external_identities SET is_active=true,inactive_at=NULL,revision=revision+1 WHERE user_id=%s",
                 (principal.user["id"],),
             )
-    # The existing foundation's synthetic Google proof exercises primitive
-    # compatibility, but no Google verifier/capability is mounted in P10b.
+    # A once-valid proof cannot revive when the same tombstone is active again.
     response = client.post(
         PATH + "/session-revocations", json={"proof_token": "invalid"}
     )
