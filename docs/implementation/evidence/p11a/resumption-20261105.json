@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "phase": "P11a Private exports",
+  "status": "verification_in_progress",
+  "generated_utc": "2026-11-05T18:26:44.981815+00:00",
+  "prepared_branch_head": "e17651492e354de827576e2f727a9cac66e1b84b",
+  "application_schema_version": 8,
+  "production_schema_version": 7,
+  "fresh_backend": {
+    "status": "passed",
+    "unique_cases": 1680,
+    "all_prior_1635_cases_retained": true,
+    "datasets": [
+      {
+        "dataset": "bank",
+        "exit_code": 0
+      },
+      {
+        "dataset": "pagila",
+        "exit_code": 0
+      }
+    ],
+    "restores": {
+      "bank": "passed",
+      "pagila": "passed"
+    },
+    "capacity": "passed",
+    "cleanup": "removed_and_absence_confirmed",
+    "native_image": "sha256:3b1640268dd7544ee81a7d6b1f058a5e4271f9f8c658b59c64fe158b331fde85",
+    "architecture": "linux/arm64",
+    "report_sha256": "a9a2add9725c3ab46a5f9b4ffd91888449750bfc5195a5bb68eb4aca936a888f"
+  },
+  "fresh_frontend": {
+    "unit_cases": 564,
+    "all_prior_528_occurrences_retained": true,
+    "builds": [
+      "opal",
+      "legacy"
+    ],
+    "build_input_count": 279,
+    "input_manifest_sha256": "8cb96acd97769c73a6c591af69def90b4643aa3c77406b34e7a94d17eb2e5cad",
+    "historical_input_comparison": {
+      "exact_bytes": 86,
+      "Windows_CRLF_to_LF_only": 192,
+      "changed_harness_files": [
+        "frontend/checks/p08-browser-environment.mjs"
+      ],
+      "application_source_content_changed": false
+    },
+    "historical_browser_evidence_is_not_reused_as_fresh": true
+  },
+  "fixture_repair": {
+    "autovacuum_naptime": "1s",
+    "scope": "disposable isolated core and capacity PostgreSQL fixtures only",
+    "existing_caps_and_assertions_unchanged": true,
+    "original_failed_run_retained": true
+  },
+  "remaining_gates": [
+    "fresh complete browser matrix and root visual review",
+    "schema8-compatible fallback browser/operator checks",
+    "PR and merged-main CI",
+    "fresh stopped-writer authenticated encrypted backup and independent recovery proof",
+    "production migration, preservation, topology activation and bounded smoke"
+  ],
+  "production_changed": false,
+  "phase_complete_claimed": false,
+  "can_authorize_release": false
+}

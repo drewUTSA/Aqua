@@ -30,3 +30,28 @@ Backup retention remains 30 days with automatic pruning disabled; existing
 backups have not been deleted. Recovery targets remain 24-hour RPO/four-hour
 restoration targets, not guarantees. P12 measurements and P13 launch gates remain
 incomplete; public audience expansion is not authorized by these preparations.
+
+## November 5 implementation resumption
+
+The prepared exports branch and the retained server-side deletion prototype
+were recovered. Fresh read-only inspection corroborated the recorded P10c
+images, schema 7, private database topology and mail schedule; the October 31
+backup and public-smoke receipts remain historical evidence.
+
+The current exports source passes all 1,680 backend case identities across both
+isolated datasets, including both restore and bounded-capacity checks, and all
+564 frontend units. Every prior 1,635 backend case and 528 frontend test
+occurrence is retained and passes. Both frontend builds and bundle checks pass.
+These results do not close the remaining fallback-browser, operator, CI or
+production-release gates.
+
+The first fresh backend run exhausted its unchanged 512 MiB temporary database
+because repeated schema migrations accumulated dead system-catalog tuples.
+The isolated core and capacity fixtures now run autovacuum every second; their
+CPU, memory, storage, timeout and test assertions are unchanged. The original
+failure and the complete passing retest are retained separately. This setting
+does not change the production database.
+
+Deletion integration is proceeding on a separate branch. The recovered protocol
+passes its 80 original checks in an isolated Linux container; application
+integration, host durability, purge and recovery gates remain open.

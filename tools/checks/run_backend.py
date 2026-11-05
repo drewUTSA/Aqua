@@ -104,7 +104,7 @@ def create(name: str, image: str, *args: str, command: tuple[str, ...] = ()) -> 
     )
 
 
-def provision_core(image, run_name, containers):
+def provision_core(image: str, run_name: str, containers: list[str]) -> tuple[str, str]:
     """Fresh original-size pair; run_name includes the selected dataset."""
     pg = create(
         run_name + "-pg",
@@ -116,8 +116,8 @@ def provision_core(image, run_name, containers):
         "--tmpfs=/tmp:rw,nosuid,nodev,size=67108864",
         "-e",
         "POSTGRES_HOST_AUTH_METHOD=trust",
-        # Repeated disposable schema migrations generate WAL faster than
-        # the default five-minute checkpoint on this bounded tmpfs.
+        # Repeated schema resets churn system catalogs as well as WAL. Reclaim
+        # dead catalog tuples promptly so fast hosts retain the same disk cap.
         command=(
             "postgres",
             "-c",
@@ -126,6 +126,8 @@ def provision_core(image, run_name, containers):
             "min_wal_size=32MB",
             "-c",
             "checkpoint_timeout=30s",
+            "-c",
+            "autovacuum_naptime=1s",
         ),
     )
     containers.append(pg)

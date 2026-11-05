@@ -124,6 +124,8 @@ def verify(docker, create, source, image, run_name, output, archive):
                     "min_wal_size=32MB",
                     "-c",
                     "checkpoint_timeout=30s",
+                    "-c",
+                    "autovacuum_naptime=1s",
                 ),
             )
             owned.append(pg)
