@@ -572,3 +572,160 @@ jobs:
           if-no-files-found: warn
           retention-days: 7
           include-hidden-files: false
+
+  personal-exports:
+    name: Personal exports (${{ matrix.shell }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        shell: [opal, legacy]
+    defaults:
+      run:
+        shell: bash
+    env:
+      AQUA_P05_EXPECTED_SHELL: ${{ matrix.shell }}
+      AQUA_P11A_DIST: ${{ github.workspace }}/frontend/dist
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12.14'
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24.19.0'
+      - name: Install pinned check tools
+        run: python -m pip install -r tools/checks/requirements-dev.txt
+      - name: Validate dedicated export fixture boundaries offline
+        run: python tools/checks/test_p11a_browser_fixture.py
+      - name: Prepare isolated export fixture images
+        id: runtime
+        run: |
+          docker build --pull -t aqua-checks:p00 -f tools/checks/Dockerfile .
+          docker build --pull -t aqua-runtime:check -f backend/Dockerfile .
+          docker pull postgres@sha256:3645570cccdfa447589da9f57dd740faa29b30938e861289a5574b6ca6b03826
+          docker pull node:24.19.0-bookworm-slim@sha256:a9f5f7c91a432850b2a8a7797adf5eadb6c733ceed61167806cee7ea7fbc29df
+          docker pull nginx@sha256:970364228b1e4f932abc22d321932816782cca8a20b85a77552a7cfe9acfb3b5
+      - name: Install locked frontend dependencies
+        working-directory: frontend
+        run: npm ci --ignore-scripts --no-fund
+      - name: Build the selected secure UI shell
+        id: build
+        working-directory: frontend
+        env:
+          VITE_AQUA_DEMO_MODE: 'false'
+          VITE_AQUA_USE_MOCK: 'false'
+          VITE_AQUA_UI_SHELL: ${{ matrix.shell }}
+        run: npm run build -- --manifest
+      - name: Bind Chrome and the exact export backend image
+        id: fixture
+        run: |
+          chrome="$(command -v google-chrome)"
+          test -x "$chrome"
+          python="$(command -v python)"
+          test -x "$python"
+          image="$(docker image inspect aqua-runtime:check --format '{{.Id}}')"
+          [[ "$image" =~ ^sha256:[a-f0-9]{64}$ ]]
+          export AQUA_P11A_BACKEND_IMAGE="$image"
+          args="$(python -c 'import json,os; print(json.dumps(["-u","../tools/checks/p11a_browser_backend.py","--image",os.environ["AQUA_P11A_BACKEND_IMAGE"]]))')"
+          {
+            echo "AQUA_CHROME_EXECUTABLE=$chrome"
+            echo "AQUA_P11A_BRIDGE_EXECUTABLE=$python"
+            echo "AQUA_P11A_BACKEND_IMAGE=$image"
+            echo "AQUA_P11A_BRIDGE_ARGS_JSON=$args"
+          } >> "$GITHUB_ENV"
+      # Each process owns a fresh fixture and absence-confirmed cleanup.
+      # The 150-second, 250-request, 160-API, 5/second and 16-paused
+      # browser ceilings are unchanged; unlink waits the real cooldown.
+      - name: Verify password and prepare an owned personal export
+        if: ${{ !cancelled() && steps.fixture.outcome == 'success' }}
+        timeout-minutes: 4
+        working-directory: frontend
+        env:
+          AQUA_P11A_SCENARIO: password-export
+          AQUA_P11A_ARTIFACT_DIR: ${{ runner.temp }}/aqua-p11a/${{ matrix.shell }}/password-export
+        run: node checks/p11a-export-browser.mjs
+      - name: Verify Google and prepare an owned personal export
+        if: ${{ !cancelled() && steps.fixture.outcome == 'success' }}
+        timeout-minutes: 4
+        working-directory: frontend
+        env:
+          AQUA_P11A_SCENARIO: google-export
+          AQUA_P11A_ARTIFACT_DIR: ${{ runner.temp }}/aqua-p11a/${{ matrix.shell }}/google-export
+        run: node checks/p11a-export-browser.mjs
+      - name: Reconcile a lost creation reply without replay
+        if: ${{ !cancelled() && steps.fixture.outcome == 'success' }}
+        timeout-minutes: 4
+        working-directory: frontend
+        env:
+          AQUA_P11A_SCENARIO: lost-create
+          AQUA_P11A_ARTIFACT_DIR: ${{ runner.temp }}/aqua-p11a/${{ matrix.shell }}/lost-create
+        run: node checks/p11a-export-browser.mjs
+      - name: Discard bytes after actual sign-out during native hashing
+        if: ${{ !cancelled() && steps.fixture.outcome == 'success' }}
+        timeout-minutes: 4
+        working-directory: frontend
+        env:
+          AQUA_P11A_SCENARIO: hash-interruption
+          AQUA_P11A_ARTIFACT_DIR: ${{ runner.temp }}/aqua-p11a/${{ matrix.shell }}/hash-interruption
+        run: node checks/p11a-export-browser.mjs
+      - name: Reject a labeled local partial-response fault
+        if: ${{ !cancelled() && steps.fixture.outcome == 'success' }}
+        timeout-minutes: 4
+        working-directory: frontend
+        env:
+          AQUA_P11A_SCENARIO: partial-download
+          AQUA_P11A_ARTIFACT_DIR: ${{ runner.temp }}/aqua-p11a/${{ matrix.shell }}/partial-download
+        run: node checks/p11a-export-browser.mjs
+      - name: Reject a labeled local digest fault
+        if: ${{ !cancelled() && steps.fixture.outcome == 'success' }}
+        timeout-minutes: 4
+        working-directory: frontend
+        env:
+          AQUA_P11A_SCENARIO: digest-mismatch
+          AQUA_P11A_ARTIFACT_DIR: ${{ runner.temp }}/aqua-p11a/${{ matrix.shell }}/digest-mismatch
+        run: node checks/p11a-export-browser.mjs
+      - name: Hide owned exports from a distinct real account
+        if: ${{ !cancelled() && steps.fixture.outcome == 'success' }}
+        timeout-minutes: 4
+        working-directory: frontend
+        env:
+          AQUA_P11A_SCENARIO: foreign-probes
+          AQUA_P11A_ARTIFACT_DIR: ${{ runner.temp }}/aqua-p11a/${{ matrix.shell }}/foreign-probes
+        run: node checks/p11a-export-browser.mjs
+      - name: Deny creation after failed real password verification
+        if: ${{ !cancelled() && steps.fixture.outcome == 'success' }}
+        timeout-minutes: 4
+        working-directory: frontend
+        env:
+          AQUA_P11A_SCENARIO: verification-failure
+          AQUA_P11A_ARTIFACT_DIR: ${{ runner.temp }}/aqua-p11a/${{ matrix.shell }}/verification-failure
+        run: node checks/p11a-export-browser.mjs
+      - name: Retain bounded synthetic export evidence after success or failure
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: p11a-exports-${{ matrix.shell }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/aqua-p11a/${{ matrix.shell }}/password-export/p11a-export-browser-report.json
+            ${{ runner.temp }}/aqua-p11a/${{ matrix.shell }}/password-export/p11a-*.png
+            ${{ runner.temp }}/aqua-p11a/${{ matrix.shell }}/google-export/p11a-export-browser-report.json
+            ${{ runner.temp }}/aqua-p11a/${{ matrix.shell }}/google-export/p11a-*.png
+            ${{ runner.temp }}/aqua-p11a/${{ matrix.shell }}/lost-create/p11a-export-browser-report.json
+            ${{ runner.temp }}/aqua-p11a/${{ matrix.shell }}/lost-create/p11a-*.png
+            ${{ runner.temp }}/aqua-p11a/${{ matrix.shell }}/hash-interruption/p11a-export-browser-report.json
+            ${{ runner.temp }}/aqua-p11a/${{ matrix.shell }}/hash-interruption/p11a-*.png
+            ${{ runner.temp }}/aqua-p11a/${{ matrix.shell }}/partial-download/p11a-export-browser-report.json
+            ${{ runner.temp }}/aqua-p11a/${{ matrix.shell }}/partial-download/p11a-*.png
+            ${{ runner.temp }}/aqua-p11a/${{ matrix.shell }}/digest-mismatch/p11a-export-browser-report.json
+            ${{ runner.temp }}/aqua-p11a/${{ matrix.shell }}/digest-mismatch/p11a-*.png
+            ${{ runner.temp }}/aqua-p11a/${{ matrix.shell }}/foreign-probes/p11a-export-browser-report.json
+            ${{ runner.temp }}/aqua-p11a/${{ matrix.shell }}/foreign-probes/p11a-*.png
+            ${{ runner.temp }}/aqua-p11a/${{ matrix.shell }}/verification-failure/p11a-export-browser-report.json
+            ${{ runner.temp }}/aqua-p11a/${{ matrix.shell }}/verification-failure/p11a-*.png
+          if-no-files-found: warn
+          retention-days: 7
+          include-hidden-files: false

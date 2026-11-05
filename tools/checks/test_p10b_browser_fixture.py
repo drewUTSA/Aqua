@@ -198,7 +198,11 @@ class SecurityFixtureTests(unittest.TestCase):
 
     def test_host_pins_dedicated_worker_image_and_confirms_cleanup(self) -> None:
         result, launch, resources = self.host(
-            {"kind": "ready", "schema_version": 7, "account_security_fixture": True}
+            {
+                "kind": "ready",
+                "schema_version": bridge.fixture_schema(bridge.ROOT),
+                "account_security_fixture": True,
+            }
         )
         self.assertEqual(result, 0)
         command = launch.call_args.args[0]
@@ -210,7 +214,9 @@ class SecurityFixtureTests(unittest.TestCase):
         self.assertEqual(fixture.MAX_REQUESTS, 300)
 
     def test_wrong_fixture_ready_marker_cannot_pass_but_cleanup_runs(self) -> None:
-        result, _, resources = self.host({"kind": "ready", "schema_version": 7})
+        result, _, resources = self.host(
+            {"kind": "ready", "schema_version": bridge.fixture_schema(bridge.ROOT)}
+        )
         self.assertEqual(result, 1)
         resources.cleanup.assert_called_once()
 

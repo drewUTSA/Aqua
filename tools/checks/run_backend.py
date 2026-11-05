@@ -7,6 +7,7 @@ code on the production server. CI runs this on an ephemeral hosted runner.
 """
 
 import argparse
+import hashlib
 import io
 import json
 from pathlib import Path
@@ -14,10 +15,12 @@ import secrets
 import subprocess
 import tarfile
 import time
+import xml.etree.ElementTree as ET
 
 from matrix import coverage
 from app_fixture import initialize
 from app_restore import verify as verify_restore
+from backend_execution import run_core
 
 ROOT = Path(__file__).resolve().parents[2]
 POSTGRES = (
@@ -104,63 +107,75 @@ def create(name: str, image: str, *args: str, command: tuple[str, ...] = ()) -> 
     )
 
 
-def run(image: str, output: Path) -> int:
-    """Run both fixture datasets; report cleanup even when a test fails."""
-    run_name = "aqua-check-" + secrets.token_hex(12)
-    containers: list[str] = []
-    report: dict = {"run": run_name, "results": [], "cleanup": "not_started"}
-    output.mkdir(parents=True, exist_ok=True)
-    try:
-        report["backend_image"] = (
-            docker("image", "inspect", image, "--format", "{{.Id}}").decode().strip()
-        )
-        report["postgres_image"] = (
-            docker("image", "inspect", POSTGRES, "--format", "{{.Id}}").decode().strip()
-        )
-        pg = create(
-            run_name + "-pg",
-            POSTGRES,
-            "--network=none",
-            "--user=999:999",
-            "--tmpfs=/var/lib/postgresql/data:rw,nosuid,nodev,size=536870912,uid=999,gid=999,mode=0700",
-            "--tmpfs=/var/run/postgresql:rw,nosuid,nodev,size=16777216,uid=999,gid=999",
-            "--tmpfs=/tmp:rw,nosuid,nodev,size=67108864",
-            "-e",
-            "POSTGRES_HOST_AUTH_METHOD=trust",
-            # Repeated disposable schema migrations generate WAL faster than
-            # the default five-minute checkpoint on this bounded tmpfs.
-            command=(
+def provision_core(
+    image: str, run_name: str, containers: list[str], archive: bytes | None = None
+) -> tuple[str, str]:
+    """Fresh original-size pair; run_name includes dataset and batch."""
+    pg = create(
+        run_name + "-pg",
+        POSTGRES,
+        "--network=none",
+        "--user=999:999",
+        "--tmpfs=/var/lib/postgresql/data:rw,nosuid,nodev,size=536870912,uid=999,gid=999,mode=0700",
+        "--tmpfs=/var/run/postgresql:rw,nosuid,nodev,size=16777216,uid=999,gid=999",
+        "--tmpfs=/tmp:rw,nosuid,nodev,size=67108864",
+        "-e",
+        "POSTGRES_HOST_AUTH_METHOD=trust",
+        # Repeated schema resets churn system catalogs as well as WAL. Reclaim
+        # dead catalog tuples promptly so fast hosts retain the same disk cap.
+        command=(
+            "postgres",
+            "-c",
+            "max_wal_size=128MB",
+            "-c",
+            "min_wal_size=32MB",
+            "-c",
+            "checkpoint_timeout=30s",
+            "-c",
+            "autovacuum_naptime=1s",
+        ),
+    )
+    containers.append(pg)
+    docker("start", pg)
+    deadline = time.monotonic() + 45
+    while True:
+        try:
+            docker(
+                "exec",
+                pg,
+                "pg_isready",
+                "-h",
+                "127.0.0.1",
+                "-U",
                 "postgres",
-                "-c",
-                "max_wal_size=128MB",
-                "-c",
-                "min_wal_size=32MB",
-                "-c",
-                "checkpoint_timeout=30s",
-            ),
-        )
-        containers.append(pg)
-        docker("start", pg)
-        deadline = time.monotonic() + 45
-        while True:
-            try:
-                docker(
-                    "exec",
-                    pg,
-                    "pg_isready",
-                    "-h",
-                    "127.0.0.1",
-                    "-U",
-                    "postgres",
-                    timeout=5,
-                )
-                break
-            except RuntimeError:
-                if time.monotonic() >= deadline:
-                    raise RuntimeError(
-                        "disposable PostgreSQL did not become ready"
-                    ) from None
-                time.sleep(0.5)
+                timeout=5,
+            )
+            break
+        except RuntimeError:
+            if time.monotonic() >= deadline:
+                raise RuntimeError(
+                    "disposable PostgreSQL did not become ready"
+                ) from None
+            time.sleep(0.5)
+    docker(
+        "exec",
+        "-i",
+        pg,
+        "psql",
+        "-X",
+        "-v",
+        "ON_ERROR_STOP=1",
+        "-U",
+        "postgres",
+        data=b"""
+        CREATE ROLE nl2sql_reader LOGIN;
+        ALTER ROLE nl2sql_reader SET default_transaction_read_only = on;
+        ALTER ROLE nl2sql_reader SET statement_timeout = '100ms';
+        CREATE DATABASE aqua_test_bank;
+        CREATE DATABASE aqua_test_pagila;
+    """,
+    )
+    for dataset in ("bank", "pagila"):
         docker(
             "exec",
             "-i",
@@ -171,123 +186,92 @@ def run(image: str, output: Path) -> int:
             "ON_ERROR_STOP=1",
             "-U",
             "postgres",
-            data=b"""
-            CREATE ROLE nl2sql_reader LOGIN;
-            ALTER ROLE nl2sql_reader SET default_transaction_read_only = on;
-            ALTER ROLE nl2sql_reader SET statement_timeout = '100ms';
-            CREATE DATABASE aqua_test_bank;
-            CREATE DATABASE aqua_test_pagila;
-        """,
+            "-d",
+            "aqua_test_" + dataset,
+            data=(ROOT / "tools/checks/fixtures" / (dataset + ".sql")).read_bytes(),
         )
-        for dataset in ("bank", "pagila"):
-            docker(
-                "exec",
-                "-i",
-                pg,
-                "psql",
-                "-X",
-                "-v",
-                "ON_ERROR_STOP=1",
-                "-U",
-                "postgres",
-                "-d",
-                "aqua_test_" + dataset,
-                data=(ROOT / "tools/checks/fixtures" / (dataset + ".sql")).read_bytes(),
-            )
-        initialize(docker, pg, ROOT)
-        runner = create(
-            run_name + "-tests",
+    initialize(docker, pg, ROOT)
+    runner = create(
+        run_name + "-tests",
+        image,
+        "--network=container:" + pg,
+        "--user=1000:1000",
+        "--tmpfs=/tmp:rw,nosuid,nodev,size=268435456,mode=1777",
+        "--tmpfs=/checks:rw,nosuid,nodev,size=67108864,mode=0777",
+        "-e",
+        "PYTHONDONTWRITEBYTECODE=1",
+        "-e",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1",
+        "-e",
+        "PYTHON_DOTENV_DISABLED=1",
+        "--workdir=/tmp",
+        "--entrypoint=/bin/sleep",
+        command=("300",),
+    )
+    # The image CMD is a bounded sleep; the app entry point never runs.
+    containers.append(runner)
+    docker("start", runner)
+    unpack = "import io,sys,tarfile;tarfile.open(fileobj=io.BytesIO(sys.stdin.buffer.read())).extractall('/checks',filter='data')"
+    docker(
+        "exec",
+        "-i",
+        runner,
+        "python",
+        "-c",
+        unpack,
+        data=source_archive() if archive is None else archive,
+    )
+    return pg, runner
+
+
+def run(image: str, output: Path) -> int:
+    """Run both fixture datasets; report cleanup even when a test fails."""
+    run_name = "aqua-check-" + secrets.token_hex(12)
+    containers: list[str] = []
+    report: dict = {"run": run_name, "results": [], "cleanup": "not_started"}
+    output.mkdir(parents=True, exist_ok=True)
+    from privacy_capacity_fixture import CAPACITY_CASE, verify as verify_capacity
+
+    try:
+        report["backend_image"] = (
+            docker("image", "inspect", image, "--format", "{{.Id}}").decode().strip()
+        )
+        report["postgres_image"] = (
+            docker("image", "inspect", POSTGRES, "--format", "{{.Id}}").decode().strip()
+        )
+        archive = source_archive()
+        report["source_archive_sha256"] = hashlib.sha256(archive).hexdigest()
+        run_core(
+            docker,
+            provision_core,
+            verify_restore,
+            archive,
             image,
-            "--network=container:" + pg,
-            "--user=1000:1000",
-            "--tmpfs=/tmp:rw,nosuid,nodev,size=268435456,mode=1777",
-            "--tmpfs=/checks:rw,nosuid,nodev,size=67108864,mode=0777",
-            "-e",
-            "PYTHONDONTWRITEBYTECODE=1",
-            "-e",
-            "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1",
-            "-e",
-            "PYTHON_DOTENV_DISABLED=1",
-            "--workdir=/tmp",
-            "--entrypoint=/bin/sleep",
-            command=("300",),
+            run_name,
+            containers,
+            output,
+            report,
+            CAPACITY_CASE,
         )
-        # The image CMD is a bounded sleep; the app entry point never runs.
-        containers.append(runner)
-        docker("start", runner)
-        unpack = "import io,sys,tarfile;tarfile.open(fileobj=io.BytesIO(sys.stdin.buffer.read())).extractall('/checks',filter='data')"
-        docker("exec", "-i", runner, "python", "-c", unpack, data=source_archive())
-        for dataset in ("bank", "pagila"):
-            result = subprocess.run(
-                [
-                    "docker",
-                    "exec",
-                    "-w",
-                    "/checks/backend",
-                    "-e",
-                    "AQUA_TEST_DATASET=" + dataset,
-                    "-e",
-                    "AQUA_TEST_APP_STORAGE=1",
-                    runner,
-                    "python",
-                    "-m",
-                    "pytest",
-                    "-q",
-                    "-p",
-                    "no:cacheprovider",
-                    "--tb=short",
-                    "--junitxml=/tmp/" + dataset + ".xml",
-                ],
-                capture_output=True,
-                timeout=120,
-            )
-            log = result.stdout + result.stderr
-            (output / (dataset + ".txt")).write_bytes(log)
-            report["results"].append(
-                {"dataset": dataset, "exit_code": result.returncode}
-            )
-            if result.returncode:
-                fixture_log = docker("logs", "--tail", "100", pg).decode(
-                    errors="replace"
-                )
-                report.setdefault("fixture_diagnostics", []).append(
-                    {
-                        "dataset": dataset,
-                        "database_tmpfs": docker(
-                            "exec", pg, "df", "-k", "/var/lib/postgresql/data"
-                        )
-                        .decode()
-                        .splitlines()[-1]
-                        .split()[1:5],
-                        "database_oom_killed": docker(
-                            "inspect", pg, "--format", "{{.State.OOMKilled}}"
-                        )
-                        .decode()
-                        .strip()
-                        == "true",
-                        "database_categories": [
-                            category
-                            for category in (
-                                "No space left on device",
-                                "out of memory",
-                                "PANIC",
-                                "database system is in recovery mode",
-                            )
-                            if category in fixture_log
-                        ],
-                    }
-                )
-            (output / (dataset + ".xml")).write_bytes(
-                docker("exec", runner, "cat", "/tmp/" + dataset + ".xml")
-            )
-            print(log.decode(errors="replace"))
+        # Only the new capacity case moves to a fresh same-size fixture. Every
+        # ordinary case remains selected; its real JUnit is merged before the
+        # unchanged case-identity coverage and prior-regression retention gates.
+        report["privacy_capacity"] = verify_capacity(
+            docker, create, ROOT, image, run_name, output, archive
+        )
+        if report["privacy_capacity"]["status"] != "passed":
+            raise RuntimeError("fresh_private_export_capacity_unverified")
         # Record immutable versions used, without inspecting runtime environments.
         report["coverage"] = coverage(output)
-        report["app_restore"] = verify_restore(docker, pg, runner)
-        (output / "packages.txt").write_bytes(
-            docker("exec", runner, "python", "-m", "pip", "freeze")
-        )
-    except (RuntimeError, AssertionError, subprocess.TimeoutExpired) as error:
+    except (
+        RuntimeError,
+        AssertionError,
+        subprocess.TimeoutExpired,
+        OSError,
+        ValueError,
+        KeyError,
+        ET.ParseError,
+    ) as error:
         report["error"] = str(error)
     finally:
         cleanup_errors = []

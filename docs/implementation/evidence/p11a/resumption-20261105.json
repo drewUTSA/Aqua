@@ -1,0 +1,133 @@
+{
+  "schema_version": 1,
+  "phase": "P11a Private exports",
+  "status": "verification_in_progress",
+  "generated_utc": "2026-11-05T19:38:52.859006+00:00",
+  "prepared_branch_head": "e17651492e354de827576e2f727a9cac66e1b84b",
+  "application_schema_version": 8,
+  "production_schema_version": 7,
+  "fresh_backend": {
+    "status": "passed",
+    "unique_cases": 1680,
+    "all_prior_1635_cases_retained": true,
+    "datasets": [
+      {
+        "dataset": "bank",
+        "exit_code": 0
+      },
+      {
+        "dataset": "pagila",
+        "exit_code": 0
+      }
+    ],
+    "restores": {
+      "bank": "passed",
+      "pagila": "passed"
+    },
+    "capacity": "passed",
+    "cleanup": "removed_and_absence_confirmed",
+    "native_image": "sha256:3b1640268dd7544ee81a7d6b1f058a5e4271f9f8c658b59c64fe158b331fde85",
+    "architecture": "linux/arm64",
+    "report_sha256": "a9a2add9725c3ab46a5f9b4ffd91888449750bfc5195a5bb68eb4aca936a888f"
+  },
+  "fresh_frontend": {
+    "unit_cases": 564,
+    "all_prior_528_occurrences_retained": true,
+    "builds": [
+      "opal",
+      "legacy"
+    ],
+    "build_input_count": 279,
+    "input_manifest_sha256": "8cb96acd97769c73a6c591af69def90b4643aa3c77406b34e7a94d17eb2e5cad",
+    "historical_input_comparison": {
+      "exact_bytes": 86,
+      "Windows_CRLF_to_LF_only": 192,
+      "changed_harness_files": [
+        "frontend/checks/p08-browser-environment.mjs"
+      ],
+      "application_source_content_changed": false
+    },
+    "historical_browser_evidence_is_not_reused_as_fresh": true
+  },
+  "fixture_repair": {
+    "autovacuum_naptime": "1s",
+    "scope": "disposable isolated core and capacity PostgreSQL fixtures only",
+    "original_failed_run_retained": true,
+    "application_assertions_and_resource_caps_unchanged": true,
+    "fixture_guard_asserts_new_maintenance_cadence": true,
+    "affected_fixture_guard_tests_passed": 17
+  },
+  "remaining_gates": [
+    "fresh complete browser matrix and root visual review",
+    "schema8-compatible fallback browser/operator checks",
+    "PR and merged-main CI",
+    "fresh stopped-writer authenticated encrypted backup and independent recovery proof",
+    "production migration, preservation, topology activation and bounded smoke"
+  ],
+  "production_changed": false,
+  "phase_complete_claimed": false,
+  "can_authorize_release": false,
+  "ci_batch_repair": {
+    "status": "hosted_backend_passed_latest_diagnostic_update_pending",
+    "failed_run": "https://github.com/drewUTSA/Aqua/actions/runs/42087419152",
+    "hosted_complete_bank_suite_timeout_attempts": 2,
+    "fixed_sequential_batches_per_dataset": 4,
+    "batch_execution_deadline_seconds": 120,
+    "default_collection_deadline_seconds": 60,
+    "cpu_memory_disk_caps_unchanged": true,
+    "all_default_collected_identities_required_exactly_once": true,
+    "source_archive_frozen_once_per_run": true,
+    "new_orchestration_regressions_passed": 7,
+    "existing_fixture_guards_passed": 17,
+    "production_runtime_unchanged": true,
+    "combined_offline_export_guard_cases": 24,
+    "hosted_backend_step_at_283a829": "passed",
+    "hosted_complete_run_at_283a829": "completed_failure_single_Chrome_startup_before_any_assertion",
+    "postgres_stderr_and_independent_exit_diagnostics_regression": "passed"
+  },
+  "fresh_schema8_fallback_backend": {
+    "status": "passed",
+    "isolated_gates": 23,
+    "unique_cases": 1651,
+    "all_prior_1635_cases_retained": true,
+    "summary_sha256": "dda5b0400d0c4a68587950b06df0cf4f0f9a978230197242258dbff36589e071"
+  },
+  "fresh_schema8_fallback_browser": {
+    "status": "passed",
+    "gates": 42,
+    "matrix_summary_sha256": "fcd93f32e1e69bf4e20489b94bd952cc58012ca23306497c34da90b65078f89e",
+    "root_contact_sheet_reviewed_screenshots": 162,
+    "root_full_resolution_details": 3,
+    "visual_review": "pending_fresh_actual_unlink_confirmation_supplement",
+    "mac_keyboard_adapter": "omit only the optional nativeVirtualKeyCode for exact legacy Escape events; assertions and timeouts unchanged"
+  },
+  "independent_backup_recovery": {
+    "status": "passed",
+    "operator_approved_storage": "private unshared Google Drive",
+    "owner_only_permissions_verified": true,
+    "download_matches_local_identity": true,
+    "downloaded_copy_decrypts_fresh_challenge": true,
+    "recovery_proof_sha256": "41fb7333eab7732d259cc443cbe2a04274691ee892f7867bc9824cb4e557ae19",
+    "private_key_bytes_committed": false,
+    "fresh_stopped_writer_database_backup_still_required": true
+  },
+  "fresh_hosted_backend": {
+    "status": "passed",
+    "commit": "283a8298c0a2d6ab32ecae8eee2b79fdf7514a1a",
+    "run": "https://github.com/drewUTSA/Aqua/actions/runs/42093117112",
+    "unique_tests": 1680,
+    "passed_in_at_least_one_fixture": 1680,
+    "core_unique_tests_per_dataset": 1679,
+    "core_cases_per_batch": [
+      324,
+      478,
+      598,
+      279
+    ],
+    "capacity_case_passed_each_dataset": true,
+    "restores_passed_all_eight_batches": true,
+    "cleanup": "removed_and_absence_confirmed",
+    "source_archive_sha256": "8644f7cca03e52da6a9d917de3d3a43eb39e1a92401f0203071f675a8698e41e",
+    "extracted_report_sha256": "efc0d793073a15aa7c81f6216a89b4888c474b8d62e1ac82782051c1ab040e9c"
+  }
+}

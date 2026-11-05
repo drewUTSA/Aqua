@@ -21,16 +21,25 @@ def run(
     nginx_image: str = NGINX,
     *,
     identity_actions: bool = False,
+    personal_exports: bool = False,
 ) -> int:
     """No host mounts/ports/sockets; only the synthetic upstream shares the netns."""
     if baseline and identity_actions:
         raise ValueError("identity_actions_have_no_unsafe_baseline")
-    probe_name = "p10c_proxy_probe.py" if identity_actions else "proxy_probe.py"
+    if personal_exports and (baseline or identity_actions):
+        raise ValueError("personal_exports_require_separate_guarded_exercise")
+    probe_name = (
+        "p11a_proxy_probe.py"
+        if personal_exports
+        else "p10c_proxy_probe.py" if identity_actions else "proxy_probe.py"
+    )
     name = "aqua-proxy-check-" + secrets.token_hex(12)
     containers = []
     report = {"name": name, "network": "none", "status": "failed", "cleanup": "pending"}
     if identity_actions:
         report["exercise_kind"] = "p10c_identity_actions"
+    if personal_exports:
+        report["exercise_kind"] = "p11a_personal_exports"
     content = config.read_bytes()
     report["config_sha256"] = hashlib.sha256(content).hexdigest()
     started = time.monotonic()
@@ -145,9 +154,12 @@ if __name__ == "__main__":
     parser.add_argument("--baseline", action="store_true")
     parser.add_argument("--nginx-image", default=NGINX)
     parser.add_argument("--identity-actions", action="store_true")
+    parser.add_argument("--personal-exports", action="store_true")
     args = parser.parse_args()
     if args.baseline and args.identity_actions:
         parser.error("identity-actions cannot use an unsafe baseline")
+    if args.personal_exports and (args.baseline or args.identity_actions):
+        parser.error("personal-exports requires a separate guarded exercise")
     raise SystemExit(
         run(
             args.config,
@@ -155,5 +167,6 @@ if __name__ == "__main__":
             args.baseline,
             args.nginx_image,
             identity_actions=args.identity_actions,
+            personal_exports=args.personal_exports,
         )
     )

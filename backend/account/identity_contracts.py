@@ -19,13 +19,19 @@ class IdentityTarget(BaseModel):
         "google_unlink",
         "session_revoke",
         "sessions_revoke_all",
+        "data_export",
     ]
+    target_intent_id: str | None = None
     target_session_id: str | None = None
     target_identity_id: str | None = None
     new_email: str | None = Field(default=None, max_length=254)
 
     @model_validator(mode="after")
     def exact_target(self):
+        if self.operation == "data_export":
+            identifier(self.target_intent_id)
+        elif self.target_intent_id is not None:
+            raise ValueError("account_target_invalid")
         if self.operation == "session_revoke":
             identifier(self.target_session_id)
         elif self.target_session_id is not None:

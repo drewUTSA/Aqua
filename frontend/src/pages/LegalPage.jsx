@@ -17,7 +17,9 @@ function PrivacyPolicy() {
     <p>These providers handle information under their applicable terms and privacy policies. See <a href="https://policies.google.com/privacy">Google's Privacy Policy</a> and <a href="https://www.cloudflare.com/privacypolicy/">Cloudflare's Privacy Policy</a>.</p>
     <h2>Cookies and storage</h2>
     <p>AQUA uses necessary cookies to protect sign-in and maintain revocable sessions. Session and challenge lifetimes are set by the service administrator. Confirmed sign-out revokes your session on the server and clears its browser cookie. If sign-out cannot be confirmed, the workspace remains locked until you retry.</p>
-    <p>A private application database stores account identity, password hashes where applicable, session records, access grants and bounded authentication, security and email-delivery records. Current chats and drafts remain in the active page's memory and are not saved across page reloads. Reloading or confirmed sign-out clears those page-local conversations. Connected databases, backups, infrastructure logs and external providers have separate storage and retention practices; signing out does not delete those records.</p>
+    <p>A private application database stores account identity, password hashes where applicable, session records, access grants and bounded authentication, security and email-delivery records. It also stores saved account preferences, notification choices, projects, saved prompts, chats and messages, and permitted stored results. Unsent drafts remain in the active page's memory. Reloading or signing out clears those drafts; it does not delete saved data. Device presentation preferences can persist across reloads. AQUA attempts to clear them when you sign out or switch accounts; your browser's site-storage controls can clear any remaining values.</p>
+    <p>Where personal exports are enabled, an explicit request and fresh sign-in verification prepare a private JSON copy of your profile, preferences, notification choices, projects, saved prompts, chats and messages. Stored assistant results are included only while your current authorization permits access. The export excludes passwords, session and security credentials, and copies of connected business databases. The temporary export expires one hour after creation. Exporting or expiry does not delete source records or files already saved to your device.</p>
+    <p>The encrypted backup retention setting is 30 days. Automatic pruning is disabled, so backups may be retained longer than 30 days. This setting does not establish a retention deadline for active account or chat data. Connected databases, infrastructure logs and external providers have separate storage and retention practices. Signing out does not delete those records.</p>
     <h2>Your choices and requests</h2>
     <p>You can stop using AQUA, sign out, or clear site cookies in your browser. Contact Benjamin at {contact} to ask about your information, request access, correction or deletion, or raise a privacy concern. We may need to verify your identity and coordinate with the relevant database owner or service provider. Any privacy rights and exceptions depend on applicable law.</p>
     <h2>Changes to this policy</h2>
@@ -63,7 +65,7 @@ export default function LegalPage({ kind, onNavigate }) {
       <header>
         <p className="legal-page__brand">AQUA</p>
         <h1 id="legal-heading" tabIndex={-1}>{title}</h1>
-        <p className="legal-page__date">Last updated: October 21, 2026</p>
+        <p className="legal-page__date">Last updated: October 30, 2026</p>
       </header>
       {privacy ? <PrivacyPolicy /> : <TermsOfService onNavigate={onNavigate} />}
     </article>

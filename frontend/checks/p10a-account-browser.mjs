@@ -30,7 +30,7 @@ const report = { status: failure ? 'failed' : 'passed', failure, checked_utc: ne
   elapsed_seconds: ctx ? Math.round((performance.now() - ctx.started) / 100) / 10 : null,
   expected_shell: process.env.AQUA_P05_EXPECTED_SHELL || 'opal', limits: LIMITS, workload, fixture: stats,
   browser_diagnostic: ctx?.cdp?.diagnostic || null, protocol_diagnostics: ctx?.protocolDiagnostics || [], setup_diagnostic: setup,
-  boundary: { backend_image: ctx?.backendImage || null, schema_version: 7, network: 'none', live_provider_or_production: false },
+  boundary: { backend_image: ctx?.backendImage || null, schema_version: 8, network: 'none', live_provider_or_production: false },
   checks: ctx?.results || [], screenshots: ctx?.screenshots || [], cleanup: ctx?.cleanup || null,
   observations: ctx ? { requests: ctx.requests, api_requests: ctx.api, external_attempts: ctx.external, runtime_errors: ctx.runtimeErrors, console_leaks: ctx.consoleLeaks, protocol_errors: ctx.errors, maximum_paused_requests: ctx.maximumPending } : null,
   assets: ctx?.assets || [], limitations: ['320px/doubled-root-text check does not claim assistive-technology or full browser-zoom coverage.', 'Lost-response and unmount races hold or drop real completed responses in the browser; the server response is never fabricated.', 'Owner-switch fences and hostile DTOs have separate deterministic state/transport unit coverage.'] };

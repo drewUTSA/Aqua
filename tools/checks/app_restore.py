@@ -4,6 +4,7 @@ import hashlib
 from pathlib import Path
 from collections.abc import Callable
 from identity_restore import seed as seed_identity, verify as verify_identity
+from export_restore import seed as seed_exports, verify as verify_exports
 
 
 def verify(docker: Callable, pg: str, runner: str) -> dict:
@@ -160,8 +161,10 @@ SELECT count(*),bool_and(consumed_at IS NOT NULL) FROM app.auth_challenges WHERE
 SELECT count(*),bool_and(consumed_at IS NOT NULL) FROM app.account_action_proofs WHERE id='73000000-0000-4000-8000-000000000001';
 """
     assert sql("aqua_app", proof_fence_sql).decode().splitlines() == ["2|f", "1|f"]
+    export_recovery = seed_exports(sql)
     identity_recovery = seed_identity(sql, docker, runner)
     verify_identity(sql, "aqua_app", identity_recovery, fenced=False)
+    verify_exports(sql, "aqua_app", export_recovery, fenced=False)
     dump = docker(
         "exec",
         "-e",
@@ -215,11 +218,13 @@ SELECT count(*),bool_and(consumed_at IS NOT NULL) FROM app.account_action_proofs
         "5",
         "6",
         "7",
+        "8",
         "t|f",
     ], observed
     assert sql("aqua_restore", account_sql) == account_expected
     assert sql("aqua_restore", proof_fence_sql).decode().splitlines() == ["2|f", "1|f"]
     verify_identity(sql, "aqua_restore", identity_recovery, fenced=False)
+    verify_exports(sql, "aqua_restore", export_recovery, fenced=False)
     denied = False
     try:
         sql("aqua_restore", b"SET ROLE aqua_app_backup; DELETE FROM app.users;")
@@ -246,7 +251,9 @@ SELECT count(*),bool_and(consumed_at IS NOT NULL) FROM app.account_action_proofs
     assert sql("aqua_restore", account_sql) == account_expected
     assert sql("aqua_restore", proof_fence_sql).decode().splitlines() == ["2|t", "1|t"]
     verify_identity(sql, "aqua_restore", identity_recovery, fenced=True)
+    verify_exports(sql, "aqua_restore", export_recovery, fenced=True)
     verify_identity(sql, "aqua_app", identity_recovery, fenced=False)
+    verify_exports(sql, "aqua_app", export_recovery, fenced=False)
     assert sql("aqua_app", proof_fence_sql).decode().splitlines() == ["2|f", "1|f"]
     workspace_sql = b"SELECT state,reserved_bytes FROM app.analysis_requests WHERE user_id='00000000-0000-0000-0000-000000000001' ORDER BY id; SELECT content_bytes FROM app.workspace_usage WHERE user_id='00000000-0000-0000-0000-000000000001'; SELECT count(*) FROM app.visual_results WHERE user_id='00000000-0000-0000-0000-000000000001' AND response->>'message'='Completed synthetic answer'; SELECT status FROM app.messages WHERE id='20000000-0000-4000-8000-000000000004';"
     workspace_expected = ["complete|0", "interrupted|0", "1024", "1", "interrupted"]
@@ -290,6 +297,7 @@ SELECT count(*),bool_and(consumed_at IS NOT NULL) FROM app.account_action_proofs
     assert sql("aqua_restore", account_sql) == account_expected
     assert sql("aqua_restore", proof_fence_sql).decode().splitlines() == ["2|t", "1|t"]
     verify_identity(sql, "aqua_restore", identity_recovery, fenced=True)
+    verify_exports(sql, "aqua_restore", export_recovery, fenced=True)
     assert recipient_expected.decode().splitlines()[-1] == "t|f"
     return {
         "status": "passed",
@@ -307,6 +315,7 @@ SELECT count(*),bool_and(consumed_at IS NOT NULL) FROM app.account_action_proofs
         "restored_account_profile_methods": "profile_revision_primary_credentials_and_identity_tombstones_preserved",
         "restored_account_provenance": "derived_grant_identity_binding_and_revocation_preserved",
         "restored_account_action_proofs": "challenge_proof_bindings_preserved_consumption_fenced_repeatably",
+        "restored_private_exports": "ready_and_partial_bytes_purged_repeatably_spent_admission_preserved",
         "restored_identity_actions": "google_link_and_dual_mail_and_password_add_requests_consumed_repeatably",
         "restored_identity_revisions": "email_and_google_proof_revision_snapshots_preserved",
         "restored_notification_consent": "independent_CAS_values_and_revision_preserved",

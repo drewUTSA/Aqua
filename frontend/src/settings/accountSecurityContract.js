@@ -10,13 +10,14 @@ export function actionRecord(value, keys) {
 export function actionTarget(value) {
   const keys = value !== null && typeof value === "object" ? Reflect.ownKeys(value) : [];
   const operation = Object.getOwnPropertyDescriptor(value || {}, "operation")?.value;
-  requireValue(["password_change", "password_add", "email_change", "google_link", "google_unlink", "session_revoke", "sessions_revoke_all"].includes(operation));
-  const target = operation === "session_revoke" ? "target_session_id" : operation === "google_unlink" ? "target_identity_id" : operation === "email_change" ? "new_email" : null;
+  requireValue(["password_change", "password_add", "email_change", "google_link", "google_unlink", "session_revoke", "sessions_revoke_all", "data_export"].includes(operation));
+  const target = operation === "session_revoke" ? "target_session_id" : operation === "google_unlink" ? "target_identity_id" : operation === "email_change" ? "new_email" : operation === "data_export" ? "target_intent_id" : null;
   // Retain B's explicit-null session target compatibility, without accepting
   // target fields belonging to another identity operation.
   const nullSession = !target && keys.includes("target_session_id");
   actionRecord(value, ["operation", ...(target ? [target] : nullSession ? ["target_session_id"] : [])]);
   if (nullSession) requireValue(value.target_session_id === null);
+  if(operation==='data_export')requireValue(typeof value.target_intent_id==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(value.target_intent_id));
   return { operation, ...(target ? { [target]: target === "new_email" ? actionEmail(value[target]) : accountOwner(value[target]) } : {}) };
 }
 export function actionEmail(value) {

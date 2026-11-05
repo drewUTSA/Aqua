@@ -30,9 +30,19 @@ def apply(
         admit(conn, session.user["id"])
     with store.storage.transaction() as conn:
         guard(conn, session, store.policy)
-        if body is None:
-            return repository.read(conn, session.user["id"])
-        return repository.save(conn, session.user["id"], body)
+        result = (
+            repository.read(conn, session.user["id"])
+            if body is None
+            else repository.save(conn, session.user["id"], body)
+        )
+        privacy = getattr(request.app.state, "privacy", None)
+        result["capabilities"]["private_data_export"] = bool(
+            privacy is not None
+            and privacy.storage is store.storage
+            and privacy.settings == request.app.state.settings
+            and privacy.capable(conn)
+        )
+        return result
 
 
 @router.get("")

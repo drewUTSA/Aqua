@@ -22,7 +22,7 @@ def main() -> int:
     parser.add_argument("--origin", required=True, type=secure_origin)
     parser.add_argument("--image", required=True, type=immutable_image)
     args = parser.parse_args()
-    if fixture_schema(ROOT) != 7:
+    if fixture_schema(ROOT) not in {7, 8}:
         raise ValueError("fixture_identity_schema_required")
     return (
         p05_browser_worker.worker(

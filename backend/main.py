@@ -3,7 +3,7 @@ turns requests into pipeline calls and pipeline results into JSON."""
 
 import logging
 from contextlib import asynccontextmanager
-from collections.abc import Awaitable, Callable, AsyncIterator
+from collections.abc import AsyncIterator
 from typing import Any, Literal, Self
 
 from fastapi import Depends, FastAPI, HTTPException, Request
@@ -32,6 +32,9 @@ from preferences.router import router as preferences_router
 from account.router import router as account_router
 from account.security_router import router as account_security_router
 from account.identity_router import router as account_identity_router
+from privacy.router import router as privacy_router
+from privacy.service import ExportService
+from privacy.headers import PrivateAPIResponses
 from analysis.dependencies import get_analysis
 from analysis.service import Analysis
 from nl2sql.query_service import run as run_query
@@ -58,9 +61,20 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
             app.state.analysis = service
     if service is not None:
         service.start()
+    privacy = getattr(app.state, "privacy", None)
+    if privacy is None:
+        from auth.config import load_auth_policy
+
+        privacy = ExportService(
+            app.state.storage, load_auth_policy(app.state.settings), app.state.settings
+        )
+        app.state.privacy = privacy
+    privacy.start()
     try:
         yield
     finally:
+        await privacy.aclose()
+        app.state.privacy = None
         service = getattr(app.state, "analysis", None)
         if service is not None:
             service.close()
@@ -83,6 +97,7 @@ app.include_router(preferences_router)
 app.include_router(account_router)
 app.include_router(account_security_router)
 app.include_router(account_identity_router)
+app.include_router(privacy_router)
 app.state.storage = Storage(load_storage_settings())
 app.add_middleware(WorkspaceBodyLimit)
 
@@ -120,18 +135,8 @@ async def safe_request_validation(
     )
 
 
-@app.middleware("http")
-async def private_api_responses(
-    request: Request, call_next: Callable[[Request], Awaitable[Response]]
-) -> Response:
-    """Keep identity and customer query results out of shared HTTP caches."""
-    response = await call_next(request)
-    if request.url.path.startswith("/api/"):
-        response.headers["Cache-Control"] = "no-store"
-        vary = response.headers.get("Vary", "")
-        if "cookie" not in {part.strip().lower() for part in vary.split(",")}:
-            response.headers["Vary"] = f"{vary}, Cookie" if vary else "Cookie"
-    return response
+# Pure ASGI keeps worker/download physical slots through the real send.
+app.add_middleware(PrivateAPIResponses)
 
 
 def _retriever(settings: Settings | None = None) -> Retriever | None:

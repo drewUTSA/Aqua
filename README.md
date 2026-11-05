@@ -1,9 +1,9 @@
 # Aqua
 Ask a database a question in plain English. Get back data, a readable summary and the exact SQL that produced it.
 
-Current checkpoint: P00 through P09 are complete and live at
-`7477e28` (PR #55, `Phase10 Security`), private schema 6, with
-the P10a account foundation and P10b security actions deployed. P10 remains incomplete. The home page uses
+Current checkpoint: P00 through P10 are complete and live at
+`d242d2e` (PR #56, `Phase10 Identity`), private schema 7.
+P11 exports and deletion are under implementation and verification. The home page uses
 Projects/Recents, conditional New Chat, one bottom account menu and one composer
 model chooser. Answers share the page canvas and the composer compacts after
 the first question. Durable requests, cancellation, exact values, optional
@@ -24,10 +24,12 @@ P10b passed 1,519 backend cases, 492 frontend units and all 22 browser gates.
 Both PR/main CI and the 2026-10-31T01:50:04 UTC release passed, preserving
 protected state and configuration. See
 [P10b release evidence](docs/implementation/evidence/p10b/release.json).
-P10c identity passes 1,635 backend cases, 528 frontend units and all 42 browser
-gates, with 104 screenshots reviewed. Schema-compatible recovery and migration
-rehearsal pass; PR/main CI and the backup-gated release remain pending. See
-[identity evidence](docs/implementation/evidence/p10c/verification.json).
+P10c identity passed 1,635 backend cases, 528 frontend units and all 42 browser
+gates, with 104 screenshots reviewed. Both PR/main CI passed all five jobs and
+124 steps. The 2026-10-31T04:08:14 UTC schema-7 release passed after a fresh
+authenticated encrypted backup and protected 30-day retention. Protected rows,
+environment, volumes and scheduler were preserved; live sign-in smoke passed.
+See [identity release evidence](docs/implementation/evidence/p10c/release.json).
 P11a exports are isolated preparation;
 P11 deletion and P12–P13 remain incomplete.
 The [approved phased specification](AQUA_CODEX_HANDOFF.md) governs the order.
@@ -37,7 +39,7 @@ Verification: [check runner guide](tools/checks/README.md).
 
 The application PostgreSQL is separate from the hosted analytical database. It has no network, TCP listener or published port. Backend/migration jobs attach only the private Unix socket, with distinct runtime, owner, migrator and backup privileges. nginx refuses public readiness; liveness stays independent of databases/models. P03's canonical UUID accounts, opaque digest-only sessions, one-use Google challenges, durable revocation, grants and session caps are deployed. Legacy signed cookies require fresh authentication.
 
-P04 introduced email-first registration, fresh-password verification, password login, reset/session fencing, bounded Argon2id work, an offline common-password corpus and encrypted account mail with reserved recovery/security capacity. Activation flags remain off by default for new installations; this production installation completed the reviewed P05 activation. P06 required schema 4; the deployed P10a release now uses schema 6. New installations must apply the reviewed migrations explicitly before starting the matching backend.
+P04 introduced email-first registration, fresh-password verification, password login, reset/session fencing, bounded Argon2id work, an offline common-password corpus and encrypted account mail with reserved recovery/security capacity. Activation flags remain off by default for new installations; this production installation completed the reviewed P05 activation. P06 required schema 4; the deployed P10c release now uses schema 7. New installations must apply the reviewed migrations explicitly before starting the matching backend.
 
 Frontend presentation is selected at build time: `AQUA_UI_SHELL=opal` (default) or
 `legacy` for Docker/Compose, and `VITE_AQUA_UI_SHELL` for direct Vite builds.

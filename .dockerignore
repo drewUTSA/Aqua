@@ -11,6 +11,7 @@
 !backend/analysis/*.py
 !backend/preferences/*.py
 !backend/account/*.py
+!backend/privacy/*.py
 !backend/migrations/*.sql
 !tools/checks/Dockerfile
 !tools/checks/requirements-runtime.lock

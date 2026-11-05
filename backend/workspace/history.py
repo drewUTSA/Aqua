@@ -170,6 +170,9 @@ def delete_chat(conn: Connection, owner: str, chat_id: str, revision: int) -> No
     current = chat_row(conn, owner, chat_id, lock=True)
     if current["revision"] != revision:
         raise WorkspaceError("revision_conflict", 409)
+    from privacy.retirement import advance
+
+    advance(conn, owner)
     from analysis.lifecycle import deleted
 
     deleted(conn, owner, chat_id)

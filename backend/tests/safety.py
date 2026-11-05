@@ -21,6 +21,12 @@ APP_NEGATIVE_DSNS = {
     "postgresql://aqua_app_runtime:fixture-only@127.0.0.1:5432/aqua_test_bank",
 }
 CONFIG_NAMES = {
+    "PRIVATE_DATA_EXPORT_ENABLED",
+    "WEB_CONCURRENCY",
+    "UVICORN_WORKERS",
+    "UVICORN_RELOAD",
+    "GUNICORN_CMD_ARGS",
+    "SERVER_SOFTWARE",
     "DATABASE_URL",
     "INDEXER_DATABASE_URL",
     "GEMINI_API_KEY",
@@ -80,6 +86,7 @@ def install() -> None:
     app_fixture = bool(dsn) and os.environ.get("AQUA_TEST_APP_STORAGE") == "1"
     original_connect = socket.socket.connect
     original_database_connect = psycopg.Connection.connect.__func__
+    original_asynchronous_database_connect = psycopg.AsyncConnection.connect.__func__
 
     def socket_connect(sock, address):
         if sock.family == socket.AF_UNIX:
@@ -105,8 +112,25 @@ def install() -> None:
             raise AssertionError("test database access denied")
         return original_database_connect(cls, conninfo, **kwargs)
 
+    async def asynchronous_database_connect(cls, conninfo="", **kwargs):
+        # The export downloader uses async libpq. Only this one fixed runtime
+        # fixture connection is authorized, with no inherited host/service or
+        # alternate role override. Keep the synchronous negative tests above.
+        runtime = "postgresql://aqua_app_runtime:fixture-only@127.0.0.1:5432/aqua_app?sslmode=disable"
+        if (
+            not app_fixture
+            or conninfo != runtime
+            or set(kwargs) - {"connect_timeout", "autocommit", "prepare_threshold"}
+            or kwargs.get("connect_timeout", 2) != 2
+            or kwargs.get("autocommit", True) is not True
+            or kwargs.get("prepare_threshold") is not None
+        ):
+            raise AssertionError("test database access denied")
+        return await original_asynchronous_database_connect(cls, conninfo, **kwargs)
+
     socket.socket.connect = socket_connect
     socket.socket.connect_ex = refuse
     socket.getaddrinfo = refuse
     psycopg.Connection.connect = classmethod(database_connect)
     psycopg.connect = psycopg.Connection.connect
+    psycopg.AsyncConnection.connect = classmethod(asynchronous_database_connect)

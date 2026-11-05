@@ -48,6 +48,8 @@ def primary(conn, owner):
 
 
 def action_target(session, body):
+    if body.operation == "data_export":
+        return body.target_intent_id
     if body.operation == "password_add":
         # The primitive resolves this only after committing action admission.
         def mailbox(conn):

@@ -1,16 +1,16 @@
 import { accountOwner } from "./accountContract.js";
 import { actionEmail } from "./accountSecurityContract.js";
-const OPERATIONS = new Set(["password_change", "password_add", "email_change", "google_link", "google_unlink", "session_revoke", "sessions_revoke_all"]);
+const OPERATIONS = new Set(["password_change", "password_add", "email_change", "google_link", "google_unlink", "session_revoke", "sessions_revoke_all", "data_export"]);
 export function actionKey(action) {
   if (!action || !OPERATIONS.has(action.operation)) throw Error("account_action_invalid");
   const target = action.operation === "session_revoke" ? accountOwner(action.session?.id) : action.operation === "google_unlink" ? accountOwner(action.identity?.id)
-    : action.operation === "email_change" ? actionEmail(action.email) : "";
+    : action.operation === "email_change" ? actionEmail(action.email) : action.operation === "data_export" ? accountOwner(action.intentId) : "";
   return action.operation + ":" + target;
 }
 
 export function canAccountAction({ profile, methods, sessions }, action) {
   const password = methods?.password?.linked === true && methods.password.available === true, google = methods?.google?.available === true && methods.google.identities?.length > 0;
-  if (!action || !OPERATIONS.has(action.operation) || !password && !google) return false;
+  if (!action || action.operation==='data_export' || !OPERATIONS.has(action.operation) || !password && !google) return false;
   for (const caps of [profile?.capabilities, methods.capabilities]) {
     if (caps?.recent_proof !== true || caps?.[action.operation] !== true) return false;
   }
@@ -62,13 +62,13 @@ export function securityActionReducer(state, event) {
 
 export function createActionProofVault(owner, action, currentIdentity, now = Date.now) {
   const key = actionKey(action);
-  let token = null, expiresAt = 0, csrfToken = null;
-  const clear = () => { token = null; expiresAt = 0; csrfToken = null; };
+  let token = null, expiresAt = 0, csrfToken = null, identityGeneration = null;
+  const clear = () => { token = null; expiresAt = 0; csrfToken = null; identityGeneration = null; };
   const current = () => currentIdentity()?.owner === owner && currentIdentity()?.active === true;
   const peek = expectedAction => {
     let expected;
     try { expected = actionKey(expectedAction); } catch { clear(); return null; }
-    if (!current() || currentIdentity()?.csrfToken !== csrfToken || now() >= expiresAt || expected !== key) { clear(); return null; }
+    if (!current() || currentIdentity()?.csrfToken !== csrfToken || currentIdentity()?.generation !== identityGeneration || now() >= expiresAt || expected !== key) { clear(); return null; }
     return token;
   };
   return {
@@ -81,6 +81,7 @@ export function createActionProofVault(owner, action, currentIdentity, now = Dat
       if (!Number.isFinite(expiry) || expiry <= now()) return false;
       token = proof.proof_token;
       csrfToken = currentIdentity()?.csrfToken;
+      identityGeneration = currentIdentity()?.generation;
       expiresAt = Math.min(expiry, now() + 300000);
       return true;
     },
