@@ -640,6 +640,8 @@ class CapacityFixtureTests(unittest.TestCase):
                 "min_wal_size=32MB",
                 "-c",
                 "checkpoint_timeout=30s",
+                "-c",
+                "autovacuum_naptime=1s",
             ),
         )
         self.assertEqual(calls[1][2], ("300",))

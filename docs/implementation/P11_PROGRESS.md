@@ -48,7 +48,8 @@ production-release gates.
 The first fresh backend run exhausted its unchanged 512 MiB temporary database
 because repeated schema migrations accumulated dead system-catalog tuples.
 The isolated core and capacity fixtures now run autovacuum every second; their
-CPU, memory, storage, timeout and test assertions are unchanged. The original
+CPU, memory, storage, timeout and application assertions are unchanged. The
+fixture guard also asserts the new maintenance cadence. The original
 failure and the complete passing retest are retained separately. This setting
 does not change the production database.
 

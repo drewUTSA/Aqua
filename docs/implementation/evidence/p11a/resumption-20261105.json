@@ -52,8 +52,10 @@
   "fixture_repair": {
     "autovacuum_naptime": "1s",
     "scope": "disposable isolated core and capacity PostgreSQL fixtures only",
-    "existing_caps_and_assertions_unchanged": true,
-    "original_failed_run_retained": true
+    "original_failed_run_retained": true,
+    "application_assertions_and_resource_caps_unchanged": true,
+    "fixture_guard_asserts_new_maintenance_cadence": true,
+    "affected_fixture_guard_tests_passed": 17
   },
   "remaining_gates": [
     "fresh complete browser matrix and root visual review",
