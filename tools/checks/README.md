@@ -35,6 +35,20 @@ bounded tmpfs (512 MiB PostgreSQL data, 256 MiB test temporary files, 64 MiB sou
 Docker logs are bounded to two 2 MiB files per container. Each suite has a
 120-second deadline; individual commands and startup have separate deadlines.
 
+The core backend suite is now collected with pytest's default discovery before
+running four fixed, sequential module batches for each dataset. Each batch gets
+a fresh pair with the same resource limits and its own 120-second deadline; no
+tests are retried. The only deselected case is the separately verified export
+capacity case. Actual JUnit identities must exactly match the collection and
+remain disjoint before the dataset reports are merged. Passed unittest subtests
+can increase pytest's report metadata, but never inflate unique-case coverage.
+Every batch runs the restore check and confirms exact container absence before
+the next pair starts. A deadline failure retains the last 64 KiB of progress and
+database capacity/OOM diagnostics, then blocks later batches and capacity work.
+The offline export fixture gate includes the batching regressions. Its tiny
+synthetic collector test uses the same pytest version pinned in the runtime
+lock; pytest is also pinned in the check-tool list for that host-side test.
+
 Only the two synthetic databases exist in this namespace. Their reader role
 cannot write or perform DDL; the Pagila fixture additionally restricts hidden
 staff columns. The reader's statement timeout is 100 ms to test cancellation

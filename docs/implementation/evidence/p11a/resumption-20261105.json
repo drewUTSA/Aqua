@@ -66,5 +66,19 @@
   ],
   "production_changed": false,
   "phase_complete_claimed": false,
-  "can_authorize_release": false
+  "can_authorize_release": false,
+  "ci_batch_repair": {
+    "status": "prepared_hosted_validation_pending",
+    "failed_run": "https://github.com/drewUTSA/Aqua/actions/runs/42087419152",
+    "hosted_complete_bank_suite_timeout_attempts": 2,
+    "fixed_sequential_batches_per_dataset": 4,
+    "batch_execution_deadline_seconds": 120,
+    "default_collection_deadline_seconds": 60,
+    "cpu_memory_disk_caps_unchanged": true,
+    "all_default_collected_identities_required_exactly_once": true,
+    "source_archive_frozen_once_per_run": true,
+    "new_orchestration_regressions_passed": 6,
+    "existing_fixture_guards_passed": 17,
+    "production_runtime_unchanged": true
+  }
 }

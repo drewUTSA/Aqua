@@ -505,12 +505,13 @@ class CapacityFixtureTests(unittest.TestCase):
     def core_lifecycle(self, cleanup_ok=True):
         active, events, commands = set(), [], []
 
-        def provision(image, name, containers):
+        def provision(image, name, containers, archive):
             self.assertFalse(active, "next dataset started before prior pair absence")
+            self.assertEqual(archive, b"fixed")
             pair = (name + "-pg", name + "-tests")
             active.update(pair)
             containers.extend(pair)
-            events.append(("provision", name.rsplit("-", 1)[1]))
+            events.append(("provision", name.rsplit("-", 2)[1]))
             return pair
 
         def docker(*args, **kwargs):
@@ -520,6 +521,26 @@ class CapacityFixtureTests(unittest.TestCase):
                 active.discard(args[-1])
                 events.append(("remove", args[-1]))
             if "cat" in args:
+                if args[-1] == "/tmp/collection.json":
+                    return json.dumps(
+                        {
+                            "schema": 1,
+                            "batches": [
+                                {
+                                    "id": "01",
+                                    "modules": ["tests/old.py"],
+                                    "cases": [
+                                        {
+                                            "nodeid": "tests/old.py::old",
+                                            "module": "tests/old.py",
+                                            "classname": "tests.old",
+                                            "name": "old",
+                                        }
+                                    ],
+                                }
+                            ],
+                        }
+                    ).encode()
                 return self.xml(name="old", classname="tests.old")
             if "freeze" in args:
                 return b"same-locked-image\n"
@@ -532,9 +553,13 @@ class CapacityFixtureTests(unittest.TestCase):
                     stdout=b"",
                     stderr=b"No such container",
                 )
-            commands.append(args)
             selected = [arg for arg in args if arg.startswith("--deselect")]
             self.assertEqual(selected, ["--deselect=" + capacity.CAPACITY_CASE])
+            if "--collect=/tmp/collection.json" in args:
+                self.assertEqual(kwargs["timeout"], 60)
+            else:
+                self.assertEqual(kwargs["timeout"], 120)
+                commands.append(args)
             return SimpleNamespace(
                 returncode=0, stdout=b"fixed synthetic model", stderr=b""
             )
@@ -645,6 +670,16 @@ class CapacityFixtureTests(unittest.TestCase):
             ),
         )
         self.assertEqual(calls[1][2], ("300",))
+
+
+def load_tests(
+    loader: unittest.TestLoader, tests: unittest.TestSuite, pattern: str | None
+) -> unittest.TestSuite:
+    """Keep core/capacity orchestration guards in the existing export CI gate."""
+    tests.addTests(
+        loader.loadTestsFromNames(["backend_batches_test", "backend_execution_test"])
+    )
+    return tests
 
 
 if __name__ == "__main__":

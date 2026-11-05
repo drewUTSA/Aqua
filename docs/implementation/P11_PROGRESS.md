@@ -56,3 +56,12 @@ does not change the production database.
 Deletion integration is proceeding on a separate branch. The recovered protocol
 passes its 80 original checks in an isolated Linux container; application
 integration, host durability, purge and recovery gates remain open.
+
+The hosted export PR's backend job exceeded its 120-second complete-suite
+deadline twice. The prepared runner repair collects the whole default suite and
+executes four fixed, sequential module batches per dataset, each with a fresh
+same-capped fixture and the original 120-second execution limit. Exact collection
+and disjoint JUnit identities are required before the unchanged coverage and
+capacity gates. Six new orchestration regressions and all 17 existing export
+fixture guards pass locally; full hosted validation of this repair is pending.
+The failed hosted runs remain evidence and do not satisfy the CI gate.

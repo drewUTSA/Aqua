@@ -7,6 +7,7 @@ code on the production server. CI runs this on an ephemeral hosted runner.
 """
 
 import argparse
+import hashlib
 import io
 import json
 from pathlib import Path
@@ -14,10 +15,12 @@ import secrets
 import subprocess
 import tarfile
 import time
+import xml.etree.ElementTree as ET
 
 from matrix import coverage
 from app_fixture import initialize
 from app_restore import verify as verify_restore
+from backend_execution import run_core
 
 ROOT = Path(__file__).resolve().parents[2]
 POSTGRES = (
@@ -104,8 +107,10 @@ def create(name: str, image: str, *args: str, command: tuple[str, ...] = ()) -> 
     )
 
 
-def provision_core(image: str, run_name: str, containers: list[str]) -> tuple[str, str]:
-    """Fresh original-size pair; run_name includes the selected dataset."""
+def provision_core(
+    image: str, run_name: str, containers: list[str], archive: bytes | None = None
+) -> tuple[str, str]:
+    """Fresh original-size pair; run_name includes dataset and batch."""
     pg = create(
         run_name + "-pg",
         POSTGRES,
@@ -207,7 +212,15 @@ def provision_core(image: str, run_name: str, containers: list[str]) -> tuple[st
     containers.append(runner)
     docker("start", runner)
     unpack = "import io,sys,tarfile;tarfile.open(fileobj=io.BytesIO(sys.stdin.buffer.read())).extractall('/checks',filter='data')"
-    docker("exec", "-i", runner, "python", "-c", unpack, data=source_archive())
+    docker(
+        "exec",
+        "-i",
+        runner,
+        "python",
+        "-c",
+        unpack,
+        data=source_archive() if archive is None else archive,
+    )
     return pg, runner
 
 
@@ -226,107 +239,39 @@ def run(image: str, output: Path) -> int:
         report["postgres_image"] = (
             docker("image", "inspect", POSTGRES, "--format", "{{.Id}}").decode().strip()
         )
-        for dataset in ("bank", "pagila"):
-            pg, runner = provision_core(image, run_name + "-" + dataset, containers)
-            result = subprocess.run(
-                [
-                    "docker",
-                    "exec",
-                    "-w",
-                    "/checks/backend",
-                    "-e",
-                    "AQUA_TEST_DATASET=" + dataset,
-                    "-e",
-                    "AQUA_TEST_APP_STORAGE=1",
-                    runner,
-                    "python",
-                    "-m",
-                    "pytest",
-                    "-q",
-                    "-p",
-                    "no:cacheprovider",
-                    "--tb=short",
-                    "--junitxml=/tmp/" + dataset + ".xml",
-                    "--deselect=" + CAPACITY_CASE,
-                ],
-                capture_output=True,
-                timeout=120,
-            )
-            log = result.stdout + result.stderr
-            (output / (dataset + ".txt")).write_bytes(log)
-            report["results"].append(
-                {"dataset": dataset, "exit_code": result.returncode}
-            )
-            if result.returncode:
-                fixture_log = docker("logs", "--tail", "100", pg).decode(
-                    errors="replace"
-                )
-                report.setdefault("fixture_diagnostics", []).append(
-                    {
-                        "dataset": dataset,
-                        "database_tmpfs": docker(
-                            "exec", pg, "df", "-k", "/var/lib/postgresql/data"
-                        )
-                        .decode()
-                        .splitlines()[-1]
-                        .split()[1:5],
-                        "database_oom_killed": docker(
-                            "inspect", pg, "--format", "{{.State.OOMKilled}}"
-                        )
-                        .decode()
-                        .strip()
-                        == "true",
-                        "database_categories": [
-                            category
-                            for category in (
-                                "No space left on device",
-                                "out of memory",
-                                "PANIC",
-                                "database system is in recovery mode",
-                            )
-                            if category in fixture_log
-                        ],
-                    }
-                )
-            (output / (dataset + ".xml")).write_bytes(
-                docker("exec", runner, "cat", "/tmp/" + dataset + ".xml")
-            )
-            print(log.decode(errors="replace"))
-            restored = verify_restore(docker, pg, runner)
-            report.setdefault("app_restore_by_dataset", {})[dataset] = restored
-            report["app_restore"] = restored
-            packages = docker("exec", runner, "python", "-m", "pip", "freeze")
-            (output / (dataset + "-packages.txt")).write_bytes(packages)
-            if dataset == "bank":
-                (output / "packages.txt").write_bytes(packages)
-            elif packages != (output / "packages.txt").read_bytes():
-                raise RuntimeError("dataset_dependency_image_changed")
-            # End this pair before the next dataset or capacity pair can start.
-            for container in reversed(containers[:]):
-                docker("rm", "--force", container)
-                state = subprocess.run(
-                    ["docker", "container", "inspect", container],
-                    capture_output=True,
-                    timeout=15,
-                )
-                if state.returncode != 1 or b"No such" not in state.stderr:
-                    raise RuntimeError("core_fixture_cleanup_unconfirmed")
-                containers.remove(container)
-            report.setdefault("core_dataset_cleanup", []).append(
-                {"dataset": dataset, "status": "removed_and_absence_confirmed"}
-            )
-        report["core_fixture_cleanup"] = "removed_and_absence_confirmed"
+        archive = source_archive()
+        report["source_archive_sha256"] = hashlib.sha256(archive).hexdigest()
+        run_core(
+            docker,
+            provision_core,
+            verify_restore,
+            archive,
+            image,
+            run_name,
+            containers,
+            output,
+            report,
+            CAPACITY_CASE,
+        )
         # Only the new capacity case moves to a fresh same-size fixture. Every
         # ordinary case remains selected; its real JUnit is merged before the
         # unchanged case-identity coverage and prior-regression retention gates.
         report["privacy_capacity"] = verify_capacity(
-            docker, create, ROOT, image, run_name, output, source_archive()
+            docker, create, ROOT, image, run_name, output, archive
         )
         if report["privacy_capacity"]["status"] != "passed":
             raise RuntimeError("fresh_private_export_capacity_unverified")
         # Record immutable versions used, without inspecting runtime environments.
         report["coverage"] = coverage(output)
-    except (RuntimeError, AssertionError, subprocess.TimeoutExpired) as error:
+    except (
+        RuntimeError,
+        AssertionError,
+        subprocess.TimeoutExpired,
+        OSError,
+        ValueError,
+        KeyError,
+        ET.ParseError,
+    ) as error:
         report["error"] = str(error)
     finally:
         cleanup_errors = []

@@ -492,3 +492,20 @@ The operator also explicitly authorized Aqua source/test-helper transfers and
 necessary work on the existing verified Aqua server. Existing exclusions for
 public Google audience changes, analytical grants, shared/Tiger DDL and real
 provider/mail tests remain in force.
+
+## November 5: bounded backend test batches
+
+The hosted export checks exceeded the complete bank suite's 120-second deadline
+on two attempts, while the same case inventory passed locally. The runner now
+uses pytest's full default collection and four deterministic module batches per
+dataset. Each batch has a fresh disposable database, the original CPU/memory/disk
+limits and the same 120-second execution deadline. The known capacity case is
+still verified separately; no test is retried or removed.
+
+Extending the suite deadline or dropping slow cases would conceal the existing
+budget failure. Batching instead retains every collected identity exactly once,
+checks actual JUnit against that inventory and performs restore/dependency and
+exact-cleanup checks for each pair. Pytest's successful subtest metadata does not
+inflate unique-case counts. Failed commands retain progress and fixture metadata
+so an individual stall remains diagnosable. This changes test orchestration only;
+the hosted run must still pass before any merge or release.
