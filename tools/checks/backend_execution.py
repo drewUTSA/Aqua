@@ -33,35 +33,41 @@ def diagnostics(
     """Best-effort metadata only; preserve the original test failure."""
     result = {"dataset": dataset, "batch": batch}
     try:
-        log = docker("logs", "--tail", "100", pg).decode(errors="replace")
-        result.update(
-            {
-                "database_tmpfs": docker(
-                    "exec", pg, "df", "-k", "/var/lib/postgresql/data"
-                )
-                .decode()
-                .splitlines()[-1]
-                .split()[1:5],
-                "database_oom_killed": docker(
-                    "inspect", pg, "--format", "{{.State.OOMKilled}}"
-                )
-                .decode()
-                .strip()
-                == "true",
-                "database_categories": [
-                    category
-                    for category in (
-                        "No space left on device",
-                        "out of memory",
-                        "PANIC",
-                        "database system is in recovery mode",
-                    )
-                    if category in log
-                ],
-            }
+        logs = subprocess.run(
+            ["docker", "logs", "--tail", "100", pg],
+            capture_output=True,
+            timeout=15,
         )
-    except (RuntimeError, subprocess.TimeoutExpired, IndexError):
-        result["diagnostics"] = "unavailable"
+        if logs.returncode:
+            raise RuntimeError("fixture_logs_unavailable")
+        # Docker preserves PostgreSQL's stderr stream. The usual docker helper
+        # returns stdout only, which would silently hide these crash messages.
+        log = (logs.stdout + logs.stderr)[-65536:].decode(errors="replace")
+        result["database_categories"] = [
+            category
+            for category in (
+                "No space left on device",
+                "out of memory",
+                "PANIC",
+                "database system is in recovery mode",
+            )
+            if category in log
+        ]
+    except (RuntimeError, subprocess.TimeoutExpired):
+        result["database_categories_unavailable"] = True
+    for key, command in (
+        ("database_oom_killed", ("inspect", pg, "--format", "{{.State.OOMKilled}}")),
+        ("database_tmpfs", ("exec", pg, "df", "-k", "/var/lib/postgresql/data")),
+    ):
+        try:
+            raw = docker(*command).decode()
+            result[key] = (
+                raw.strip() == "true"
+                if key == "database_oom_killed"
+                else raw.splitlines()[-1].split()[1:5]
+            )
+        except (RuntimeError, subprocess.TimeoutExpired, IndexError):
+            result[key + "_unavailable"] = True
     report.setdefault("fixture_diagnostics", []).append(result)
 
 

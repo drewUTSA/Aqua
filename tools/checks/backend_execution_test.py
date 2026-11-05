@@ -10,6 +10,7 @@ from unittest.mock import patch
 import xml.etree.ElementTree as ET
 
 import backend_batches as batches
+import backend_execution
 import privacy_capacity_fixture as capacity
 import run_backend
 from backend_test_support import inventory, xml
@@ -48,6 +49,9 @@ class ExecutionTests(unittest.TestCase):
             return b""
 
         def process(command, **kwargs):
+            if command[:2] == ["docker", "logs"]:
+                self.assertEqual(kwargs["timeout"], 15)
+                return SimpleNamespace(returncode=0, stdout=b"", stderr=b"fixture-only")
             if command[:3] == ["docker", "container", "inspect"]:
                 return SimpleNamespace(returncode=1, stderr=b"No such container")
             if "pytest" in command:
@@ -121,6 +125,26 @@ class ExecutionTests(unittest.TestCase):
         self.assertIn("bank-batch-01", report["error"])
         self.assertEqual(report["cleanup"], "removed_and_absence_confirmed")
         self.assertEqual(report["core_batches"][0]["status"], "failed")
+
+    def test_pg_stderr_and_oom_survive_failed_df_after_container_exit(self):
+        def docker(*command):
+            if command[0] == "exec":
+                raise RuntimeError("container_has_exited")
+            return b"true\n"
+
+        report = {}
+        with patch.object(
+            backend_execution.subprocess,
+            "run",
+            return_value=SimpleNamespace(
+                returncode=0, stdout=b"", stderr=b"PANIC: out of memory\n"
+            ),
+        ):
+            backend_execution.diagnostics(docker, "owned-pg", "bank", "01", report)
+        row = report["fixture_diagnostics"][0]
+        self.assertEqual(row["database_categories"], ["out of memory", "PANIC"])
+        self.assertTrue(row["database_oom_killed"])
+        self.assertTrue(row["database_tmpfs_unavailable"])
 
 
 if __name__ == "__main__":

@@ -62,6 +62,23 @@ deadline twice. The prepared runner repair collects the whole default suite and
 executes four fixed, sequential module batches per dataset, each with a fresh
 same-capped fixture and the original 120-second execution limit. Exact collection
 and disjoint JUnit identities are required before the unchanged coverage and
-capacity gates. Six new orchestration regressions and all 17 existing export
-fixture guards pass locally; full hosted validation of this repair is pending.
+capacity gates. Seven new orchestration regressions and all 17 existing export
+fixture guards pass locally. The first hosted backend step passed with batching;
+the complete run passed six of seven jobs, with the remaining identity job
+failing at Chrome startup before its first assertion. All 1,680 cases, all eight
+core batch restores, both capacity cases and cleanup passed. The latest
+diagnostic correction still requires hosted validation.
 The failed hosted runs remain evidence and do not satisfy the CI gate.
+
+The fresh compatible fallback passes all 23 backend gates, all 1,651 case
+identities and all 42 browser gates across both shells. Root reviewed all 162
+screenshots through labeled contact sheets and three full-resolution details.
+The inherited unlink screenshot labels still capture the preceding Link Google
+dialog; a fresh actual-removal confirmation supplement remains required before
+visual approval is complete. The fresh candidate browser matrix is running.
+
+The operator approved a new independent recovery copy in private Google Drive.
+Owner-only permissions were checked before and after upload, and a downloaded
+copy matched the original and decrypted a fresh recovery challenge. Controller
+preflight passed. This closes key recovery preparation, not the required fresh
+stopped-writer database backup or any production release gate.
