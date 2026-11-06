@@ -46,6 +46,7 @@ jobs:
           python -m pytest -q tools/checks/test_browser_schema9.py tools/checks/test_p11b_browser_fixture.py
           python tools/checks/test_retirement_durability.py
           python tools/checks/run_retirement_native_test.py
+          python tools/checks/test_retirement_signals.py
           python tools/checks/test_retirement_host.py
           python tools/checks/test_retirement_host_cleanup.py
       - name: Audit pinned runtime dependencies
@@ -68,6 +69,12 @@ jobs:
           python tools/checks/run_retirement_native.py --execute --suite backups56
           --image "$(docker image inspect aqua-runtime:check --format '{{.Id}}')"
           --output "${{ runner.temp }}/aqua-retirement-backups56"
+      - name: Closed publisher signals with actual POSIX delivery
+        timeout-minutes: 3
+        run: >-
+          python tools/checks/run_retirement_native.py --execute --suite signals48
+          --image "$(docker image inspect aqua-runtime:check --format '{{.Id}}')"
+          --output "${{ runner.temp }}/aqua-retirement-signals48"
       - name: Telemetry oversized-header denial and normal-header recovery
         run: >-
           docker run --rm -i --network none --read-only --cap-drop ALL
@@ -275,6 +282,7 @@ jobs:
             ${{ runner.temp }}/aqua-retirement-operator77/report.json
             ${{ runner.temp }}/aqua-retirement-fixtures36/report.json
             ${{ runner.temp }}/aqua-retirement-backups56/report.json
+            ${{ runner.temp }}/aqua-retirement-signals48/report.json
           if-no-files-found: warn
           retention-days: 7
           include-hidden-files: false
