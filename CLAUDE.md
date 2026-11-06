@@ -10,6 +10,8 @@ retention. Protected rows, environment, volumes and mail schedule were preserved
 live GET-only sign-in smoke passed and its screenshot was reviewed. See
 `docs/implementation/evidence/p10c/release.json`. P11 is the current phase;
 exports and deletion are not deployed. The earlier slices below are historical.
+The prepared P11a source requires schema 8; migration 0008 and export activation
+remain gated release work, not the current production state.
 The simplified homepage merged as `7c0caae8ac0d5fa1c74866bd898d317c1fc984ea`
 (PR #53, `Phase9 Homepage`). Both required CI runs passed all 29 steps. The
 October 28 23:10:19 UTC frontend-only release preserved the exact P09 backend,
@@ -79,7 +81,7 @@ Reads and writes share the durable 60/account/minute workspace budget. Device
 preferences have separate bounded owner-scoped storage, never a server-sync claim.
 Imports are versioned data only, at most 64 KiB; permissions, consent, secrets,
 custom instructions and destructive operations cannot enter preferences. Schema
-5 was reused without a preference migration; the current app schema is 6.
+5 was reused without a preference migration; the deployed app schema is 7.
 P10 account editing, sensitive security actions and identity operations are
 deployed. P11 privacy jobs remain unavailable in production.
 
@@ -113,11 +115,11 @@ The server runs the app with docker-compose. Code changes are made locally, revi
 | Concern | Choice |
 |---|---|
 | Backend language | Python 3.12 (not 3.14; the ML stack does not fully support 3.14 yet) |
-| API | FastAPI on 127.0.0.1:8000; public hostnames enter nginx on 127.0.0.1:5173. P10a checkpoint `f5f5b2d` (PR #54) is deployed with schema 6 and verified public delivery |
+| API | FastAPI on 127.0.0.1:8000; public hostnames enter nginx on 127.0.0.1:5173. P10c checkpoint `d242d2e` (PR #56) is deployed with schema 7 and recorded public-delivery verification |
 | Sign-in | Canonical UUID accounts with revocable digest-only sessions, Google and password sign-in. Password login/registration/recovery and branded mail are active; the scheduler runs a separate worker and the web worker flag stays false |
 | Frontend | React 19 with Vite. Production: a static build served by nginx on port 5173, which forwards `/api` to the backend and rate-limits questions. Development: `npm run dev` forwards API calls but is not the production rate-limit boundary |
 | Analytical database | PostgreSQL on Tiger Cloud free service (TimescaleDB, pgvector, pgvectorscale); unchanged in P02 |
-| Application database | Private PostgreSQL 17 is active at schema 6, socket only, network none and separate roles. Applied migrations 0001–0006 are immutable |
+| Application database | Private PostgreSQL 17 is active at schema 7, socket only, network none and separate roles. Applied migrations 0001–0007 are immutable; the prepared P11a migration 0008 is not deployed |
 | Sample data | Pagila (Postgres port of Sakila) |
 | LLM | Gemini API with the free `gemini-3.5-flash-lite` by default (`LLM_PROVIDER=gemini`). When it is out of quota or down: Ollama (`qwen3`) on Ben's server over Tailscale, then `gemma-4-26b-a4b-it`. Model names read from env |
 | Embeddings | `gemini-embedding-2` at 768 dimensions, stored in pgvector in the `retrieval` schema (Phase 4) |
@@ -218,7 +220,7 @@ The frontend talks to the backend only through `/api`, which in production goes 
 | Route | Purpose |
 |---|---|
 | `GET /api/health` | Liveness for the Docker healthcheck: `status`, `database_configured`, `model`, `retrieval`. Never touches the database or model |
-| `GET /api/ready` | Internal loopback readiness; reports storage disabled or required schema version 5, fixed 503 on failure. Public nginx denies this route and normalized aliases |
+| `GET /api/ready` | Internal loopback readiness; reports storage disabled or readiness for the binary's required schema (deployed 7; prepared P11a 8), fixed 503 on failure. Public nginx denies this route and normalized aliases |
 | `GET /api/auth/config` | Returns `client_id`, `nonce`, `csrf_token`, boolean `capabilities`; persists a single-use challenge and sets its opaque cookie |
 | `POST /api/auth/google` | Body `{"credential": str}` plus `X-CSRF-Token` from config and matching `Origin`. Verifies Google's token and nonce, sets the Aqua session, returns canonical `user.id`, safe profile, `csrf_token`, `can_query`, and `capabilities` |
 | `GET /api/auth/me` | Requires an Aqua session; returns canonical `user.id`, safe profile, `csrf_token`, `can_query`, and `capabilities` |
@@ -232,7 +234,7 @@ The frontend talks to the backend only through `/api`, which in production goes 
 
 The shape matches what the React app renders, plus `sql` so every answer shows its query. Each table is `{"id", "title", "columns": [{"key", "label", "type"}], "rows": [{key: value}]}`, where `type` is `string`, `number`, `currency`, `percentage` or `date`; dates are ISO strings. A rejected or failed query returns HTTP 200 with `status` "error", the SQL the model wrote, and the reason, so the UI can show what was blocked. An unreachable model or database returns 503 with `retryable` true; a blank or over-long question returns 422. An unknown `model` is also a 422. Choosing `gemini` on a server with no key returns 400 with code `model_not_configured` and `retryable` false. `message` is a rule-based summary from `summarize.py`. `visualizations` and `kpis` come from `visualize.py`: a single number gives one KPI (`{"id", "label", "value", "type"}`) plus a `{"type": "kpi"}` visualization; labels with a measure give a `bar`, a date with a measure a `line`, each `{"id", "type", "title", "tableId": "result", "xKey", "yKey"}`; anything else leaves both empty. The frontend draws one x column, so a chart labelled by first and last name uses the first.
 
-Health and the model list remain public. Authentication requires the enabled private app DB at schema 6 and a valid session secret. Only new Google config/callbacks require the Google client ID; valid durable sessions can be checked and logged out during provider configuration failure. Invalid/expired sessions return 401, CSRF or dataset denial 403, bounded admission 429 with Retry-After, and unavailable storage/config/provider 503. Validation 422 responses contain a fixed detail string without reflecting submitted credentials/prompts. All `/api` responses use no-store.
+Health and the model list remain public. Authentication requires the enabled private app DB at the binary's required schema (deployed 7; prepared P11a 8) and a valid session secret. Only new Google config/callbacks require the Google client ID; valid durable sessions can be checked and logged out during provider configuration failure. Invalid/expired sessions return 401, CSRF or dataset denial 403, bounded admission 429 with Retry-After, and unavailable storage/config/provider 503. Validation 422 responses contain a fixed detail string without reflecting submitted credentials/prompts. All `/api` responses use no-store.
 
 The auth response user is `{id,email,name,picture}`, where `id` is the canonical UUID; never fabricate a Google subject. Capabilities are explicit booleans (`google_login`, `password_login` (feature flag, default false), `durable_sessions=true`). The browser facade validates that contract and keys workspace state by canonical ID. Confirmed logout/401/account switch clears private state and aborts old requests. Pending/failed logout retains a hidden, inert workspace with retry; it never reports completion before server confirmation.
 
@@ -240,8 +242,8 @@ Google identity is keyed by verified issuer/subject, never automatic email linki
 
 ### P04 password API (reviewed production activation complete)
 
-All new routes use `/api/v1/auth`, server-controlled flags and enabled schema-5
-storage. They never require Google configuration. `GET /bootstrap?action=...`
+These routes use `/api/v1/auth`, server-controlled flags and enabled private
+storage at the deployed binary's required schema. They never require Google configuration. `GET /bootstrap?action=...`
 returns action-bound CSRF and an opaque `__Host-aqua_password` cookie; accepted
 actions are registration, verification, login, reset-request and reset. Each
 unsafe action consumes that challenge once after exact Origin/CSRF checks.
@@ -394,7 +396,7 @@ through Docker/Compose `AQUA_UI_SHELL` (default `opal`, invalid values rejected)
 Both variants must share current authentication, account ownership, routes,
 semantic composer and mobile dialog. Never restore obsolete auth components or
 change a backend/security flag to switch appearance. Rebuild only the frontend;
-retain the current schema-5 backend/private-storage overlay. The legacy shell must retain
+retain the currently deployed backend/private-storage overlay. The legacy shell must retain
 password-only access. Existing account ownership survives legal/Back navigation
 while logout is unresolved; direct public policy visits need no auth bootstrap.
 
