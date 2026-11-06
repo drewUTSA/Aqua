@@ -191,7 +191,8 @@ class ScopeGuards(unittest.TestCase):
         }
         calls = []
 
-        def run(args):
+        def run(args, maximum=16384):
+            self.assertEqual(maximum, 16384)
             calls.append(args)
             if "ps" in args:
                 return (

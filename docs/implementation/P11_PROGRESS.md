@@ -293,3 +293,16 @@ Black checked513 Python files unchanged; Ruff, source/lock checks, the18 native
 executor guards and17 durability/host/cleanup guards passed. The added CI selector
 retains all five prior suites and adds only its fixed report to artifact upload.
 The current integrated source still needs final nine-job PR/main CI and release.
+
+
+Candidate `a117cc9` / run `42177549158` retained two CI reds: the 77-case operator
+model's one-argument stub rejected the valid existing maximum argument, and
+the 80-case launcher model's dynamic importer omitted the real Scope dependency
+path, collecting 74 rather than 80 cases. ROOT corrected only these two test
+fixtures: the stub now also asserts the original 16,384-byte bound, and the
+loader uses the actual ops source directory. No production code or assertion
+was relaxed. Fresh native 77/77 and 80/80 passed at original limits with strict
+cleanup, independently confirmed exact name absence and unchanged running
+production metadata. The historical 539-file signal snapshot now has these two
+explicit unused-test deltas; its actual signal/executor/control inputs are
+unchanged. See [model correction evidence](evidence/p11bc/native-guard-model-corrections.json).

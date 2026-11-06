@@ -17,6 +17,7 @@ from contextlib import redirect_stdout
 from host_adapter_test import host, config
 
 HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE.resolve().parents[2] / "ops/retirement"))
 spec = importlib.util.spec_from_file_location(
     "private_publisher_launcher",
     HERE.resolve().parents[2] / "ops/retirement/publisher_launcher.py",
