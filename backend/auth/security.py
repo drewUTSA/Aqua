@@ -79,6 +79,7 @@ class UserSession:
     grant_version: int = 0
     auth_epoch: int = 0
     dataset_key: str = ""
+    history_generation: int | None = None
 
 
 def require_user(
@@ -102,6 +103,31 @@ def require_user(
         raise HTTPException(503, "Authentication is temporarily unavailable.") from None
     if not hmac.compare_digest(stored.csrf_digest, token_digest(csrf)):
         raise HTTPException(401, "Sign in to continue.")
+    from retirement.revision import history_revision
+
+    generation = getattr(stored, "history_generation", 1)
+    revision = history_revision(settings.session_secret, stored.user["id"], generation)
+    request.state.history_revision = revision
+    # An old tab/request cannot recreate retired history after physical cleanup
+    # removes its former client-request identifiers. Generation one retains
+    # compatibility with clients predating the destructive operation.
+    path = request.url.path
+    history_write = meaningful and (
+        path == "/api/query"
+        or path.startswith(
+            ("/api/v1/chats", "/api/v1/projects", "/api/v1/me/saved-prompts")
+        )
+    )
+    if (
+        history_write
+        and generation > 1
+        and not tokens_match(
+            request.headers.get("x-aqua-history-revision", ""), revision
+        )
+    ):
+        raise HTTPException(
+            409, "History changed. Reload the workspace before continuing."
+        )
     return UserSession(
         stored.user,
         csrf,
@@ -110,6 +136,7 @@ def require_user(
         stored.grant_version,
         stored.auth_epoch,
         stored.dataset_key,
+        generation,
     )
 
 

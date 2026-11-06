@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "status": "passed_actual_three_ordinary_factory_modes",
+  "source_sha256": "8d8dd98796378cea2b26efab3ddc7d3ff6449388d08a9d8eaa7181bc47864949",
+  "source_files": 484,
+  "source_bytes": 3952640,
+  "image": "sha256:aba612fc0f6368a6dbf7c40ceddf06de8c3b87a31c00863c7fc528762ad8eeb5",
+  "runtime195_manifest_sha256": "06bd677d5ef72112f5a69a93054f3e5ed64f6713f32c04e6f7038a2e5d29857d",
+  "compiled_py_sql_files": 191,
+  "actual_compiled_runtime_sha256": "2a90183b3ad85cb3fa80f6d33ffcd4f49e3279ed430b84b5650b301f5996976d",
+  "actual_ordinary_modes": {
+    "accepted_flag_off_purge": {
+      "status": "passed",
+      "ordinary_Runtime_create": true,
+      "new_deletions_enabled": false,
+      "accepted_account_receipt_and_background_purge": true,
+      "one_exact_Uvicorn": true
+    },
+    "restored_closed": {
+      "status": "passed",
+      "ordinary_Runtime_create": true,
+      "startup_mode": "startup_exited_closed",
+      "failure_category": "retirement_authority_unavailable",
+      "actual_exit_code": 3,
+      "web_processes": 0,
+      "private_API_admitted": false
+    },
+    "recovered_ready": {
+      "status": "passed",
+      "ordinary_Runtime_create": true,
+      "one_exact_Uvicorn": true,
+      "new_UUID_legacy_grants": 0,
+      "new_deletion_capability": false,
+      "wellformed_new_deletion_creation_HTTP_status": 503
+    }
+  },
+  "setup_actor_normal_factory_claimed": false,
+  "normal_runtime_injected": false,
+  "same_actual_checkpoint_and_mail_inodes_all_modes": true,
+  "append_only_flags_actually_set_and_cleared": true,
+  "cleanup": {
+    "actor_cleanup": true,
+    "independent_owned_container_counts": 0,
+    "independent_owned_volume_counts": 0,
+    "checkpoint_files_absent": true,
+    "existing_running_metadata_unchanged": true
+  },
+  "limits_unchanged": {
+    "work_seconds": 240,
+    "cleanup_seconds": 60,
+    "PG_memory_MiB": 1024,
+    "PG_CPUs": 2,
+    "PG_data_MiB": 512,
+    "role_memory_MiB": 1024,
+    "role_CPUs": 1,
+    "host_ports": 0
+  },
+  "prior_reds_preserved": true,
+  "earlier_JSONDecodeError_root_cause": "Still unproved; approved diagnostic-only source passed without a speculative behavior fix. Prior source-bound red artifacts remain retained.",
+  "no_blanket_claims": {
+    "whole_install_controller_exercised": false,
+    "total_host_restore_supported": false,
+    "production_activation_or_deploy": false
+  },
+  "production_mutations": 0,
+  "private_inputs_read": false,
+  "completion_receipt_sha256": "d500e0a4ad7a8db7b613cfed4fb4a93b57e7ac978f4e97a0e7e00a75ac09f328",
+  "raw_normal_report_sha256": "8f800793fc25d4060189f8141908bfeaed9f13b6345f14638c06c9d8c1c41ee4",
+  "independent_attestation_sha256": "dd478eea24725d00c38d0141a27cd2b3da439b4bb36f6fbcbf63cf2f63456801"
+}

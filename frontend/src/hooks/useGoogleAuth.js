@@ -3,6 +3,7 @@ import { AuthError, fetchAuthConfig, fetchSession, signInWithGoogle, signOut } f
 import { disableGoogleAutoSelect } from "../services/googleIdentity.js";
 import { DEMO_MODE } from "../services/runtimeConfig.js";
 import { PasswordAuthError, signInWithPassword } from "../services/passwordAuthClient.js";
+import { activateSession, clearHistory, subscribeHistory } from "../services/historyAuthority.js";
 
 const initialState = { status: "loading", session: null, config: null, error: "", googleError: "", passwordError: null, signInMethod: null };
 const googleUnavailable = "Google sign-in is temporarily unavailable. You can still use your AQUA password.";
@@ -18,6 +19,7 @@ async function googleConfig(signal) {
 
 export function useGoogleAuth({ demoMode = DEMO_MODE } = {}) {
   const [state, setState] = useState(() => demoMode ? { ...initialState, status: "demo" } : initialState);
+  const [historyEpoch, setHistoryEpoch] = useState(0);
   const stateRef = useRef(state);
   const active = useRef(null);
   const mounted = useRef(false);
@@ -47,16 +49,25 @@ export function useGoogleAuth({ demoMode = DEMO_MODE } = {}) {
     let confirmedSession = current.session;
     try {
       const session = await fetchSession({ signal: controller.signal });
+      if (!isCurrent(controller)) return;
+      if (session) setHistoryEpoch(activateSession(session));
       confirmedSession = session;
       // Password login can start as soon as the session is known to be absent;
       // a slow or broken Google config request must not hold that form hostage.
-      if (!session && isCurrent(controller)) replace({ ...initialState, status: "signedout" });
+      if (!session && isCurrent(controller)) { clearHistory(); replace({ ...initialState, status: "signedout" }); }
       const google = session ? { config: null, googleError: "" } : await googleConfig(controller.signal);
       if (isCurrent(controller)) replace({ ...initialState, status: session ? "authenticated" : "signedout", session, ...google });
     } catch (error) {
       if (isCurrent(controller)) replace({ ...initialState, session: confirmedSession, status: "unavailable", error: error.message });
     }
   }, [begin, demoMode, replace]);
+
+  useEffect(() => subscribeHistory(context => {
+    setHistoryEpoch(context.sequence);
+    // Every private subtree remounts before new work is enabled. Refresh is
+    // authoritative; old prompts and responses are never replayed by this path.
+    void refresh();
+  }), [refresh]);
 
   useEffect(() => {
     mounted.current = true;
@@ -71,7 +82,7 @@ export function useGoogleAuth({ demoMode = DEMO_MODE } = {}) {
     replace({ ...current, status: "signingin", signInMethod: "google", error: "", passwordError: null });
     try {
       const session = await signInWithGoogle({ credential, csrfToken: current.config.csrf_token, signal: controller.signal });
-      if (isCurrent(controller)) { replace({ ...initialState, status: "authenticated", session }); notify(); }
+      if (isCurrent(controller)) { setHistoryEpoch(activateSession(session)); replace({ ...initialState, status: "authenticated", session }); notify(); }
     } catch (error) {
       if (!isCurrent(controller)) return;
       replace({ ...initialState, status: "signedout", error: error.message, googleError: error.message });
@@ -92,6 +103,7 @@ export function useGoogleAuth({ demoMode = DEMO_MODE } = {}) {
     try {
       const session = await signInWithPassword({ email, password, signal: controller.signal });
       if (!isCurrent(controller)) return false;
+      setHistoryEpoch(activateSession(session));
       replace({ ...initialState, status: "authenticated", session });
       notify();
       return true;
@@ -120,6 +132,7 @@ export function useGoogleAuth({ demoMode = DEMO_MODE } = {}) {
     }
     if (!isCurrent(controller)) return;
     disableGoogleAutoSelect();
+    clearHistory();
     replace({ ...initialState, status: "signedout" });
     notify();
     try {
@@ -135,6 +148,7 @@ export function useGoogleAuth({ demoMode = DEMO_MODE } = {}) {
     // the start of the attempt; never replay it or restore stale cached access.
     const controller = begin();
     disableGoogleAutoSelect();
+    clearHistory();
     replace({ ...initialState, status: "signedout" });
     notify("locked");
     void googleConfig(controller.signal).then((google) => {
@@ -147,6 +161,7 @@ export function useGoogleAuth({ demoMode = DEMO_MODE } = {}) {
     const lock = () => {
       if (["signingout", "logoutfailed"].includes(stateRef.current.status)) return;
       const controller = begin();
+      clearHistory();
       replace({ ...initialState, status: "signedout" });
       void googleConfig(controller.signal).then((google) => {
         if (isCurrent(controller)) replace({ ...initialState, status: "signedout", ...google });
@@ -176,7 +191,7 @@ export function useGoogleAuth({ demoMode = DEMO_MODE } = {}) {
   }, [begin, demoMode, refresh, replace]);
 
   return {
-    ...state, demoMode, refresh, logout, acceptCredential, authenticatePassword, sessionEnded,
+    ...state, demoMode, historyEpoch, refresh, logout, acceptCredential, authenticatePassword, sessionEnded,
     passwordPending: state.status === "signingin" && state.signInMethod === "password",
     user: state.session?.user ?? null,
     csrfToken: state.session?.csrf_token ?? "",

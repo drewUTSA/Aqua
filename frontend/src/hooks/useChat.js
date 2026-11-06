@@ -1,3 +1,4 @@
+import { assertHistory, captureHistory } from "../services/historyAuthority.js";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { FAQS, PROJECTS, createInitialChatState } from "../mocks/navigation.js";
 import { AI_MODELS } from "../mocks/aiModels.js";
@@ -13,6 +14,7 @@ const unexpectedResponse = () => ({
 
 export function useChat({ demoMode = DEMO_MODE, canQuery = demoMode, csrfToken = "", onAuthFailure } = {}) {
   const [state, setState] = useState(() => createInitialChatState({ demoMode }));
+  const history = useRef(captureHistory(csrfToken));
   const access = useRef(null);
   access.current = { demoMode, canQuery, csrfToken, onAuthFailure };
   // The built-in list until the server says which models it can run.
@@ -53,10 +55,12 @@ export function useChat({ demoMode = DEMO_MODE, canQuery = demoMode, csrfToken =
   }, [update]);
 
   const runRequest = useCallback(({ conversationId, requestId, modelId, prompt, replyId, userMessageId, retrying }) => {
+    try { assertHistory(history.current); } catch { return; }
     const controller = new AbortController();
     requests.current.set(conversationId, { requestId, modelId, replyId, userMessageId, controller });
 
     const applyResponse = (response, phase) => {
+      try { assertHistory(history.current); } catch { return; }
       if (controller.signal.aborted || requests.current.get(conversationId)?.requestId !== requestId) return;
       update((current) => ({
       ...current,
@@ -88,6 +92,7 @@ export function useChat({ demoMode = DEMO_MODE, canQuery = demoMode, csrfToken =
           modelId,
           demoMode: access.current.demoMode,
           csrfToken: access.current.csrfToken,
+          historyContext: history.current,
           signal: controller.signal,
           onFirstContent: (fragment) => applyResponse(fragment, "streaming"),
           onContent: (fragment) => applyResponse(fragment, "streaming")

@@ -1,0 +1,85 @@
+{
+  "status": "passed",
+  "schema_version": 8,
+  "migration": "0008_exports",
+  "commit": "9aeaf4eb91a4db55d3701e8be872f2b1e178a116",
+  "checked_utc": "2026-11-06T01:00:49.309839+00:00",
+  "candidate_backend_image": "sha256:dec35c031486fbb5a16cf823bd14073d704f507c94c1c1cbbaa71a6acd4b5962",
+  "candidate_frontend_image": "sha256:4fab90c0016ab600fc11e337766cee54b5ee22e4d2330f6829502bd28f41adcb",
+  "exact_images_healthy": true,
+  "fresh_encrypted_backup_verified": true,
+  "encrypted_backup_sha256": "238881a07ab20373ed2294aecaaa5e7001dc64db0deca4d370e1b9a8d4cd45c2",
+  "protected_retention": "externally_reviewed_owner_only",
+  "migration_protected_rows_preserved": true,
+  "database_identity_and_volumes_preserved": true,
+  "activation_and_environment_preserved": true,
+  "scheduler_unchanged": true,
+  "worker_private_file_unchanged": true,
+  "sole_environment_delta": "PRIVATE_DATA_EXPORT_ENABLED",
+  "N1_topology": {
+    "backend_containers": 1,
+    "web_processes": 1,
+    "other_processes": 0,
+    "direct_uvicorn": true,
+    "analysis_children": 0,
+    "planned_runtime_connections": 8,
+    "probe_reserve": 2,
+    "role_connection_limit": 12
+  },
+  "exports_enabled": true,
+  "public_statuses": {
+    "/": 200,
+    "/signin": 200,
+    "/api/health": 200,
+    "/api/auth/me": 401,
+    "/api/ready": 404,
+    "/api/v1/chats": 401,
+    "/api/v1/me": 401,
+    "/api/v1/me/methods": 401,
+    "/api/v1/me/sessions": 401,
+    "/api/v1/me/preferences": 401,
+    "/api/v1/me/notification-settings": 401,
+    "/api/v1/me/data-exports": 401,
+    "/api/v1/analysis-requests/00000000-0000-4000-8000-000000000001": 401,
+    "/api/v1/analysis-requests/00000000-0000-4000-8000-000000000001/events": 401
+  },
+  "authenticated_request": false,
+  "provider_or_analytical_request": false,
+  "rollback": "not_needed",
+  "phase": "P11a private export release",
+  "release_receipt_sha256": "d8532dca2d7dbf3ef26bf23f43535363f967ea5cc160dc53c25a4730705b4313",
+  "original_verification_sha256": "89fc183efd7837d33f2bd6437c07b8a8557ea818ff71170c617021dd6e92a0df",
+  "final_gate_sha256": "1d681826d139665e2e479bef64d318eacb30e8dac9c6428b71af9954dbd78635",
+  "ci": {
+    "pr_run": 42106746185,
+    "pr_head": "895f287ca90e8ef82e042e0e28c9b205f9f3497d",
+    "main_run": 42109731617,
+    "main_head": "9aeaf4eb91a4db55d3701e8be872f2b1e178a116",
+    "all_seven_jobs_170_steps_passed_each": true
+  },
+  "frontend_runtime_lineage": {
+    "base_image": "sha256:84681f2b7cc1d18db30ae7e247c8356fa332c8fd1524112f73d33909a461d97f",
+    "reason": "Preserve existing nginx runtime/environment; exact tested8assets and nginx bytes unchanged.",
+    "javascript_rebuilt": false,
+    "both_native_full_proxy_checks": {
+      "requests_each": 120,
+      "seconds_each": 40.65,
+      "cleanup": "removed_and_absence_confirmed"
+    },
+    "both_additional_personal_export_proxy_checks": {
+      "requests_each": 23,
+      "status": "passed"
+    }
+  },
+  "retention": {
+    "days": 30,
+    "pruning_enabled": false,
+    "older_backups_preserved": true,
+    "new_recovery_key_does_not_decrypt_legacy_backups": true
+  },
+  "scope": {
+    "deletion_schema9_deployed": false,
+    "public_audience_expanded": false,
+    "analytical_grants_changed": false
+  }
+}

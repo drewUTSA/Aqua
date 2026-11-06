@@ -16,9 +16,9 @@ MESSAGE = "m.id,m.chat_id,m.sequence,m.role,m.content,m.request_id,m.reply_to,m.
 def chat_row(conn: Connection, owner: str, chat_id: str, *, lock: bool = False) -> dict:
     item = one(
         conn,
-        f"SELECT {CHAT},next_message_sequence FROM app.chats WHERE user_id=%s AND id=%s AND deleted_at IS NULL"
+        f"SELECT {CHAT},next_message_sequence FROM app.chats WHERE user_id=%s AND id=%s AND deleted_at IS NULL AND history_generation=(SELECT history_generation FROM app.users WHERE id=%s)"
         + (" FOR UPDATE" if lock else ""),
-        (owner, chat_id),
+        (owner, chat_id, owner),
     )
     if item is None:
         raise WorkspaceError("not_found")
@@ -62,8 +62,13 @@ def list_chats(
     )
     position = token.decode(cursor)
     project_exists(conn, owner, project_id)
-    predicates = ["user_id=%s", "deleted_at IS NULL", "archived=%s"]
-    values = [owner, archived]
+    predicates = [
+        "user_id=%s",
+        "deleted_at IS NULL",
+        "archived=%s",
+        "history_generation=(SELECT history_generation FROM app.users WHERE id=%s)",
+    ]
+    values = [owner, archived, owner]
     if project_id:
         predicates.append("project_id=%s")
         values.append(project_id)

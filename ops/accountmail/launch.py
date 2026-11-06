@@ -1,5 +1,6 @@
 """Linux operator launcher: one isolated account-mail job, never a web thread."""
 
+from contextlib import nullcontext
 import json
 from pathlib import Path
 import re
@@ -8,6 +9,7 @@ import signal
 import sys
 
 if __package__:
+    from .physical_lock import shared
     from .docker_worker import (
         Docker,
         host_ready,
@@ -24,10 +26,12 @@ if __package__:
         Unavailable,
         private_directory,
         read_environment,
+        retirement_enabled,
         sealed_environment,
         singleton,
     )
 else:
+    from physical_lock import shared
     from docker_worker import (
         Docker,
         host_ready,
@@ -44,6 +48,7 @@ else:
         Unavailable,
         private_directory,
         read_environment,
+        retirement_enabled,
         sealed_environment,
         singleton,
     )
@@ -57,75 +62,92 @@ def launch(directory: Path = PRIVATE) -> str:
         raw, enabled = read_environment(directory)
         if not enabled:
             return "disabled"
-        host_ready()
-        docker = Docker()
-        if docker.ids("label=" + LABEL + "=" + PURPOSE):
-            raise Unavailable("leftover_worker")
-        if docker.ids("name=^/" + NAME + "$"):
-            raise Unavailable("leftover_worker")
-        image = docker.call("image", "inspect", "--format", "{{.Id}}", IMAGE)
-        if not re.fullmatch(r"sha256:[a-f0-9]{64}", image):
-            raise Unavailable("image_unavailable")
-        if (
-            docker.call("volume", "inspect", "--format", "{{.Name}}", SOCKET_VOLUME)
-            != SOCKET_VOLUME
-        ):
-            raise Unavailable("socket_volume_unavailable")
-        nonce, ident = secrets.token_hex(16), None
-        try:
-            with sealed_environment(raw) as fd:
-                ident = docker.call(
-                    "container",
-                    "create",
-                    "--pull=never",
-                    "--name",
-                    NAME,
-                    "--label",
-                    LABEL + "=" + PURPOSE,
-                    "--label",
-                    RUN_LABEL + "=" + nonce,
-                    "--network=bridge",
-                    "--read-only",
-                    "--cap-drop=ALL",
-                    "--security-opt=no-new-privileges:true",
-                    "--memory=128m",
-                    "--memory-swap=128m",
-                    "--cpus=1",
-                    "--pids-limit=32",
-                    "--user=1000:1000",
-                    "--restart=no",
-                    "--log-driver=none",
-                    "--no-healthcheck",
-                    "--stop-timeout=5",
-                    "--tmpfs=/tmp:rw,nosuid,nodev,noexec,size=8388608",
-                    "--mount",
-                    "type=volume,src="
-                    + SOCKET_VOLUME
-                    + ",dst=/run/aqua-app-db,readonly",
-                    "--env-file",
-                    "/proc/self/fd/" + str(fd),
-                    "--env=PYTHON_DOTENV_DISABLED=1",
-                    "--env=PYTHONDONTWRITEBYTECODE=1",
-                    "--entrypoint=python",
-                    image,
-                    "-m",
-                    "auth.mailworker",
-                    fd=fd,
-                )
-            if not IDENT.fullmatch(ident):
-                ident = None
-                raise Unavailable("unexpected_docker_response")
-            if docker.owned(nonce) != ident:
-                raise Unavailable("worker_ownership_unconfirmed")
-            output = json.loads(
-                docker.call("container", "start", "--attach", ident, timeout=35)
+        protected = retirement_enabled(raw)
+        with shared(directory) if protected else nullcontext(None) as claim:
+            if protected and claim is None:
+                return "busy"
+            return _launch(raw, claim)
+
+
+def _launch(raw, claim):
+    host_ready()
+    docker = Docker()
+    if docker.ids("label=" + LABEL + "=" + PURPOSE):
+        raise Unavailable("leftover_worker")
+    if docker.ids("name=^/" + NAME + "$"):
+        raise Unavailable("leftover_worker")
+    image = docker.call("image", "inspect", "--format", "{{.Id}}", IMAGE)
+    if not re.fullmatch(r"sha256:[a-f0-9]{64}", image):
+        raise Unavailable("image_unavailable")
+    if (
+        docker.call("volume", "inspect", "--format", "{{.Name}}", SOCKET_VOLUME)
+        != SOCKET_VOLUME
+    ):
+        raise Unavailable("socket_volume_unavailable")
+    nonce, ident = secrets.token_hex(16), None
+    try:
+        with sealed_environment(raw) as fd:
+            ident = docker.call(
+                "container",
+                "create",
+                "--pull=never",
+                "--name",
+                NAME,
+                "--label",
+                LABEL + "=" + PURPOSE,
+                "--label",
+                RUN_LABEL + "=" + nonce,
+                "--network=bridge",
+                "--read-only",
+                "--cap-drop=ALL",
+                "--security-opt=no-new-privileges:true",
+                "--memory=128m",
+                "--memory-swap=128m",
+                "--cpus=1",
+                "--pids-limit=32",
+                "--user=1000:1000",
+                "--restart=no",
+                "--log-driver=none",
+                "--no-healthcheck",
+                "--stop-timeout=5",
+                "--tmpfs=/tmp:rw,nosuid,nodev,noexec,size=8388608",
+                "--mount",
+                "type=volume,src=" + SOCKET_VOLUME + ",dst=/run/aqua-app-db,readonly",
+                *(
+                    []
+                    if claim is None
+                    else ["--mount", claim.mount(), *claim.environment()]
+                ),
+                "--env-file",
+                "/proc/self/fd/" + str(fd),
+                "--env=PYTHON_DOTENV_DISABLED=1",
+                "--env=PYTHONDONTWRITEBYTECODE=1",
+                "--entrypoint=python",
+                image,
+                "-m",
+                "auth.mailworker",
+                fd=fd,
             )
-            if output not in [{"status": "idle"}, {"status": "attempted"}]:
-                raise Unavailable("unexpected_worker_response")
-            return output["status"]
-        finally:
-            if not docker.clean(nonce, ident):
-                raise Unavailable("cleanup_unconfirmed")
+        if not IDENT.fullmatch(ident):
+            ident = None
+            raise Unavailable("unexpected_docker_response")
+        if docker.owned(nonce) != ident:
+            raise Unavailable("worker_ownership_unconfirmed")
+        if claim is not None:
+            claim.verify()
+            docker.lock_mounted(ident, claim)
+            claim.verify()
+        output = json.loads(
+            docker.call("container", "start", "--attach", ident, timeout=35)
+        )
+        if claim is not None:
+            claim.verify()
+        if output not in [{"status": "idle"}, {"status": "attempted"}]:
+            raise Unavailable("unexpected_worker_response")
+        return output["status"]
+    finally:
+        if not docker.clean(nonce, ident):
+            raise Unavailable("cleanup_unconfirmed")
 
 
 def _interrupted(signum: int, frame: object) -> None:

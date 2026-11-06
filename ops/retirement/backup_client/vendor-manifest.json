@@ -1,0 +1,22 @@
+{
+  "backup_stream.py": {
+    "source": "/Users/bspear2004/Documents/Aqua/.check-results/p11a-work-20261105/operator/backup_stream.py",
+    "sha256": "e558cc9729201410ae466e8e8f7ab12ab1395c64e3d3464ac07711d2c56f2452"
+  },
+  "backup_host.py": {
+    "source": "/Users/bspear2004/Documents/Aqua/.check-results/p11a-work-20261105/operator/backup_host.py",
+    "sha256": "00fb9b99a818132b7c6084c84089618ffbe22903c9fbff75cf6d9f5748cbd156"
+  },
+  "authority_archive.py": {
+    "source": "/Users/bspear2004/Documents/Aqua/.check-results/p11bc-proposals/resume-20261105T210346Z-7d2fc6f3/candidate-v3/ops/retirement/archive.py",
+    "sha256": "127b36b9b45b5a17867a51c3b3ec05ba954eb99713fd7f4671cb25e937f93cc0"
+  },
+  "retirement/checkpoint.py": {
+    "source": "/Users/bspear2004/Documents/Aqua/.check-results/p11bc-proposals/resume-20261105T210346Z-7d2fc6f3/candidate-v3/backend/retirement/checkpoint.py",
+    "sha256": "d4bb5beeae866ab6574ae6180101755da5efb0a202a32080379f5f5625ce63bd"
+  },
+  "retirement/fingerprints.py": {
+    "source": "/Users/bspear2004/Documents/Aqua/.check-results/p11bc-proposals/resume-20261105T210346Z-7d2fc6f3/candidate-v3/backend/retirement/fingerprints.py",
+    "sha256": "0f5b617dfef7815ed66d08e936c514fb9d7aa09a438b31d4f0784e2bf3dc4904"
+  }
+}

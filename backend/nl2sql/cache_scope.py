@@ -39,6 +39,7 @@ def request_scope(
     *,
     grant_version: int = 0,
     auth_epoch: int = 0,
+    history_generation: int = 1,
 ) -> CacheScope:
     """Current canonical identity and durable grant revisions partition results."""
     return CacheScope(
@@ -48,6 +49,7 @@ def request_scope(
             [
                 grant_version,
                 auth_epoch,
+                history_generation,
                 sorted(settings.auth_allowed_google_subs),
                 sorted(settings.auth_allowed_emails),
             ]

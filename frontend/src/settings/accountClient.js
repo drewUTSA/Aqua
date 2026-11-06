@@ -11,8 +11,8 @@ export function normalizeDisplayName(value) {
 
 // Only transport controls are accepted. Callers cannot change the route,
 // method, payload or accepted response status through the options object.
-function transport({ signal, csrfToken, timeout } = {}) {
-  return { signal, csrfToken, ...(timeout === undefined ? {} : { timeout }) };
+function transport({ signal, csrfToken, timeout, historyContext } = {}) {
+  return { signal, csrfToken, historyContext, ...(timeout === undefined ? {} : { timeout }) };
 }
 
 async function validated(path, options, decode) {

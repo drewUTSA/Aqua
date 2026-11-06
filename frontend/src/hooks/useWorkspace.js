@@ -5,14 +5,16 @@ import { useWorkspaceLists } from "./useWorkspaceLists.js";
 import { useAnalysisRequests } from "./useAnalysisRequests.js";
 import { acceptAnalysis, progressAnalysis, activeAnalysis, analysisRequests } from "./workspaceAnalysisState.js";
 import { terminalAnalysis, validId } from "../services/workspaceContract.js";
+import { assertHistory, captureHistory } from "../services/historyAuthority.js";
 
 export function useWorkspace({ canQuery, canReadResults = canQuery, csrfToken, onAuthFailure, suspended = false, onLiveCompletion }) {
   const [state, setState] = useState(initialWorkspace), [models, setModels] = useState([]), [selectedModelId, setModelId] = useState("");
   const current = useRef(state), access = useRef(null), alive = useRef(true), requests = useRef(new Map()), reads = useRef(new Set()), messageEpoch = useRef(new Map()), historyReads = useRef(new Map());
+  const mountedHistory = useRef(captureHistory(csrfToken));
   access.current = { canQuery, canReadResults, csrfToken, onAuthFailure, suspended, onLiveCompletion }; current.current = state;
-  const update = useCallback((transform) => { if (!alive.current) return; const next = transform(current.current); current.current = next; setState(next); }, []);
+  const update = useCallback((transform) => { if (!alive.current) return; try { assertHistory(mountedHistory.current); } catch { return; } const next = transform(current.current); current.current = next; setState(next); }, []);
   const onError = useCallback((error) => { update((previous) => ({ ...previous, notice: error.message || "AQUA could not complete this action." }));
-    if ([401, 403].includes(error.status)) access.current.onAuthFailure?.(); }, [update]);
+    if ([401, 403].includes(error.status) || error.code === "history_changed") access.current.onAuthFailure?.(); }, [update]);
   const library = useWorkspaceLists({ csrfToken, onError, enabled: !suspended });
   const onAnalysis = useCallback((snapshot) => {
     messageEpoch.current.set(snapshot.chat.id, (messageEpoch.current.get(snapshot.chat.id) || 0) + 1);
@@ -49,7 +51,7 @@ export function useWorkspace({ canQuery, canReadResults = canQuery, csrfToken, o
     const ticket = (messageEpoch.current.get(id) || 0) + 1; messageEpoch.current.set(id, ticket);
     const cursor = older ? current.current.records[id]?.olderCursor : null;
     update((previous) => changeRecord(previous, id, (item) => ({ ...item, historyLoading: true })));
-    try { const page = await listMessages(id, { cursor, signal: controller.signal });
+    try { const page = await listMessages(id, { cursor, signal: controller.signal, historyContext: mountedHistory.current });
       if (controller.signal.aborted || !alive.current || messageEpoch.current.get(id) !== ticket) return;
       update((previous) => finishHistory(previous, id, page, older, access.current.canReadResults));
     } catch (error) { if (error.name !== "AbortError" && messageEpoch.current.get(id) === ticket) { update((previous) => changeRecord(previous, id, (item) => ({ ...item, historyLoading: false,
@@ -71,17 +73,19 @@ export function useWorkspace({ canQuery, canReadResults = canQuery, csrfToken, o
     if (Object.keys(previous.records).length >= 100) { onError(new Error("Keep up to 100 unsent drafts in this visit. Reuse an existing chat.")); return null; }
     const item = { ...emptyConversation(), projectId }; update((value) => ({ ...value, records: { ...value.records, [item.id]: item }, activeId: item.id, notice: "" })); return item.id; };
   const run = useCallback(async (recordId, operation) => {
+    try { assertHistory(operation.historyContext); } catch { return; }
     if (!access.current.canQuery || access.current.suspended || requests.current.has(recordId)) return;
     if (requests.current.size >= 4) { onError(new Error("Wait for another open request to finish before asking another question.")); return; }
     const controller = new AbortController(); requests.current.set(recordId, controller);
     messageEpoch.current.set(recordId, (messageEpoch.current.get(recordId) || 0) + 1);
     update((previous) => changeRecord(previous, recordId, (item) => ({ ...item, operation: { ...operation, busy: true, uncertain: false } })));
-    try { const result = await submitQuestion(operation.submission, { csrfToken: access.current.csrfToken, signal: controller.signal });
+    try { const result = await submitQuestion(operation.submission, { csrfToken: operation.historyContext.csrf || access.current.csrfToken, historyContext: operation.historyContext, signal: controller.signal });
       if (controller.signal.aborted || !alive.current) return;
       messageEpoch.current.set(result.chat.id, (messageEpoch.current.get(result.chat.id) || 0) + 1);
       update((previous) => { const saved = finishSubmission(previous, recordId, operation.clientId, result, access.current.canReadResults);
         return Number.isSafeInteger(result.request.version) ? acceptAnalysis(saved, result, access.current.canReadResults) : saved; }); void library.refreshChats();
     } catch (error) { if (!alive.current) return;
+      try { assertHistory(operation.historyContext); } catch { return; }
       const uncertain = !error.status || error.status >= 500;
       update((previous) => failSubmission(previous, recordId, operation, uncertain));
       if (error.name !== "AbortError") onError(error);
@@ -90,7 +94,7 @@ export function useWorkspace({ canQuery, canReadResults = canQuery, csrfToken, o
   const submit = (raw) => { const item = current.current.records[current.current.activeId], prompt = raw.trim();
     if (!prompt || prompt.length > 2000 || item.operation || analysisRequests({ ...current.current, records: { [item.id]: item } }).length || !access.current.canQuery || !selectedModelId) return null;
     if (requests.current.size >= 4) { onError(new Error("Wait for another open request to finish before asking another question.")); return null; }
-    const clientId = operationId(), userId = `local-${clientId}`, operation = { clientId, prompt,
+    const clientId = operationId(), userId = `local-${clientId}`, operation = { clientId, prompt, historyContext: mountedHistory.current,
       submission: { client_request_id: clientId, question: prompt, model: selectedModelId, ...(item.id.startsWith("draft-")
         ? item.projectId ? { project_id: item.projectId } : {} : { chatId: item.id }) } };
     update((previous) => changeRecord(previous, item.id, (record) => ({ ...record, draft: "", title: record.messageCount ? record.title : prompt.replace(/\s+/g, " ").slice(0, 120),
@@ -100,12 +104,12 @@ export function useWorkspace({ canQuery, canReadResults = canQuery, csrfToken, o
     if (item.operation) { if (!item.operation.busy) void run(item.id, item.operation); return; }
     const reply = item.messages.find((message) => message.id === messageId), input = item.messages.find((message) => message.id === reply?.replyTo);
     if (!reply?.replyTo || !reply?.response?.error?.retryable || analysisRequests({ ...current.current, records: { [item.id]: item } }).length) return;
-    const clientId = operationId(); void run(item.id, { clientId, prompt: input?.content || "",
+    const clientId = operationId(); void run(item.id, { clientId, prompt: input?.content || "", historyContext: mountedHistory.current,
       submission: { chatId: item.id, retryInputId: reply.replyTo, client_request_id: clientId } }); };
   const mutateChat = async (item, values, remove = false) => {
     if (!item?.revision || requests.current.has(item.id)) return false;
     const controller = new AbortController(); reads.current.add(controller);
-    try { const options = { csrfToken: access.current.csrfToken, signal: controller.signal };
+    try { const options = { csrfToken: access.current.csrfToken, signal: controller.signal, historyContext: mountedHistory.current };
       const saved = remove ? await deleteChat(item.id, item.revision, options) : await updateChat(item.id, { revision: item.revision, ...values }, options);
       if (!alive.current || controller.signal.aborted) return false;
       if (remove) update((previous) => removeConversation(previous, item.id));

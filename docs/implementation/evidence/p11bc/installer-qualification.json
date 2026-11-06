@@ -1,0 +1,113 @@
+{
+  "SQL_restore_of_this_genesis_dump_claimed": false,
+  "accepted_user_deletion_matrix_claimed": false,
+  "actual_HBA_and_credential_denials": {
+    "app_role_authority_CONNECT_and_escalation_denied": true,
+    "wrong_password_rejected": true
+  },
+  "actual_installer_keeper_held": true,
+  "actual_real_kernel_append_genesis_ack_before_keeper": true,
+  "actual_recover_CLI": {
+    "cron_resumed": false,
+    "events_verified": 0,
+    "mode": "retained_authority_app_only",
+    "pending_manifest": false,
+    "physical_mail_validation": "child_owner_mode_readonly_named_inode",
+    "protected_sha256": "4ce51b45e69c166e0da94ea7082aab81d66d368751e42fba298fe1a545717528",
+    "purge_batches": 0,
+    "ready": true,
+    "total_host_authority_restore_supported": false,
+    "total_host_restore_supported": false,
+    "writers_resumed": false
+  },
+  "age_encrypted_retention_claimed": false,
+  "all194app_inputs_raw_equal_runtime": true,
+  "archive": {
+    "bytes": 51200,
+    "dump_bytes": 39644,
+    "dump_sha256": "daf157c8f9de9926d6a0816b23667d34acd4f33e6bc48015151d2679f1aa07bc",
+    "members": 5,
+    "sha256": "454c465a84ba585a2e7f0057a82aab525bbf406a6f9552ac0a554fcfb1a1bb21"
+  },
+  "archive_transport": "bounded_RAM_only_no_plaintext_file",
+  "artifacts": {
+    "attest_cleanup.py": {
+      "bytes": 3485,
+      "sha256": "eb8cbdbf3c7d66599cc6c5e0222f4f91da3a661dfdb89c112853159324c4a741"
+    },
+    "controller.py": {
+      "bytes": 12816,
+      "sha256": "60f165da70112b7b985d184a158bc271f81e7f4d38f6c1ccf7958c016ac7195b"
+    },
+    "execution-request.json": {
+      "bytes": 4667,
+      "sha256": "ea438f0da3af83920b7e0792e04a0425044c908f23c3e0004dfd715fed100df8"
+    },
+    "execution/cleanup-attestation.json": {
+      "bytes": 356,
+      "sha256": "9bae3cd87d9f3bfa789eacbd4e0de282a9d14bebb73a8891f0463fbf766b341c"
+    },
+    "execution/installer-report.json": {
+      "bytes": 1338,
+      "sha256": "8b333ad5aa92960a3c981037b26c6be13a63cd4411b940dc1b8e46877d04b9e2"
+    },
+    "execution/receipt.json": {
+      "bytes": 562,
+      "sha256": "a3687759d68c6cdfec825d011ef27cf6c7e762da7ed5b5e9e3ede8714c68b957"
+    },
+    "stage_execute.py": {
+      "bytes": 5208,
+      "sha256": "50d911b15407e3ef141198013f0db84443816454e02d0c7a846bf10e6422b408"
+    }
+  },
+  "automatic_scope_cleanup": true,
+  "canonical_integration_performed": false,
+  "controllers_exited": true,
+  "genesis_only": true,
+  "global_latest_RPO0_claimed": false,
+  "head_checked_against_source_image_profile": true,
+  "independent_cleanup": {
+    "Docker_mutations": 0,
+    "all_owned_resources_absent": true,
+    "existing_running_containers_unchanged": true,
+    "private_fixture_absent": true,
+    "run": "aqua-retirement-host-5bbba3d32e829ebf65327d46",
+    "run_label_containers": 0,
+    "run_label_volumes": 0,
+    "run_named_containers": 0,
+    "run_named_socket_volumes": 0,
+    "run_qa_label_containers": 0
+  },
+  "keeper_released_only_after_head_archive_and_denials": true,
+  "new_ordinary_Runtime_factory_claimed": false,
+  "original_failed_attempts_preserved": [
+    "installer-execution-v1",
+    "installer-execution-v2",
+    "installer-execution-v3"
+  ],
+  "production_mutations": 0,
+  "qualification": "actual_disposable_native_installer_genesis_export_recovery",
+  "requirements_lock": {
+    "bytes": 88598,
+    "sha256": "8d530e7ec6b196c26e7e1949ee806749bebb61660609c1bb98c0e226f70a712b",
+    "source": "tools/checks/requirements-runtime.lock"
+  },
+  "requirements_lock_boundary": "exact bytes checked in immutable runtime probe; not substituted by source bundle",
+  "run": "aqua-retirement-host-5bbba3d32e829ebf65327d46",
+  "runtime195_manifest_sha256": "06bd677d5ef72112f5a69a93054f3e5ed64f6713f32c04e6f7038a2e5d29857d",
+  "runtime_image": "sha256:aba612fc0f6368a6dbf7c40ceddf06de8c3b87a31c00863c7fc528762ad8eeb5",
+  "schemaVersion": 1,
+  "schema_version": 9,
+  "separate_actual_proofs_required": [
+    "normal-three-mode ordinary factory/accepted deletion/app-only restore",
+    "129-entry authority encrypted age/keyless SQL restore"
+  ],
+  "source_archive_bytes": 4003840,
+  "source_archive_sha256": "a38ab44ed83147745d9fa2b7986b2eda709a277a432f7f086ba89bd9497d0caa",
+  "source_enforced_initializer_exit_setter_readback_exit_then_new_cap0signer": true,
+  "source_files": 484,
+  "source_manifest_sha256": "0a75f178070e3aeab477f8d19e3fa3734913315b1c8be82d94996b2be7cc3113",
+  "source_overlap_boundary": "installer-specific helpers+reviewed ops only; shared capture/normal helpers retain separately reviewed latest actual-passed precedence",
+  "status": "passed",
+  "total_host_restore_supported": false
+}

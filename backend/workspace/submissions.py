@@ -84,8 +84,8 @@ def begin(
         title = " ".join(question.split())[:120]
         allocate(conn, owner, len(title.encode()))
         conn.execute(
-            "INSERT INTO app.chats(id,user_id,project_id,title) VALUES(%s,%s,%s,%s)",
-            (chat_id, owner, project, title),
+            "INSERT INTO app.chats(id,user_id,project_id,title,history_generation) SELECT %s,%s,%s,%s,history_generation FROM app.users WHERE id=%s",
+            (chat_id, owner, project, title, owner),
         )
     chat = chat_row(conn, owner, chat_id, lock=True)
     if chat["archived"]:

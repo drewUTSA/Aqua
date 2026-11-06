@@ -77,7 +77,7 @@ class Writer:
 
 PROJECTS = "SELECT jsonb_build_object('id',id,'name',name,'archived',archived,'created_at',created_at,'updated_at',updated_at)::text FROM app.projects WHERE user_id=%s AND deleted_at IS NULL ORDER BY id LIMIT %s"
 PROMPTS = "SELECT jsonb_build_object('id',id,'label',label,'prompt',prompt,'pinned',pinned,'use_count',use_count,'last_used_at',last_used_at,'created_at',created_at,'updated_at',updated_at)::text FROM app.saved_prompts WHERE user_id=%s AND deleted_at IS NULL ORDER BY id LIMIT %s"
-CHATS = "SELECT jsonb_build_object('id',id,'title',title,'project_id',project_id,'archived',archived,'created_at',created_at,'last_activity_at',last_activity_at)::text FROM app.chats WHERE user_id=%s AND deleted_at IS NULL ORDER BY id LIMIT %s"
+CHATS = "SELECT jsonb_build_object('id',id,'title',title,'project_id',project_id,'archived',archived,'created_at',created_at,'last_activity_at',last_activity_at)::text FROM app.chats WHERE user_id=%s AND deleted_at IS NULL AND history_generation=(SELECT history_generation FROM app.users WHERE id=app.chats.user_id) ORDER BY id LIMIT %s"
 MESSAGES = """
 SELECT jsonb_build_object('id',m.id,'chat_id',m.chat_id,'sequence',m.sequence,'role',m.role,
  'content',CASE WHEN m.role='user' OR (%s AND r.dataset_key=%s) THEN m.content ELSE '' END,
@@ -90,7 +90,7 @@ SELECT jsonb_build_object('id',m.id,'chat_id',m.chat_id,'sequence',m.sequence,'r
  jsonb_build_object('code',v.response->'error'->'code','message',v.response->'error'->'message',
  'retryable',v.response->'error'->'retryable') ELSE 'null'::jsonb END)::text ELSE NULL END,
  m.role='aqua' AND %s AND r.dataset_key=%s AND (m.content<>'' OR v.response IS NOT NULL)
-FROM app.messages m JOIN app.chats c ON c.user_id=m.user_id AND c.id=m.chat_id AND c.deleted_at IS NULL
+FROM app.messages m JOIN app.chats c ON c.user_id=m.user_id AND c.id=m.chat_id AND c.deleted_at IS NULL AND c.history_generation=(SELECT history_generation FROM app.users WHERE id=m.user_id)
 LEFT JOIN app.analysis_requests r ON r.user_id=m.user_id AND r.chat_id=m.chat_id AND r.id=m.request_id
 LEFT JOIN LATERAL (SELECT response FROM app.visual_results x WHERE x.user_id=m.user_id AND x.chat_id=m.chat_id AND x.request_id=m.request_id ORDER BY revision DESC LIMIT 1) v ON true
 WHERE m.user_id=%s ORDER BY m.chat_id,m.sequence,m.id LIMIT %s

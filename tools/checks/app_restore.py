@@ -163,6 +163,26 @@ SELECT count(*),bool_and(consumed_at IS NOT NULL) FROM app.account_action_proofs
     assert sql("aqua_app", proof_fence_sql).decode().splitlines() == ["2|f", "1|f"]
     export_recovery = seed_exports(sql)
     identity_recovery = seed_identity(sql, docker, runner)
+    # A visible job/user can already be gone while its minimal original-intent
+    # fence must still survive the full app backup. This synthetic metadata is
+    # unconfirmed; only the separate two-DB composition proves signed admission.
+    sql(
+        "aqua_app",
+        b"""
+SET ROLE aqua_app_runtime;
+INSERT INTO app.retirement_intents(installation_id,user_id,intent_id,job_id,scope,created_at,history_floor,privacy_floor,auth_floor,account_closed,fingerprint_count,fingerprint_root)
+ VALUES('90000000-0000-4000-8000-000000000001','90000000-0000-4000-8000-000000000002','90000000-0000-4000-8000-000000000003','90000000-0000-4000-8000-000000000004','chat_history_v1','2020-01-01T00:00:00Z',2,2,0,false,0,sha256(decode('415155413a7265746972656d656e742d70616765733a763100','hex')));
+UPDATE app.retirement_control SET permanent_intents=permanent_intents+1 WHERE singleton;
+""",
+    )
+    retirement_sql = b"""
+SELECT * FROM app.retirement_intents ORDER BY installation_id,user_id,intent_id;
+SELECT permanent_intents,manifest_bytes,recovery_required,authority_installed FROM app.retirement_control WHERE singleton;
+SELECT count(*) FROM app.deletion_jobs;
+SELECT count(*) FROM app.deletion_admission;
+SELECT has_table_privilege('aqua_app_runtime','app.retirement_intents','DELETE'),has_table_privilege('aqua_app_runtime','app.retirement_intents','TRUNCATE'),has_table_privilege('aqua_app_backup','app.retirement_intents','SELECT'),has_table_privilege('aqua_app_backup','app.retirement_intents','UPDATE');
+"""
+    retirement_expected = sql("aqua_app", retirement_sql)
     verify_identity(sql, "aqua_app", identity_recovery, fenced=False)
     verify_exports(sql, "aqua_app", export_recovery, fenced=False)
     dump = docker(
@@ -219,9 +239,11 @@ SELECT count(*),bool_and(consumed_at IS NOT NULL) FROM app.account_action_proofs
         "6",
         "7",
         "8",
+        "9",
         "t|f",
     ], observed
     assert sql("aqua_restore", account_sql) == account_expected
+    assert sql("aqua_restore", retirement_sql) == retirement_expected
     assert sql("aqua_restore", proof_fence_sql).decode().splitlines() == ["2|f", "1|f"]
     verify_identity(sql, "aqua_restore", identity_recovery, fenced=False)
     verify_exports(sql, "aqua_restore", export_recovery, fenced=False)
@@ -250,6 +272,7 @@ SELECT count(*),bool_and(consumed_at IS NOT NULL) FROM app.account_action_proofs
     assert sql("aqua_restore", preferences_sql) == preferences_expected
     assert sql("aqua_restore", account_sql) == account_expected
     assert sql("aqua_restore", proof_fence_sql).decode().splitlines() == ["2|t", "1|t"]
+    assert sql("aqua_restore", retirement_sql) == retirement_expected
     verify_identity(sql, "aqua_restore", identity_recovery, fenced=True)
     verify_exports(sql, "aqua_restore", export_recovery, fenced=True)
     verify_identity(sql, "aqua_app", identity_recovery, fenced=False)
@@ -316,6 +339,7 @@ SELECT count(*),bool_and(consumed_at IS NOT NULL) FROM app.account_action_proofs
         "restored_account_provenance": "derived_grant_identity_binding_and_revocation_preserved",
         "restored_account_action_proofs": "challenge_proof_bindings_preserved_consumption_fenced_repeatably",
         "restored_private_exports": "ready_and_partial_bytes_purged_repeatably_spent_admission_preserved",
+        "restored_retirement_intents": "permanent_original_without_user_job_and_counters_preserved_runtime_delete_truncate_denied",
         "restored_identity_actions": "google_link_and_dual_mail_and_password_add_requests_consumed_repeatably",
         "restored_identity_revisions": "email_and_google_proof_revision_snapshots_preserved",
         "restored_notification_consent": "independent_CAS_values_and_revision_preserved",

@@ -16,6 +16,7 @@ from privacy.cursors import Cursors
 from privacy.database import PhysicalPool, global_lock
 from workspace.database import admit, guard, one, rows
 from workspace.errors import WorkspaceError
+from storage.pool import SCHEMA_VERSION
 
 log = logging.getLogger("aqua.privacy")
 
@@ -68,7 +69,7 @@ class ExportService:
             and conn.execute(
                 "SELECT max(version) FROM app.schema_migrations"
             ).fetchone()
-            == (8,)
+            == (SCHEMA_VERSION,)
         )
 
     def start(self):

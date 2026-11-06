@@ -1,3 +1,4 @@
+import { captureHistory, copySessionStamp, stampSession } from "./historyAuthority.js";
 const UNAVAILABLE = "AQUA sign-in is temporarily unavailable. Please try again.";
 
 export class AuthError extends Error {
@@ -15,6 +16,7 @@ function safeError(status) {
 }
 
 async function request(path, options = {}) {
+  const history = captureHistory();
   let response;
   try {
     response = await fetch(path, { credentials: "same-origin", cache: "no-store", ...options });
@@ -25,7 +27,7 @@ async function request(path, options = {}) {
   if (!response.ok) throw safeError(response.status);
   if (response.status === 204) return null;
   try {
-    return await response.json();
+    return stampSession(await response.json(), response, history);
   } catch (error) {
     if (error?.name === "AbortError") throw error;
     throw new AuthError(502);
@@ -62,7 +64,7 @@ export function sessionResponse(body) {
   if (body.capabilities !== undefined) {
     session.capabilities = capabilitiesResponse(body.capabilities);
   }
-  return session;
+  return copySessionStamp(body, session);
 }
 
 export async function fetchAuthConfig({ signal } = {}) {

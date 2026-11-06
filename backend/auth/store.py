@@ -6,6 +6,8 @@ from typing import Any
 from auth.accounts import (
     grant_state,
     preserve_approved_grant,
+    provider_observation,
+    ISSUER,
     resolve_account,
     validate_identity,
 )
@@ -29,6 +31,7 @@ class StoredSession:
     dataset_key: str
     grant_version: int
     can_query: bool
+    history_generation: int = 1
 
 
 def _digest(value: bytes) -> None:
@@ -97,7 +100,8 @@ class IdentityStore:
             owner = resolve_account(conn, identity)
         with self.storage.transaction() as conn:
             admit(conn, self.policy, "account", account_id=owner)
-        with self.storage.transaction() as conn:
+
+        def finish(conn, decision=None):
             state = conn.execute(
                 "SELECT status,auth_epoch FROM app.users WHERE id=%s FOR UPDATE",
                 (owner,),
@@ -124,7 +128,8 @@ class IdentityStore:
             ).fetchall()
             if len(active) >= self.policy.max_sessions:
                 raise AuthLimited(self.policy.window_seconds)
-            preserve_approved_grant(conn, owner, self.policy, identity["sub"])
+            if decision is None or not decision.retired:
+                preserve_approved_grant(conn, owner, self.policy, identity["sub"])
             conn.execute(
                 "INSERT INTO app.sessions(user_id,token_digest,csrf_digest,auth_epoch,method,idle_expires_at,absolute_expires_at) "
                 "VALUES (%s,%s,%s,%s,'google',now()+%s*interval '1 second',now()+%s*interval '1 second')",
@@ -137,6 +142,29 @@ class IdentityStore:
                     settings.session_max_age_seconds,
                 ),
             )
+
+        runtime = getattr(self.storage, "retirement", None)
+        if runtime is not None and runtime.installed:
+            from retirement.interlock import RetirementUnavailable
+
+            if not runtime.ready:
+                raise AuthDenied("retirement_authority_unavailable")
+            email, _ = provider_observation(identity)
+            candidates = runtime.client.broker.key.google_grant_candidates(
+                ISSUER, identity["sub"], email
+            )
+            try:
+                runtime.client.grant_transaction(
+                    self.storage,
+                    self.policy.dataset_key or "0" * 64,
+                    candidates,
+                    finish,
+                )
+            except RetirementUnavailable:
+                raise AuthDenied("retirement_authority_unavailable") from None
+        else:
+            with self.storage.transaction() as conn:
+                finish(conn)
         return self.authenticate(token_digest)
 
     def authenticate(
@@ -145,7 +173,7 @@ class IdentityStore:
         _digest(token_digest)
         with self.storage.transaction() as conn:
             row = conn.execute(
-                "SELECT s.id,u.id,u.display_name,u.picture,e.address,s.csrf_digest,s.auth_epoch "
+                "SELECT s.id,u.id,u.display_name,u.picture,e.address,s.csrf_digest,s.auth_epoch,u.history_generation "
                 "FROM app.sessions s JOIN app.users u ON u.id=s.user_id "
                 "JOIN app.user_emails e ON e.user_id=u.id AND e.is_primary AND e.verified_at IS NOT NULL "
                 "WHERE s.token_digest=%s AND s.revoked_at IS NULL AND u.status='active' "
@@ -155,7 +183,7 @@ class IdentityStore:
             ).fetchone()
             if row is None:
                 raise AuthDenied("session_invalid")
-            sid, owner, name, picture, email, csrf, epoch = row
+            sid, owner, name, picture, email, csrf, epoch, history_generation = row
             allowed, version = grant_state(conn, str(owner), self.policy)
             if meaningful_activity:
                 conn.execute(
@@ -172,6 +200,7 @@ class IdentityStore:
                 self.policy.dataset_key,
                 version,
                 allowed,
+                history_generation,
             )
 
     def revoke(self, token_digest: bytes) -> None:

@@ -1,19 +1,22 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { listChats, listProjects, listPrompts, listStarters, saveProject, deleteProject, savePrompt, deletePrompt, usePrompt, operationId } from "../services/aquaClient.js";
+import { assertHistory, captureHistory } from "../services/historyAuthority.js";
 
 export function useWorkspaceLists({ csrfToken, onError, enabled = true }) {
   const [chats, setChats] = useState({ items: [], cursor: null, loading: true }), [projects, setProjects] = useState({ items: [], cursor: null, loading: true }),
     [prompts, setPrompts] = useState({ items: [], cursor: null, loading: true }), [starters, setStarters] = useState([]),
     [filters, setFilters] = useState({ search: "", archived: false, projectId: null }), [busy, setBusy] = useState(false), [promptsEnabled, setPromptsEnabled] = useState(false);
   const current = useRef(null), generation = useRef(0), alive = useRef(true), pending = useRef(new Set()), mutationLock = useRef(false), namedReads = useRef(new Map());
+  const history = useRef(captureHistory(csrfToken));
   current.current = { csrfToken, onError, filters };
-  const options = () => ({ csrfToken: current.current.csrfToken });
+  const options = () => ({ csrfToken: current.current.csrfToken, historyContext: history.current });
   useEffect(() => { alive.current = true; return () => { alive.current = false; generation.current++; for (const controller of pending.current) controller.abort(); }; }, []);
   const read = useCallback(async (callback, kind) => {
+    assertHistory(history.current);
     if (kind) namedReads.current.get(kind)?.abort();
     const controller = new AbortController(); pending.current.add(controller);
     if (kind) namedReads.current.set(kind, controller);
-    try { const result = await callback(controller.signal); if (controller.signal.aborted) throw new DOMException("Request cancelled", "AbortError"); return result;
+    try { const result = await callback(controller.signal); assertHistory(history.current); if (controller.signal.aborted) throw new DOMException("Request cancelled", "AbortError"); return result;
     } finally { pending.current.delete(controller);
       if (namedReads.current.get(kind) === controller) namedReads.current.delete(kind); }
   }, []);
@@ -27,13 +30,13 @@ export function useWorkspaceLists({ csrfToken, onError, enabled = true }) {
   const refreshPersonal = useCallback(async (kind, cursor = null) => {
     const load = kind === "projects" ? listProjects : listPrompts, save = kind === "projects" ? setProjects : setPrompts;
     save((previous) => ({ ...previous, loading: true }));
-    try { const page = await read((signal) => load({ cursor, signal }), kind); if (alive.current) save({ ...page, fromCursor: cursor, loading: false }); }
+    try { const page = await read((signal) => load({ cursor, signal, ...options() }), kind); if (alive.current) save({ ...page, fromCursor: cursor, loading: false }); }
     catch (error) { if (alive.current && error.name !== "AbortError") { save((previous) => ({ ...previous, loading: false })); current.current.onError(error); } }
   }, [read]);
   useEffect(() => { if (!enabled) return; void refreshChats(null, filters); }, [enabled, filters, refreshChats]);
   useEffect(() => { if (enabled) void refreshPersonal("projects"); }, [enabled, refreshPersonal]);
   useEffect(() => { if (!enabled || !promptsEnabled) return; void refreshPersonal("prompts");
-    void read((signal) => listStarters({ signal })).then((items) => { if (alive.current) setStarters(items); }).catch((error) => {
+    void read((signal) => listStarters({ signal, ...options() })).then((items) => { if (alive.current) setStarters(items); }).catch((error) => {
       if (alive.current && error.name !== "AbortError") current.current.onError(error);
     });
   }, [enabled, promptsEnabled, read, refreshPersonal]);

@@ -13,6 +13,8 @@ class WorkspaceError(Exception):
 
 
 MESSAGES = {
+    "history_changed": "History changed. Reload the workspace before continuing.",
+    "retirement_pending": "AQUA is confirming this deletion. Check its status before starting another action.",
     "identity_conflict": "This sign-in method or email cannot be used for this account.",
     "last_method": "Keep at least one usable sign-in method before removing this one.",
     "method_unavailable": "This verification method is not available for your account.",

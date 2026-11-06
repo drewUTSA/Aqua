@@ -16,6 +16,9 @@ class PrivateAPIResponses:
             if message["type"] == "http.response.start":
                 headers = MutableHeaders(scope=message)
                 headers["Cache-Control"] = "no-store"
+                revision = scope.get("state", {}).get("history_revision")
+                if revision:
+                    headers["X-Aqua-History-Revision"] = revision
                 vary = headers.get("Vary", "")
                 if "cookie" not in {part.strip().lower() for part in vary.split(",")}:
                     headers["Vary"] = f"{vary}, Cookie" if vary else "Cookie"

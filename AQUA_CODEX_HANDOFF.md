@@ -45,17 +45,17 @@ Prepared October 16, 2026. This single file contains the approved frontend/backe
 
 Maintain this table or an equivalent repository progress log during implementation. Do not mark a phase complete based on its documentation.
 
-| Field | October 31 P10 release/P11 implementation checkpoint |
+| Field | November 5 P11a release/P11b/c implementation checkpoint |
 | --- | --- |
-| Current phase | P00–P10 complete and deployed on schema 7. P11 exports/deletion implementation and verification are active |
-| Code checkpoint | Main `d242d2ee1b4a91e2a7ffa1d2ed2568d87e63da09` (PR #56, `Phase10 Identity`); PR and merged-main CI each passed all five jobs/124 steps |
-| Deployment | P10c backend/frontend live on schema 7 at 2026-10-31T04:08:14.829973+00:00 after a fresh encrypted stopped-writer backup and protected 30-day retention. Migration 0007 preserved protected rows, configuration, volumes and scheduler. Public GET-only smoke and root screenshot review passed |
+| Current phase | P00–P10 complete; P11a personal exports deployed on schema8. P11b/c deletion verification and host operations remain active |
+| Code checkpoint | Main `9aeaf4eb91a4db55d3701e8be872f2b1e178a116` (PR#57); exact PR/main CI each passed all7 jobs/170steps |
+| Deployment | P11a backend/frontend live on schema8 at 2026-11-06T01:00:49Z after fresh authenticated encrypted stopped-writer backup. Migration0008 preserved protected rows, configuration, volumes and scheduler; only export activation changed. Public GET-only smoke and exact asset verification passed |
 | Last accepted design | Opal home, dual login, on-demand right visuals, complete Settings and simplified Projects/Recents |
 | Historical verification | 47 existing frontend tests passed during audit; not a current security or backend result |
-| Phase evidence | P10b passed 1,519 backend cases, 492 frontend tests, all 22 browser gates and root review of 62 screenshots. See `docs/implementation/evidence/p10b/release.json`; historical P10a evidence remains retained |
-| Findings/blockers | P10c recovery, migration, CI and release passed. P11a passed 25 backend gates/1,680 cases, 564 frontend units and all 58 fresh browser gates; root reviewed 200 screenshots plus four supplemental unlink images. The compatible schema-8 fallback passed 23 isolated gates/1,651 cases and 35-table clone preservation. Fallback browser compatibility, release helpers, CI and deployment remain. P11b/c authority passed native and isolated PostgreSQL restore rehearsals; integrated deletion and host durability remain incomplete. See `docs/implementation/P11_PROGRESS.md`. Public Google audience and analytical grants remain unchanged |
-| Review checkpoint | `Phase10 Accounts` is separate from `Phase9 Homepage`; short titles and the same security gates remain required |
-| Next phase | Finish P11a exports/recovery/browser/CI/release and P11b/c deletion safeguards. P11 is not deployed. P12 capacity and P13 launch gates remain incomplete |
+| Phase evidence | P11a native25/1,680 backend cases, frontend564, browser58, fallback23/1,651 and browser42; all13 operator guards/rehearsal/CI/release passed. See `docs/implementation/evidence/p11a/release.json`; historical P10 evidence remains retained |
+| Findings/blockers | P11a export release complete. P11b/c final backend1,851 across ARM/native AMD64, eight restore batches/two capacity checks and final195-file runtimes pass. Final wording-bound frontend600/browser58/signed2x7/standalone6 and ROOT203-image visual review pass; both native frontend images pass original120+23 proxy/export checks. Actual129-entry protected capture and age encryption/decryption pass; ordered six-table SQL restore, complete keyless signed/page/floor/privilege validation and independent cleanup now pass. Actual ordinary startup/flag-off purge, unsafe-restore closed admission, repaired readiness and full create-only installer/held head+export/genesis recoverCLI now pass with strict cleanup. Final integrated CI9 and guarded schema9 production release remain. Final-source Windows600 and builds pass (Legacy retry retained); Chrome6 now passes with a reviewed authentication-readiness harness delta and strict cleanup, while earlier Chrome/Edge failures stay retained. All297 other frontend files remain equal. Fresh ARM/native full50-package metadata and all258 closed native guards pass. Earlier Windows evidence stays historical. See `docs/implementation/P11_PROGRESS.md` |
+| Review checkpoint | All Mac/Anakin worker proposals return to ROOT for review before canonical integration; root owns publishing and gated release |
+| Next phase | Finish P11b/c deletion safeguards and schema9 gated release. Phase11 remains incomplete; P12 capacity and P13 launch gates remain incomplete |
 
 ---
 

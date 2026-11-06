@@ -22,6 +22,7 @@ def identity(job: dict) -> UserSession:
         job["grant_version"],
         job["auth_epoch"],
         job["dataset_key"],
+        job["history_generation"],
     )
 
 
@@ -29,6 +30,15 @@ def authorize(
     conn: Connection, session: UserSession, policy: AuthPolicy, job: dict | None = None
 ) -> UserSession:
     guard(conn, session, policy, data=True)
+    if (
+        job
+        and job["history_generation"]
+        != conn.execute(
+            "SELECT history_generation FROM app.users WHERE id=%s",
+            (session.user["id"],),
+        ).fetchone()[0]
+    ):
+        raise WorkspaceError("history_changed", 409)
     allowed, version = grant_state(conn, session.user["id"], policy)
     if not allowed or (
         job
@@ -98,8 +108,8 @@ def insert(
     )
     allocate(conn, session.user["id"], size)
     conn.execute(
-        "INSERT INTO app.analysis_jobs(id,user_id,request_id,session_digest,auth_epoch,dataset_key,grant_version,question,model,context,context_digest,content_bytes,state,stage,deadline_at) "
-        "VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,'queued','queued',statement_timestamp()+interval '120 seconds')",
+        "INSERT INTO app.analysis_jobs(id,user_id,request_id,session_digest,auth_epoch,dataset_key,grant_version,question,model,context,context_digest,content_bytes,state,stage,deadline_at,history_generation) "
+        "VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,'queued','queued',statement_timestamp()+interval '120 seconds',(SELECT history_generation FROM app.users WHERE id=%s))",
         (
             job_id,
             session.user["id"],
@@ -113,6 +123,7 @@ def insert(
             Jsonb(context),
             digest,
             size,
+            session.user["id"],
         ),
     )
     if request_id:

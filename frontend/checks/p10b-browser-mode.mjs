@@ -1,11 +1,17 @@
 export const SECURE_ACCOUNT_ORIGIN = "https://aqua-browser.example.test";
+// Current candidate gates require this exact migration, independently of the
+// retained historical schema8 fallback evidence in its frozen checkout.
+export function requireFixtureSchema(value) {
+  if (value !== 9) throw Error("fixture_schema9_required");
+  return value;
+}
 export function browserFixtureMode(options) {
   if (options === undefined) return { secureAccountFixture: false };
   if (!options || typeof options !== "object" || Array.isArray(options) || ![Object.prototype, null].includes(Object.getPrototypeOf(options))) throw Error("fixture_mode_invalid");
   const keys = Reflect.ownKeys(options);
-  if (keys.some(key => key !== "secureAccountFixture" || !Object.hasOwn(Object.getOwnPropertyDescriptor(options, key), "value"))
-    || Object.hasOwn(options, "secureAccountFixture") && typeof options.secureAccountFixture !== "boolean") throw Error("fixture_mode_invalid");
-  return { secureAccountFixture: options.secureAccountFixture === true };
+  if (keys.some(key => !["secureAccountFixture", "personalDeletionFixture"].includes(key) || !Object.hasOwn(Object.getOwnPropertyDescriptor(options, key), "value") || typeof options[key] !== "boolean")
+    || options.personalDeletionFixture === true && options.secureAccountFixture !== true) throw Error("fixture_mode_invalid");
+  return { secureAccountFixture: options.secureAccountFixture === true, ...(options.personalDeletionFixture === true ? { personalDeletionFixture: true } : {}) };
 }
 
 // Secure mode uses the same frozen byte map as HTTP. This account fixture

@@ -1,0 +1,178 @@
+{
+  "status": "ROOT_reviewed_independent_Windows_evidence",
+  "phase": "P11b/c deletion verification",
+  "host": "AnikanSkywalker",
+  "backend_source_archive_sha256": "13736e5dd55ff021c8fe10bf3adfb11d49fc0570de36436381dc57301303ffba",
+  "frontend_source_archive_sha256": "6d5bf1f947a0339a3d75d040dbebbf7d640109683f14a56397532898cb8a2219",
+  "original_evidence_archive_sha256": "0c1c1cc12e8f7ded2ce417727a17d03dafbfd475bda83b4d9a722988db54a65e",
+  "supplement_archive_sha256": "c908566e7cacb94114b23ce3fa8352c6312fe9fd0973e28d6eec13561f7dd3eb",
+  "independent_review_sha256": "5254e77dde562472b63afb9dbdadbb12c86242954fe9318922e1cd8c5d638859",
+  "units": {
+    "terminal_cases": 600,
+    "distinct_recomputed_ids": 600,
+    "contiguous_global_registrations": true,
+    "covered_exact_files": 48,
+    "unique_display_labels": 595,
+    "legitimate_duplicate_groups": [
+      [
+        "password-auth-client.test.mjs",
+        115,
+        3
+      ],
+      [
+        "password-auth-client.test.mjs",
+        186,
+        4
+      ]
+    ],
+    "identity_set_sha256": "7adfd3027fa874a25c9285374a5c9b4923a1a6b250188b769d4482886e84a3b4",
+    "raw_sha256": "38dc91e44898431b16c2df0a344f019f150a56d202c4e79d0b4a7ba12235ba62",
+    "all_passed_no_skip_todo_cancel": true
+  },
+  "synthetic_browser": {
+    "original_fixture_status": "passed",
+    "checks": 6,
+    "exact_current_canonical_check_names": [
+      "failed_review_chunk_preserves_workspace_and_safe_focused_close_without_mutation",
+      "typed_confirmation_and_history_remount",
+      "uncertain_history_reconciles_without_replay",
+      "account_uncertainty_receipt_survives_local_revocation_and_clears_on_login",
+      "close_discards_uncertain_receipt_without_new_mutation",
+      "expiry_clears_receipt_without_repeating_render_or_mutation"
+    ],
+    "original_wrapper_status_preserved": "failed",
+    "reason": "original0.5s socket probe returned10035 (inconclusive); it was not silently reclassified",
+    "cleanup_reconciliation": "separate matching receipt confirms no listener/process/profile and explicit10061 refusal",
+    "original_summary_sha256": "01388f1a389ada4923dd0016c969c8b76a1301be1375690d0c2a7d1aca4c64aa",
+    "cleanup_receipt_sha256": "38fad16db0b4af2fd300d5b6a3e5ca6b721adbb344b4473b628d94eb9908acb9",
+    "original_journeys_rerun_by_reviewer": false,
+    "no_provider_or_production_calls_reported": true
+  },
+  "engine_comparison": {
+    "per_shell": {
+      "opal": {
+        "engine_sha256": "0b3b34a27dad7b122aade1c5cfbf7039a003919a0824dd39d6634fc65469c63c",
+        "entry_sha256": "83b85cee2f59c212067458b440aa708420fef1629f70378f1618a351bb0c1a24",
+        "manifest_sha256": "2dd0e9c219cb620a27964d2154077d03b6dec251c033245bc67864c19ad1eb11",
+        "bytes": 1211597,
+        "gzip_bytes": 404237
+      },
+      "legacy": {
+        "engine_sha256": "1796c341bd85817579670dceecb2dac724f22a9c7ba2735a0ed0c51f5e881c8a",
+        "entry_sha256": "c3c634c696689770c0159669818c8d4bb56d84f8464952964f00de7614d8d5a5",
+        "manifest_sha256": "02601c412940d99e00805a9922f5b690187b6c155bef59f338183b27d7963a60",
+        "bytes": 1211597,
+        "gzip_bytes": 404238
+      }
+    },
+    "differing_offsets": [
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36
+    ],
+    "common_tail_bytes": 1211555,
+    "common_tail_sha256": "aa10d2447e54de19699a7aede2ba900ccdcdad7cf134bb7f4611110e003c0429",
+    "identical_imported_helper": true,
+    "node_gzip_recomputed": {
+      "node": "v24.19.0",
+      "zlib": "1.3.2.1-motley-3246f1b",
+      "shells": {
+        "opal": 404237,
+        "legacy": 404238
+      }
+    },
+    "negative_controls": {
+      "changed_body_rejected": true,
+      "wrong_shell_import_rejected": true,
+      "changed_alias_rejected": true
+    },
+    "classification": "only shell-specific generated ES import filename differs; raw chunks remain distinct"
+  },
+  "report_sha256": "e9eaf452142b47ce33e3e71447bc36d2a84a66b4ce137280d3810ac1c8145182",
+  "review_resolution": {
+    "new_deletion_intents_and_proof_targets": "canonical lowercase RFC4122 UUIDv4; general retirement parser/readers and old export targets unchanged",
+    "public_formatter": "literal bool must match awaiting/non-awaiting state; complete-only physical completion unchanged",
+    "reviewed_patch_sha256": "53844a28f68f81602f8de65803468bcbff9e4ccabc2279d3f14bdf514edcff8d",
+    "canonical_integration_by": "Mac ROOT",
+    "validation": "50 targeted pure backend tests, Black and Ruff passed; proposal cross-language probe16creates/16targets/16replypairs and48inconsistentinputs rejected"
+  },
+  "scope": {
+    "production_actions": 0,
+    "real_PostgreSQL_or_physical_erasure_proven": false,
+    "browser_fixture": "loopback synthetic receipt lifecycle; original six journeys ran once",
+    "native_browser": "Google Chrome156.0.8078.80 and Microsoft Edge156.0.4314.58 on Windows;6 original synthetic journeys each, separate fromMac58",
+    "native_node": "24.19.0, signed official Windows executable",
+    "Mac_original58_browser_cases": "separate evidence; not included in Windows6 count"
+  },
+  "remaining_reviews": [
+    "Windows analysis-lifetime cleanup finding under investigation",
+    "Current final-source backend and native operator proof",
+    "Host authority installation and protected backup/recovery",
+    "Exact PR/main CI and gated schema9 release"
+  ],
+  "edge_followup": {
+    "status": "ROOT_reviewed_passed",
+    "review_package_sha256": "67a904760f6c663bab8192c001d5773bcf0ca417164d70d7c35a2e42a20193c9",
+    "browser": "Microsoft Edge156.0.4314.58",
+    "browser_binary_sha256": "d35d48b11f0439eeeddbbff0bf54856e922f5e1506a2f3098b5a808fcec4068b",
+    "same_original_six_checks": [
+      "failed_review_chunk_preserves_workspace_and_safe_focused_close_without_mutation",
+      "typed_confirmation_and_history_remount",
+      "uncertain_history_reconciles_without_replay",
+      "account_uncertainty_receipt_survives_local_revocation_and_clears_on_login",
+      "close_discards_uncertain_receipt_without_new_mutation",
+      "expiry_clears_receipt_without_repeating_render_or_mutation"
+    ],
+    "original_fixture_mode_label_retained": "synthetic_frontend_chrome_only",
+    "fixture_mode_label_explanation": "Original browser-report mode label says chrome_only; executable adapter uses verified Edge without changing the fixture.",
+    "original_summary_sha256": "90cd86cf060f57302a74a3f1dccc58760376e662fcad403b6fe18d0083731974",
+    "native_cleanup_sha256": "b267bd97960bcc00d2b6d141b97c217d9417f4a658eec1bda2fcae15d1ed74b4",
+    "runtime_seconds": 5.718,
+    "caps": {
+      "aggregate_memory_mib": 1024,
+      "cpus": 2,
+      "pids": 128,
+      "seconds": 90,
+      "log_bytes": 1048576
+    },
+    "strict_cleanup_confirmed": true,
+    "source_matches_prerun": true,
+    "original_synthetic_receipt_screenshot_ROOT_viewed": true,
+    "production_or_provider_calls": 0,
+    "limits": [
+      "Synthetic Vite component fixture, not the deployed application or a real database.",
+      "CDP observation covers page requests; it is not a packet-capture claim about every browser OS service.",
+      "No production, provider, live email, actual account, server or release acceptance test."
+    ]
+  },
+  "reviewed_cleanup_runner_followup": {
+    "status": "passed",
+    "first_attempt": true,
+    "checks": 6,
+    "elapsed_seconds": 6.625,
+    "archive_sha256": "503fd09eb4be906aa0bf67d9d5fb81582b85911a51b3db6d4d5779b2c3eba76d",
+    "manifest_sha256": "a9c6708a3f202cf2e7de9c2e124d250e699c089b1f06f8661382a9893fcc5279",
+    "summary_sha256": "20ccc7518da8a46ff943837f526ed090263f80a26704d5911cba45e8779c1497",
+    "runner_sha256": "e04cd615650ade6e170da9f6aaa812f70d19ecebe8647b93ce45217f0a9cc137",
+    "other_original_frontend_files_unchanged": 297,
+    "browser": "Microsoft Edge156.0.4314.58",
+    "browser_sha256": "d35d48b11f0439eeeddbbff0bf54856e922f5e1506a2f3098b5a808fcec4068b",
+    "node_sha256": "3602f2bb1a10f2cbab4c36886218a33c1ab3db87290e73b033c46c77147d0237",
+    "caps": {
+      "aggregate_memory_mib": 1024,
+      "cpus": 2,
+      "pids": 128,
+      "seconds": 90,
+      "log_bytes": 1048576
+    },
+    "peak_committed_bytes": 802979840,
+    "cleanup": "browser stopped/drained, no cleanup failure; native process/listener/profile absence and explicit10061 refusal",
+    "original_mode_label": "chrome_only retained; pinned executable is Edge",
+    "scope": "Synthetic component fixture on frozen product source plus cleanup-only runner delta; preceding final wording changes. No database, production or physical-purge claim."
+  }
+}

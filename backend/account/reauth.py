@@ -4,6 +4,7 @@ from account.authority import current_id
 from account.credentials import PasswordSnapshot, password_snapshot
 from account.policy import PROOF_SECONDS
 from account.proofs import ClaimedChallenge, claim_challenge, create_challenge
+from account.proof_consumption import deletion_snapshot
 from auth.config import AuthDenied
 from auth.password_limits import hash_slot
 from auth.password_policy import normalize_password
@@ -102,10 +103,17 @@ class RecentAuth:
             sid = current_id(conn, session, self.policy)
             if password_snapshot(conn, session.user["id"]) != before:
                 raise WorkspaceError("proof_invalid", 403)
+            if deletion_snapshot(conn, session.user["id"], claimed.operation) != (
+                claimed.privacy_epoch,
+                claimed.history_generation,
+            ):
+                raise WorkspaceError("proof_invalid", 403)
             row = conn.execute(
                 "SELECT expires_at FROM app.auth_challenges WHERE id=%s AND user_id=%s "
                 "AND session_id=%s AND account_auth_epoch=%s AND account_operation=%s "
                 "AND account_target_digest=%s AND purpose='reauth' AND consumed_at IS NOT NULL "
+                "AND (account_operation NOT IN ('history_delete','account_delete') OR "
+                "(account_privacy_epoch=%s AND account_history_generation=%s)) "
                 "AND expires_at>clock_timestamp() FOR UPDATE",
                 (
                     claimed.id,
@@ -114,6 +122,8 @@ class RecentAuth:
                     session.auth_epoch,
                     claimed.operation,
                     claimed.target_digest,
+                    claimed.privacy_epoch,
+                    claimed.history_generation,
                 ),
             ).fetchone()
             if (
@@ -125,8 +135,8 @@ class RecentAuth:
                 raise WorkspaceError("proof_invalid", 403)
             expiry = conn.execute(
                 "INSERT INTO app.account_action_proofs(user_id,session_id,challenge_id,secret_digest,"
-                "auth_epoch,operation,target_digest,method,password_changed_at,created_at,expires_at) "
-                "VALUES(%s,%s,%s,%s,%s,%s,%s,'password',%s,statement_timestamp(),"
+                "auth_epoch,operation,target_digest,method,password_changed_at,privacy_epoch,history_generation,created_at,expires_at) "
+                "VALUES(%s,%s,%s,%s,%s,%s,%s,'password',%s,%s,%s,statement_timestamp(),"
                 "LEAST(statement_timestamp()+%s*interval '1 second',%s)) RETURNING expires_at",
                 (
                     session.user["id"],
@@ -137,6 +147,8 @@ class RecentAuth:
                     claimed.operation,
                     claimed.target_digest,
                     before.changed_at,
+                    claimed.privacy_epoch,
+                    claimed.history_generation,
                     PROOF_SECONDS,
                     row[0],
                 ),

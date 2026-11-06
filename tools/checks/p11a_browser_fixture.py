@@ -5,6 +5,8 @@ import json
 from urllib.parse import urlsplit
 
 from p10c_browser_fixture import IdentityFixture, identifier
+from p05_browser_docker import ROOT
+from p05_browser_protocol import fixture_schema
 
 EXPORTS = "/api/v1/me/data-exports"
 PROJECT_MARKER = "Synthetic private export project"
@@ -79,7 +81,7 @@ class PrivacyFixture(IdentityFixture):
     def metadata(self):
         return {
             **super().metadata(),
-            "schema_version": 8,
+            "schema_version": fixture_schema(ROOT),
             "personal_export_fixture": True,
         }
 

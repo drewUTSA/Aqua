@@ -141,6 +141,13 @@ def login(
     )
     clear_auth_cookie(response, settings, cookie_name(settings))
     log.info("password_event action=allow reason=session_created")
+    from retirement.revision import history_revision
+
+    response.headers["X-Aqua-History-Revision"] = history_revision(
+        settings.session_secret,
+        stored.user["id"],
+        getattr(stored, "history_generation", 1),
+    )
     return {
         "user": public_identity(stored.user),
         "csrf_token": csrf,

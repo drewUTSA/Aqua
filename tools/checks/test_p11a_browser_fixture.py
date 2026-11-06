@@ -178,7 +178,7 @@ class ExportFixtureTests(unittest.TestCase):
         ]:
             self.assertFalse(fixture.export_route(path, method))
 
-    def test_private_mode_is_keyword_only_default_closed_and_requires_schema8_identity(
+    def test_private_mode_is_keyword_only_default_closed_and_requires_schema9_identity(
         self,
     ):
         for function in (host.host, worker.worker):
@@ -207,7 +207,7 @@ class ExportFixtureTests(unittest.TestCase):
                 )
             resources.assert_not_called()
 
-    def host_case(self, marker=True):
+    def host_case(self, marker=True, schema=9):
         child = SimpleNamespace(
             stdin=Mock(),
             stdout=io.BytesIO(
@@ -215,7 +215,7 @@ class ExportFixtureTests(unittest.TestCase):
                     json.dumps(
                         {
                             "kind": "ready",
-                            "schema_version": 8,
+                            "schema_version": schema,
                             "account_security_fixture": True,
                             "account_identity_fixture": True,
                             "personal_export_fixture": marker,
@@ -266,6 +266,9 @@ class ExportFixtureTests(unittest.TestCase):
         self.assertEqual(command[-4:], ["--origin", ORIGIN, "--image", IMAGE])
         self.assertEqual(host.MAX_SECONDS, 300)
         self.assertEqual(self.host_case(False)[0], 1)
+        for schema in (7, 8, 10, True):
+            with self.subTest(schema=schema):
+                self.assertEqual(self.host_case(schema=schema)[0], 1)
 
     def test_actual_export_forwarding_preserves_captured_request_and_extra_controls_deny(
         self,
@@ -368,7 +371,7 @@ class ExportFixtureTests(unittest.TestCase):
                 "body_exposed": False,
             },
         )
-        self.assertEqual(value.metadata()["schema_version"], 8)
+        self.assertEqual(value.metadata()["schema_version"], 9)
         self.assertEqual(value.analysis.max_executions, 0)
         with self.assertRaises(ValueError):
             value.track({"path": fixture.EXPORTS, "method": "POST"}, {"status": 202})
@@ -464,6 +467,11 @@ class CapacityFixtureTests(unittest.TestCase):
                 return b"Filesystem 1K-blocks Used Available Use% Mounted\ntmpfs 524288 65536 458752 13% /var/lib/postgresql/data\n"
             if "cat" in args:
                 return xml
+            if args[-2:] == (
+                "-c",
+                "SELECT max(version) FROM app.schema_migrations",
+            ):
+                return b"9\n"
             return b""
 
         def process(args, **kwargs):
@@ -505,12 +513,13 @@ class CapacityFixtureTests(unittest.TestCase):
     def core_lifecycle(self, cleanup_ok=True):
         active, events, commands = set(), [], []
 
-        def provision(image, name, containers):
+        def provision(image, name, containers, archive):
             self.assertFalse(active, "next dataset started before prior pair absence")
+            self.assertEqual(archive, b"fixed")
             pair = (name + "-pg", name + "-tests")
             active.update(pair)
             containers.extend(pair)
-            events.append(("provision", name.rsplit("-", 1)[1]))
+            events.append(("provision", name.rsplit("-", 2)[1]))
             return pair
 
         def docker(*args, **kwargs):
@@ -520,6 +529,26 @@ class CapacityFixtureTests(unittest.TestCase):
                 active.discard(args[-1])
                 events.append(("remove", args[-1]))
             if "cat" in args:
+                if args[-1] == "/tmp/collection.json":
+                    return json.dumps(
+                        {
+                            "schema": 1,
+                            "batches": [
+                                {
+                                    "id": "01",
+                                    "modules": ["tests/old.py"],
+                                    "cases": [
+                                        {
+                                            "nodeid": "tests/old.py::old",
+                                            "module": "tests/old.py",
+                                            "classname": "tests.old",
+                                            "name": "old",
+                                        }
+                                    ],
+                                }
+                            ],
+                        }
+                    ).encode()
                 return self.xml(name="old", classname="tests.old")
             if "freeze" in args:
                 return b"same-locked-image\n"
@@ -532,9 +561,13 @@ class CapacityFixtureTests(unittest.TestCase):
                     stdout=b"",
                     stderr=b"No such container",
                 )
-            commands.append(args)
             selected = [arg for arg in args if arg.startswith("--deselect")]
             self.assertEqual(selected, ["--deselect=" + capacity.CAPACITY_CASE])
+            if "--collect=/tmp/collection.json" in args:
+                self.assertEqual(kwargs["timeout"], 60)
+            else:
+                self.assertEqual(kwargs["timeout"], 120)
+                commands.append(args)
             return SimpleNamespace(
                 returncode=0, stdout=b"fixed synthetic model", stderr=b""
             )
@@ -640,9 +673,21 @@ class CapacityFixtureTests(unittest.TestCase):
                 "min_wal_size=32MB",
                 "-c",
                 "checkpoint_timeout=30s",
+                "-c",
+                "autovacuum_naptime=1s",
             ),
         )
         self.assertEqual(calls[1][2], ("300",))
+
+
+def load_tests(
+    loader: unittest.TestLoader, tests: unittest.TestSuite, pattern: str | None
+) -> unittest.TestSuite:
+    """Keep core/capacity orchestration guards in the existing export CI gate."""
+    tests.addTests(
+        loader.loadTestsFromNames(["backend_batches_test", "backend_execution_test"])
+    )
+    return tests
 
 
 if __name__ == "__main__":

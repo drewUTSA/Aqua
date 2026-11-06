@@ -3,6 +3,7 @@
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import { FixtureBridge } from "./p05-browser-bridge.mjs";
+import { requireFixtureSchema } from "./p10b-browser-mode.mjs";
 import { BrowserPipe } from "./p05-browser-pipe.mjs";
 import { accountAction } from "./homepage-browser-actions.mjs";
 import { actualPersonalWorkspace, foreignPersonalWorkspace } from "./p06-real-browser-checks.mjs";
@@ -155,7 +156,7 @@ try {
   await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve)); origin = `http://127.0.0.1:${server.address().port}`;
   bridge = new FixtureBridge(executable, argv, origin);
   const ready = await bridge.ready;
-  assert.equal(ready.schema_version, 8, "schema8_fixture_required");
+  requireFixtureSchema(ready.schema_version);
   assert.equal(ready.origin, origin, "exact_loopback_origin_required");
   assert.equal(ready.dataset_grants, 0, "ungranted_fixture_account_required");
   assert.equal(ready.workspace_analysis_fixture === true, analysisFixture, "explicit_analysis_fixture_mode_required");

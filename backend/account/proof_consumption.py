@@ -3,7 +3,7 @@
 from psycopg import Connection
 
 from account.authority import current_id, owned_target
-from account.policy import digest, target_digest
+from account.policy import DELETION_OPERATIONS, MAX_REVISION, digest, target_digest
 from auth.config import AuthPolicy
 from auth.security import UserSession
 from workspace.errors import WorkspaceError
@@ -18,6 +18,10 @@ BINDINGS = (
     "AND c.purpose='reauth' AND c.account_operation=p.operation "
     "AND c.account_target_digest=p.target_digest AND c.account_auth_epoch=p.auth_epoch "
     "AND c.consumed_at IS NOT NULL AND c.expires_at>clock_timestamp() "
+    "AND (p.operation NOT IN ('history_delete','account_delete') OR "
+    "(p.privacy_epoch=c.account_privacy_epoch AND p.history_generation=c.account_history_generation "
+    "AND EXISTS(SELECT 1 FROM app.users u WHERE u.id=p.user_id "
+    "AND u.privacy_epoch=p.privacy_epoch AND u.history_generation=p.history_generation))) "
     "AND ((p.method='password' AND EXISTS(SELECT 1 FROM app.password_credentials k "
     "WHERE k.user_id=p.user_id AND k.changed_at=p.password_changed_at)) OR "
     "(p.method='google' AND p.external_identity_revision IS NOT NULL "
@@ -25,6 +29,27 @@ BINDINGS = (
     "(SELECT 1 FROM app.external_identities e WHERE e.user_id=p.user_id AND e.id=p.external_identity_id "
     "AND e.is_active AND e.revision=p.external_identity_revision)))"
 )
+
+
+def deletion_snapshot(
+    conn: Connection, owner: str, operation: str
+) -> tuple[int | None, int | None]:
+    """Capture only destructive authority after the caller's current user lock.
+
+    Ordinary actions retain their previous bindings and perform no extra read.
+    A client never supplies either monotonic generation value.
+    """
+    if operation not in DELETION_OPERATIONS:
+        return None, None
+    row = conn.execute(
+        "SELECT privacy_epoch,history_generation FROM app.users WHERE id=%s",
+        (owner,),
+    ).fetchone()
+    if row is None or any(
+        type(value) is not int or not 1 <= value <= MAX_REVISION for value in row
+    ):
+        raise WorkspaceError("proof_invalid", 403)
+    return row[0], row[1]
 
 
 def check_proof(

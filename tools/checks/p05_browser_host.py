@@ -48,23 +48,33 @@ def host(
     account_security_fixture: bool = False,
     account_identity_fixture: bool = False,
     personal_export_fixture: bool = False,
+    personal_deletion_fixture: bool = False,
 ) -> int:
     """Bound all operations/lifetime; lifecycle mode explicitly allows 400."""
     if (
         type(account_security_fixture) is not bool
         or type(account_identity_fixture) is not bool
         or type(personal_export_fixture) is not bool
+        or type(personal_deletion_fixture) is not bool
     ):
         raise ValueError("fixture_security_mode_invalid")
     schema = fixture_schema(ROOT)
-    if account_identity_fixture and (
-        not account_security_fixture or schema not in {7, 8}
-    ):
+    if type(schema) is not int or schema != 9:
+        raise ValueError("fixture_schema9_required")
+    if account_identity_fixture and (not account_security_fixture):
         raise ValueError("fixture_identity_mode_invalid")
     if personal_export_fixture and (
-        schema != 8 or not account_identity_fixture or not account_security_fixture
+        not account_identity_fixture or not account_security_fixture
     ):
         raise ValueError("fixture_export_mode_invalid")
+    if personal_deletion_fixture and (
+        schema != 9
+        or not account_identity_fixture
+        or not account_security_fixture
+        or personal_export_fixture
+        or workspace_analysis is not True
+    ):
+        raise ValueError("fixture_deletion_mode_invalid")
     if account_security_fixture:
         from p10b_browser_fixture import MAX_REQUESTS, secure_origin
 
@@ -77,7 +87,12 @@ def host(
     else:
         operations = request_limit(workspace_analysis)
     name = "aqua-p05-browser-" + secrets.token_hex(12)
-    resources = Resources(name)
+    if personal_deletion_fixture:
+        from p11b_browser_resources import DeletionResources
+
+        resources = DeletionResources(name)
+    else:
+        resources = Resources(name)
     child: subprocess.Popen[bytes] | None = None
     final_id: str | int = "finish"
     report: dict[str, Any] = {
@@ -90,6 +105,7 @@ def host(
         "account_security_fixture": account_security_fixture,
         "account_identity_fixture": account_identity_fixture,
         "personal_export_fixture": personal_export_fixture,
+        "personal_deletion_fixture": personal_deletion_fixture,
         "real_data_accessed": False,
         "provider_calls": 0,
         "workspace_analysis_fixture": workspace_analysis,
@@ -112,15 +128,19 @@ def host(
                 "-B",
                 "-u",
                 (
-                    "/checks/tools/checks/p11a_browser_backend.py"
-                    if personal_export_fixture
+                    "/checks/tools/checks/p11b_browser_backend.py"
+                    if personal_deletion_fixture
                     else (
-                        "/checks/tools/checks/p10c_browser_backend.py"
-                        if account_identity_fixture
+                        "/checks/tools/checks/p11a_browser_backend.py"
+                        if personal_export_fixture
                         else (
-                            "/checks/tools/checks/p10b_browser_backend.py"
-                            if account_security_fixture
-                            else "/checks/tools/checks/p05_browser_backend.py"
+                            "/checks/tools/checks/p10c_browser_backend.py"
+                            if account_identity_fixture
+                            else (
+                                "/checks/tools/checks/p10b_browser_backend.py"
+                                if account_security_fixture
+                                else "/checks/tools/checks/p05_browser_backend.py"
+                            )
                         )
                     )
                 ),
@@ -144,6 +164,11 @@ def host(
         )
         assert child.stdout is not None and child.stdin is not None
         ready = json.loads(child.stdout.readline(MAX_LINE + 1))
+        if (
+            ready.get("personal_deletion_fixture", False)
+            is not personal_deletion_fixture
+        ):
+            raise RuntimeError("fixture_deletion_worker_not_ready")
         if ready.get("personal_export_fixture", False) is not personal_export_fixture:
             raise RuntimeError("fixture_export_worker_not_ready")
         if ready.get("account_identity_fixture", False) is not account_identity_fixture:
