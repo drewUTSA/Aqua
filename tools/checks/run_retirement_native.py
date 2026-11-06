@@ -331,6 +331,67 @@ def result_counts(log: bytes, suite: str = "protocol80") -> dict:
     return counts
 
 
+def signal_diagnostic(log):
+    """Retain one bounded public projection; raw child output remains excluded."""
+    from run_retirement_signals import EXPECTED, FAILURE_CATEGORIES
+
+    records = []
+    for line in log.splitlines():
+        if len(line) > 8192 or not line.startswith(b'{"publisher_signal_diagnostic":'):
+            continue
+        records.append(json.loads(line))
+    if len(records) != 1 or set(records[0]) != {"publisher_signal_diagnostic"}:
+        raise ValueError("native_signal_diagnostic_invalid")
+    value = records[0]["publisher_signal_diagnostic"]
+    if (
+        type(value) is not dict
+        or set(value)
+        != {
+            "schemaVersion",
+            "source_sha256",
+            "process_exit_code",
+            "stdout_bytes",
+            "stderr_bytes",
+            "reported_tests",
+            "failed_cases",
+            "summary_decoded",
+        }
+        or type(value["schemaVersion"]) is not int
+        or value["schemaVersion"] != 1
+        or type(value["source_sha256"]) is not str
+        or not re.fullmatch(r"[a-f0-9]{64}", value["source_sha256"])
+        or type(value["process_exit_code"]) is not int
+        or not -128 <= value["process_exit_code"] <= 255
+        or any(
+            type(value[key]) is not int or not 0 <= value[key] <= 1048576
+            for key in ("stdout_bytes", "stderr_bytes")
+        )
+        or not (
+            value["reported_tests"] is None
+            or type(value["reported_tests"]) is int
+            and value["reported_tests"] == 48
+        )
+        or type(value["summary_decoded"]) is not bool
+        or type(value["failed_cases"]) is not list
+        or len(value["failed_cases"]) > 48
+    ):
+        raise ValueError("native_signal_diagnostic_invalid")
+    seen = set()
+    for row in value["failed_cases"]:
+        if (
+            type(row) is not dict
+            or set(row) != {"case", "category"}
+            or type(row["case"]) is not str
+            or type(row["category"]) is not str
+            or row["case"] not in EXPECTED
+            or row["case"] in seen
+            or row["category"] not in FAILURE_CATEGORIES
+        ):
+            raise ValueError("native_signal_diagnostic_invalid")
+        seen.add(row["case"])
+    return value
+
+
 def execute(
     image: str,
     output: Path,
@@ -399,6 +460,8 @@ def execute(
         code, log = stream(expected, data, output / "native.log")
         (output / "native.log").write_bytes(log)
         report["log_sha256"] = hashlib.sha256(log).hexdigest()
+        if suite == "signals48":
+            report["signal_diagnostic"] = signal_diagnostic(log)
         report["counts"] = result_counts(log, suite)
         if code != 0:
             raise RuntimeError("native_process_failed")

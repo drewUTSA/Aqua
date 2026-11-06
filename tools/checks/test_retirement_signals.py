@@ -6,6 +6,7 @@ import hashlib
 import json
 from pathlib import Path
 import unittest
+from types import SimpleNamespace
 
 import run_retirement_native as native
 import run_retirement_signals as signals
@@ -42,6 +43,60 @@ def passed():
 
 
 class ClosedSignals(unittest.TestCase):
+    def test_failed_child_projection_never_retains_raw_output_or_dynamic_messages(self):
+        value = passed()
+        value["outcomes"][0].update(
+            passed=False,
+            failure_category="PRIVATE_TEXT_SENTINEL",
+            child_stdout="PRIVATE_CHILD_SENTINEL",
+        )
+        result = SimpleNamespace(
+            returncode=1, stdout=json.dumps(value).encode(), stderr=b"PRIVATE_STDERR"
+        )
+        diagnostic = signals.public_diagnostic(result, "a" * 64)
+        self.assertEqual(
+            diagnostic["failed_cases"],
+            [{"case": "prepared", "category": "unclassified"}],
+        )
+        self.assertNotIn("PRIVATE", json.dumps(diagnostic))
+        log = json.dumps({"publisher_signal_diagnostic": diagnostic}).encode()
+        self.assertEqual(native.signal_diagnostic(log), diagnostic)
+
+    def test_diagnostic_rejects_private_fields_unknown_cases_and_boolean_counts(self):
+        result = SimpleNamespace(
+            returncode=0, stdout=json.dumps(passed()).encode(), stderr=b""
+        )
+        original = signals.public_diagnostic(result, "a" * 64)
+        variants = []
+        value = copy.deepcopy(original)
+        value["stderr"] = "PRIVATE"
+        variants.append(value)
+        value = copy.deepcopy(original)
+        value["failed_cases"] = [{"case": "PRIVATE", "category": "AssertionError"}]
+        variants.append(value)
+        value = copy.deepcopy(original)
+        value["reported_tests"] = True
+        variants.append(value)
+        for value in variants:
+            with self.assertRaises(ValueError):
+                native.signal_diagnostic(
+                    json.dumps({"publisher_signal_diagnostic": value}).encode()
+                )
+
+    def test_undecodable_child_summary_still_exposes_only_numeric_diagnostics(self):
+        result = SimpleNamespace(returncode=1, stdout=b"PRIVATE", stderr=b"PRIVATE")
+        diagnostic = signals.public_diagnostic(result, "a" * 64)
+        self.assertFalse(diagnostic["summary_decoded"])
+        self.assertIsNone(diagnostic["reported_tests"])
+        self.assertEqual(diagnostic["failed_cases"], [])
+        self.assertNotIn("PRIVATE", json.dumps(diagnostic))
+        value = passed()
+        value["outcomes"].append(None)
+        result.stdout = json.dumps(value).encode()
+        diagnostic = signals.public_diagnostic(result, "a" * 64)
+        self.assertFalse(diagnostic["summary_decoded"])
+        self.assertIsNone(diagnostic["reported_tests"])
+
     def test_exact_collection_and_old_five_selectors_retained(self):
         expected = {
             "status": "passed",

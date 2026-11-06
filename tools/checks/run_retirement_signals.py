@@ -65,6 +65,76 @@ EXPECTED = (
     "direct_external_normal_cleanup_TERM",
     "direct_external_normal_cleanup_INT",
 )
+FAILURE_CATEGORIES = frozenset(
+    {
+        "AssertionError",
+        "ValueError",
+        "JSONDecodeError",
+        "KeyError",
+        "TimeoutExpired",
+        "prior_handlers_not_restored",
+        "active_guard_latched",
+        "requested_signal_not_observed",
+        "unredacted_entrypoint_output",
+        "unredacted_exception_context",
+        "direct_execute_printed_output",
+        "fixed_unavailable_output_missing",
+        "actual_cleanup_not_completed",
+        "repeat_signal_not_observed",
+        "child_signal_readiness_deadline",
+        "child_output_bound",
+        "child_result_missing_after_signal",
+        "unexpected_child_stderr",
+        "child_exit_mismatch",
+        "unclassified",
+    }
+)
+
+
+def public_diagnostic(result, source):
+    """Only fixed case IDs/categories and numeric facts; never child text."""
+    value = {
+        "schemaVersion": 1,
+        "source_sha256": source,
+        "process_exit_code": result.returncode,
+        "stdout_bytes": len(result.stdout),
+        "stderr_bytes": len(result.stderr),
+        "reported_tests": None,
+        "failed_cases": [],
+        "summary_decoded": False,
+    }
+    if not 0 < len(result.stdout) <= 65536:
+        return value
+    try:
+        report = decode(result.stdout)
+        rows = report.get("outcomes") if type(report) is dict else None
+        if (
+            type(rows) is not list
+            or len(rows) != 48
+            or not all(type(row) is dict for row in rows)
+            or tuple(row.get("case") for row in rows) != EXPECTED
+            or type(report.get("tests")) is not int
+            or report["tests"] != 48
+        ):
+            return value
+        value["reported_tests"] = 48
+        for row in rows:
+            if row.get("passed") is not True:
+                category = row.get("failure_category") or "AssertionError"
+                value["failed_cases"].append(
+                    {
+                        "case": row["case"],
+                        "category": (
+                            category
+                            if category in FAILURE_CATEGORIES
+                            else "unclassified"
+                        ),
+                    }
+                )
+        value["summary_decoded"] = True
+    except (ValueError, TypeError, UnicodeError, RuntimeError):
+        pass
+    return value
 
 
 def require(condition):
@@ -158,6 +228,12 @@ def main():
         stderr=subprocess.PIPE,
         timeout=55,
         close_fds=True,
+    )
+    print(
+        json.dumps(
+            {"publisher_signal_diagnostic": public_diagnostic(result, expected_source)}
+        ),
+        flush=True,
     )
     require(
         result.returncode == 0

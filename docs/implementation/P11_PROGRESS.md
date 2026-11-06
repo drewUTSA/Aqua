@@ -306,3 +306,18 @@ cleanup, independently confirmed exact name absence and unchanged running
 production metadata. The historical 539-file signal snapshot now has these two
 explicit unused-test deltas; its actual signal/executor/control inputs are
 unchanged. See [model correction evidence](evidence/p11bc/native-guard-model-corrections.json).
+
+
+Run `42179270467` on `46a8900` retained two different CI failures. Legacy
+identity notices timed out at Chrome startup (`Browser.getVersion`, 30 seconds,
+zero page checks); scoped cleanup passed. The new signal suite failed with
+`JSONDecodeError` in the outer result parser; the original inner log was not
+uploaded, so its exact child failure remains unproven. ROOT added a bounded
+public diagnostic projection containing only fixed case IDs/categories, hashes
+and numeric facts to the already retained signal report. Raw child output and
+artifact paths remain excluded. Independent review prompted an additional
+malformed-row guard. All nine diagnostic/model guards and 18 native executor
+guards pass; a fresh current-source native 48/48 run, including six actual POSIX
+deliveries, passed at unchanged limits with strict cleanup and independent
+absence. Original case bodies, assertions and deadlines are unchanged. See
+[signal diagnostics](evidence/p11bc/publisher-signal-diagnostics.json).
