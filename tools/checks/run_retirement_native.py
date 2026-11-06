@@ -1,4 +1,4 @@
-"""Prepare public source; opt in to one of four closed isolated guard suites."""
+"""Prepare public source; opt in to a closed isolated guard suite."""
 
 import argparse
 import hashlib
@@ -32,6 +32,7 @@ SUITES = {
     "operator77": (77, "/checks/tools/checks/run_retirement_operator.py"),
     "fixtures36": (36, "/checks/tools/checks/run_retirement_fixture_guards.py"),
     "backups56": (56, "/checks/tools/checks/run_retirement_backup_models.py"),
+    "signals48": (48, "/checks/tools/checks/run_retirement_signals.py"),
 }
 HBA = "ops/appdb/pg_hba.conf"
 CLIENT_MANIFEST = "ops/retirement/backup_client/vendor-manifest.json"
@@ -307,18 +308,22 @@ def result_counts(log: bytes, suite: str = "protocol80") -> dict:
         )
     ):
         raise ValueError(
-            "native_exact80_not_passed"
-            if suite == "protocol80"
+            "native_exact48_not_passed"
+            if suite == "signals48"
             else (
-                "native_exact9_not_passed"
-                if suite == "archival9"
+                "native_exact80_not_passed"
+                if suite == "protocol80"
                 else (
-                    "native_exact77_not_passed"
-                    if suite == "operator77"
+                    "native_exact9_not_passed"
+                    if suite == "archival9"
                     else (
-                        "native_exact36_not_passed"
-                        if suite == "fixtures36"
-                        else "native_exact56_not_passed"
+                        "native_exact77_not_passed"
+                        if suite == "operator77"
+                        else (
+                            "native_exact36_not_passed"
+                            if suite == "fixtures36"
+                            else "native_exact56_not_passed"
+                        )
                     )
                 )
             )

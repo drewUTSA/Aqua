@@ -8,6 +8,7 @@ from datetime import datetime, timedelta, timezone
 import fcntl
 import hashlib
 import json
+import math
 import os
 from pathlib import Path
 import re
@@ -62,15 +63,25 @@ DOCKER = [
 ENV = {"PATH": "/usr/bin:/bin", "DOCKER_CONFIG": "/proc/self/fd"}
 
 
-def run(arguments: list[str], maximum: int = 16384) -> bytes:
+def run(arguments: list[str], maximum: int = 16384, *, deadline=None) -> bytes:
+    timeout = 10
+    if deadline is not None:
+        if type(deadline) not in {int, float} or not math.isfinite(deadline):
+            raise RuntimeError("retirement_maintenance_probe_deadline")
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            raise RuntimeError("retirement_maintenance_probe_deadline")
+        timeout = min(timeout, remaining)
     result = subprocess.run(
         arguments,
         capture_output=True,
-        timeout=10,
+        timeout=timeout,
         env=ENV,
         stdin=subprocess.DEVNULL,
         close_fds=True,
     )
+    if deadline is not None and time.monotonic() >= deadline:
+        raise RuntimeError("retirement_maintenance_probe_deadline")
     if result.returncode or len(result.stdout) > maximum:
         raise RuntimeError("retirement_maintenance_probe_failed")
     return result.stdout
@@ -110,10 +121,18 @@ def plan(expected: str, scope=PRODUCTION) -> dict:
     return value
 
 
-def stopped(value: dict, schema: int | None = None, scope=PRODUCTION) -> None:
+def stopped(
+    value: dict, schema: int | None = None, scope=PRODUCTION, *, deadline=None
+) -> None:
     """Inspect only curated identity/state fields, never container environments."""
+
+    def probe(arguments, maximum=16384):
+        if deadline is None:
+            return run(arguments, maximum)
+        return run(arguments, maximum, deadline=deadline)
+
     identities = (
-        run(
+        probe(
             [
                 *DOCKER,
                 "ps",
@@ -128,7 +147,7 @@ def stopped(value: dict, schema: int | None = None, scope=PRODUCTION) -> None:
     )
     if identities != [value["backend_id"]]:
         raise RuntimeError("retirement_maintenance_backend_set_changed")
-    backend = run(
+    backend = probe(
         [
             *DOCKER,
             "inspect",
@@ -144,7 +163,7 @@ def stopped(value: dict, schema: int | None = None, scope=PRODUCTION) -> None:
         "",
     ]:
         raise RuntimeError("retirement_maintenance_web_not_stopped")
-    db = run(
+    db = probe(
         [
             *DOCKER,
             "inspect",
@@ -159,7 +178,7 @@ def stopped(value: dict, schema: int | None = None, scope=PRODUCTION) -> None:
     ]:
         raise RuntimeError("retirement_maintenance_database_changed")
     if scope.qa_run is not None:
-        owned = run(
+        owned = probe(
             [
                 *DOCKER,
                 "inspect",
@@ -174,7 +193,7 @@ def stopped(value: dict, schema: int | None = None, scope=PRODUCTION) -> None:
         ):
             raise RuntimeError("retirement_QA_database_scope_changed")
     for purpose in ("account-mail-worker", "retirement-publisher"):
-        if run(
+        if probe(
             [
                 *DOCKER,
                 "ps",
@@ -187,7 +206,7 @@ def stopped(value: dict, schema: int | None = None, scope=PRODUCTION) -> None:
         ).strip():
             raise RuntimeError("retirement_maintenance_physical_holder_present")
     for name in ("aqua-account-mail-worker", "aqua-retirement-publisher"):
-        if run(
+        if probe(
             [
                 *DOCKER,
                 "ps",
@@ -199,12 +218,12 @@ def stopped(value: dict, schema: int | None = None, scope=PRODUCTION) -> None:
         ).strip():
             raise RuntimeError("retirement_maintenance_name_collision")
     if (
-        hashlib.sha256(scope.schedule(run, read)).hexdigest()
+        hashlib.sha256(scope.schedule(probe, read)).hexdigest()
         != value["paused_cron_sha256"]
     ):
         raise RuntimeError("retirement_maintenance_schedule_changed")
     if schema is not None:
-        result = run(
+        result = probe(
             [
                 *DOCKER,
                 "exec",

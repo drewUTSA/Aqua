@@ -213,8 +213,9 @@ ROOT integrated the reviewed installer, ordinary-runtime and capture helpers plu
 the durable Mac backup client. The final five closed Linux suites passed all258
 cases: protocol80, archival9, operator77, fixtures36 and backup models56. All five
 containers passed ID/name cleanup; independent name absence and unchanged existing
-running metadata were confirmed. All534 frozen public source inputs still match
-the canonical checkout. See [native guard qualification](evidence/p11bc/native-guards-qualification.json).
+running metadata were confirmed. All534 frozen public source inputs matched
+the checkout at that qualification. Later exact helper exceptions are documented
+below. See [native guard qualification](evidence/p11bc/native-guards-qualification.json).
 
 Fresh probes of the exact final ARM and AMD64 backend images measured all50
 package versions and complete Requires metadata, Python, OpenSSL, libc and the
@@ -240,3 +241,55 @@ Black checked506 Python files unchanged; Ruff, source checks and runtime-lock
 checks passed. The final integrated nine-job PR/main CI and actual guarded
 production schema9 release remain incomplete. Production stays on the healthy
 schema8 export release while concrete release controllers undergo ROOT review.
+
+
+The first published nine-job candidate, `f09a76b`, passed eight jobs and the
+complete backend step (all1851 identities plus both current32MiB capacity cases).
+Its later storage-installer step correctly failed because the host helper still
+expected schema8 after the actual schema9 migration. ROOT changed only the
+expected output literal and returned version in `ops/appdb/manage.py`; no runtime,
+case, migration or resource limit changed. PR58 run42168334557 then passed all
+nine jobs/210steps on `75432178cd396297191183d89afb468ef0d05a56`, including the
+real disposable repeated migration, authentication/DDL denial, full RAM export
+and cleanup checks. The earlier red remains retained.
+
+The main merge also contributed only two PG command arguments to the capacity
+fixture (`-c autovacuum_naptime=1s`). Both current-source capacity cases passed
+in the actual hosted backend step with schema9, original32MiB/1GiB/512MiB
+limits and exact cleanup. These two narrow host-helper/fixture exceptions are
+separately hash-bound; the historical frozen source archives are not relabeled.
+
+The current PR is held for the reviewed installed-publisher cancellation fix
+and final release/recovery controller review. The final source head and distinct
+merged-main nine-job CI must still pass before activation. Production is unchanged.
+
+
+The assembled migration snapshot guard now passes an actual isolated schema8→9
+rehearsal. All35 old tables were populated; their hashes, roles, ACLs and old
+catalog remained intact, all39 resulting tables matched the independent pristine
+schema9 catalog, and the seven new defaults preserved the existing privacy epoch.
+All10 actual checks and16 pure guards passed, including expired non-null physical
+markers, export-work admission, old-row/catalog/privilege drift, and a32MiB pending
+manifest rejected before payload traversal. Original caps remain unchanged.
+ROOT rehashed the four raw artifacts and independently confirmed all four exact
+container names and the run label absent. See
+[migration qualification](evidence/p11bc/migration-qualification.json). This proves
+the migration/snapshot component; the production256MiB snapshot profile and the
+full rollout/rebind/recovery controller remain separate pending qualifications.
+Earlier fixture failures remain retained; the source-copy failure's historical
+683-byte message was not retained, so no exact retrospective cause is claimed.
+
+
+ROOT reviewed and integrated the installed-publisher deferred cancellation fix,
+explicit validated Scope routing, and the maintenance probe shared deadline.
+The35 focused checks passed. The current native Linux signals suite passed all48
+original controls, including six actual POSIX deliveries, under the unchanged
+128MiB/oneCPU/64PID/60second profile. ROOT verified all539 frozen public source
+files, both raw report/log hashes, exact temporary-container name absence and
+unchanged running production metadata. The control cases model private I/O and
+Docker RPC; the separate real installed-publisher/recovery rehearsal remains
+pending. See [publisher signal qualification](evidence/p11bc/publisher-signals-qualification.json).
+Black checked513 Python files unchanged; Ruff, source/lock checks, the18 native
+executor guards and17 durability/host/cleanup guards passed. The added CI selector
+retains all five prior suites and adds only its fixed report to artifact upload.
+The current integrated source still needs final nine-job PR/main CI and release.

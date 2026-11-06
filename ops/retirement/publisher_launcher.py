@@ -18,6 +18,11 @@ import subprocess
 import sys
 import time
 
+if __package__:
+    from .operator_scope import BASE, PRODUCTION, Scope
+else:
+    from operator_scope import BASE, PRODUCTION, Scope
+
 PRIVATE = Path("/home/ben2004/.aqua-runtime/retirement")
 IMAGE = "sha256:1f541b30b479760c32a7a7d35adc2cfad4082ab465157510541ac7e49a0c9e2f"
 REVIEWED_CODE_SHA256 = "PENDING_STORAGE_AND_RECOVERY_PROOF"
@@ -43,6 +48,32 @@ IDENT = re.compile(r"[a-f0-9]{64}\Z")
 class Unavailable(RuntimeError):
     def __init__(self):
         super().__init__("retirement_publisher_launcher_unavailable")
+
+
+def scoped(scope, root=None):
+    """Only the actual frozen Scope may select fixed production or one QA root."""
+    if type(scope) is not Scope:
+        raise Unavailable()
+    qa = scope.qa_run
+    if qa is not None and (
+        type(qa) is not str
+        or not re.fullmatch(r"aqua-retirement-host-[a-f0-9]{24}", qa)
+    ):
+        raise Unavailable()
+    expected_root = PRIVATE if qa is None else BASE / qa / "installed"
+    name = NAME if qa is None else qa + "-" + NAME
+    socket = SOCKET_VOLUME if qa is None else qa + "-socket"
+    if (
+        scope.private != expected_root
+        or scope.parent != expected_root.parent
+        or scope.holder_name(NAME) != name
+        or scope.socket != socket
+        or root is not None
+        and root != expected_root
+    ):
+        raise Unavailable()
+    scope.validate()
+    return expected_root, name, socket, qa
 
 
 def directory(path):
@@ -145,7 +176,8 @@ def append_flag(path):
 
 
 class Docker:
-    def __init__(self):
+    def __init__(self, *, scope=PRODUCTION):
+        _, self.name, self.socket, self.qa_run = scoped(scope)
         self.started = time.monotonic()
         self.work_deadline = self.started + 50
         self.deadline = self.started + 55
@@ -188,7 +220,7 @@ class Docker:
         return values
 
     def owned(self, nonce, *, cleanup=False):
-        values = self.ids("name=^/" + NAME + "$", cleanup=cleanup)
+        values = self.ids("name=^/" + self.name + "$", cleanup=cleanup)
         if not values:
             return None
         if len(values) != 1:
@@ -204,9 +236,14 @@ class Docker:
         lines = raw.splitlines()
         if (
             len(lines) != 3
-            or lines[:2] != [values[0], "/" + NAME]
+            or lines[:2] != [values[0], "/" + self.name]
             or json.loads(lines[2]).get("io.aqua.purpose") != PURPOSE
             or json.loads(lines[2]).get("io.aqua.run") != nonce
+            or self.qa_run is not None
+            and (
+                not re.fullmatch(r"[a-f0-9]{32}", nonce)
+                or json.loads(lines[2]).get("io.aqua.qa-run") != self.qa_run
+            )
         ):
             raise Unavailable()
         return values[0]
@@ -215,16 +252,26 @@ class Docker:
         try:
             actual = self.owned(nonce, cleanup=True)
             if actual is None:
-                return expected is not None and not self.ids(
+                absent = expected is not None and not self.ids(
                     "id=" + expected, cleanup=True
                 )
+                if self.qa_run is not None:
+                    absent = absent and not self.ids(
+                        "name=^/" + self.name + "$", cleanup=True
+                    )
+                return absent
             if expected is not None and actual != expected:
                 return False
             try:
                 self.call("container", "rm", "--force", actual, cleanup=True)
             except Unavailable:
                 pass
-            return not self.ids("id=" + actual, cleanup=True)
+            absent = not self.ids("id=" + actual, cleanup=True)
+            if self.qa_run is not None:
+                absent = absent and not self.ids(
+                    "name=^/" + self.name + "$", cleanup=True
+                )
+            return absent
         except Exception:
             return False
 
@@ -256,7 +303,8 @@ entry=str(root/'host-sources/retirement_host.py');deadline=sys.argv[2];sys.argv=
 """
 
 
-def launch(root=PRIVATE, expected=REVIEWED_CODE_SHA256, *, image=IMAGE):
+def launch(root=None, expected=REVIEWED_CODE_SHA256, *, image=IMAGE, scope=PRODUCTION):
+    root, name, socket, qa = scoped(scope, root)
     if not re.fullmatch("[a-f0-9]{64}", expected):
         return "disabled"
     if not re.fullmatch("sha256:[a-f0-9]{64}", image):
@@ -290,17 +338,15 @@ def launch(root=PRIVATE, expected=REVIEWED_CODE_SHA256, *, image=IMAGE):
             or endpoint.st_uid != 0
         ):
             raise Unavailable()
-        docker = Docker()
-        if docker.ids("label=io.aqua.purpose=" + PURPOSE) or docker.ids(
-            "name=^/" + NAME + "$"
-        ):
+        docker = Docker(scope=scope)
+        filters = ["label=io.aqua.purpose=" + PURPOSE]
+        if qa is not None:
+            filters.append("label=io.aqua.qa-run=" + qa)
+        if docker.ids(*filters) or docker.ids("name=^/" + name + "$"):
             raise Unavailable()
         if docker.call("image", "inspect", "--format", "{{.Id}}", image) != image:
             raise Unavailable()
-        if (
-            docker.call("volume", "inspect", "--format", "{{.Name}}", SOCKET_VOLUME)
-            != SOCKET_VOLUME
-        ):
+        if docker.call("volume", "inspect", "--format", "{{.Name}}", socket) != socket:
             raise Unavailable()
         nonce, identifier = secrets.token_hex(16), None
         try:
@@ -309,11 +355,12 @@ def launch(root=PRIVATE, expected=REVIEWED_CODE_SHA256, *, image=IMAGE):
                 "create",
                 "--pull=never",
                 "--name",
-                NAME,
+                name,
                 "--label",
                 "io.aqua.purpose=" + PURPOSE,
                 "--label",
                 "io.aqua.run=" + nonce,
+                *(["--label", "io.aqua.qa-run=" + qa] if qa is not None else []),
                 "--network=none",
                 "--read-only",
                 "--cap-drop=ALL",
@@ -339,7 +386,7 @@ def launch(root=PRIVATE, expected=REVIEWED_CODE_SHA256, *, image=IMAGE):
                 "--mount",
                 "type=bind,src=" + str(root / "code") + ",dst=/publisher,readonly",
                 "--mount",
-                "type=volume,src=" + SOCKET_VOLUME + ",dst=/run/aqua-app-db,readonly",
+                "type=volume,src=" + socket + ",dst=/run/aqua-app-db,readonly",
                 "--env=PYTHON_DOTENV_DISABLED=1",
                 "--env=PYTHONDONTWRITEBYTECODE=1",
                 "--entrypoint=python",
