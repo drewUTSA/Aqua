@@ -4,6 +4,7 @@ from account.authority import current_id
 from account.google_verification import fresh_identity
 from account.identity_runtime import admit_action
 from account.proofs import claim_challenge, create_challenge
+from account.proof_consumption import deletion_snapshot
 from auth.accounts import provider_observation
 from auth.sessions import bound_value, new_token, token_digest
 from workspace.errors import WorkspaceError
@@ -67,13 +68,22 @@ class GoogleRecentAuth:
         token = new_token()
         with self.storage.transaction() as conn:
             sid = current_id(conn, session, self.policy)
+            if deletion_snapshot(conn, session.user["id"], claimed.operation) != (
+                claimed.privacy_epoch,
+                claimed.history_generation,
+            ):
+                raise WorkspaceError("proof_invalid", 403)
             found = conn.execute(
-                "SELECT e.id FROM app.external_identities e JOIN app.auth_challenges c ON c.account_google_identity_id=e.id WHERE c.id=%s AND c.user_id=%s AND c.session_id=%s AND c.account_auth_epoch=%s AND c.consumed_at IS NOT NULL AND c.expires_at>clock_timestamp() AND e.user_id=c.user_id AND e.is_active AND e.revision=c.account_google_identity_revision AND e.revision=%s AND e.issuer='https://accounts.google.com' AND e.subject=%s FOR UPDATE OF c",
+                "SELECT e.id FROM app.external_identities e JOIN app.auth_challenges c ON c.account_google_identity_id=e.id WHERE c.id=%s AND c.user_id=%s AND c.session_id=%s AND c.account_auth_epoch=%s AND c.account_operation=%s AND c.account_target_digest=%s AND (c.account_operation NOT IN ('history_delete','account_delete') OR (c.account_privacy_epoch=%s AND c.account_history_generation=%s)) AND c.consumed_at IS NOT NULL AND c.expires_at>clock_timestamp() AND e.user_id=c.user_id AND e.is_active AND e.revision=c.account_google_identity_revision AND e.revision=%s AND e.issuer='https://accounts.google.com' AND e.subject=%s FOR UPDATE OF c",
                 (
                     claimed.id,
                     session.user["id"],
                     sid,
                     session.auth_epoch,
+                    claimed.operation,
+                    claimed.target_digest,
+                    claimed.privacy_epoch,
+                    claimed.history_generation,
                     claimed.google_identity_revision,
                     identity["sub"],
                 ),
@@ -96,17 +106,19 @@ class GoogleRecentAuth:
                 ),
             )
             expiry = conn.execute(
-                "INSERT INTO app.account_action_proofs(user_id,session_id,challenge_id,secret_digest,auth_epoch,operation,target_digest,method,external_identity_id,external_identity_revision,created_at,expires_at) VALUES(%s,%s,%s,%s,%s,%s,%s,'google',%s,%s,statement_timestamp(),LEAST(statement_timestamp()+interval '300 seconds',%s)) RETURNING expires_at",
+                "INSERT INTO app.account_action_proofs(user_id,session_id,challenge_id,secret_digest,auth_epoch,operation,target_digest,method,external_identity_id,external_identity_revision,privacy_epoch,history_generation,created_at,expires_at) VALUES(%s,%s,%s,%s,%s,%s,%s,'google',%s,%s,%s,%s,statement_timestamp(),LEAST(statement_timestamp()+interval '300 seconds',%s)) RETURNING expires_at",
                 (
                     session.user["id"],
                     sid,
                     claimed.id,
                     token_digest(token),
                     session.auth_epoch,
-                    operation,
+                    claimed.operation,
                     claimed.target_digest,
                     claimed.google_identity_id,
                     claimed.google_identity_revision,
+                    claimed.privacy_epoch,
+                    claimed.history_generation,
                     claimed.expires_at,
                 ),
             ).fetchone()[0]

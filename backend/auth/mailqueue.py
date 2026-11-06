@@ -1,6 +1,7 @@
 """One leased account email at a time, with persisted attempt and volume bounds."""
 
 from collections.abc import Sequence
+from contextlib import contextmanager
 from datetime import datetime
 import uuid
 
@@ -9,7 +10,9 @@ from psycopg import Connection
 from auth.mailconfig import MailPolicy
 from auth.mailoutbox import MailJob
 from auth.mailpurposes import ELIGIBLE_MAIL_SQL, GROUPS, group
-from storage.pool import Storage
+from storage.pool import Storage, StorageUnavailable
+
+SEND_LOCK = 1095848275
 
 # Partitions sum to the global 20/hour and 60/day. Anonymous verification mail
 # cannot spend recovery/security allowances, even after a process restart.
@@ -30,6 +33,7 @@ def _claimable(
             "AND m.available_at<=%s AND (m.lease_expires_at IS NULL OR m.lease_expires_at<=%s) "
             "AND m.expires_at>%s AND m.attempts<3 "
             "AND (m.first_attempt_at IS NULL OR m.first_attempt_at>%s-interval '23 hours') "
+            "AND NOT EXISTS(SELECT 1 FROM app.deletion_jobs d WHERE d.account_closed AND m.created_at<=d.created_at AND (m.challenge_id IN (SELECT id FROM app.auth_challenges WHERE user_id=d.user_id) OR EXISTS(SELECT 1 FROM app.user_emails e WHERE e.user_id=d.user_id AND sha256(convert_to(e.email_key,'UTF8'))=m.recipient_digest))) "
             "AND " + ELIGIBLE_MAIL_SQL + " "
             "ORDER BY m.available_at,m.id LIMIT 1 FOR UPDATE OF m SKIP LOCKED",
             (list(GROUPS[purpose]), instant, instant, instant, instant),
@@ -42,11 +46,81 @@ def _claimable(
 class MailOutbox:
     def __init__(self, storage: Storage, policy: MailPolicy) -> None:
         self.storage, self.policy = storage, policy
+        self._connection = None
+        self._host_claim = None
+
+    def _require_host(self, conn, claim):
+        from retirement.mail_physical import require_claim
+        from retirement.interlock import RetirementUnavailable
+
+        installed, present = conn.execute(
+            "SELECT EXISTS(SELECT 1 FROM pg_database WHERE datname='aqua_retirement'),to_regclass('app.retirement_control') IS NOT NULL"
+        ).fetchone()
+        if present:
+            marker = conn.execute(
+                "SELECT authority_installed FROM app.retirement_control WHERE singleton"
+            ).fetchone()
+            if marker not in {(True,), (False,)}:
+                raise StorageUnavailable("account_mail_physical_unavailable")
+            installed = installed or marker[0]
+        if installed:
+            try:
+                require_claim(claim)
+            except RetirementUnavailable:
+                raise StorageUnavailable("account_mail_physical_unavailable") from None
+
+    @contextmanager
+    def physical(self, host_claim=None):
+        """Retain one real session through the actual send, without an open TX.
+
+        Cleanup can never infer physical exit from a mail lease or missing row.
+        The dedicated CLI still consumes only its one reviewed runtime slot.
+        """
+        with self.storage.session() as conn:
+            if conn.execute(
+                "SELECT pg_try_advisory_lock(%s,%s)", (SEND_LOCK, 0)
+            ).fetchone() != (True,):
+                yield False
+                return
+            try:
+                if self._connection is not None:
+                    raise StorageUnavailable("account_mail_physical_unavailable")
+                with conn.transaction():
+                    conn.execute("SET LOCAL statement_timeout='3s'")
+                    self._require_host(conn, host_claim)
+                self._connection = conn
+                self._host_claim = host_claim
+                yield True
+            finally:
+                self._connection = None
+                self._host_claim = None
+                if conn.info.transaction_status != 0 or conn.execute(
+                    "SELECT pg_advisory_unlock(%s,%s)", (SEND_LOCK, 0)
+                ).fetchone() != (True,):
+                    conn.close()
+                    raise StorageUnavailable(
+                        "account_mail_physical_release_unconfirmed"
+                    )
+
+    @contextmanager
+    def transaction(self):
+        if self._connection is None:
+            with self.storage.transaction() as conn:
+                yield conn
+            return
+        with self._connection.transaction():
+            conn = self._connection
+            conn.execute("SET LOCAL search_path=pg_catalog,app")
+            conn.execute("SET LOCAL statement_timeout='3s'")
+            conn.execute("SET LOCAL lock_timeout='1s'")
+            conn.execute("SET LOCAL idle_in_transaction_session_timeout='10s'")
+            yield conn
 
     def claim(self) -> MailJob | None:
         if not self.policy.enabled:
             return None
-        with self.storage.transaction() as conn:
+        with self.transaction() as conn:
+            self._require_host(conn, self._host_claim)
             control = conn.execute(
                 "SELECT last_attempt_at,hour_started_at,hour_hits,day_started_at,day_hits,lease_expires_at "
                 ",notice_hour_hits,notice_day_hits,reset_hour_hits,reset_day_hits,verify_hour_hits,verify_day_hits "
@@ -137,7 +211,7 @@ class MailOutbox:
             if outcome == "accepted"
             else "pending" if outcome == "retry" and job.attempts < 3 else "failed"
         )
-        with self.storage.transaction() as conn:
+        with self.transaction() as conn:
             # Claim and finish share control -> job lock order; avoid a reclaimed
             # job racing its old worker into a lock-order deadlock.
             conn.execute(

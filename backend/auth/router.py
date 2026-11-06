@@ -175,6 +175,13 @@ def google_login(
     )
     log.info("auth_event action=allow reason=session_created")
     clear_auth_cookie(response, settings, challenge_cookie_name(settings))
+    from retirement.revision import history_revision
+
+    response.headers["X-Aqua-History-Revision"] = history_revision(
+        settings.session_secret,
+        stored.user["id"],
+        getattr(stored, "history_generation", 1),
+    )
     session = UserSession(
         stored.user,
         session_csrf,
@@ -183,6 +190,7 @@ def google_login(
         stored.grant_version,
         stored.auth_epoch,
         stored.dataset_key,
+        getattr(stored, "history_generation", 1),
     )
     return _session_response(session, settings)
 

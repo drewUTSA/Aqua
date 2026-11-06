@@ -16,8 +16,11 @@ The only environment input is the fixed, separately provisioned
 owned by the operator with mode 0700; the file must be a single-link regular
 file owned by the operator with mode 0600. Symlinks, special files, duplicate
 keys, shell syntax, unknown keys and oversized/control-character content are
-rejected. The worker receives exactly the ten variables named in
-`worker.env.example`, with a socket-only `aqua_app_runtime` URL, one connection,
+rejected. The private file contains the ten required variables and the optional
+`ACCOUNT_MAIL_RETIREMENT_LOCK_ENABLED` boolean shown in `worker.env.example`.
+An absent lock flag retains preinstallation behavior. Installed retirement
+authority requires it explicitly set to `true` even when new deletion requests
+are disabled. The worker retains a socket-only `aqua_app_runtime` URL, one connection,
 one waiter, a two-second acquisition deadline and `https://aqua-ai.us` as its
 canonical origin. `DATABASE_URL`, model settings, Google/session secrets and the
 application's full `.env` must never be copied into this file.
@@ -38,6 +41,40 @@ It validates the environment and passes an immutable sealed-memory snapshot to
 the Docker CLI through an inherited file descriptor. No secret is put in command
 arguments or a temporary disk copy. Docker still stores container environment
 metadata for Docker administrators; this is not a boundary against that operator.
+
+Before activating retirement, pause the schedule and prove all old mail
+containers/processes have stopped. As the existing UID1000 operator, run:
+
+```bash
+/usr/bin/python3 -E -s -B /srv/bank-ai/ops/accountmail/prepare_lock.py
+```
+
+This explicitly creates `/home/ben2004/.aqua-runtime/mail/physical.lock` only
+when absent. It never truncates, chmods or replaces an existing inode. The
+lock must be a zero-byte regular file, owned by UID1000, mode0600, with one
+link and an owner-only mode0700 parent. Existing shared holders prevent a
+`ready` result. Keep this physical lock separate from `.launcher.lock`, whose
+exclusive singleton behavior remains unchanged. Do not unlink, rotate or
+recreate either file while its participants exist.
+
+With the retirement lock flag true, the launcher takes a shared claim before
+Docker creation and keeps it through the actual attached child and verified
+cleanup. It binds that exact checked file read-only to
+`/run/aqua-mail-physical/worker.lock`, whose image directory is UID1000/mode0700.
+Only the launcher generates `ACCOUNT_MAIL_PHYSICAL_DEVICE` and
+`ACCOUNT_MAIL_PHYSICAL_INODE` from its open descriptor; putting them in
+`worker.env` is rejected. The worker verifies those nonsecret inode values and
+takes its own shared descriptor before reading mail. Its claim survives a dead
+launcher or database session until the actual worker exits. No extra database
+connection is added.
+
+The release operator must bind the same source inode read-only to the backend's
+`/run/aqua-retirement/mail-worker.lock` and verify both views before opening
+writers. The backend retains an exclusive physical claim through each account
+purge commit. A mount/flag/inode mismatch, missing private file or unconfirmed
+cleanup fails closed; a held exclusive purge returns `busy` before mail Docker
+admission. These source files do not install mounts, update private environments
+or activate sending/deletion by themselves.
 
 Docker access uses only `/usr/bin/docker` and the local
 `unix:///var/run/docker.sock`, with a small fixed process environment. Ambient
@@ -96,7 +133,10 @@ three-field plain-text envelopes retain their original request bodies and
 idempotency keys. Preserve existing version renderers until their jobs expire;
 never silently restyle a pending retry under its original key.
 
-Synthetic launcher regressions are part of `backend/tests/test_account_mail_launcher.py`.
+Synthetic launcher regressions are part of `backend/tests/test_account_mail_launcher.py`
+and `test_account_mail_physical_launcher.py`. The physical tests run as UID1000
+in an isolated Linux runner and exercise actual shared/exclusive flock handoff,
+launcher SIGKILL, worker exit and unsafe inode/configuration rejection.
 The mail template/adapter/envelope suites use fake addresses and a fake provider.
 They make no real delivery calls. Live activation and controlled inbox checks are
 recorded separately by the release owner.

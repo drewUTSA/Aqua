@@ -75,6 +75,8 @@ def test_current_http_surface_is_explicit():
         ("/api/v1/me/data-exports/by-intent/{intent_id}", "GET"),
         ("/api/v1/me/data-exports/{job_id}", "GET"),
         ("/api/v1/me/data-exports/{job_id}/download", "GET"),
+        ("/api/v1/me/data-deletions", "POST"),
+        ("/api/v1/me/data-deletions/by-intent/{intent_id}", "POST"),
         ("/api/v1/me/notification-settings", "GET"),
         ("/api/v1/me/notification-settings", "PUT"),
         ("/api/v1/starter-prompts", "GET"),

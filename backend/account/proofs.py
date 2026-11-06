@@ -6,6 +6,7 @@ from datetime import datetime
 from account.authority import current_id, owned_target
 from account.credentials import password_snapshot
 from account.proof_consumption import consume_proof as consume_proof
+from account.proof_consumption import deletion_snapshot
 from account.policy import (
     MAX_CHALLENGES,
     OWNER_CHALLENGES,
@@ -35,6 +36,8 @@ class ClaimedChallenge:
     expires_at: datetime | None = None
     google_identity_id: str | None = None
     google_identity_revision: int | None = None
+    privacy_epoch: int | None = None
+    history_generation: int | None = None
 
 
 def create_challenge(
@@ -76,6 +79,9 @@ def create_challenge(
                 raise WorkspaceError("method_unavailable", 403)
             google_revision = found[0]
         owned_target(conn, session, operation, target)
+        privacy_epoch, history_generation = deletion_snapshot(
+            conn, session.user["id"], operation
+        )
         conn.execute("SELECT pg_advisory_xact_lock(%s)", (LOCK,))
         conn.execute(
             "DELETE FROM app.auth_challenges WHERE id IN (SELECT id FROM app.auth_challenges "
@@ -97,8 +103,8 @@ def create_challenge(
         return str(
             conn.execute(
                 "INSERT INTO app.auth_challenges(purpose,user_id,session_id,secret_digest,binding_digest,"
-                "account_operation,account_target_digest,account_auth_epoch,account_google_identity_id,account_google_identity_revision,created_at,expires_at) "
-                "VALUES('reauth',%s,%s,%s,%s,%s,%s,%s,%s,%s,statement_timestamp(),"
+                "account_operation,account_target_digest,account_auth_epoch,account_google_identity_id,account_google_identity_revision,account_privacy_epoch,account_history_generation,created_at,expires_at) "
+                "VALUES('reauth',%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,statement_timestamp(),"
                 "statement_timestamp()+%s*interval '1 second') RETURNING id",
                 (
                     session.user["id"],
@@ -110,6 +116,8 @@ def create_challenge(
                     session.auth_epoch,
                     google_identity,
                     google_revision,
+                    privacy_epoch,
+                    history_generation,
                     PROOF_SECONDS,
                 ),
             ).fetchone()[0]
@@ -139,13 +147,18 @@ def claim_challenge(
         target = target(conn) if callable(target) else target
         bound = target_digest(operation, target)
         owned_target(conn, session, operation, target)
+        privacy_epoch, history_generation = deletion_snapshot(
+            conn, session.user["id"], operation
+        )
         row = conn.execute(
             "UPDATE app.auth_challenges SET consumed_at=clock_timestamp() "
             "WHERE id=%s AND purpose='reauth' AND user_id=%s AND session_id=%s "
             "AND secret_digest=%s AND binding_digest=%s AND account_operation=%s "
             "AND account_target_digest=%s AND account_auth_epoch=%s "
             "AND (account_google_identity_id IS NOT NULL)=%s "
-            "AND consumed_at IS NULL AND expires_at>clock_timestamp() RETURNING id,created_at,expires_at,account_google_identity_id,account_google_identity_revision",
+            "AND (account_operation NOT IN ('history_delete','account_delete') OR "
+            "(account_privacy_epoch=%s AND account_history_generation=%s)) "
+            "AND consumed_at IS NULL AND expires_at>clock_timestamp() RETURNING id,created_at,expires_at,account_google_identity_id,account_google_identity_revision,account_privacy_epoch,account_history_generation",
             (
                 challenge_id,
                 session.user["id"],
@@ -156,6 +169,8 @@ def claim_challenge(
                 bound,
                 session.auth_epoch,
                 google,
+                privacy_epoch,
+                history_generation,
             ),
         ).fetchone()
         if row is None:
@@ -171,4 +186,6 @@ def claim_challenge(
             row[2],
             str(row[3]) if row[3] else None,
             row[4],
+            row[5],
+            row[6],
         )

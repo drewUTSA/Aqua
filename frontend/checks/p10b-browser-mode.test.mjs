@@ -1,6 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { browserFixtureMode, SECURE_ACCOUNT_ORIGIN, staticFixtureResponse } from "./p10b-browser-mode.mjs";
+import { browserFixtureMode, requireFixtureSchema, SECURE_ACCOUNT_ORIGIN, staticFixtureResponse } from "./p10b-browser-mode.mjs";
+test("current candidate fixtures require exact schema9 and cannot relabel historical or unknown schemas", () => {
+  assert.equal(requireFixtureSchema(9), 9);
+  for (const value of [6, 7, 8, 10, true, false, '9', 9.1, null, undefined, { schema_version: 9 }]) assert.throws(() => requireFixtureSchema(value), /fixture_schema9_required/);
+});
 test("secure account browser mode is explicit, boolean and rejects caller-selected origins", () => {
   assert.deepEqual(browserFixtureMode(), { secureAccountFixture: false });
   assert.deepEqual(browserFixtureMode({}), { secureAccountFixture: false });
@@ -9,6 +13,11 @@ test("secure account browser mode is explicit, boolean and rejects caller-select
   assert.equal(SECURE_ACCOUNT_ORIGIN, "https://aqua-browser.example.test");
   for (const options of [true, "true", null, [], { origin: "https://aqua-ai.us" }, { secureAccountFixture: "true" },
     { secureAccountFixture: true, origin: "https://aqua-ai.us" }, Object.defineProperty({}, "secureAccountFixture", { get() { throw Error("must not evaluate"); }, enumerable: true })]) assert.throws(() => browserFixtureMode(options), /fixture_mode_invalid/);
+});
+test("actual deletion mode requires the secure fixture and remains a closed boolean option", () => {
+  assert.deepEqual(browserFixtureMode({ secureAccountFixture: true, personalDeletionFixture: true }), { secureAccountFixture: true, personalDeletionFixture: true });
+  for (const value of [{ personalDeletionFixture: true }, { secureAccountFixture: false, personalDeletionFixture: true }, { secureAccountFixture: true, personalDeletionFixture: 'true' },
+    Object.defineProperty({ secureAccountFixture: true }, 'personalDeletionFixture', { get() { throw Error('must not evaluate'); }, enumerable: true })]) assert.throws(() => browserFixtureMode(value), /fixture_mode_invalid/);
 });
 test("reserved secure static responses serve only frozen bytes with safe headers and no fallback network", () => {
   const files = new Map([["/index.html", Buffer.from("synthetic app")], ["/assets/code.js", Buffer.from("synthetic code")]]);

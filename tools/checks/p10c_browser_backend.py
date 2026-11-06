@@ -1,4 +1,4 @@
-"""Strict opt-in schema7 identity fixture; no real Google, mail or network."""
+"""Strict opt-in schema9 identity fixture; no real Google, mail or network."""
 
 import argparse
 import re
@@ -22,7 +22,7 @@ def main() -> int:
     parser.add_argument("--origin", required=True, type=secure_origin)
     parser.add_argument("--image", required=True, type=immutable_image)
     args = parser.parse_args()
-    if fixture_schema(ROOT) not in {7, 8}:
+    if fixture_schema(ROOT) != 9:
         raise ValueError("fixture_identity_schema_required")
     return (
         p05_browser_worker.worker(

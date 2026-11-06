@@ -1,4 +1,5 @@
 import { sessionResponse } from "./authClient.js";
+import { captureHistory, stampSession } from "./historyAuthority.js";
 
 const ROOT = "/api/v1/auth";
 const RESPONSE_BYTES = 16 * 1024;
@@ -90,6 +91,7 @@ async function readJson(response, signal) {
 }
 
 async function request(path, expectedStatus, signal, payload, csrfToken) {
+  const history = captureHistory();
   checkAbort(signal);
   let response;
   try {
@@ -109,7 +111,7 @@ async function request(path, expectedStatus, signal, payload, csrfToken) {
   if (response.redirected) { await discard(response); throw invalidResponse(); }
   if (!response.ok) { const error = httpError(response); await discard(response); throw error; }
   if (response.status !== expectedStatus) { await discard(response); throw invalidResponse(); }
-  return expectedStatus === 204 ? null : readJson(response, signal);
+  return expectedStatus === 204 ? null : stampSession(await readJson(response, signal), response, history);
 }
 
 function bootstrapResponse(body) {

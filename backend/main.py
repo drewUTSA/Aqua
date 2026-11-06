@@ -35,6 +35,10 @@ from account.identity_router import router as account_identity_router
 from privacy.router import router as privacy_router
 from privacy.service import ExportService
 from privacy.headers import PrivateAPIResponses
+from privacy.deletion_router import router as deletion_router
+from privacy.deletion_service import Deletions
+from retirement.admission import RetirementAdmission
+from retirement.runtime import create as retirement_runtime
 from analysis.dependencies import get_analysis
 from analysis.service import Analysis
 from nl2sql.query_service import run as run_query
@@ -44,6 +48,18 @@ from storage.pool import StorageUnavailable
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     app.state.storage.open()
+    runtime = getattr(app.state, "retirement", None)
+    if runtime is None:
+        runtime = retirement_runtime(app.state.storage)
+        app.state.retirement = runtime
+    try:
+        runtime.start()
+    except StorageUnavailable:
+        # Liveness may start during a storage outage. Admission middleware keeps
+        # every writer closed until a successful reconciliation on restart.
+        logging.getLogger("aqua.privacy").warning(
+            "privacy_event action=retirement_start reason=unavailable"
+        )
     service = getattr(app.state, "analysis", None)
     if service is None and app.state.storage.settings.enabled:
         from auth.config import load_auth_policy
@@ -59,7 +75,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
                 configured,
             )
             app.state.analysis = service
-    if service is not None:
+    if service is not None and runtime.ready:
         service.start()
     privacy = getattr(app.state, "privacy", None)
     if privacy is None:
@@ -69,10 +85,25 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
             app.state.storage, load_auth_policy(app.state.settings), app.state.settings
         )
         app.state.privacy = privacy
-    privacy.start()
+    if runtime.ready:
+        privacy.start()
+    deletions = getattr(app.state, "deletions", None)
+    if deletions is None:
+        from auth.config import load_auth_policy
+
+        deletions = Deletions(
+            app.state.storage,
+            load_auth_policy(app.state.settings),
+            app.state.settings,
+            runtime,
+        )
+        app.state.deletions = deletions
+    deletions.start()
     try:
         yield
     finally:
+        deletions.close()
+        app.state.deletions = None
         await privacy.aclose()
         app.state.privacy = None
         service = getattr(app.state, "analysis", None)
@@ -80,6 +111,8 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
             service.close()
             app.state.analysis = None
         app.state.storage.close()
+        runtime.close()
+        app.state.retirement = None
 
 
 app = FastAPI(title="Aqua", lifespan=lifespan)
@@ -98,6 +131,7 @@ app.include_router(account_router)
 app.include_router(account_security_router)
 app.include_router(account_identity_router)
 app.include_router(privacy_router)
+app.include_router(deletion_router)
 app.state.storage = Storage(load_storage_settings())
 app.add_middleware(WorkspaceBodyLimit)
 
@@ -108,6 +142,7 @@ async def safe_workspace_http_error(request: Request, error: HTTPException) -> R
         code = {
             401: "session_invalid",
             403: "access_denied",
+            409: "history_changed",
             503: "service_unavailable",
         }.get(error.status_code, "invalid_request")
         return workspace_failure(WorkspaceError(code, error.status_code))
@@ -137,6 +172,7 @@ async def safe_request_validation(
 
 # Pure ASGI keeps worker/download physical slots through the real send.
 app.add_middleware(PrivateAPIResponses)
+app.add_middleware(RetirementAdmission)
 
 
 def _retriever(settings: Settings | None = None) -> Retriever | None:
@@ -256,6 +292,7 @@ def workspace_query(
         session.user["id"],
         session.grant_version,
         session.auth_epoch,
+        history_generation=session.history_generation or 1,
         cache=ANSWER_CACHE,
         schema_reader=get_schema,
         answerer=answer_question,

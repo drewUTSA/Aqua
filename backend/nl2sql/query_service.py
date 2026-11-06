@@ -34,6 +34,7 @@ def run(
     auth_epoch: int,
     *,
     include_metadata: bool = False,
+    history_generation: int = 1,
     cache: AnswerCache | None = None,
     schema_reader: Callable = get_schema,
     answerer: Callable = answer_question,
@@ -56,6 +57,7 @@ def run(
             schema.to_prompt(),
             grant_version=grant_version,
             auth_epoch=auth_epoch,
+            history_generation=history_generation,
         )
         budget = CURRENT.get()
         if budget:

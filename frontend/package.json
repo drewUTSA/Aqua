@@ -8,7 +8,9 @@
     "build": "vite build",
     "test": "node --test \"checks/*.test.mjs\"",
     "test:content-safety-browser": "node checks/content-safety-browser.mjs",
-    "test:p05-browser": "node checks/p05-browser.mjs"
+    "test:p05-browser": "node checks/p05-browser.mjs",
+    "test:p11b-deletion-browser": "node checks/p11b-deletion-browser.mjs",
+    "test:p11b-real-deletion-browser": "node checks/p11b-real-deletion-browser.mjs"
   },
   "dependencies": {
     "@react-three/fiber": "^9.1.2",

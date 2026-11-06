@@ -1,0 +1,127 @@
+{
+  "CI_red_head": "a117cc93a5d4c3c3afb8e302a588f616af64ef7d",
+  "CI_red_run": 42177549158,
+  "historical_full_suite_results_relabelled": false,
+  "limits_changed": false,
+  "native_suites": {
+    "operator77": {
+      "ROOT_exact_name_absence": true,
+      "cleanup": "removed_and_absence_confirmed",
+      "counts": {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "status": "passed",
+        "tests": 77
+      },
+      "production_running_unchanged": true,
+      "raw": {
+        "ROOT-independent-absence.json": {
+          "bytes": 401,
+          "sha256": "04f8c1b91d80b132446ac0bb5556c832c305ab4a19e20af8460879ca6e92074b"
+        },
+        "completion.json": {
+          "bytes": 1045,
+          "sha256": "0f0e2f1c664883304d355239785965e99ed3f14bfbd609e1c30561c715f2896c"
+        },
+        "native.log": {
+          "bytes": 252,
+          "sha256": "a04d112ffb6b65a129f577277990c67cdff62a602828f4926a74bc7435fe25c4"
+        },
+        "report.json": {
+          "bytes": 809,
+          "sha256": "efb0a1a9421ef2481cdf9e2af9b7c01aa6f73e78529680c5f6ca8db888d982ac"
+        },
+        "source-manifest.json": {
+          "bytes": 59780,
+          "sha256": "b89dc6b257b938ee4bdfb1af248ee72294594d529b6e5adaeaa39a9ac317595e"
+        }
+      },
+      "retained_red": {
+        "ROOT-independent-absence.json": {
+          "bytes": 396,
+          "sha256": "a83dea94bdc0a3f04c99a7f596100cc1e39eaffc22f4f30c52603322ea8b5d94"
+        },
+        "native.log": {
+          "bytes": 1628,
+          "sha256": "4d01408dce3d1e53e6756811f273d4904d9afea0a0e1b206fa0d4eab0b7578e7"
+        },
+        "report.json": {
+          "bytes": 730,
+          "sha256": "5123da65d24e24f2bec3fdaff4027c72f21fbb99156172c38597acf6c9b8a6e2"
+        }
+      },
+      "source_archive_sha256": "d9f282414dcd94375cd04ef357a15ed45de8067c4a7300c91f9a2fa99d558777",
+      "source_files": 540,
+      "unexercised_test_only_later_source_drift": {
+        "tools/checks/retirement_fixture/host_launcher_test.py": "07cf4f7844ec22eb2ced7501a6fcf3352b663d9308a75915b4b3eff82c64c8e7"
+      }
+    },
+    "protocol80": {
+      "ROOT_exact_name_absence": true,
+      "cleanup": "removed_and_absence_confirmed",
+      "counts": {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "status": "passed",
+        "tests": 80
+      },
+      "production_running_unchanged": true,
+      "raw": {
+        "ROOT-independent-absence.json": {
+          "bytes": 401,
+          "sha256": "b8ea9dd2f8a62fa2fc232495955ad868bbaf52a04e66f11d2eed916ab2d21a73"
+        },
+        "completion.json": {
+          "bytes": 1045,
+          "sha256": "954a843cb9445a315b4b5d1d893be5bc48dd61bb5fb97610ee86d0d8f910a28b"
+        },
+        "native.log": {
+          "bytes": 255,
+          "sha256": "4bbdfb71eca05fbaae759284980c3e97eb5ef214e55f33fe5ea2276f741aa998"
+        },
+        "report.json": {
+          "bytes": 809,
+          "sha256": "5f451b438fb2c650171046fd4dd2884e216d0b0b073968d3c79164393812fe1c"
+        },
+        "source-manifest.json": {
+          "bytes": 59685,
+          "sha256": "1cb3921038a6ed1b269f9f85778a6b840e3daf6f9175b4c7612a8920b0cc8f61"
+        }
+      },
+      "retained_red": {
+        "ROOT-independent-absence.json": {
+          "bytes": 401,
+          "sha256": "c472e2bc79976d9b1f5d2c6cd3195a38d4c2348fa7476388d712cb09f764dc8e"
+        },
+        "native.log": {
+          "bytes": 381,
+          "sha256": "6b29f2f703ab06148c1afdc49f8dba51a24987d09c2ea27b933ad920491fd3a0"
+        },
+        "report.json": {
+          "bytes": 735,
+          "sha256": "9cb6413e03c27b07670fe09491390d9cc6ea88aeed4c06f0ece4f322be820896"
+        }
+      },
+      "source_archive_sha256": "11e5fbcc0b2dfaae8d6f98a9d220a77129240caedb69fe45649ac0606e4f917d",
+      "source_files": 539,
+      "unexercised_test_only_later_source_drift": {}
+    }
+  },
+  "original_case_counts_and_assertions_retained": true,
+  "production_actions": 0,
+  "schemaVersion": 1,
+  "scope": "Test stub accepts existing maximum argument and asserts unchanged16384 bound; dynamic launcher fixture adds actual ops source path for real Scope import. No application or operator code change.",
+  "source_pairs": {
+    "tools/checks/retirement_fixture/host_launcher_test.py": {
+      "after_sha256": "926e7cd5e20cc5c15c9d4097a3829558075ba946e75490d1fe2ec245fb295c60",
+      "before_sha256": "07cf4f7844ec22eb2ced7501a6fcf3352b663d9308a75915b4b3eff82c64c8e7"
+    },
+    "tools/checks/test_retirement_scope.py": {
+      "after_sha256": "30144d32709fe0bd7278775b18a5db61466d09f9a9a728c8d39b5f6583bbe983",
+      "before_sha256": "ad6aae02ae663006f00c32d180e9c06f381c7d2b6130d60129ca0aca7bd998ad"
+    }
+  },
+  "status": "ROOT_reviewed_actual_native_guard_model_corrections"
+}

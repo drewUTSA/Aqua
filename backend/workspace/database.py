@@ -50,6 +50,7 @@ def public(row: dict) -> dict:
             "dataset_key",
             "grant_version",
             "retry_of",
+            "history_generation",
         }
     }
 
@@ -67,11 +68,16 @@ def guard(
     # A concurrent reset/logout cannot revoke authority between this check and
     # the short history/result transaction. No lock spans provider work.
     state = conn.execute(
-        "SELECT status,auth_epoch FROM app.users WHERE id=%s FOR UPDATE",
+        "SELECT status,auth_epoch,history_generation FROM app.users WHERE id=%s FOR UPDATE",
         (session.user["id"],),
     ).fetchone()
-    if state is None or state != ("active", session.auth_epoch):
+    if state is None or state[:2] != ("active", session.auth_epoch):
         raise WorkspaceError("session_invalid", 401)
+    if (
+        session.history_generation is not None
+        and session.history_generation != state[2]
+    ):
+        raise WorkspaceError("history_changed", 409)
     valid = conn.execute(
         "SELECT id FROM app.sessions WHERE user_id=%s AND token_digest=%s AND revoked_at IS NULL AND auth_epoch=%s AND idle_expires_at>clock_timestamp() AND absolute_expires_at>clock_timestamp() FOR SHARE",
         (session.user["id"], session.token_digest, session.auth_epoch),
@@ -152,6 +158,8 @@ def bounded_count(
         if active and table in {"chats", "projects", "saved_prompts"}
         else ""
     )
+    if table == "chats" and active:
+        predicate += " AND history_generation=(SELECT history_generation FROM app.users WHERE id=app.chats.user_id)"
     count = conn.execute(
         f"SELECT count(*) FROM app.{table} WHERE user_id=%s{predicate}", (owner,)
     ).fetchone()[0]

@@ -6,7 +6,7 @@ from uuid import uuid4
 from privacy import authority, policy, records
 from privacy.database import WORKER_LOCK, global_lock, transaction
 from privacy.snapshot import ExportFailure, capture
-from storage.pool import StorageUnavailable
+from storage.pool import SCHEMA_VERSION, StorageUnavailable
 from workspace.database import one, rows
 from workspace.errors import WorkspaceError
 
@@ -228,7 +228,7 @@ class Worker:
             try:
                 if conn.execute(
                     "SELECT max(version) FROM app.schema_migrations"
-                ).fetchone() != (8,):
+                ).fetchone() != (SCHEMA_VERSION,):
                     raise StorageUnavailable("privacy_schema_unavailable")
                 return self.tick(conn)
             finally:
@@ -249,7 +249,7 @@ class Worker:
                         while not self.service.stopped.is_set():
                             if conn.execute(
                                 "SELECT max(version) FROM app.schema_migrations"
-                            ).fetchone() != (8,):
+                            ).fetchone() != (SCHEMA_VERSION,):
                                 raise StorageUnavailable("privacy_schema_unavailable")
                             if not self.tick(conn):
                                 self.service.stopped.wait(0.5)

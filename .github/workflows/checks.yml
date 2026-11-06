@@ -43,6 +43,12 @@ jobs:
           python tools/checks/test_p10b_browser_fixture.py
           python tools/checks/test_p10c_browser_fixture.py
           python tools/checks/test_p10c_proxy_fixture.py
+          python -m pytest -q tools/checks/test_browser_schema9.py tools/checks/test_p11b_browser_fixture.py
+          python tools/checks/test_retirement_durability.py
+          python tools/checks/run_retirement_native_test.py
+          python tools/checks/test_retirement_signals.py
+          python tools/checks/test_retirement_host.py
+          python tools/checks/test_retirement_host_cleanup.py
       - name: Audit pinned runtime dependencies
         run: python -m pip_audit --no-deps --disable-pip -r tools/checks/requirements-runtime.lock
       - name: Prepare isolated test images
@@ -52,6 +58,23 @@ jobs:
           docker pull postgres@sha256:3645570cccdfa447589da9f57dd740faa29b30938e861289a5574b6ca6b03826
           docker pull node:24.19.0-bookworm-slim@sha256:a9f5f7c91a432850b2a8a7797adf5eadb6c733ceed61167806cee7ea7fbc29df
           docker pull nginx@sha256:970364228b1e4f932abc22d321932816782cca8a20b85a77552a7cfe9acfb3b5
+      - name: Closed operator and native fixture pure guards
+        timeout-minutes: 3
+        run: |
+          python tools/checks/run_retirement_native.py --execute --suite operator77 --image "$(docker image inspect aqua-runtime:check --format '{{.Id}}')" --output "${{ runner.temp }}/aqua-retirement-operator77"
+          python tools/checks/run_retirement_native.py --execute --suite fixtures36 --image "$(docker image inspect aqua-runtime:check --format '{{.Id}}')" --output "${{ runner.temp }}/aqua-retirement-fixtures36"
+      - name: Closed backup-client models in separate namespaces
+        timeout-minutes: 3
+        run: >-
+          python tools/checks/run_retirement_native.py --execute --suite backups56
+          --image "$(docker image inspect aqua-runtime:check --format '{{.Id}}')"
+          --output "${{ runner.temp }}/aqua-retirement-backups56"
+      - name: Closed publisher signals with actual POSIX delivery
+        timeout-minutes: 3
+        run: >-
+          python tools/checks/run_retirement_native.py --execute --suite signals48
+          --image "$(docker image inspect aqua-runtime:check --format '{{.Id}}')"
+          --output "${{ runner.temp }}/aqua-retirement-signals48"
       - name: Telemetry oversized-header denial and normal-header recovery
         run: >-
           docker run --rm -i --network none --read-only --cap-drop ALL
@@ -256,6 +279,128 @@ jobs:
             ${{ runner.temp }}/aqua-p10a/opal/*.png
             ${{ runner.temp }}/aqua-p10a/legacy/*.json
             ${{ runner.temp }}/aqua-p10a/legacy/*.png
+            ${{ runner.temp }}/aqua-retirement-operator77/report.json
+            ${{ runner.temp }}/aqua-retirement-fixtures36/report.json
+            ${{ runner.temp }}/aqua-retirement-backups56/report.json
+            ${{ runner.temp }}/aqua-retirement-signals48/report.json
+          if-no-files-found: warn
+          retention-days: 7
+          include-hidden-files: false
+
+  personal-deletions:
+    name: Personal deletions (${{ matrix.shell }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        shell: [opal, legacy]
+    defaults:
+      run:
+        shell: bash
+    env:
+      AQUA_P05_EXPECTED_SHELL: ${{ matrix.shell }}
+      AQUA_P11B_DIST: ${{ github.workspace }}/frontend/dist
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12.14'
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24.19.0'
+      - name: Install pinned check tools
+        run: python -m pip install -r tools/checks/requirements-dev.txt
+      - name: Prepare isolated deletion fixture images
+        run: |
+          docker build --pull -t aqua-checks:p00 -f tools/checks/Dockerfile .
+          docker build --pull -t aqua-runtime:check -f backend/Dockerfile .
+          docker pull postgres@sha256:3645570cccdfa447589da9f57dd740faa29b30938e861289a5574b6ca6b03826
+          docker pull node:24.19.0-bookworm-slim@sha256:a9f5f7c91a432850b2a8a7797adf5eadb6c733ceed61167806cee7ea7fbc29df
+          docker pull nginx@sha256:970364228b1e4f932abc22d321932816782cca8a20b85a77552a7cfe9acfb3b5
+      - name: Install locked frontend dependencies
+        working-directory: frontend
+        run: npm ci --ignore-scripts --no-fund
+      - name: Build the selected secure UI shell
+        working-directory: frontend
+        env:
+          VITE_AQUA_DEMO_MODE: 'false'
+          VITE_AQUA_USE_MOCK: 'false'
+          VITE_AQUA_UI_SHELL: ${{ matrix.shell }}
+        run: npm run build -- --manifest
+      - name: Bind Chrome and the exact deletion backend image
+        id: fixture
+        run: |
+          chrome="$(command -v google-chrome)"
+          test -x "$chrome"
+          python="$(command -v python)"
+          test -x "$python"
+          image="$(docker image inspect aqua-runtime:check --format '{{.Id}}')"
+          [[ "$image" =~ ^sha256:[a-f0-9]{64}$ ]]
+          export AQUA_P11B_BACKEND_IMAGE="$image"
+          args="$(python -c 'import json,os; print(json.dumps(["-u","../tools/checks/p11b_browser_backend.py","--image",os.environ["AQUA_P11B_BACKEND_IMAGE"]]))')"
+          {
+            echo "AQUA_CHROME_EXECUTABLE=$chrome"
+            echo "AQUA_P11B_BRIDGE_EXECUTABLE=$python"
+            echo "AQUA_P11B_BACKEND_IMAGE=$image"
+            echo "AQUA_P11B_BRIDGE_ARGS_JSON=$args"
+          } >> "$GITHUB_ENV"
+      # These are disposable synthetic accounts and independent signed authority.
+      # The original 150-second/250-request/160-API/16-paused/5Hz/16KiB
+      # ceilings and genuine sensitive-action cooldown remain in the harness.
+      - name: History and account deletion through actual signed authority
+        if: ${{ !cancelled() && steps.fixture.outcome == 'success' }}
+        timeout-minutes: 4
+        working-directory: frontend
+        env:
+          AQUA_P11B_ARTIFACT_DIR: ${{ runner.temp }}/aqua-p11b/${{ matrix.shell }}/real
+        run: node checks/p11b-real-deletion-browser.mjs
+      - name: Deletion receipt lifecycle and failed optional review chunk
+        if: ${{ !cancelled() && steps.fixture.outcome == 'success' && matrix.shell == 'opal' }}
+        timeout-minutes: 4
+        working-directory: frontend
+        env:
+          AQUA_DELETION_ARTIFACT_DIR: ${{ runner.temp }}/aqua-p11b/opal/synthetic
+        run: node checks/p11b-deletion-browser.mjs
+      - name: Signed retirement and restored-history composition
+        if: ${{ !cancelled() && steps.fixture.outcome == 'success' && matrix.shell == 'opal' }}
+        timeout-minutes: 4
+        run: >-
+          python tools/checks/run_retirement_integration.py --execute
+          --image "$AQUA_P11B_BACKEND_IMAGE"
+          --output "${{ runner.temp }}/aqua-p11b/opal/retirement-integration"
+      - name: All 80 native Linux retirement protocol guards without skips
+        if: ${{ !cancelled() && steps.fixture.outcome == 'success' && matrix.shell == 'opal' }}
+        timeout-minutes: 4
+        run: >-
+          python tools/checks/run_retirement_native.py --execute
+          --image "$AQUA_P11B_BACKEND_IMAGE"
+          --output "${{ runner.temp }}/aqua-p11b/opal/native80"
+      - name: All nine archival boundary guards without skips
+        if: ${{ !cancelled() && steps.fixture.outcome == 'success' && matrix.shell == 'opal' }}
+        timeout-minutes: 4
+        run: >-
+          python tools/checks/run_retirement_native.py --execute --suite archival9
+          --image "$AQUA_P11B_BACKEND_IMAGE"
+          --output "${{ runner.temp }}/aqua-p11b/opal/archival9"
+      # Retain only known bounded synthetic reports and screenshots.
+      # Fixture source archives, pipes, runtime config and dumps stay excluded.
+      - name: Retain bounded synthetic deletion and retirement evidence
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: p11b-deletions-${{ matrix.shell }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/aqua-p11b/${{ matrix.shell }}/real/p11b-real-deletion-report.json
+            ${{ runner.temp }}/aqua-p11b/${{ matrix.shell }}/real/p11b-actual-account-live-cleanup.png
+            ${{ runner.temp }}/aqua-p11b/${{ matrix.shell }}/real/p11b-bounded-failure.png
+            ${{ runner.temp }}/aqua-p11b/${{ matrix.shell }}/synthetic/browser-report.json
+            ${{ runner.temp }}/aqua-p11b/${{ matrix.shell }}/synthetic/history-accepted.png
+            ${{ runner.temp }}/aqua-p11b/${{ matrix.shell }}/retirement-integration/p11bc-composition-*/report.json
+            ${{ runner.temp }}/aqua-p11b/${{ matrix.shell }}/native80/report.json
+            ${{ runner.temp }}/aqua-p11b/${{ matrix.shell }}/archival9/report.json
           if-no-files-found: warn
           retention-days: 7
           include-hidden-files: false

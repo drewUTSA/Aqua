@@ -1,16 +1,16 @@
 import { accountOwner } from "./accountContract.js";
 import { actionEmail } from "./accountSecurityContract.js";
-const OPERATIONS = new Set(["password_change", "password_add", "email_change", "google_link", "google_unlink", "session_revoke", "sessions_revoke_all", "data_export"]);
+const OPERATIONS = new Set(["password_change", "password_add", "email_change", "google_link", "google_unlink", "session_revoke", "sessions_revoke_all", "data_export", "history_delete", "account_delete"]);
 export function actionKey(action) {
   if (!action || !OPERATIONS.has(action.operation)) throw Error("account_action_invalid");
   const target = action.operation === "session_revoke" ? accountOwner(action.session?.id) : action.operation === "google_unlink" ? accountOwner(action.identity?.id)
-    : action.operation === "email_change" ? actionEmail(action.email) : action.operation === "data_export" ? accountOwner(action.intentId) : "";
+    : action.operation === "email_change" ? actionEmail(action.email) : ["data_export", "history_delete", "account_delete"].includes(action.operation) ? accountOwner(action.intentId) : "";
   return action.operation + ":" + target;
 }
 
 export function canAccountAction({ profile, methods, sessions }, action) {
   const password = methods?.password?.linked === true && methods.password.available === true, google = methods?.google?.available === true && methods.google.identities?.length > 0;
-  if (!action || action.operation==='data_export' || !OPERATIONS.has(action.operation) || !password && !google) return false;
+  if (!action || ['data_export','history_delete','account_delete'].includes(action.operation) || !OPERATIONS.has(action.operation) || !password && !google) return false;
   for (const caps of [profile?.capabilities, methods.capabilities]) {
     if (caps?.recent_proof !== true || caps?.[action.operation] !== true) return false;
   }

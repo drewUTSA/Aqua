@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { cancelAnalysis } from "../services/aquaClient.js";
 import { observeAnalysis } from "../services/analysisObserver.js";
+import { assertHistory, captureHistory } from "../services/historyAuthority.js";
 
 export function useAnalysisRequests({ jobs, enabled, csrfToken, onSnapshot, onProgress, onError }) {
   const current = useRef(null), observers = useRef(new Map()), mutations = useRef(new Map()), mounted = useRef(true), pending = useRef(new Map()), frame = useRef(null);
+  const history = useRef(captureHistory(csrfToken));
   const [connections, setConnections] = useState({}), [revision, setRevision] = useState(0), [visible, setVisible] = useState(() => typeof document === "undefined" || document.visibilityState !== "hidden");
   current.current = { jobs, csrfToken, onSnapshot, onProgress, onError };
   const key = jobs.map((job) => job.id).sort().join(",");
@@ -27,8 +29,8 @@ export function useAnalysisRequests({ jobs, enabled, csrfToken, onSnapshot, onPr
     if (!enabled || !visible) return;
     for (const { id } of current.current.jobs.slice(0, 4)) {
       const controller = new AbortController(); observers.current.set(id, controller);
-      const valid = () => mounted.current && !controller.signal.aborted && observers.current.get(id) === controller;
-      void observeAnalysis(id, { signal: controller.signal,
+      const valid = () => { try { assertHistory(history.current); return mounted.current && !controller.signal.aborted && observers.current.get(id) === controller; } catch { return false; } };
+      void observeAnalysis(id, { signal: controller.signal, historyContext: history.current,
         onConnection: (value) => { if (valid()) mark(id, value); },
         onSnapshot: (snapshot) => { pending.current.delete(id); if (valid()) current.current.onSnapshot(snapshot); },
         onProgress: (event) => { if (!valid()) return; pending.current.set(id, { event, valid });
@@ -42,7 +44,7 @@ export function useAnalysisRequests({ jobs, enabled, csrfToken, onSnapshot, onPr
     cancel: async (id) => {
       if (!enabled || !id || mutations.current.has(id) || mutations.current.size >= 4 || !current.current.jobs.some((job) => job.id === id)) return;
       const controller = new AbortController(); mutations.current.set(id, controller); mark(id, "cancel-requested");
-      try { const snapshot = await cancelAnalysis(id, { csrfToken: current.current.csrfToken, signal: controller.signal });
+      try { const snapshot = await cancelAnalysis(id, { csrfToken: current.current.csrfToken, signal: controller.signal, historyContext: history.current });
         if (!controller.signal.aborted && mounted.current) { current.current.onSnapshot(snapshot); setRevision((value) => value + 1); }
       } catch (error) { if (!controller.signal.aborted && mounted.current) { mark(id, "cancel-unconfirmed"); current.current.onError(error, id); } }
       finally { if (mutations.current.get(id) === controller) mutations.current.delete(id); }

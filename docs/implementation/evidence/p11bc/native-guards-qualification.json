@@ -1,0 +1,147 @@
+{
+  "all_frozen_source_files_equal_canonical": true,
+  "artifacts": {
+    "after.json": {
+      "bytes": 91,
+      "sha256": "3d7f2f92374697b575fc60644c6e5c73c042849a97c6913e25b42d30f65ce460"
+    },
+    "archival9/native.log": {
+      "bytes": 182,
+      "sha256": "6631f583069bd019396868a83be0d8c04f3eef69c3f1906ece9dfa72f6158da7"
+    },
+    "archival9/report.json": {
+      "bytes": 806,
+      "sha256": "ed4d75cab600bc6fd4176db1337f04c12a22ffd84b33654f2fd7059c5e61116f"
+    },
+    "backups56/native.log": {
+      "bytes": 482,
+      "sha256": "7bc3285d0fa063d84447ea32b749997949aac82cf76b74c851fca28269893fb5"
+    },
+    "backups56/report.json": {
+      "bytes": 808,
+      "sha256": "176161d0e64b34f5bcb511ec341d30475c625281afbc84c3d6b20b252f162ed5"
+    },
+    "before.json": {
+      "bytes": 91,
+      "sha256": "3d7f2f92374697b575fc60644c6e5c73c042849a97c6913e25b42d30f65ce460"
+    },
+    "completion.json": {
+      "bytes": 4832,
+      "sha256": "b06e89b44332d0b14a3014c508ca62efa69006f08a3ee4c16984ed6a52a81322"
+    },
+    "fixtures36/native.log": {
+      "bytes": 211,
+      "sha256": "8ba40f972236ebf73e97d0d0b03b5d7a15729461619d259f4347128a27288ff6"
+    },
+    "fixtures36/report.json": {
+      "bytes": 809,
+      "sha256": "79ef94b3c3abbf3d1ae7084cfa1905448429df506e820aa38c53dcdfe0fd1e05"
+    },
+    "independent-absence.json": {
+      "bytes": 75,
+      "sha256": "6fb434a2cab94a2148f9d2e9bbb6cbbd5e5113a2e574daa871e4ed64c099fe6f"
+    },
+    "operator77/native.log": {
+      "bytes": 252,
+      "sha256": "3265132b06875e846fd118b458ceb41d5516b72acaec7828650ea5fc76089e07"
+    },
+    "operator77/report.json": {
+      "bytes": 809,
+      "sha256": "c67f3a6d3f0a542dd50626417368f222ca195c54e0c3b94b9ff4842bb29f2769"
+    },
+    "plan.json": {
+      "bytes": 796,
+      "sha256": "544fe3456bc6d90ba543a1e35a0eeb05a3f7c8e2587086ff8a8bd2a8c0a23dc5"
+    },
+    "protocol80/native.log": {
+      "bytes": 255,
+      "sha256": "3490bc03b90b23a9e45808d32c7e367fe10f2b23a03d875583560ce32dcbba47"
+    },
+    "protocol80/report.json": {
+      "bytes": 809,
+      "sha256": "29acea09a03fd34afa466f29b9344d67223a282265d7eed52891f48e6d8a4645"
+    },
+    "source-manifest.json": {
+      "bytes": 58943,
+      "sha256": "cc5fc2b0fd827f71c72fda63189f37525351e3e6b26aa12a0eecb26dd40a037d"
+    }
+  },
+  "existing_running_metadata_unchanged": true,
+  "image": "sha256:aba612fc0f6368a6dbf7c40ceddf06de8c3b87a31c00863c7fc528762ad8eeb5",
+  "independent_all_five_names_absent": true,
+  "original_per_suite_limits": {
+    "CPUs": 1,
+    "checks_tmpfs": 67108864,
+    "host_mounts": false,
+    "memory_bytes": 134217728,
+    "network": "none",
+    "pids": 64,
+    "seconds": 60,
+    "tmp_tmpfs": 8388608
+  },
+  "production_actions": 0,
+  "schemaVersion": 1,
+  "scope": "Closed pure guard/model suites; actual PostgreSQL, installer, normal runtime and encrypted recovery use separate qualification artifacts.",
+  "source_archive_sha256": "6b7f27e01161a5d29deda3c8e5a067ca72f3f130bed010d33e8933138acfe50a",
+  "source_bytes": 4433920,
+  "source_files": 534,
+  "status": "ROOT_reviewed_actual_native_guard_qualification",
+  "suites": {
+    "archival9": {
+      "cleanup": "removed_and_absence_confirmed",
+      "counts": {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "status": "passed",
+        "tests": 9
+      },
+      "source_sha256": "2cb23a159a38767649cb44915cf1a833f42c87a718079214dcb6ddf20f5b1e6c"
+    },
+    "backups56": {
+      "cleanup": "removed_and_absence_confirmed",
+      "counts": {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "status": "passed",
+        "tests": 56
+      },
+      "source_sha256": "0f81ebd81250495dd338477ac10266b78512da614079e5c964bf3ad54277f72d"
+    },
+    "fixtures36": {
+      "cleanup": "removed_and_absence_confirmed",
+      "counts": {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "status": "passed",
+        "tests": 36
+      },
+      "source_sha256": "2cb23a159a38767649cb44915cf1a833f42c87a718079214dcb6ddf20f5b1e6c"
+    },
+    "operator77": {
+      "cleanup": "removed_and_absence_confirmed",
+      "counts": {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "status": "passed",
+        "tests": 77
+      },
+      "source_sha256": "7914a61a54132d8f875f201e6c7ec21721ec0907914615f5aabb970fb387a847"
+    },
+    "protocol80": {
+      "cleanup": "removed_and_absence_confirmed",
+      "counts": {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "status": "passed",
+        "tests": 80
+      },
+      "source_sha256": "2cb23a159a38767649cb44915cf1a833f42c87a718079214dcb6ddf20f5b1e6c"
+    }
+  },
+  "tests": 258
+}

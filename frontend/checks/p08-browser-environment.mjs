@@ -7,7 +7,7 @@ import path from "node:path";
 import { createHash } from "node:crypto";
 import { FixtureBridge } from "./p05-browser-bridge.mjs";
 import { BrowserPipe } from "./p05-browser-pipe.mjs";
-import { browserFixtureMode, SECURE_ACCOUNT_ORIGIN, staticFixtureResponse } from "./p10b-browser-mode.mjs";
+import { browserFixtureMode, requireFixtureSchema, SECURE_ACCOUNT_ORIGIN, staticFixtureResponse } from "./p10b-browser-mode.mjs";
 
 export const LIMITS = Object.freeze({ milliseconds: 150000, requests: 250, api: 160, paused: 16, perSecond: 5, bodyBytes: 16384, fakeJobs: 12 });
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -31,7 +31,7 @@ export function setupDiagnostic(error, ctx) {
 }
 
 export async function openP08Browser(options) {
-  const { secureAccountFixture } = browserFixtureMode(options);
+  const { secureAccountFixture, personalDeletionFixture = false } = browserFixtureMode(options);
   const ctx = { started: performance.now(), stage: "configuration", results: [], screenshots: [], assets: [], external: 0, requests: 0, api: 0,
     errors: [], protocolDiagnostics: [], runtimeErrors: 0, consoleLeaks: 0, navigating: false, pending: 0, maximumPending: 0, secrets: new Set() };
   const artifacts = configured("AQUA_P08_ARTIFACT_DIR"), dist = configured("AQUA_P08_DIST"), executable = configured("AQUA_P08_BRIDGE_EXECUTABLE");
@@ -39,7 +39,8 @@ export async function openP08Browser(options) {
   if (!Array.isArray(argv) || !argv.length || argv.length > 12 || argv.some((arg) => typeof arg !== "string" || arg.length > 1024)) throw Error("fixture_arguments_invalid");
   const imageIndex = argv.indexOf("--image");
   if (imageIndex < 0 || argv.lastIndexOf("--image") !== imageIndex || !/^sha256:[a-f0-9]{64}$/.test(argv[imageIndex + 1] || "")) throw Error("immutable_fixture_image_required");
-  if (secureAccountFixture && !argv.some(arg => ["/tools/checks/p10b_browser_backend.py","/tools/checks/p10c_browser_backend.py","/tools/checks/p11a_browser_backend.py"].some(entry=>arg.endsWith(entry)))) throw Error("secure_account_fixture_entry_required");
+  const entries = personalDeletionFixture ? ["/tools/checks/p11b_browser_backend.py"] : ["/tools/checks/p10b_browser_backend.py","/tools/checks/p10c_browser_backend.py","/tools/checks/p11a_browser_backend.py"];
+  if (secureAccountFixture && !argv.some(arg => entries.some(entry=>arg.endsWith(entry)))) throw Error("secure_account_fixture_entry_required");
   ctx.backendImage = argv[imageIndex + 1];
   await mkdir(artifacts, { recursive: true }); if ((await lstat(artifacts)).isSymbolicLink()) throw Error("artifact_symlink_denied");
   ctx.artifacts = artifacts;
@@ -110,7 +111,9 @@ export async function openP08Browser(options) {
     await new Promise((resolve) => ctx.server.listen(0, "127.0.0.1", resolve)); ctx.origin = `http://127.0.0.1:${ctx.server.address().port}`;
     }
     ctx.bridge = new FixtureBridge(executable, argv, ctx.origin); const ready = await ctx.bridge.ready;
-    if (ready.origin !== ctx.origin || ready.schema_version !== 8 || ready.dataset_grants !== 0 || ready.network !== "none" || ready.workspace_analysis_fixture !== true) throw Error("fixture_boundary_invalid");
+    ctx.schemaVersion = requireFixtureSchema(ready.schema_version);
+    if (ready.origin !== ctx.origin || ready.dataset_grants !== 0 || ready.network !== "none" || ready.workspace_analysis_fixture !== true || (ready.personal_deletion_fixture === true) !== personalDeletionFixture) throw Error("fixture_boundary_invalid");
+    ctx.personalDeletionFixture = personalDeletionFixture;
     ctx.accountIdentityFixture=ready.account_identity_fixture===true;
     ctx.personalExportFixture=ready.personal_export_fixture===true;
     if (secureAccountFixture && ready.account_security_fixture !== true) throw Error("secure_account_fixture_required");

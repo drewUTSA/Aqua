@@ -1,0 +1,70 @@
+{
+  "ROOT_independent_exact_name_absence": true,
+  "actual_POSIX_delivery_cases": 6,
+  "all_source_files_ROOT_rehashed_equal_current_canonical": true,
+  "artifacts": {
+    "ROOT-independent-absence.json": {
+      "bytes": 395,
+      "sha256": "3b74fdae6599bbc8a4c20888332bdb83e6784f509b4ff8a0b3bf14c97749589f"
+    },
+    "after.json": {
+      "bytes": 91,
+      "sha256": "3d7f2f92374697b575fc60644c6e5c73c042849a97c6913e25b42d30f65ce460"
+    },
+    "before.json": {
+      "bytes": 91,
+      "sha256": "3d7f2f92374697b575fc60644c6e5c73c042849a97c6913e25b42d30f65ce460"
+    },
+    "completion.json": {
+      "bytes": 1044,
+      "sha256": "d29c2c30b54fa23602d9ebebb490e079a5d4cdee77cad9183596280d48a3be4b"
+    },
+    "native.log": {
+      "bytes": 550,
+      "sha256": "63dd935befb7f7b511c2e723a985df2515d90353c4f6c296d70629824d9e6332"
+    },
+    "plan.json": {
+      "bytes": 941,
+      "sha256": "8ebbd492fceec719b3b860948f219edf029ab7445385639794ace0ed24101a8e"
+    },
+    "report.json": {
+      "bytes": 808,
+      "sha256": "b1afd485b541baf1ef5a1effbd6f4390d3cb9be093aa8eab1237ff3421ce4a35"
+    },
+    "source-manifest.json": {
+      "bytes": 59685,
+      "sha256": "9e0ebd6ff788f58d44641ca161180469f3eac50549de8b9cd70ee4b9d421334f"
+    }
+  },
+  "cleanup": "removed_and_absence_confirmed",
+  "counts": {
+    "errors": 0,
+    "failures": 0,
+    "skipped": 0,
+    "status": "passed",
+    "tests": 48
+  },
+  "host_mounts": false,
+  "image": "sha256:aba612fc0f6368a6dbf7c40ceddf06de8c3b87a31c00863c7fc528762ad8eeb5",
+  "installed_publisher_sha256": "38888b5a820808a0fa2811e7fa1be004c9721a9e07bf6542caa0fee6422465b1",
+  "limits": {
+    "checks_tmpfs_bytes": 67108864,
+    "cpus": 1,
+    "execution_seconds": 60,
+    "log_bytes": 65536,
+    "memory_bytes": 134217728
+  },
+  "native_runner_sha256": "f48ba25295b259f194d372d992f0765ff3b29f514d477bbe30db45f2ab1bbede",
+  "network": "none",
+  "operator_scope_sha256": "f6064b65a190dd87769b2878b4b43bed598d3c99dd0bfa8f4b799e13ad6d5d2d",
+  "production_actions": 0,
+  "production_running_metadata_unchanged": true,
+  "publisher_launcher_sha256": "37452a4aee1a63ec1f2cce9fcae8be3de2b6d015ef2d0e824e4dfe4ab6b8fe66",
+  "schemaVersion": 1,
+  "scope": "Actual own child processes and POSIX signals; private filesystem and Docker RPC modeled. Actual native Docker cleanup of a launched publisher is a separate qualification.",
+  "source_adapter_original_assertions_and_scenarios_preserved": true,
+  "source_archive_sha256": "8259648e5e2f38a7eb08d35182cd326f2e2b696f7257efca8403745df242d93a",
+  "source_files": 539,
+  "status": "ROOT_reviewed_actual_native_publisher_signal_qualification",
+  "tests": 48
+}

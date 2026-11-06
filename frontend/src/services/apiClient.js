@@ -1,3 +1,4 @@
+import { assertHistory, bindHistoryIntent, captureHistory, historyHeaders, observeHistory } from "./historyAuthority.js";
 // The real transport: POST /api/query and GET /api/models on the backend.
 // Everything API-specific stays here, so components only ever see the
 // normalized response shape documented in BACKEND_INTEGRATION.md.
@@ -65,9 +66,11 @@ function apiUrl(baseUrl, path) {
 // 401 and 403 come back as sign_in_required and access_denied, which
 // useChat answers by refreshing the sign-in state.
 export async function queryApi(
-  { prompt, modelId, csrfToken, signal },
+  intent,
   { baseUrl = "", fetchImpl = globalThis.fetch } = {}
 ) {
+  const { prompt, modelId, csrfToken, signal } = intent;
+  const history = bindHistoryIntent(intent, intent.historyContext || captureHistory(csrfToken));
   if (signal?.aborted) throw new DOMException("Request cancelled", "AbortError");
   if (!csrfToken) return errorResponse("sign_in_required", SIGN_IN, false);
   let response;
@@ -76,7 +79,7 @@ export async function queryApi(
       method: "POST",
       credentials: "same-origin",
       cache: "no-store",
-      headers: { "Content-Type": "application/json", Accept: "application/json", "X-CSRF-Token": csrfToken },
+      headers: { "Content-Type": "application/json", Accept: "application/json", "X-CSRF-Token": csrfToken, ...historyHeaders(history) },
       body: JSON.stringify({ question: prompt, ...(modelId ? { model: modelId } : {}) }),
       signal
     });
@@ -84,6 +87,9 @@ export async function queryApi(
     if (error?.name === "AbortError") throw error;
     return errorResponse("unavailable", UNREACHABLE, true);
   }
+
+  try { observeHistory(response, history); }
+  catch (error) { await response.body?.cancel(); throw error; }
 
   if (response.status === 401) return errorResponse("sign_in_required", SESSION_ENDED, false);
   if (response.status === 403) return errorResponse("access_denied", NO_ACCESS, false);
@@ -93,6 +99,7 @@ export async function queryApi(
   let body = null;
   try {
     body = await response.json();
+    assertHistory(history);
   } catch (error) {
     if (error?.name === "AbortError") throw error;
     // A proxy timeout or crash page instead of the backend's JSON.

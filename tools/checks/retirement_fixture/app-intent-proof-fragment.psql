@@ -1,0 +1,87 @@
+-- PRIVATE MERGE INPUT, NOT A COMPLETE MIGRATION. identity_backend owns 0009.
+-- No execution/materialization here. Applied migrations0001--0008 stay byte-exact.
+-- Installation must come from the operator's checked authority configuration,
+-- never from a restored app table claiming its own completeness.
+
+CREATE TABLE app.retirement_intents (
+ installation_id uuid NOT NULL, user_id uuid NOT NULL, intent_id uuid NOT NULL,
+ job_id uuid NOT NULL UNIQUE, scope text NOT NULL CHECK(scope IN ('chat_history_v1','account_v1')),
+ created_at timestamptz NOT NULL CHECK(isfinite(created_at)),
+ history_floor bigint NOT NULL CHECK(history_floor BETWEEN 2 AND 9007199254740991),
+ privacy_floor bigint NOT NULL CHECK(privacy_floor BETWEEN 2 AND 9007199254740991),
+ auth_floor bigint NOT NULL CHECK(auth_floor BETWEEN 0 AND 9007199254740991),
+ account_closed boolean NOT NULL,
+ fingerprint_count integer CHECK(fingerprint_count BETWEEN 0 AND 100000),
+ fingerprint_root bytea CHECK(octet_length(fingerprint_root)=32),
+ authority_sequence bigint CHECK(authority_sequence BETWEEN 1 AND 250000),
+ event_digest bytea CHECK(octet_length(event_digest)=32),
+ checkpointed_at timestamptz CHECK(isfinite(checkpointed_at) AND checkpointed_at>=created_at),
+ PRIMARY KEY(installation_id,user_id,intent_id),
+ UNIQUE(installation_id,intent_id),
+ CHECK(account_closed=(scope='account_v1')),
+ CHECK(NOT account_closed OR auth_floor>=1),
+ CHECK((fingerprint_count IS NULL AND fingerprint_root IS NULL)
+    OR (fingerprint_count IS NOT NULL AND fingerprint_root IS NOT NULL AND
+       ((scope='chat_history_v1' AND fingerprint_count=0 AND fingerprint_root=sha256(decode('415155413a7265746972656d656e742d70616765733a763100','hex')))
+        OR (scope='account_v1' AND fingerprint_count>=1)))),
+ CHECK(authority_sequence IS NULL OR fingerprint_count IS NOT NULL),
+ CHECK((authority_sequence IS NULL AND event_digest IS NULL AND checkpointed_at IS NULL)
+    OR (authority_sequence IS NOT NULL AND event_digest IS NOT NULL AND checkpointed_at IS NOT NULL))
+);
+-- Intentionally NO FK to users/visible jobs: deletion and job expiry must leave
+-- this minimal immutable idempotence fence. No payload, email, subject, session,
+-- proof, arbitrary error, active-content counter or expiry is stored here.
+-- Runtime must not DELETE/TRUNCATE/expire these rows. Protected restore
+-- reconciliation reinserts exactly these original metadata from authority.
+
+CREATE FUNCTION app.immutable_retirement_intent() RETURNS trigger
+LANGUAGE plpgsql SET search_path=pg_catalog,app AS $$
+BEGIN
+ IF TG_OP='DELETE' THEN
+  RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='retirement_intent_immutable';
+ END IF;
+ IF (NEW.installation_id,NEW.user_id,NEW.intent_id,NEW.job_id,NEW.scope,NEW.created_at,
+     NEW.history_floor,NEW.privacy_floor,NEW.auth_floor,NEW.account_closed)
+    IS DISTINCT FROM
+    (OLD.installation_id,OLD.user_id,OLD.intent_id,OLD.job_id,OLD.scope,OLD.created_at,
+     OLD.history_floor,OLD.privacy_floor,OLD.auth_floor,OLD.account_closed)
+ OR (OLD.authority_sequence IS NOT NULL AND
+    (NEW.authority_sequence,NEW.event_digest,NEW.checkpointed_at) IS DISTINCT FROM
+    (OLD.authority_sequence,OLD.event_digest,OLD.checkpointed_at))
+ OR (OLD.fingerprint_count IS NOT NULL AND
+    (NEW.fingerprint_count,NEW.fingerprint_root) IS DISTINCT FROM
+    (OLD.fingerprint_count,OLD.fingerprint_root)) THEN
+  RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='retirement_intent_immutable';
+ END IF;
+ RETURN NEW;
+END $$;
+CREATE TRIGGER retirement_intent_immutable BEFORE UPDATE OR DELETE ON app.retirement_intents
+ FOR EACH ROW EXECUTE FUNCTION app.immutable_retirement_intent();
+REVOKE ALL ON app.retirement_intents FROM PUBLIC,aqua_app_runtime;
+GRANT SELECT,INSERT,UPDATE ON app.retirement_intents TO aqua_app_runtime;
+-- The migration owner retains restore privileges. The runtime role has no
+-- TRUNCATE/DELETE/DDL. Final merger must preserve exact backup grants and include
+-- this table in its full restore comparator, role/catalog tests and bounded
+-- 250000 permanent-intent admission counter under the existing privacy guard.
+
+ALTER TABLE app.auth_challenges ADD COLUMN account_privacy_epoch bigint
+ CHECK(account_privacy_epoch BETWEEN 1 AND 9007199254740991);
+ALTER TABLE app.auth_challenges ADD COLUMN account_history_generation bigint
+ CHECK(account_history_generation BETWEEN 1 AND 9007199254740991);
+ALTER TABLE app.account_action_proofs ADD COLUMN privacy_epoch bigint
+ CHECK(privacy_epoch BETWEEN 1 AND 9007199254740991);
+ALTER TABLE app.account_action_proofs ADD COLUMN history_generation bigint
+ CHECK(history_generation BETWEEN 1 AND 9007199254740991);
+-- Replace existing operation allowlists additively with history_delete and
+-- account_delete in the single merger; no other existing operation disappears.
+ALTER TABLE app.auth_challenges ADD CONSTRAINT retirement_challenge_snapshots CHECK(
+ (account_operation IN ('history_delete','account_delete')) IS NOT TRUE
+ OR (account_privacy_epoch IS NOT NULL AND account_history_generation IS NOT NULL));
+ALTER TABLE app.account_action_proofs ADD CONSTRAINT retirement_proof_snapshots CHECK(
+ operation NOT IN ('history_delete','account_delete')
+ OR (privacy_epoch IS NOT NULL AND history_generation IS NOT NULL));
+-- Existing operations may leave the new columns NULL. New destructive
+-- operations capture these under the current user guard on challenge creation,
+-- recheck on claim/issuance and consume, alongside unchanged existing auth,
+-- credential/revision/session/intent digest snapshots. A body-supplied floor is
+-- never accepted. No proof is consumed again for an already immutable intent.

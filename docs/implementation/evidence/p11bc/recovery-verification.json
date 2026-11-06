@@ -1,0 +1,101 @@
+{
+  "actual_SQL_validation": {
+    "authority_tables": [
+      "control",
+      "fingerprints",
+      "intents",
+      "journal",
+      "owners",
+      "pages"
+    ],
+    "backup_role_denial_mechanism": "libpq_startup_exact_role_limit",
+    "backup_role_first_authenticated": true,
+    "backup_role_post_release_control": true,
+    "backup_role_select_only": true,
+    "comparison_sha256": "4abc5da9b5bc2a58058915ffdad3fa88fafc6d82e93063f39a770b1720b05b54",
+    "events_verified": 1,
+    "full_dump_inventory_sha256": "85222bfb94002146a2eaad4018018d19c64478bd45a788ead3dcc47cb16da4a2",
+    "independent_database_cap": 4,
+    "original_pages_and_floors_verified": true,
+    "role_connection_cap": 1,
+    "table_counts": {
+      "control": 1,
+      "fingerprints": 129,
+      "intents": 1,
+      "journal": 1,
+      "owners": 1,
+      "pages": 2
+    },
+    "trusted_source_catalog_sha256": "11cfe3d7846287633c6d8db71a19aafee46842be752ed961a5abc6970f0b4683"
+  },
+  "cleanup": {
+    "SQL_owned_resources_removed_and_independently_absent": true,
+    "original_running_containers_unchanged": true,
+    "producer_append_flags_cleared": true,
+    "producer_owned_resources_absent": true,
+    "production_actions": 0
+  },
+  "encryption_and_crypto": {
+    "actual_age_binary_sha256": "4012dfc2725883beafb710894af4f599b7a94f8c8e0f51f02cc96ab8df33915e",
+    "actual_age_version": "1.3.2",
+    "authenticated_archive_bytes": 61440,
+    "authenticated_archive_sha256": "9670cad8f90cb1413276621f3ef36ec9980d347aea485ec162c23fc3fccb2442",
+    "cipher_sha256": "582d403adfdf584c3866ea3e22d19f5268fdf93060630ee4effefaa3abd28fa6",
+    "dump_sha256": "037e4d93948d7ac90220a891dee106d121f5b4a00d13b334f9ee8b5776f4c427",
+    "full_chain_and_both_key_materials_verified": true,
+    "plaintext_captured_archive_dump_or_key_files": 0,
+    "protected_chain_sha256": "90b1fb583ff3e52fcfa528c71eb8a6a8acb11ba17b85256412224ef98d34203f",
+    "separately_pinned_head_sha256": "36a1988dd3b2e7f23838132f8e800a0f2149f84c198a4c9938a8650c0c49fe20",
+    "signing_or_HMAC_key_inputs_to_SQL_verifier": false
+  },
+  "not_proven": {
+    "HTTP_origin_129": true,
+    "RPO0": true,
+    "full_install_maintenance_export_recover_CLI_chain": true,
+    "globally_latest_accepted_head": true,
+    "independent_storage": true,
+    "production_backup_execution": true,
+    "total_host_restore": true
+  },
+  "receipt_sha256": {
+    "RAM_encrypted_retention_helper": "8943b4eed2197c272eedb4baa2028623f82f33134272d71914454d9c76a8c38b",
+    "SQL_public_receipt": "750a3b79e038a00adba56d4229026ce35a089e5e4eb98de6c9214dd21505128c",
+    "bridge_review_plan": "612ee31e625774aca26741e16c8eedcb3d9d0ae7318a4378c9e06c9695ef3f2a",
+    "completion": "30c8c4486b64a00a0adc51c682e3eb0799938390fff092fbea62b98b3b162715",
+    "independent_exact_SQL_resource_absence": "aaa98d577f382bd5aaea5b9cbf85bf961b9d7c4f224ff705e06abe43b77eb658",
+    "initial_actual_encryption_public_anchor": "645f73ac6df026f15bb27fc6f838bb90dcce7a899206d112a1014686decfea59",
+    "initial_capture_consumer": "c165b4da992f52cd06e903faf7246460453ed0a1ccf3dd4274388e60e3154c84",
+    "producer_public_receipt": "a3cba73f6bf55c22c760220e4e67fdd5d59ab68bf0002c98ac2d4eb3a4b934b0",
+    "producer_source_manifest": "e5690c950882a177252652a9714dc7453ef6a76b992d844c7297084f18ed9a0e",
+    "public_SQL_projection": "e0ec8de3d68d7b134b14d25e77ba119558ea2a7c5caf5da2db1d4991c15522c7",
+    "successful_SQL_consumer": "546bb4c6956e4df4ecf7d82c7521c052db1d8c572e4b5d0ec32c9444fced31be",
+    "successful_SQL_consumer_plan": "3fcb558b36c7426b710713a8411019e9227a585b503f3c107e3a5570ba8d188f",
+    "verifier_reviewed_plan": "f091fc309ab228c33176263ab761cdb873f4524e26eb3183f6d70f6c772fe3fc",
+    "verifier_source_manifest": "432382baacd59100b8cacb062bbbeddd72d0465ab3c9e33f2379d2b78260faac"
+  },
+  "schemaVersion": 1,
+  "scope": {
+    "accepted_signed_events": 1,
+    "captured_by": "fixture_actor_actual_recovery_role_gate_and_readonly_backup_role",
+    "fresh_SQL_run_used_retained_authenticated_cipher": true,
+    "original_manifest_entries": 129,
+    "original_page_sizes": [
+      128,
+      1
+    ],
+    "production_maintenance_or_full_Scope_export_CLI_claimed": false,
+    "synthetic_fixture_only": true,
+    "trusted_head_source": "separately_host_read_actual_protected_inode"
+  },
+  "source_binding": {
+    "SQL_verifier_manifest_sha256": "432382baacd59100b8cacb062bbbeddd72d0465ab3c9e33f2379d2b78260faac",
+    "bridge_review_plan_sha256": "612ee31e625774aca26741e16c8eedcb3d9d0ae7318a4378c9e06c9695ef3f2a",
+    "producer_archive_files": 475,
+    "producer_archive_sha256": "e55062c7a2100571acdf9fa4f63f0485b871a99d8659ce276abc0c34f73fc0e3",
+    "producer_controller_sha256": "f6e088b90cd600ecb9d27f5e9b5526383d90503876a62648b6f70e04ef3df097",
+    "runtime195_manifest_sha256": "06bd677d5ef72112f5a69a93054f3e5ed64f6713f32c04e6f7038a2e5d29857d",
+    "runtime_image": "sha256:aba612fc0f6368a6dbf7c40ceddf06de8c3b87a31c00863c7fc528762ad8eeb5"
+  },
+  "status": "passed_actual_synthetic_authority_capture_encryption_and_SQL_restore",
+  "total_host_restore_supported": false
+}

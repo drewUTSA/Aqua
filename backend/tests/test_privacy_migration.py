@@ -8,7 +8,7 @@ import pytest
 
 from privacy import policy
 from storage.migrate import MigrationError, apply, migrations
-from storage.pool import StorageUnavailable
+from storage.pool import SCHEMA_VERSION, StorageUnavailable
 
 
 def seven(conn):
@@ -52,7 +52,11 @@ def test_eighth_migration_is_additive_and_preserves_existing_proof_and_ledger(
     app_database,
 ):
     owner, ledger, proof = seven(app_database)
-    assert apply(app_database) == apply(app_database) == 8
+    assert (
+        apply(app_database, migrations()[:8])
+        == apply(app_database, migrations()[:8])
+        == 8
+    )
     app_database.execute("SET ROLE aqua_app_owner")
     assert (
         app_database.execute(
@@ -100,7 +104,7 @@ def test_failed_eighth_migration_rolls_back_every_new_table_and_epoch(app_databa
         "SELECT count(*) FROM information_schema.columns WHERE table_schema='app' AND table_name='users' AND column_name='privacy_epoch'"
     ).fetchone() == (0,)
     app_database.execute("RESET ROLE")
-    assert apply(app_database) == 8
+    assert apply(app_database) == SCHEMA_VERSION
 
 
 def test_private_chunks_require_exact_owner_digest_size_and_single_live_owner(
@@ -157,4 +161,4 @@ def test_runtime_and_backup_private_output_privileges_remain_separate(
     with pytest.raises(StorageUnavailable):
         with storage.transaction() as conn:
             conn.execute("DELETE FROM app.privacy_control WHERE singleton")
-    assert storage.readiness()["schema_version"] == 8
+    assert storage.readiness()["schema_version"] == SCHEMA_VERSION

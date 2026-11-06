@@ -30,13 +30,18 @@ from p05_browser_protocol import (
 WORKER_STAGE = "before_start"
 
 
-def guard_fixture() -> None:
+def guard_fixture(*, personal_deletion_fixture: bool = False) -> None:
     """Python TCP/DNS and libpq are denied except two exact socket fixture DSNs."""
     import psycopg
 
     connect = socket.socket.connect
     database = psycopg.Connection.connect.__func__
     asynchronous_database = psycopg.AsyncConnection.connect.__func__
+    allowed = {DSN, MIGRATOR}
+    if personal_deletion_fixture:
+        from p11b_browser_authority import ROLES, dsn
+
+        allowed.update(dsn(role) for role in ROLES)
 
     def socket_connect(sock: socket.socket, address: Any) -> Any:
         if sock.family != socket.AF_UNIX:
@@ -47,7 +52,7 @@ def guard_fixture() -> None:
         raise AssertionError("fixture_network_access_denied")
 
     def database_connect(cls: Any, conninfo: str = "", **kwargs: Any) -> Any:
-        if conninfo not in {DSN, MIGRATOR} or set(kwargs) - {
+        if conninfo not in allowed or set(kwargs) - {
             "autocommit",
             "connect_timeout",
             "prepare_threshold",
@@ -86,6 +91,7 @@ def worker(
     account_security_fixture: bool = False,
     account_identity_fixture: bool = False,
     personal_export_fixture: bool = False,
+    personal_deletion_fixture: bool = False,
 ) -> int:
     """Actual app/router/session/password code; only provider and mail are fakes."""
     global WORKER_STAGE
@@ -93,18 +99,26 @@ def worker(
         type(account_security_fixture) is not bool
         or type(account_identity_fixture) is not bool
         or type(personal_export_fixture) is not bool
+        or type(personal_deletion_fixture) is not bool
     ):
         raise ValueError("fixture_security_mode_invalid")
-    if account_identity_fixture and (
-        not account_security_fixture or fixture_schema(ROOT) not in {7, 8}
-    ):
+    schema = fixture_schema(ROOT)
+    if type(schema) is not int or schema != 9:
+        raise ValueError("fixture_schema9_required")
+    if account_identity_fixture and not account_security_fixture:
         raise ValueError("fixture_identity_mode_invalid")
     if personal_export_fixture and (
-        not account_identity_fixture
-        or not account_security_fixture
-        or fixture_schema(ROOT) != 8
+        not account_identity_fixture or not account_security_fixture
     ):
         raise ValueError("fixture_export_mode_invalid")
+    if personal_deletion_fixture and (
+        schema != 9
+        or not account_identity_fixture
+        or not account_security_fixture
+        or personal_export_fixture
+        or workspace_analysis is not True
+    ):
+        raise ValueError("fixture_deletion_mode_invalid")
     if account_security_fixture:
         from p10b_browser_fixture import MAX_REQUESTS, secure_origin
 
@@ -119,6 +133,7 @@ def worker(
     for key in list(os.environ):
         if key.startswith(("PG", "APP_", "AUTH_", "PASSWORD_", "ACCOUNT_")) or key in {
             "PRIVATE_DATA_EXPORT_ENABLED",
+            "PRIVATE_DATA_DELETE_ENABLED",
             "WEB_CONCURRENCY",
             "UVICORN_WORKERS",
             "UVICORN_RELOAD",
@@ -143,7 +158,10 @@ def worker(
         PASSWORD_RECOVERY_ENABLED="true",
     )
     logging.disable(logging.CRITICAL)
-    guard_fixture()
+    if personal_deletion_fixture:
+        guard_fixture(personal_deletion_fixture=True)
+    else:
+        guard_fixture()
     WORKER_STAGE = "app_import"
     import main
     import psycopg
@@ -166,7 +184,13 @@ def worker(
         apply(conn)
     WORKER_STAGE = "runtime_configuration"
     service = Storage(
-        StorageSettings(True, DSN, 4 if personal_export_fixture else 2, 4, 2)
+        StorageSettings(
+            True,
+            DSN,
+            4 if personal_export_fixture or personal_deletion_fixture else 2,
+            4,
+            2,
+        )
     )
     settings = replace(
         main.app.state.settings,
@@ -175,7 +199,9 @@ def worker(
         session_secret=secrets.token_urlsafe(64),
         google_client_id="p05-fixture-client.apps.googleusercontent.com",
         auth_allowed_emails=frozenset(),
-        auth_allowed_google_subs=frozenset(),
+        auth_allowed_google_subs=(
+            frozenset({GOOGLE_SUBJECT}) if personal_deletion_fixture else frozenset()
+        ),
         retrieval=False,
     )
     main.app.state.settings, main.app.state.storage = settings, service
@@ -275,7 +301,9 @@ def worker(
         privacy_policy.runtime_context = lambda argv, *, child=False: not child
     identity_fixture = None
     if account_identity_fixture:
-        if personal_export_fixture:
+        if personal_deletion_fixture:
+            from p11b_browser_fixture import DeletionFixture as IdentityFixture
+        elif personal_export_fixture:
             from p11a_browser_fixture import PrivacyFixture as IdentityFixture
         else:
             from p10c_browser_fixture import IdentityFixture
@@ -306,6 +334,7 @@ def worker(
                     "account_security_fixture": account_security_fixture,
                     "account_identity_fixture": account_identity_fixture,
                     "personal_export_fixture": personal_export_fixture,
+                    "personal_deletion_fixture": personal_deletion_fixture,
                     "identity_fixture": (
                         identity_fixture.metadata() if identity_fixture else None
                     ),

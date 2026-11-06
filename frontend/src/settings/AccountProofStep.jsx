@@ -4,7 +4,7 @@ import GoogleActionButton from "./GoogleActionButton.jsx";
 import { createAccountChallenge, verifyAccountPassword } from "./accountSecurityClient.js";
 import { createGoogleAccountChallenge, verifyAccountGoogle } from "./accountIdentityClient.js";
 
-export default function AccountProofStep({ auth, target, methods, allowed, phase, cancelRef, onClose, onStart, onProof, onFailure }) {
+export default function AccountProofStep({ auth, target, methods, allowed, phase, cancelRef, onClose, onStart, onProof, onFailure, historyContext }) {
   const scope = useAccountScope(auth), password = useRef(null), locked = useRef(false), issued = useRef(null), authority=useRef(auth.csrfToken),callbacks = useRef(null), id = useId();
   const [googleGeneration, setGoogleGeneration] = useState(0);
   callbacks.current = { onProof, onFailure };
@@ -21,8 +21,8 @@ export default function AccountProofStep({ auth, target, methods, allowed, phase
     if (!active || pending || locked.current || !passwordAvailable || !entered) return;
     const request = scope.begin("proof"); if (!request) return;
     locked.current = true; clearPassword(); onStart();
-    try { const challenge = await createAccountChallenge(target, { csrfToken: auth.csrfToken, signal: request.signal }); if (!request.current()) return;
-      const proof = await verifyAccountPassword(target, challenge, entered, { csrfToken: auth.csrfToken, signal: request.signal }); succeed(proof, request); }
+    try { const challenge = await createAccountChallenge(target, { csrfToken: auth.csrfToken, signal: request.signal, historyContext }); if (!request.current()) return;
+      const proof = await verifyAccountPassword(target, challenge, entered, { csrfToken: auth.csrfToken, signal: request.signal, historyContext }); succeed(proof, request); }
     catch (error) { fail(error, request); }
     finally { request.finish(); locked.current = false; }
   };
@@ -30,13 +30,13 @@ export default function AccountProofStep({ auth, target, methods, allowed, phase
     if (!active || pending || locked.current || !googleIdentities.some(item => item.id === identityId)) return;
     const request = scope.begin("proof"); if (!request) return;
     locked.current = true; clearPassword(); onStart();
-    try { const challenge = await createGoogleAccountChallenge(target, identityId, { csrfToken: auth.csrfToken, signal: request.signal }); if (!request.current()) return;
+    try { const challenge = await createGoogleAccountChallenge(target, identityId, { csrfToken: auth.csrfToken, signal: request.signal, historyContext }); if (!request.current()) return;
       issued.current = { ...request, challenge, target, csrfToken: auth.csrfToken }; setGoogleGeneration(value => value + 1); }
     catch (error) { fail(error, request); }
   };
   const credential = async (value, request) => {
     if (issued.current !== request || !request.current()) return;
-    try { const proof = await verifyAccountGoogle(request.target, request.challenge, value, { csrfToken: request.csrfToken, signal: request.signal }); succeed(proof, request); }
+    try { const proof = await verifyAccountGoogle(request.target, request.challenge, value, { csrfToken: request.csrfToken, signal: request.signal, historyContext }); succeed(proof, request); }
     catch (error) { fail(error, request); }
   };
   return <div data-account-proof-step>

@@ -1,6 +1,7 @@
 import { getAnalysis, watchAnalysis } from "./analysisClient.js";
 import { terminalAnalysis } from "./workspaceContract.js";
 import { WorkspaceError } from "./workspaceClient.js";
+import { assertHistory, captureHistory } from "./historyAuthority.js";
 
 export const observationAborted = () => new DOMException("Observation stopped", "AbortError");
 export function observationDelay(milliseconds, signal) {
@@ -14,10 +15,10 @@ export function observationDelay(milliseconds, signal) {
 
 // At most one stream and one snapshot read belong to an observer. Events never
 // carry result content; terminal/gapped metadata reconciles through a fresh GET.
-export async function observeAnalysis(id, { signal, onSnapshot, onProgress, onConnection,
+export async function observeAnalysis(id, { signal, onSnapshot, onProgress, onConnection, historyContext = captureHistory(),
   read = getAnalysis, watch = watchAnalysis, pause = observationDelay, now = Date.now } = {}) {
   const started = now(); let version = 0, sequence = 0, terminal = false, deadline = started + 600000;
-  const current = () => { if (signal.aborted) throw observationAborted(); };
+  const current = () => { if (signal.aborted) throw observationAborted(); assertHistory(historyContext); };
   const accept = (snapshot) => {
     current(); const next = snapshot.request;
     if (next.id !== id) throw new WorkspaceError("invalid_response");
@@ -26,8 +27,8 @@ export async function observeAnalysis(id, { signal, onSnapshot, onProgress, onCo
     if (next.deadlineAt !== null) deadline = Math.min(deadline, next.deadlineAt + 30000);
     onSnapshot(snapshot);
   };
-  const refresh = async () => { const snapshot = await read(id, { signal }); current(); accept(snapshot); };
-  const fatal = (error) => [401, 403, 404].includes(error.status);
+  const refresh = async () => { current(); const snapshot = await read(id, { signal, historyContext }); current(); accept(snapshot); };
+  const fatal = (error) => error.name === "AbortError" || error.code === "history_changed" || [401, 403, 404].includes(error.status);
   onConnection("connecting");
   await refresh();
   if (terminal) return;
@@ -43,7 +44,7 @@ export async function observeAnalysis(id, { signal, onSnapshot, onProgress, onCo
     };
     let received = false;
     try {
-      await watch(id, { signal: stream.signal, sequence, onOpen: () => onConnection("live"), onEvent: (event) => {
+      await watch(id, { signal: stream.signal, sequence, historyContext, onOpen: () => { current(); onConnection("live"); }, onEvent: (event) => {
         current(); received = true;
         if (event.requestId !== id) throw new WorkspaceError("invalid_response");
         if (event.version < version || event.version === version && event.sequence <= sequence) return;

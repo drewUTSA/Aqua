@@ -11,6 +11,7 @@ MAX_SESSIONS = 20
 PROOF_SECONDS = 300
 MAX_CHALLENGES = 1024
 OWNER_CHALLENGES = 5
+DELETION_OPERATIONS = frozenset({"history_delete", "account_delete"})
 OPERATIONS = frozenset(
     {
         "email_change",
@@ -21,6 +22,8 @@ OPERATIONS = frozenset(
         "session_revoke",
         "sessions_revoke_all",
         "data_export",
+        "history_delete",
+        "account_delete",
     }
 )
 CAPABILITIES = {
@@ -89,6 +92,10 @@ def target_digest(operation: object, target: object = None) -> bytes:
         from privacy.policy import target_digest as export_target
 
         return export_target(target)
+    if operation in DELETION_OPERATIONS:
+        from retirement.deletion_policy import target_digest as deletion_target
+
+        return deletion_target(operation, target)
     if operation in {"google_unlink", "session_revoke"}:
         target = identifier(target)
     elif operation in {"email_change", "password_add"}:

@@ -19,7 +19,7 @@ from starlette.responses import StreamingResponse
 
 from privacy import policy
 from privacy.database import DOWNLOAD_LOCK, OWNER_DOWNLOAD_LOCK
-from storage.pool import StorageUnavailable
+from storage.pool import SCHEMA_VERSION, StorageUnavailable
 from workspace.errors import WorkspaceError, failure
 
 log = logging.getLogger("aqua.privacy")
@@ -300,7 +300,9 @@ async def _guard(conn, session):
 
 async def _admit(conn, session):
     async with _transaction(conn):
-        if await _one(conn, "SELECT max(version) FROM app.schema_migrations") != (8,):
+        if await _one(conn, "SELECT max(version) FROM app.schema_migrations") != (
+            SCHEMA_VERSION,
+        ):
             raise StorageUnavailable("privacy_storage_schema_unavailable")
         if await _one(
             conn, "SELECT singleton FROM app.privacy_control WHERE singleton FOR UPDATE"

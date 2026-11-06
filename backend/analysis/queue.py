@@ -20,7 +20,7 @@ class Queue:
         with service.storage.transaction() as conn:
             candidates = rows(
                 conn,
-                "SELECT id,user_id FROM app.analysis_jobs WHERE (state='queued' AND deadline_at<=clock_timestamp()) OR (state IN ('running','cancelling') AND (lease_until<=clock_timestamp() OR deadline_at<=clock_timestamp())) OR (request_id IS NULL AND finished_at<clock_timestamp()-interval '1 hour') ORDER BY created_at LIMIT 20",
+                "SELECT id,user_id FROM app.analysis_jobs WHERE (state='queued' AND deadline_at<=clock_timestamp()) OR (state IN ('running','cancelling') AND (lease_until<=clock_timestamp() OR deadline_at<=clock_timestamp())) OR (request_id IS NULL AND physical_until IS NULL AND finished_at<clock_timestamp()-interval '1 hour') ORDER BY created_at LIMIT 20",
             )
         for item in candidates:
             with service.storage.transaction() as conn:
@@ -46,12 +46,9 @@ class Queue:
                         lifecycle.terminate(
                             conn, job, "expired" if expired else "interrupted"
                         )
-                elif not job["request_id"] and (
-                    job["physical_until"] is None
-                    or conn.execute(
-                        "SELECT %s<=clock_timestamp()", (job["physical_until"],)
-                    ).fetchone()[0]
-                ):
+                # Only confirmed physical exit permits removing this tombstone.
+                # Time alone cannot release an uncertain provider/supervisor claim.
+                elif not job["request_id"] and job["physical_until"] is None:
                     records.purge_input(conn, job)
                     conn.execute(
                         "DELETE FROM app.analysis_jobs WHERE id=%s", (job["id"],)

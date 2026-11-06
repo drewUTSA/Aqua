@@ -1,0 +1,73 @@
+{
+  "POSIX_delivery_cases": 6,
+  "ROOT_all_source_members_equal_current": true,
+  "ROOT_exact_name_absence": true,
+  "cleanup": "removed_and_absence_confirmed",
+  "diagnostic": {
+    "failed_cases": [],
+    "process_exit_code": 0,
+    "reported_tests": 48,
+    "schemaVersion": 1,
+    "source_sha256": "38888b5a820808a0fa2811e7fa1be004c9721a9e07bf6542caa0fee6422465b1",
+    "stderr_bytes": 0,
+    "stdout_bytes": 53977,
+    "summary_decoded": true
+  },
+  "image": "sha256:aba612fc0f6368a6dbf7c40ceddf06de8c3b87a31c00863c7fc528762ad8eeb5",
+  "limits": {
+    "checks_tmpfs_bytes": 67108864,
+    "cpus": 1,
+    "execution_seconds": 60,
+    "log_bytes": 65536,
+    "memory_bytes": 134217728
+  },
+  "new_artifact_paths": false,
+  "old_five_native_profiles_counts_ownership_cleanup_ASTs_unchanged": true,
+  "original_cases_assertions_and_deadlines_unchanged": true,
+  "production_running_unchanged": true,
+  "raw": {
+    "ROOT-independent-absence.json": {
+      "bytes": 402,
+      "sha256": "4f085366a9d5f3eff07dadaaf53ea6d02ce41be876e48b4e1523e28bacb623ed"
+    },
+    "completion.json": {
+      "bytes": 1363,
+      "sha256": "823e05b752b05c54a5fc37cdd28eb9f29aad8475b63dcce68853bfb88c5821ee"
+    },
+    "native.log": {
+      "bytes": 822,
+      "sha256": "69a4f62454b04501c0488cb28bd15ac6da8a9e94eab463ca3f81f70d9f35343f"
+    },
+    "report.json": {
+      "bytes": 1107,
+      "sha256": "6368c4b13da02dad6d5fb5d5a3d4f5a22c2dbcfffa163a87a951b23355cc66f6"
+    },
+    "source-manifest.json": {
+      "bytes": 59685,
+      "sha256": "90a1279b390e7c3b4aefe93b89d55ed81a2b223e97a8d091380bd59fb6d85c1f"
+    }
+  },
+  "raw_child_text_retained": false,
+  "retained_CI_legacy_browser_failure": "Browser.getVersion startup30s timeout before page checks; cleanup confirmed",
+  "retained_CI_red_run": 42179270467,
+  "retained_CI_signal_failure": "JSONDecodeError; original native log was not uploaded so historical child cause is unproven",
+  "schemaVersion": 1,
+  "source_archive_sha256": "78a1bcb22fb806e1ea9336098afab30524504608b2643fe81f71a7070c10ac1e",
+  "source_files": 539,
+  "source_pairs": {
+    "tools/checks/run_retirement_native.py": {
+      "after_sha256": "9c52bbc39c2c0c3562d7dff39d87c330ec0a47ca6a36d120ee0e53e427ca3cf2",
+      "before_sha256": "f48ba25295b259f194d372d992f0765ff3b29f514d477bbe30db45f2ab1bbede"
+    },
+    "tools/checks/run_retirement_signals.py": {
+      "after_sha256": "1869321ba82e92c082d0483af87555a95c611287e606898ed80bc66adc7dd1aa",
+      "before_sha256": "779e595953497779e264e373cc50759faa6925a463c6e64913f20a85e49507ba"
+    },
+    "tools/checks/test_retirement_signals.py": {
+      "after_sha256": "58c8e01844cc20cacfd1f1ddde5f3415df977c7315655a01437c36cae34970c9",
+      "before_sha256": "74d0fd7139baa1a4c79edb6d21c644d9f811be5149cfeb90b275274c48854c1e"
+    }
+  },
+  "status": "ROOT_and_independent_reviewed_actual_native_signal_diagnostic_qualification",
+  "tests": 48
+}
