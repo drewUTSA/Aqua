@@ -15,6 +15,13 @@ does not qualify a different source, dependency graph, image or environment.
 
 ### Office integration checkpoint
 
+PR60 subsequently merged as `96b6b1001918c4611d806ef37f7d097daf35a248`
+after all nine jobs passed on `607f969`. Distinct main CI `43500790670` also
+passed all nine jobs. Recheck current source/CI when resuming. The newer
+[mobile session record](MOBILE_SESSION_PROGRESS.md) covers Ben's iPhone report,
+the live Cloudflare HTTPS redirect and frontend-only source repairs. Those
+repairs are not a schema9 deployment or a completed live Google iOS acceptance.
+
 PR58 merged as `19d031e4733a468fd61c14b2b0403cbafd28b222` and PR59 as
 `79fc1294ee8048df0df3e6cbb4092017a36c40e6`, each after all nine exact-head
 PR jobs passed. PR60 carries the workspace improvements and this expanded

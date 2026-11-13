@@ -26,9 +26,11 @@ unchanged limits before long browser journeys. A local recovery boundary
 also contained a real 503 optional-shortcut download in the synthetic demo,
 retaining unsent text and the workspace; the owned test server was stopped.
 
-The complete final PR/main browser matrix, including authenticated disposable
-database journeys, remains required. The local unit/build results do not
-establish a deployed artifact or public-user acceptance.
+PR60 head `607f969` and distinct merged-main `96b6b10` each passed all nine CI
+jobs (runs `43497121465` and `43500790670`), including authenticated disposable
+database journeys. These results do not establish a deployed artifact or
+public-user acceptance. The subsequent [mobile session repair](MOBILE_SESSION_PROGRESS.md)
+adds separate browser-engine checks and records the targeted live HTTPS fix.
 
 ## Read-only public delivery observations
 
@@ -73,5 +75,6 @@ copy an untested policy into a production proxy or mark these gaps resolved.
 6. Perform the operator release review before any public audience/registration
    change. Restricted users receive no private dataset grant by default.
 
-No backup key, private environment, Google audience, database grant, running
-application or production configuration was changed by these preparations.
+No backup key, private environment, Google audience, database grant or running
+application was changed by these preparations. The subsequent mobile repair
+enabled only Cloudflare's HTTP-to-HTTPS redirect as recorded separately.

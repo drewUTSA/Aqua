@@ -133,7 +133,7 @@ function AuthContent({ path, proof, onNavigate, onProofConsumed, auth }) {
   if (complete) { title = isVerification ? "Your account is ready" : "Password updated"; description = isVerification ? "Your email is verified. Sign in with your new password to continue. Data access is managed by your AQUA administrator." : "Your password has been changed and existing sessions have been signed out. Sign in again to continue."; }
   if (signingOut) { title = "Signing you out…"; description = "Your workspace is locked while AQUA confirms sign-out."; }
   if (logoutFailed) { title = "Sign-out could not be confirmed"; description = "Your workspace is locked. Try signing out again to finish securely."; }
-  if (identityUnavailable) { title = "Account access unavailable"; description = "AQUA couldn’t check your session. Please try again."; }
+  if (identityUnavailable) { title = "Account access unavailable"; description = auth.error || "AQUA couldn’t check your session. Please try again."; }
   useEffect(() => { document.title = `${title} | AQUA`; }, [title]);
   const hasForm = !accountLocked && !complete && !invalidProof && (isSignIn || isRegistration || isRequest || isProof);
   return <section className="auth-card" aria-labelledby="auth-title" aria-busy={busy} data-auth-view={path}>

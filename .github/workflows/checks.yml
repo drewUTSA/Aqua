@@ -14,6 +14,51 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  browser-compat:
+    name: Browser sessions (${{ matrix.engine }}, ${{ matrix.shell }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    container:
+      image: mcr.microsoft.com/playwright:v1.64.1-noble@sha256:2f05f8a734509a7b3f26a912639488ee08f58a7b292d14d62271bcff9038768f
+    strategy:
+      fail-fast: false
+      matrix:
+        engine: [chromium, firefox, webkit-iphone]
+        shell: [opal, legacy]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24.19.0'
+      - name: Install locked frontend and browser check dependencies
+        run: |
+          cd frontend
+          npm ci --ignore-scripts --no-fund
+          cd ../tools/browser-compat
+          npm ci --ignore-scripts --no-fund
+          npm audit --audit-level=low
+      - name: Build the production interface within existing delivery budgets
+        working-directory: frontend
+        env:
+          VITE_AQUA_DEMO_MODE: 'false'
+          VITE_AQUA_USE_MOCK: 'false'
+          VITE_AQUA_UI_SHELL: ${{ matrix.shell }}
+        run: |
+          npm run build -- --manifest
+          node checks/plotly-bundle.mjs dist
+      - name: Synthetic session, recovery and email journeys
+        working-directory: tools/browser-compat
+        run: node node_modules/@playwright/test/cli.js test --project=${{ matrix.engine }}
+      - name: Retain synthetic browser evidence
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: browser-sessions-${{ matrix.engine }}-${{ matrix.shell }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: tools/browser-compat/results/
+          if-no-files-found: warn
+          retention-days: 7
   checks:
     runs-on: ubuntu-latest
     # The retained sequential suite took 19m44s on 44c481d; runner variation

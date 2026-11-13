@@ -7,6 +7,13 @@ before any production migration or deletion activation. SSH/Tailscale access,
 the verified schema8 production baseline and the remaining release gates are
 recorded there. Continue code and isolated qualification while that work is pending.
 
+**Mobile follow-up:** Ben reports iPhone 16 Safari/Chrome session errors.
+The existing Cloudflare zone now forces HTTP to HTTPS, verified live with path
+and query preserved while schema8 stayed healthy. See
+[mobile session repairs and browser acceptance](docs/implementation/MOBILE_SESSION_PROGRESS.md)
+for source changes, additional browser checks and the separate Google iOS
+redirect/physical-device acceptance still required.
+
 Current order is **P11 release gates → P12 capacity/retrieval qualification →
 P13 hardening/restricted launch**. Do not restart completed P00–P10 from the
 historical kickoff instruction below. See the current
