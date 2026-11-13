@@ -1,6 +1,6 @@
 // Optional cross-tab coordination cannot be a prerequisite for signing in.
 export function attachAuthBrowserEvents({ onRefresh, onLock, onOffline, canRefresh = () => true,
-  target = globalThis.window, page = globalThis.document, Channel, now = () => performance.now() }) {
+  target = globalThis.window, page = globalThis.document, Channel, now = () => Date.now() }) {
   let channel = null, disposed = false, checked = now(), needsRefresh = false;
   const closeChannel = () => {
     try { if (channel) channel.onmessage = null; } catch { /* Optional storage may be denied. */ }
@@ -21,7 +21,8 @@ export function attachAuthBrowserEvents({ onRefresh, onLock, onOffline, canRefre
   const recheck = (force = false) => {
     if (disposed) return;
     if (page.visibilityState !== "visible") { if (force) needsRefresh = true; return; }
-    if (!force && !needsRefresh && (!canRefresh() || now() - checked < 10000)) return;
+    const elapsed = now() - checked;
+    if (!force && !needsRefresh && (!canRefresh() || (elapsed >= 0 && elapsed < 10000))) return;
     checked = now(); needsRefresh = false;
     onRefresh();
   };

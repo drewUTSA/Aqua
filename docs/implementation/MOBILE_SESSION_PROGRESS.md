@@ -59,8 +59,9 @@ lifetimes, session limits and all existing application budgets are unchanged.
 
 ## Verification and remaining acceptance
 
-The 614 retained frontend cases plus ten new privacy/lifecycle/deadline cases
-pass (624 total). Both builds must retain the existing 600,000-byte initial JS
+The 614 retained frontend cases plus eleven new privacy/lifecycle/deadline cases
+pass (625 total). Foreground checks preserve the existing wall-clock debounce
+contract and recover after backward device-clock correction. Both builds must retain the existing 600,000-byte initial JS
 and 80,000-byte CSS ceilings. Additional CI jobs run production builds for both
 shells in pinned Chromium, Firefox and WebKit with iPhone 16 emulation, alongside
 all nine existing jobs. Fixtures use only synthetic accounts, provider scripts
