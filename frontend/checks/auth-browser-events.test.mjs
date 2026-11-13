@@ -41,6 +41,13 @@ test("ordinary focus does not discard a signed-out form but page restore checks 
   f.target.dispatchEvent(new Event("focus")); assert.equal(f.calls.length, 0);
   pageshow(f.target, true); assert.equal(f.calls.length, 1); f.events.dispose();
 });
+test("a backward device-clock correction does not trap foreground revalidation", () => {
+  const f = fixture(); f.advance(9999);
+  f.target.dispatchEvent(new Event("focus")); assert.equal(f.calls.length, 0);
+  f.advance(-10000);
+  f.target.dispatchEvent(new Event("focus")); assert.equal(f.calls.length, 1);
+  f.events.dispose();
+});
 test("cross-tab traffic is metadata-only and storage failures never escape", () => {
   let instance;
   class Channel { constructor() { instance = this; } postMessage(value) { this.value = value; } close() { throw new Error("closed"); } }
