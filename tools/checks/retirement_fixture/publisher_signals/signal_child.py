@@ -6,6 +6,7 @@ from contextlib import contextmanager, redirect_stdout
 import importlib.util
 import io
 import json
+import math
 from pathlib import Path
 import signal
 import stat
@@ -22,6 +23,20 @@ def load(name, path):
     sys.modules[name] = module
     spec.loader.exec_module(module)
     return module
+
+
+def measured_budget(deadline: float, started: float) -> float:
+    """Remove only binary addition roundoff at a clock's power-of-two boundary.
+
+    The real launcher still owns the exact deadlines. Recording their difference
+    can yield 50.000000000000014 for an unchanged 50-second addition. Normalize
+    only within one representable clock unit; genuine budget changes stay visible
+    to the original exact-value assertions.
+    """
+    difference = deadline - started
+    nearest = round(difference)
+    precision = max(math.ulp(deadline), math.ulp(started))
+    return nearest if abs(difference - nearest) <= precision else difference
 
 
 def main():
@@ -118,8 +133,12 @@ def main():
             self.present = False
             self.labels = {}
             self.cleanup_signal_sent = False
-            events["work_budget_seconds"] = self.work_deadline - self.started
-            events["total_budget_seconds"] = self.deadline - self.started
+            events["work_budget_seconds"] = measured_budget(
+                self.work_deadline, self.started
+            )
+            events["total_budget_seconds"] = measured_budget(
+                self.deadline, self.started
+            )
 
         def call(self, *arguments, cleanup=False, **kwargs):
             events["docker_model_calls"] += 1

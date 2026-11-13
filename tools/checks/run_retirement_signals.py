@@ -10,7 +10,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[2]
 FIXTURE = ROOT / "tools/checks/retirement_fixture/publisher_signals"
 TEST_SHA = "b6cae0bcb1bc8a4f5939e4978afb25eb2cd61caf337dfa098c97e3c7200456fb"
-CHILD_SHA = "439c126bce42a5ba1440dfcf4797a5894a12a21e30765540617b9882f7c1b537"
+CHILD_SHA = "44ea122497a143c615eb8b1b09db84cfcb4b44caa9194754c3503631ae331542"
 LAUNCHER_SHA = "37452a4aee1a63ec1f2cce9fcae8be3de2b6d015ef2d0e824e4dfe4ab6b8fe66"
 SCOPE_SHA = "f6064b65a190dd87769b2878b4b43bed598d3c99dd0bfa8f4b799e13ad6d5d2d"
 ORIGINAL_TEST_SHA = "b7f91e2c3e6c688843a1fba70c15d342b044d2daa7ffb14114381e0354a48139"

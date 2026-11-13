@@ -3,8 +3,11 @@
 import ast
 import copy
 import hashlib
+import importlib.util
 import json
 from pathlib import Path
+import subprocess
+import sys
 import unittest
 from types import SimpleNamespace
 
@@ -43,6 +46,67 @@ def passed():
 
 
 class ClosedSignals(unittest.TestCase):
+    def test_clock_boundary_roundoff_preserves_original_budget_assertions(self):
+        path = (
+            Path(__file__).parent
+            / "retirement_fixture/publisher_signals/signal_child.py"
+        )
+        spec = importlib.util.spec_from_file_location("budget_fixture", path)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        for started in (127.00000001, 255.9999999, 511.9999999):
+            for seconds in (50, 55):
+                with self.subTest(started=started, seconds=seconds):
+                    self.assertEqual(
+                        module.measured_budget(started + seconds, started), seconds
+                    )
+
+    def test_budget_measurement_does_not_round_real_deadline_changes(self):
+        path = (
+            Path(__file__).parent
+            / "retirement_fixture/publisher_signals/signal_child.py"
+        )
+        spec = importlib.util.spec_from_file_location("budget_fixture", path)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        for seconds in (49.999, 50.001, 54.999, 55.001):
+            with self.subTest(seconds=seconds):
+                self.assertNotIn(
+                    module.measured_budget(127.00000001 + seconds, 127.00000001),
+                    (50, 55),
+                )
+
+    def test_real_child_at_clock_boundary_passes_unchanged_original_assertions(self):
+        root = Path(__file__).resolve().parents[2]
+        fixture = root / "tools/checks/retirement_fixture/publisher_signals"
+        spec = importlib.util.spec_from_file_location(
+            "signal_assertions", fixture / "test_installed_signals.py"
+        )
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        for started in (127.00000001, 255.9999999):
+            for case in ("idle", "direct_idle"):
+                arguments = [
+                    str(fixture / "signal_child.py"),
+                    "--source",
+                    str(root / "ops/retirement/installed_publisher.py"),
+                    "--launcher",
+                    str(root / "ops/retirement/publisher_launcher.py"),
+                    "--case",
+                    case,
+                ]
+                script = f"import sys,time,runpy; time.monotonic=lambda:{started!r}; sys.argv={arguments!r}; runpy.run_path({arguments[0]!r},run_name='__main__')"
+                result = subprocess.run(
+                    [sys.executable, "-I", "-B", "-c", script],
+                    capture_output=True,
+                    text=True,
+                    timeout=10,
+                )
+                with self.subTest(started=started, case=case):
+                    self.assertEqual(result.returncode, 0)
+                    self.assertEqual(result.stderr, "")
+                    module.check(case, json.loads(result.stdout))
+
     def test_failed_child_projection_never_retains_raw_output_or_dynamic_messages(self):
         value = passed()
         value["outcomes"][0].update(
@@ -197,7 +261,9 @@ class ClosedSignals(unittest.TestCase):
                 hashlib.sha256((here / name).read_bytes()).hexdigest(), digest
             )
 
-    def test_adapter_reverses_only_four_reviewed_changes_to_exact_original_AST(self):
+    def test_adapter_reverses_reviewed_scope_and_clock_measurement_to_original_AST(
+        self,
+    ):
         here = Path(__file__).parent / "retirement_fixture/publisher_signals"
         original = ast.parse((here / "original/test_installed_signals.py").read_bytes())
         adapted = ast.parse((here / "test_installed_signals.py").read_bytes())
@@ -212,6 +278,39 @@ class ClosedSignals(unittest.TestCase):
         self.assertEqual(ast.dump(original), ast.dump(adapted))
         original = ast.parse((here / "original/signal_child.py").read_bytes())
         adapted = ast.parse((here / "signal_child.py").read_bytes())
+        clock_import = [
+            node
+            for node in adapted.body
+            if isinstance(node, ast.Import) and ast.unparse(node) == "import math"
+        ]
+        clock_helper = [
+            node
+            for node in adapted.body
+            if isinstance(node, ast.FunctionDef) and node.name == "measured_budget"
+        ]
+        self.assertEqual(len(clock_import), 1)
+        self.assertEqual(len(clock_helper), 1)
+        adapted.body.remove(clock_import[0])
+        adapted.body.remove(clock_helper[0])
+        clock_calls = 0
+        for node in ast.walk(adapted):
+            if (
+                isinstance(node, ast.Assign)
+                and isinstance(node.value, ast.Call)
+                and ast.unparse(node.value.func) == "measured_budget"
+            ):
+                self.assertEqual(len(node.value.args), 2)
+                self.assertEqual(node.value.keywords, [])
+                self.assertEqual(ast.unparse(node.value.args[1]), "self.started")
+                self.assertIn(
+                    ast.unparse(node.value.args[0]),
+                    ("self.work_deadline", "self.deadline"),
+                )
+                node.value = ast.BinOp(
+                    left=node.value.args[0], op=ast.Sub(), right=node.value.args[1]
+                )
+                clock_calls += 1
+        self.assertEqual(clock_calls, 2)
         main = next(
             n
             for n in adapted.body

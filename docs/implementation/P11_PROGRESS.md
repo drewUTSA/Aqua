@@ -1,5 +1,40 @@
 # P11 progress
 
+## November 13 resumption — publisher measurement repair
+
+PR #58 at `1c2d99e` passed eight browser jobs but its main checks job failed in
+the native 48-case publisher signal suite (run `42182127124`). The original
+idle assertion was reproduced with a monotonic start of `127.00000001`:
+an unchanged 50-second deadline subtraction produces `50.000000000000014`.
+Actual cleanup succeeded, but the exact measurement assertion failed.
+
+The child adapter now removes only one representable clock unit of subtraction
+roundoff. The original 48 case bodies, assertions, production launcher/deadlines,
+resource caps and external-signal requirements remain unchanged. The immutable
+original fixture copies remain untouched. AST reversal checks account for the
+two measurement calls and the small helper, in addition to the existing scope
+adapter. Three new guards cover clock boundaries, genuine changed budgets and
+actual child execution against the original assertions. All 12 pure signal
+guards pass locally. All 513 Python files pass Black and Ruff passes.
+
+The Windows checkout had converted hash-pinned files to CRLF. `.gitattributes`
+now fixes text checkout to LF while leaving detected binary assets unchanged;
+the private task worktree was restored to committed LF bytes. No pinned source
+hash is weakened to accept arbitrary newline variants.
+
+Fresh Linux CI is required for the original 48 controls and all release checks.
+Local Docker startup failed because WSL is not installed. The native executor
+guard run also encountered unsupported Windows symlink/geteuid/pipe-selector
+operations; that run is blocked, not a passing Linux qualification. No test was
+removed or skipped to hide those setup errors. No production operation ran.
+
+The documents identify SSH `ben2004@192.168.1.200`; that address timed out from
+this PC. A dedicated owner-only client key and strict-host-checking `aqua-codex`
+configuration were prepared outside the repository. Host routing, server-side
+key installation and independently verified host identity remain pending.
+
+The historical checkpoints below describe earlier source/evidence.
+
 P11a exports are deployed and enabled on schema 8 from PR57/main `9aeaf4e`.
 The guarded release passed at 2026-11-06T01:00:49Z after a fresh authenticated
 encrypted stopped-writer backup. Phase11 remains active: deletion is not deployed.
