@@ -35,6 +35,9 @@ P11 deletion and P12–P13 remain incomplete.
 The [approved phased specification](AQUA_CODEX_HANDOFF.md) governs the order.
 Verification: [check runner guide](tools/checks/README.md).
 
+Workspace navigation improvements and their verification/remaining work are
+tracked in [the improvement record](docs/implementation/WORKSPACE_IMPROVEMENTS.md).
+
 ## Private application storage and identity
 
 The application PostgreSQL is separate from the hosted analytical database. It has no network, TCP listener or published port. Backend/migration jobs attach only the private Unix socket, with distinct runtime, owner, migrator and backup privileges. nginx refuses public readiness; liveness stays independent of databases/models. P03's canonical UUID accounts, opaque digest-only sessions, one-use Google challenges, durable revocation, grants and session caps are deployed. Legacy signed cookies require fresh authentication.

@@ -1,12 +1,15 @@
 import React, { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { useChat } from "../../hooks/useChat.js";
 import { useWorkspace } from "../../hooks/useWorkspace.js";
 import OpalSidebar from "./OpalSidebar.jsx";
 import VisualWorkspace from "./VisualWorkspace.jsx";
+import { SidebarSearchDialog } from "./SidebarRecentsDialogs.jsx";
+import QuickSwitcherBoundary from "./QuickSwitcherBoundary.jsx";
 import OpalBackdrop from "../auth/OpalBackdrop.jsx";
 import { UI_SHELL } from "../../services/runtimeConfig.js";
 import { usePreferences } from "../../settings/PreferencesProvider.jsx";
 import { useNotifications } from "../../settings/NotificationProvider.jsx";
+import { workspaceShortcut } from "./workspaceShortcuts.js";
+import "../../styles/workspace-shortcuts.css";
 import "../../styles/workspace.css";
 import "../../styles/legacy-workspace.css";
 import "../../styles/workspace-library.css";
@@ -15,15 +18,14 @@ import "../../styles/homepage.css";
 
 const SettingsShell = lazy(() => import("../../pages/SettingsShell.jsx"));
 const PromptLibraryDialog = lazy(() => import("./PromptLibraryDialog.jsx"));
+const QuickSwitcher = lazy(() => import("./QuickSwitcher.jsx"));
+const DemoWorkspace = lazy(() => import("./DemoWorkspace.jsx"));
 
 export default function Workspace({ auth, hidden, path, onNavigate }) {
-  return auth.demoMode ? <DemoWorkspace auth={auth} hidden={hidden} path={path} onNavigate={onNavigate} />
+  return auth.demoMode ? <Suspense fallback={<p role="status">Opening the demo workspace…</p>}><DemoWorkspace auth={auth}>
+    {(chat) => <WorkspaceView auth={auth} hidden={hidden} path={path} onNavigate={onNavigate} chat={chat} />}
+  </DemoWorkspace></Suspense>
     : <LiveWorkspace auth={auth} hidden={hidden} path={path} onNavigate={onNavigate} />;
-}
-function DemoWorkspace(props) {
-  const { auth } = props;
-  const chat = useChat({ demoMode: auth.demoMode, canQuery: auth.canQuery, csrfToken: auth.csrfToken, onAuthFailure: auth.refresh });
-  return <WorkspaceView {...props} chat={chat} />;
 }
 function LiveWorkspace(props) {
   const { auth, hidden } = props;
@@ -45,6 +47,7 @@ function WorkspaceView({ auth, hidden, path, onNavigate, chat }) {
   const [sidebar, setSidebar] = useState(true), [drawer, setDrawer] = useState(false), [focus, setFocus] = useState(0);
   useEffect(() => { setSidebar(device.sidebar !== "collapsed"); }, [device.sidebar]);
   const [notice, setNotice] = useState(""), [promptsOpen, setPromptsOpen] = useState(false);
+  const [quickOpen, setQuickOpen] = useState(false), [searchOpen, setSearchOpen] = useState(false);
   const inputRef = useRef(null), dialogRef = useRef(null), navigationRef = useRef(null);
   const scrollPositions = useRef(new Map());
   const settings = path === "/settings";
@@ -61,6 +64,22 @@ function WorkspaceView({ auth, hidden, path, onNavigate, chat }) {
   const prompt = (value) => void preferences.requestLeave(() => { chat.setDraft(value); go("/"); focusComposer(); });
   const openPrompts = () => { chat.openPrompts?.(); setPromptsOpen(true); };
   useEffect(() => { if (hidden || settings) setPromptsOpen(false); }, [hidden, settings]);
+  useEffect(() => { setQuickOpen(false); setSearchOpen(false); }, [hidden, path]);
+  useEffect(() => {
+    const keyboard = (event) => {
+      const action = workspaceShortcut(event, { hidden, modalOpen: !!document.querySelector("dialog[open]") });
+      if (action === "switch") { event.preventDefault(); setQuickOpen(true); }
+      else if (action === "composer" && !settings) { event.preventDefault(); focusComposer(); }
+    };
+    document.addEventListener("keydown", keyboard);
+    return () => document.removeEventListener("keydown", keyboard);
+  }, [hidden, settings, focusComposer]);
+  const quickAction = (id) => {
+    if (id === "new") start();
+    else if (id === "search") setSearchOpen(true);
+    else if (id === "prompts") void preferences.requestLeave(() => { go("/"); openPrompts(); });
+    else if (id === "settings") void preferences.requestLeave(() => go("/settings"));
+  };
   useLayoutEffect(() => {
     if (hidden || settings) return;
     document.title = "AQUA | Your data, clearly";
@@ -94,6 +113,8 @@ function WorkspaceView({ auth, hidden, path, onNavigate, chat }) {
       <button type="button" ref={navigationRef} className="icon-button navigation-toggle" aria-label="Open navigation" aria-haspopup="dialog" aria-expanded={drawer}
         onClick={() => { if (window.matchMedia("(max-width: 900px)").matches) setDrawer(true); else { setSidebar(true); preferences.persistDeviceValue("sidebar", "expanded"); } }}><span aria-hidden="true">☰</span></button>
       <span className="breadcrumb"><strong title={caption}>{caption}</strong></span>
+      <button type="button" className="workspace-quick-switch" aria-haspopup="dialog" aria-keyshortcuts="Control+k Meta+k" onClick={() => setQuickOpen(true)}>
+        <span>Quick switch</span><kbd aria-hidden="true">Ctrl / ⌘ K</kbd></button>
       {(auth.demoMode || !auth.canQuery) && <span className="data-badge">{auth.demoMode ? "Demo data" : "Access pending"}</span>}
     </header>
     {notice && <p className="workspace-notice" role="status">{notice}</p>}
@@ -103,6 +124,8 @@ function WorkspaceView({ auth, hidden, path, onNavigate, chat }) {
       <VisualWorkspace chat={chat} auth={auth} preferences={{ account, device }} onDeviceChange={preferences.persistDeviceValue} chartTheme={theme} inputRef={inputRef} focusRequest={focus} onOpenPrompts={openPrompts} shell={UI_SHELL} visible={!hidden && !settings} scrollPositions={scrollPositions.current} />
     </div>
     {settings && <Suspense fallback={<p role="status">Opening Settings…</p>}><SettingsShell auth={auth} onBack={() => go("/")} onNavigate={go} /></Suspense>}
+    {quickOpen && !hidden && <QuickSwitcherBoundary onClose={() => setQuickOpen(false)}><Suspense fallback={<p role="status">Opening workspace shortcuts…</p>}><QuickSwitcher chat={chat} onClose={() => setQuickOpen(false)} onSelect={select} onAction={quickAction} /></Suspense></QuickSwitcherBoundary>}
+    {searchOpen && !hidden && <SidebarSearchDialog chat={chat} onSelect={select} onClose={() => setSearchOpen(false)} />}
     {promptsOpen && !hidden && !settings && <Suspense fallback={<p role="status">Opening saved prompts…</p>}><PromptLibraryDialog chat={chat} suggestions={account.suggestions} onClose={() => setPromptsOpen(false)} onPrompt={(value) => { prompt(value); setPromptsOpen(false); }} /></Suspense>}
     </div>
   </div>;

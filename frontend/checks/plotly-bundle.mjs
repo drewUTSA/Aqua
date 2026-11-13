@@ -38,6 +38,11 @@ assert.equal(engines.length, 1, "one_pinned_basic_engine_chunk_required");
 assert.ok(!initial.has(engines[0]), "chart_engine_in_initial_bundle"); assert.ok(reachable.has(engines[0]), "chart_engine_unreachable");
 const names = new Set(); for (const key of initial) { names.add(manifest[key].file); for (const name of manifest[key].css || []) names.add(name); }
 const initialCounts = await counts(root, names), engine = await asset(root, manifest[engines[0]].file);
+// Mirror the retained browser delivery ceilings before launching long journeys.
+const initialScripts = initialCounts.files.filter((item) => item.file.endsWith(".js"));
+const scriptBytes = initialScripts.reduce((sum, item) => sum + item.bytes, 0);
+assert.ok(initialScripts.length > 0 && initialScripts.length <= 3 && scriptBytes > 0 && scriptBytes <= 600000, "initial_script_budget_exceeded");
+assert.ok(initialCounts.files.filter((item) => item.file.endsWith(".css")).reduce((sum, item) => sum + item.bytes, 0) <= 80000, "initial_style_budget_exceeded");
 assert.ok(engine.includes(Buffer.from("4.1.2")), "pinned_engine_version_missing");
 assert.ok(engine.length <= 1536 * 1024 && gzipSync(engine).length <= 500 * 1024, "chart_engine_budget_exceeded");
 const report = { status: "passed", initial: initialCounts, engine: { file: manifest[engines[0]].file, bytes: engine.length, gzip_bytes: gzipSync(engine).length,

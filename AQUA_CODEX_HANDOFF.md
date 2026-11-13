@@ -7,6 +7,13 @@ before any production migration or deletion activation. SSH/Tailscale access,
 the verified schema8 production baseline and the remaining release gates are
 recorded there. Continue code and isolated qualification while that work is pending.
 
+Current order is **P11 release gates → P12 capacity/retrieval qualification →
+P13 hardening/restricted launch**. Do not restart completed P00–P10 from the
+historical kickoff instruction below. See the current
+[P12 record](docs/implementation/P12_PROGRESS.md) and
+[P13 no-go checklist](docs/implementation/P13_PROGRESS.md). Prepared code and
+passing isolated checks do not imply production activation or a public launch.
+
 Prepared October 16, 2026. This single file contains the approved frontend/backend scope, all 14 implementation phases, detailed technical specifications, security test gates, code standards and acceptance checks. Place it at the AQUA repository root as `AQUA_CODEX_HANDOFF.md`.
 
 ## Instructions to the implementing Codex

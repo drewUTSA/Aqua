@@ -1,0 +1,13 @@
+.quick-switcher { width: 36rem; }
+.quick-switcher label { display: block; font-weight: 600; }
+.quick-switcher input { box-sizing: border-box; width: 100%; min-height: 48px; margin-top: .5rem; padding: .7rem .8rem; border: 1px solid var(--pref-border); border-radius: .65rem; background: var(--pref-bg); color: var(--pref-text); font: inherit; }
+.quick-switcher__hint { color: var(--pref-muted); font-size: .85em; }
+.quick-switcher__results { display: grid; gap: .4rem; }
+.quick-switcher__results button { display: flex; align-items: center; gap: .75rem; width: 100%; min-height: 60px; text-align: left; border-color: var(--pref-border); }
+.quick-switcher__results button:hover, .quick-switcher__results button[aria-current] { background: var(--pref-raised); }
+.quick-switcher__results button > span:nth-child(2) { flex: 1; min-width: 0; }
+.quick-switcher__results strong, .quick-switcher__results small { display: block; overflow-wrap: anywhere; }
+.quick-switcher__results small { color: var(--pref-muted); font-size: .8em; }
+.quick-switcher__symbol { flex: 0 0 1.5rem; text-align: center; color: var(--pref-muted); }
+.quick-switcher__footer { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .75rem; margin-top: 1rem; font-size: .85em; }
+@media (forced-colors: active) { .quick-switcher input, .quick-switcher__results button { border: 1px solid ButtonText; } }
