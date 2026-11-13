@@ -1,5 +1,13 @@
 # P11 progress
 
+The exact `73270e4` run `43480716759` reached the workflow's 20-minute outer
+job limit during the final Legacy Settings browser gate; its eight other jobs
+passed. The preceding all-green `44c481d` checks job took 19m44s. The outer
+checks-job allowance is now 30 minutes to accommodate this retained sequential
+suite and hosted-runner variation. No test is removed, assertion changed,
+application deadline extended or child/container resource budget increased.
+Fresh complete CI on the resulting head is still required before merge.
+
 **Latest November 13 checkpoint:** All nine jobs in run `43476718496` passed
 on `44c481d`, including the original 48 publisher controls and full disposable
 backend/database matrix. Tailscale and key-only SSH are now verified from the
