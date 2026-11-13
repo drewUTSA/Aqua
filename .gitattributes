@@ -1,3 +1,7 @@
 # Hash-pinned fixtures and operator packages must have the same text bytes on
 # Windows and Linux. Git still detects binary assets and leaves them unchanged.
 * text=auto eol=lf
+
+# Retain the explicit Linux-script and integrity-corpus policies.
+*.sh text eol=lf
+backend/auth/password_blocklist_sha256.txt text eol=lf
