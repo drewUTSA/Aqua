@@ -11,7 +11,7 @@ test("status GET and explicit cancel use owned UUID routes and an empty CSRF pro
   assert.deepEqual(calls.map(({ url }) => url), [`/api/v1/analysis-requests/${REQUEST}`, `/api/v1/analysis-requests/${REQUEST}/cancel`]);
   assert.equal(calls[0].init.method, "GET"); assert.equal(calls[0].init.body, undefined); assert.equal(calls[0].init.headers["X-CSRF-Token"], undefined);
   assert.equal(calls[1].init.method, "POST"); assert.equal(calls[1].init.body, "{}"); assert.equal(calls[1].init.headers["X-CSRF-Token"], "csrf");
-  for (const { init } of calls) { assert.equal(init.credentials, "same-origin"); assert.equal(init.cache, "no-store"); assert.equal(init.redirect, "error"); assert.equal(init.referrerPolicy, "no-referrer"); }
+  for (const { init } of calls) { assert.equal(init.credentials, "same-origin"); assert.equal(init.cache, "no-store"); assert.equal(init.redirect, "error"); assert.equal(init.referrerPolicy, init.method === "GET" ? "no-referrer" : "strict-origin"); }
 });
 
 test("malformed UUIDs or missing CSRF never reach the network", async (t) => {

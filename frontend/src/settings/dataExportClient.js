@@ -12,7 +12,7 @@ async function metadata(path,method,body,{csrfToken,signal,historyContext}={},de
  const history=bindHistoryIntent(body,historyContext||captureHistory(csrfToken));
  if(signal?.aborted)throw aborted();const controller=new AbortController(),cancel=()=>controller.abort();signal?.addEventListener('abort',cancel,{once:true});const timer=setTimeout(cancel,15000);let reader;const chunks=[];
  try{
-  const response=await fetch('/api/v1'+path,{method,credentials:'same-origin',mode:'same-origin',cache:'no-store',redirect:'error',referrerPolicy:'no-referrer',signal:controller.signal,headers:{Accept:'application/json',...historyHeaders(history),...(method==='POST'?{'Content-Type':'application/json','X-CSRF-Token':csrf(csrfToken)}:{})},...(body?{body:JSON.stringify(body)}:{})});
+  const response=await fetch('/api/v1'+path,{method,credentials:'same-origin',mode:'same-origin',cache:'no-store',redirect:'error',referrerPolicy:method==='GET'?'no-referrer':'strict-origin',signal:controller.signal,headers:{Accept:'application/json',...historyHeaders(history),...(method==='POST'?{'Content-Type':'application/json','X-CSRF-Token':csrf(csrfToken)}:{})},...(body?{body:JSON.stringify(body)}:{})});
   if(controller.signal.aborted){await response.body?.cancel();throw aborted();}
   try{observeHistory(response,history);}catch(error){await response.body?.cancel();throw error;}
   if(response.redirected||!(method==='POST'?[200,202]:[200]).includes(response.status)){await response.body?.cancel();throw rejected(response);}

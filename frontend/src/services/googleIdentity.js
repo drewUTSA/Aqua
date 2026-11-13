@@ -24,5 +24,7 @@ export function loadGoogleIdentity() {
 }
 
 export function disableGoogleAutoSelect() {
-  globalThis.google?.accounts?.id?.disableAutoSelect();
+  // Provider storage can be unavailable in privacy modes. This best-effort
+  // cleanup must never veto a completed local sign-out or password reset.
+  try { globalThis.google?.accounts?.id?.disableAutoSelect(); } catch { /* Local session authority remains decisive. */ }
 }

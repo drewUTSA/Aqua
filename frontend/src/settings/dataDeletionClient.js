@@ -24,7 +24,7 @@ async function request(receipt, create, proof, { signal } = {}) {
   const timer = setTimeout(cancel, 15000); let reader; const chunks = [];
   try {
     const response = await fetch("/api/v1/me/data-deletions" + (create ? "" : "/by-intent/" + receipt.intent), {
-      method: "POST", credentials: "same-origin", mode: "same-origin", cache: "no-store", redirect: "error", referrerPolicy: "no-referrer", signal: controller.signal,
+      method: "POST", credentials: "same-origin", mode: "same-origin", cache: "no-store", redirect: "error", referrerPolicy: "strict-origin", signal: controller.signal,
       headers: { Accept: "application/json", "Content-Type": "application/json", "X-CSRF-Token": receipt.csrf,
         ...(create ? historyHeaders(receipt.history) : { "X-Aqua-Deletion-Receipt": receipt.token() }) }, body: JSON.stringify(payload)
     });
