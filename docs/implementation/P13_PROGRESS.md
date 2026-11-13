@@ -17,6 +17,12 @@ synthetic browser review covered keyboard navigation, focus, mobile layout,
 draft retention and unsaved-preference protection; see
 [the implementation record](WORKSPACE_IMPROVEMENTS.md).
 
+The integrated browser caught a 601,319-byte initial script against its unchanged
+600,000-byte ceiling. Keeping the switcher index and demo history out of initial
+delivery now yields 591,593/591,595 bytes (Opal/Legacy). A local recovery boundary
+also contained a real 503 optional-shortcut download in the synthetic demo,
+retaining unsent text and the workspace; the owned test server was stopped.
+
 The complete final PR/main browser matrix, including authenticated disposable
 database journeys, remains required. The local unit/build results do not
 establish a deployed artifact or public-user acceptance.

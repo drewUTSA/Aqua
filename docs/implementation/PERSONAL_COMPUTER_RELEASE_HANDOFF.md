@@ -13,6 +13,22 @@ Read this record with the root handoff, `CLAUDE.md`, `P11_PROGRESS.md`,
 `P11BC_ACTIVATION_PROFILE.md`, and the current PR/CI state. Historical evidence
 does not qualify a different source, dependency graph, image or environment.
 
+### Office integration checkpoint
+
+PR58 merged as `19d031e4733a468fd61c14b2b0403cbafd28b222` and PR59 as
+`79fc1294ee8048df0df3e6cbb4092017a36c40e6`, each after all nine exact-head
+PR jobs passed. PR60 carries the workspace improvements and this expanded
+handoff. Its initial-script regression was repaired under the unchanged
+600,000-byte limit: Opal 591,593 bytes and Legacy 591,595 bytes, with all 611
+frontend tests passing locally. A real rejected shortcut download was also
+rehearsed in an isolated demo; the workspace and unsent draft survived.
+
+Final PR60 and combined merged-main CI must be read from GitHub when resuming.
+These merge facts concern source integration. Production remains on the
+verified P11a/schema8 release; P11 recovery/activation, broader P12 capacity/model
+evaluation and P13 launch gates remain incomplete. No office merge activates
+deletion, public registration or a new Google audience.
+
 ## Verified connection and production baseline
 
 The server is Tailscale node `2004`, currently `100.83.237.33`, SSH user
