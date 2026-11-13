@@ -9,9 +9,13 @@ are deployed on private schema8 from PR57/main
 stopped-writer backup and protected retention. Protected data/configuration,
 volumes and mail schedule were preserved; public GET-only and exact asset checks
 passed. See `docs/implementation/evidence/p11a/release.json`.
-P11b/c deletion remains in preparation. PR58 candidate `7543217` passed all nine
-jobs/210steps; publisher cancellation and production recovery/controller review
-remain active before the final candidate, merged-main CI and schema9 rollout.
+P11b/c deletion source merged through PR58 (`19d031e`) and bounded P12 retrieval
+source through PR59 (`79fc129`), each after all nine exact-head PR jobs passed.
+Source integration is not deployment: production remains on schema8 and deletion
+is inactive. Ben directed recovery-key discovery, backup/recovery and activation
+to his personal computer. Read `docs/implementation/PERSONAL_COMPUTER_RELEASE_HANDOFF.md`
+before any server update. Combined merged-main CI and the exact-image recovery,
+retention and schema9 cutover gates remain required. P12/P13 remain incomplete.
 All Mac and Anakin proposals return to ROOT for review before integration.
 The current live site remains online on the verified export release. Historical
 phase slices below are retained; consult `docs/implementation/P11_PROGRESS.md`
@@ -118,11 +122,11 @@ The server runs the app with docker-compose. Code changes are made locally, revi
 | Concern | Choice |
 |---|---|
 | Backend language | Python 3.12 (not 3.14; the ML stack does not fully support 3.14 yet) |
-| API | FastAPI on 127.0.0.1:8000; public hostnames enter nginx on 127.0.0.1:5173. P10c checkpoint `d242d2e` (PR #56) is deployed with schema 7 and recorded public-delivery verification |
+| API | FastAPI on 127.0.0.1:8000; public hostnames enter nginx on 127.0.0.1:5173. Production is the verified P11a PR57/main `9aeaf4e` export release on schema8; merged schema9 source is not deployed |
 | Sign-in | Canonical UUID accounts with revocable digest-only sessions, Google and password sign-in. Password login/registration/recovery and branded mail are active; the scheduler runs a separate worker and the web worker flag stays false |
 | Frontend | React 19 with Vite. Production: a static build served by nginx on port 5173, which forwards `/api` to the backend and rate-limits questions. Development: `npm run dev` forwards API calls but is not the production rate-limit boundary |
 | Analytical database | PostgreSQL on Tiger Cloud free service (TimescaleDB, pgvector, pgvectorscale); unchanged in P02 |
-| Application database | Private PostgreSQL 17 is active at schema 7, socket only, network none and separate roles. Applied migrations 0001–0007 are immutable; the prepared P11a migration 0008 is not deployed |
+| Application database | Private PostgreSQL 17 is active at schema8, socket only, network none and separate roles. Applied migrations 0001–0008 are immutable; additive 0009 is prepared but not deployed |
 | Sample data | Pagila (Postgres port of Sakila) |
 | LLM | Gemini API with the free `gemini-3.5-flash-lite` by default (`LLM_PROVIDER=gemini`). When it is out of quota or down: Ollama (`qwen3`) on Ben's server over Tailscale, then `gemma-4-26b-a4b-it`. Model names read from env |
 | Embeddings | `gemini-embedding-2` at 768 dimensions, stored in pgvector in the `retrieval` schema (Phase 4) |
@@ -451,6 +455,12 @@ npm test
 ```
 
 Server: follow `docs/ops/P04_PASSWORD_CUTOVER.md` for the reviewed migration and image checks. Routine updates after cutover must retain the storage overlay; startup never migrates:
+
+**November 13 release hold:** Production is still schema8 while merged source
+requires schema9. Do not run the routine commands below against that service
+until the personal-computer release handoff's fresh backup/recovery, exact-image
+qualification, migration and activation gates pass. Pulling/building the new
+source and replacing the current containers is not a substitute for cutover.
 
 ```bash
 git pull --ff-only origin main
