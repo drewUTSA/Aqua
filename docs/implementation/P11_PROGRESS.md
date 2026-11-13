@@ -35,6 +35,15 @@ key installation and independently verified host identity remain pending.
 
 The historical checkpoints below describe earlier source/evidence.
 
+The first resumed CI run `43475785176` stopped at dependency audit before the
+signal suite: `opentelemetry-api==1.45.1` is now flagged for CVE-2026-126360.
+The runtime pin is updated to 1.45.2 with both exact PyPI artifact hashes and a
+matching direct security floor. The local audit now reports no known
+vulnerabilities; the existing real propagation oversized-header denial,
+exact-boundary and normal-recovery probe passes on 1.45.2, and pip check passes
+for that supplementary local installation. Full Linux runtime/image and
+dependency validation still belongs to the fresh CI candidate.
+
 P11a exports are deployed and enabled on schema 8 from PR57/main `9aeaf4e`.
 The guarded release passed at 2026-11-06T01:00:49Z after a fresh authenticated
 encrypted stopped-writer backup. Phase11 remains active: deletion is not deployed.
