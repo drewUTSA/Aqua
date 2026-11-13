@@ -1,5 +1,17 @@
 # P11 progress
 
+Run `43484917543` on the P12 descendant exposed a retained P10 Google-proof
+test race: its `int(time.time())+31` input can move inside the production
+30-second skew while the HTTP fixture runs. The original ten invalid-assertion
+identities, rejection/replay/burn assertions and production verifier are retained.
+That parameterized test now freezes only the verifier's wall clock after
+challenge creation; database clocks and application deadlines remain real.
+Exact30/31-second boundary coverage is required with the repaired candidate.
+
+The P11 `dfe2734` run also had a zero-check Chrome startup-handshake failure in
+the Opal identity job, with strict cleanup. It is retained as infrastructure
+failure; no browser timeout or assertion is relaxed.
+
 The exact `73270e4` run `43480716759` reached the workflow's 20-minute outer
 job limit during the final Legacy Settings browser gate; its eight other jobs
 passed. The preceding all-green `44c481d` checks job took 19m44s. The outer
