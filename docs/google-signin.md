@@ -1,5 +1,12 @@
 # Google sign-in and durable AQUA sessions
 
+**Current November 13 checkpoint:** production remains the P11a/schema8 release;
+merged deletion source is schema9 and awaits personal-computer backup/recovery.
+The historical P03/P04 deployment notes below are not current activation steps.
+The new [Google redirect transport](implementation/GOOGLE_REDIRECT.md) is prepared
+behind a default-off flag, with an exact existing-client URI and separate
+physical-device acceptance required before enablement.
+
 P03 replaces signed profile cookies with opaque, revocable application sessions
 in the private application database. Google establishes an external identity;
 AQUA assigns a canonical internal UUID and checks current account, session and

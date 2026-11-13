@@ -36,6 +36,7 @@ async def landing(request: Request, settings: Settings = Depends(get_settings)):
     enabled(settings)
     if request.headers.get("origin") not in {
         None,
+        "null",  # Inert navigation only; completion still needs the exact Origin.
         settings.app_origin,
         "https://accounts.google.com",
     }:

@@ -36,7 +36,8 @@ export async function setup(page, context) {
     if (url.pathname.startsWith("/api/")) {
       const key = `${req.method} ${url.pathname}`;
       counts.set(key, (counts.get(key) || 0) + 1);
-      if (!["GET", "HEAD"].includes(req.method)) {
+      const inertRedirect = fixture.redirectMode && url.pathname === "/api/auth/google/redirect" && req.method === "POST";
+      if (!["GET", "HEAD"].includes(req.method) && !inertRedirect) {
         const originValid = req.headers.origin === origin;
         const refererPrivate = !req.headers.referer || req.headers.referer === origin + "/";
         origins.push({ originValid, refererPrivate });

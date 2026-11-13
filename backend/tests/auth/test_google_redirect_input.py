@@ -29,7 +29,6 @@ BODY = {"credential": TOKEN, "g_csrf_token": "synthetic-google-csrf"}
         "client",
         "query",
         "foreign_origin",
-        "null_origin",
     ],
 )
 def test_invalid_transport_has_no_authority(durable_browser, monkeypatch, attack):
@@ -72,10 +71,8 @@ def test_invalid_transport_has_no_authority(durable_browser, monkeypatch, attack
             body["client_id"] = CLIENT_ID + "wrong"
         elif attack == "query":
             path += "?return_to=https://attacker.example"
-        elif attack in {"foreign_origin", "null_origin"}:
-            outgoing["Origin"] = (
-                "https://attacker.example" if attack == "foreign_origin" else "null"
-            )
+        elif attack == "foreign_origin":
+            outgoing["Origin"] = "https://attacker.example"
             expected = 403
         raw = json.dumps(body)
     result = client.post(path, content=raw, headers=outgoing)

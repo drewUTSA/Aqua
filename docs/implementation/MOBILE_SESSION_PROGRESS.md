@@ -75,7 +75,9 @@ checks and a physical-device acceptance pass at the canonical HTTPS site.
 
 Google's current [supported-browser guidance](https://developers.google.com/identity/gsi/web/guides/supported-browsers)
 requires redirect mode on iOS. The existing popup integration has not acquired
-a redirect callback in this repair. Do not claim live Google iOS acceptance or
+a redirect callback in the first frontend repair. The subsequent
+[default-off redirect source](GOOGLE_REDIRECT.md) prepares that transport with
+its own backend and browser regressions. Do not claim live Google iOS acceptance or
 weaken cookie/CSRF policy to work around it. A separate bounded redirect design
 must retain the durable challenge, verified nonce/signature/audience, Google
 double-submit protection and same-owner checks, with its exact authorized URI

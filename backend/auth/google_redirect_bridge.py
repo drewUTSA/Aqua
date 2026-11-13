@@ -21,7 +21,7 @@ const controller=new AbortController(), timer=setTimeout(()=>controller.abort(),
 const clear=()=>{body.credential='';body.g_csrf_token='';};
 addEventListener('pagehide',()=>{controller.abort();clear();},{once:true});
 (async()=>{try{
-const options={credentials:'same-origin',mode:'same-origin',cache:'no-store',redirect:'error',referrerPolicy:'no-referrer',signal:controller.signal};
+const options={credentials:'same-origin',mode:'same-origin',cache:'no-store',redirect:'error',referrerPolicy:'strict-origin',signal:controller.signal};
 const state=await fetch('/api/auth/google/redirect-state',options);
 if(!state.ok)throw Error();const config=await state.json();
 if(typeof config.csrf_token!=='string'||config.csrf_token.length>256)throw Error();

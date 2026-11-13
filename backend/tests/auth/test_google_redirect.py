@@ -44,8 +44,11 @@ def test_default_off_and_https_required(durable_browser, monkeypatch):
 
 
 @pytest.mark.parametrize("encoding", ["json", "form"])
+@pytest.mark.parametrize(
+    "initial_origin", ["https://accounts.google.com", "null", None]
+)
 def test_cross_site_document_is_inert_then_first_party_completion_is_one_use(
-    durable_browser, monkeypatch, encoding, caplog
+    durable_browser, monkeypatch, encoding, caplog, initial_origin
 ):
     client, config, binding, body = prepare(durable_browser, monkeypatch)
     assert config["redirect_path"] == BASE
@@ -53,9 +56,10 @@ def test_cross_site_document_is_inert_then_first_party_completion_is_one_use(
     kwargs = {"json": body} if encoding == "json" else {"data": body}
     # Model a cross-site POST omitting both existing Lax cookies. It renders no
     # authority: the same cookies must return on the first-party requests.
-    page = client.post(
-        BASE, headers={"Origin": "https://accounts.google.com", "Cookie": ""}, **kwargs
-    )
+    initial_headers = {"Cookie": ""}
+    if initial_origin is not None:
+        initial_headers["Origin"] = initial_origin
+    page = client.post(BASE, headers=initial_headers, **kwargs)
     assert page.status_code == 200
     assert page.headers["cache-control"] == "no-store"
     assert page.headers["referrer-policy"] == "no-referrer"
@@ -108,6 +112,7 @@ def test_cross_site_document_is_inert_then_first_party_completion_is_one_use(
         "google_mismatch",
         "origin_missing",
         "origin_foreign",
+        "origin_null",
         "header_missing",
         "header_wrong",
         "google_duplicate",
@@ -127,6 +132,8 @@ def test_csrf_denial_precedes_consumption_and_provider(
         outgoing.pop("Origin")
     elif attack == "origin_foreign":
         outgoing["Origin"] = "https://attacker.example"
+    elif attack == "origin_null":
+        outgoing["Origin"] = "null"
     elif attack == "header_missing":
         outgoing.pop("X-CSRF-Token")
     elif attack == "header_wrong":
@@ -163,7 +170,7 @@ def test_original_nonce_provider_and_expiry_fail_closed(
     else:
         with storage.transaction() as conn:
             conn.execute(
-                "UPDATE app.auth_challenges SET expires_at=clock_timestamp()-interval '1 second'"
+                "UPDATE app.auth_challenges SET created_at=clock_timestamp()-interval '20 minutes',expires_at=clock_timestamp()-interval '1 second'"
             )
     response = client.post(
         BASE + "-complete", json=body, headers=headers(config["csrf_token"])
