@@ -42,6 +42,13 @@ def apply(
             and privacy.settings == request.app.state.settings
             and privacy.capable(conn)
         )
+        deletions = getattr(request.app.state, "deletions", None)
+        result["capabilities"]["private_data_delete"] = bool(
+            deletions is not None
+            and deletions.storage is store.storage
+            and deletions.settings == request.app.state.settings
+            and deletions.capable()
+        )
         return result
 
 

@@ -1,5 +1,7 @@
 """P10a compatibility fences before method-removal operations can be enabled."""
 
+from storage.pool import SCHEMA_VERSION
+
 from dataclasses import replace
 
 import pytest
@@ -109,7 +111,7 @@ def test_additive_upgrade_preserves_profiles_primary_mail_preferences_and_proven
         (owner,),
     )
     app_database.execute("RESET ROLE")
-    assert apply(app_database) == apply(app_database) == 8
+    assert apply(app_database) == apply(app_database) == SCHEMA_VERSION
     app_database.execute("SET ROLE aqua_app_owner")
     assert app_database.execute(
         "SELECT display_name,profile_revision FROM app.users WHERE id=%s", (owner,)

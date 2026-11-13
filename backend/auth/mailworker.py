@@ -4,6 +4,8 @@ import logging
 from datetime import datetime, timezone
 from typing import Protocol
 import uuid
+import os
+from contextlib import nullcontext
 
 from auth.mailconfig import MailUnavailable
 from auth.mailoutbox import open_job
@@ -21,6 +23,24 @@ class MailWorker:
         self.outbox, self.transport = outbox, transport
 
     def once(self) -> bool:
+        from retirement.mail_physical import FLAG, gate
+        from retirement.interlock import RetirementUnavailable
+
+        enabled = os.environ.get(FLAG, "false")
+        if enabled not in {"true", "false"}:
+            raise MailUnavailable("account_mail_physical_unavailable")
+        try:
+            with gate(worker=True) if enabled == "true" else nullcontext(True) as host:
+                if not host:
+                    return False
+                with self.outbox.physical(
+                    host if enabled == "true" else None
+                ) as acquired:
+                    return self._deliver() if acquired else False
+        except RetirementUnavailable:
+            raise MailUnavailable("account_mail_physical_unavailable") from None
+
+    def _deliver(self) -> bool:
         job = self.outbox.claim()
         if job is None:
             return False

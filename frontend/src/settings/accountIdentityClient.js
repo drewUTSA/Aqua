@@ -3,8 +3,8 @@ import { accountOwner, accountRevision } from "./accountContract.js";
 import { actionTarget, actionToken, actionProof, actionPassword, actionEmail, actionRecord } from "./accountSecurityContract.js";
 import { googleCredential, googleActionChallenge, googleCandidate, identityMutation, mailRequest, mailToken, notificationSnapshot, notificationValues } from "./accountIdentityContract.js";
 const input = normalize => { try { return normalize(); } catch { throw new WorkspaceError("invalid_input", 422); } };
-async function request(path, method, body, { signal, csrfToken, timeout } = {}, decode) {
-  const value = await workspaceRequest(path, { signal, csrfToken, ...(timeout === undefined ? {} : { timeout }), method, ...(body ? { body } : {}), expectedStatuses: [200] });
+async function request(path, method, body, { signal, csrfToken, timeout, historyContext } = {}, decode) {
+  const value = await workspaceRequest(path, { signal, csrfToken, historyContext, ...(timeout === undefined ? {} : { timeout }), method, ...(body ? { body } : {}), expectedStatuses: [200] });
   if (signal?.aborted) throw new DOMException("Request cancelled", "AbortError");
   try { return decode(value); } catch { throw new WorkspaceError("invalid_response"); }
 }

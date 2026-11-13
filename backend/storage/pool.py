@@ -11,7 +11,7 @@ from psycopg_pool import ConnectionPool, PoolClosed, PoolTimeout, TooManyRequest
 from storage.config import StorageSettings
 
 log = logging.getLogger("aqua.storage")
-SCHEMA_VERSION = 8
+SCHEMA_VERSION = 9
 
 
 class StorageUnavailable(RuntimeError):
@@ -75,27 +75,34 @@ class Storage:
                 self._pool.close(timeout=5)
 
     @contextmanager
-    def transaction(self) -> Iterator[psycopg.Connection]:
+    def session(self) -> Iterator[psycopg.Connection]:
+        """A bounded physical lease may outlive short SQL transactions."""
         if not self.settings.enabled:
             raise StorageUnavailable("application_storage_disabled")
         self.open()
         assert self._pool is not None
         try:
             with self._pool.connection(timeout=self.settings.wait_seconds) as conn:
-                with conn.transaction():
-                    # Every lease gets bounded SQL and only the intended namespaces.
-                    conn.execute("SET LOCAL search_path = pg_catalog, app")
-                    conn.execute("SET LOCAL statement_timeout = '3s'")
-                    conn.execute("SET LOCAL lock_timeout = '1s'")
-                    conn.execute(
-                        "SET LOCAL idle_in_transaction_session_timeout = '10s'"
-                    )
-                    yield conn
+                yield conn
         except (psycopg.Error, PoolClosed, PoolTimeout, TooManyRequests):
             log.warning("application_storage_failure action=deny")
             raise StorageUnavailable("application_storage_unavailable") from None
 
+    @contextmanager
+    def transaction(self) -> Iterator[psycopg.Connection]:
+        with self.session() as conn:
+            with conn.transaction():
+                # Every lease gets bounded SQL and only the intended namespaces.
+                conn.execute("SET LOCAL search_path = pg_catalog, app")
+                conn.execute("SET LOCAL statement_timeout = '3s'")
+                conn.execute("SET LOCAL lock_timeout = '1s'")
+                conn.execute("SET LOCAL idle_in_transaction_session_timeout = '10s'")
+                yield conn
+
     def readiness(self) -> dict[str, str | int]:
+        runtime = getattr(self, "retirement", None)
+        if runtime is not None and not runtime.ready:
+            raise StorageUnavailable("retirement_reconciliation_required")
         if not self.settings.enabled:
             return {"status": "ready", "application_storage": "disabled"}
         with self.transaction() as conn:

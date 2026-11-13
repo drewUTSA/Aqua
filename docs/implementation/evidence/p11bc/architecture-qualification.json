@@ -1,0 +1,68 @@
+{
+  "architectures": {
+    "actual_browser_ARM": "aarch64",
+    "native_amd64": "x86_64"
+  },
+  "cleanup": {
+    "ARM_ID_and_name_absence_confirmed": true,
+    "both_empty_task_Docker_configs_removed": true,
+    "native_ID_and_name_absence_confirmed": true
+  },
+  "full50_versions_and_Requires_equal": true,
+  "full50_versions_and_Requires_freshly_measured_both": true,
+  "images": {
+    "actual_browser_ARM": "sha256:55227ce9093383a0687659b6fdf26a7881c2c9be022e0354c5c2447c55243e23",
+    "native_amd64": "sha256:aba612fc0f6368a6dbf7c40ceddf06de8c3b87a31c00863c7fc528762ad8eeb5"
+  },
+  "limits": {
+    "CPUs": 1,
+    "PIDs": 32,
+    "UID_GID": "1000:1000",
+    "cleanup_seconds": 30,
+    "host_mounts_ports_credentials_DB": false,
+    "memory_bytes": 134217728,
+    "network": "none",
+    "probe_seconds": 45,
+    "rootfs": "readonly",
+    "stdout_bytes": 65536,
+    "work_seconds": 60
+  },
+  "package_count_each": 50,
+  "raw_reports_sha256": {
+    "arm-metadata.json": "002e8cdc3c58449cc3adb55c4446702474dee3b632b45b6a7bde54720e2b2582",
+    "native-metadata.json": "610f8a65bdf1e33ac11cf9f5fd8185a67289d4924f7850dd8c525837688f66a2"
+  },
+  "schemaVersion": 1,
+  "scope": {
+    "app_imports": false,
+    "compiled_binary_architecture_identity_claimed": false,
+    "direct_native_browser_execution_claimed": false,
+    "private_config_or_data_inputs": false,
+    "production_mutations": 0,
+    "read_only_current_immutable_image_metadata": true,
+    "runtime195_bytes_freshly_measured_here": false,
+    "runtime195_equality": "separate actual package/source qualification, manifest06bd677d5ef72112f5a69a93054f3e5ed64f6713f32c04e6f7038a2e5d29857d",
+    "service_inventory": false
+  },
+  "software_environment": {
+    "OS_release_sha256": "59a77b5f2666d9c85c489bd1911a6eebbd91ef22fe48b90a3b75f1b21f3844d4",
+    "libc": [
+      "glibc",
+      "2.36"
+    ],
+    "openssl": "OpenSSL 3.0.20 7 Apr 2026",
+    "python": "3.12.14"
+  },
+  "software_environment_fields_equal": [
+    "python",
+    "openssl",
+    "libc",
+    "OS_release_sha256"
+  ],
+  "source_pins": {
+    "bounded_process_sha256": "e5b4213b0ce8430d30160995853400ae4ed9b06b0f675d350a8899c7b6af3cd5",
+    "collector_sha256": "35ba9c51dc394132b5e2f5f356b16991aa54200db271a421f1d133eeaf9f9702",
+    "program_sha256": "40aaac2aff653bcf217881789510c133d729dcc3edc57c3af048241f7cb2b39d"
+  },
+  "status": "passed_actual_current_image_architecture_metadata"
+}

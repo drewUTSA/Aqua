@@ -1,5 +1,7 @@
 """Additive schema/history compatibility and bounded abandoned-request recovery."""
 
+from storage.pool import SCHEMA_VERSION
+
 from pathlib import Path
 
 
@@ -15,7 +17,7 @@ def test_schema3_backup_accepts_conditional_workspace_restore_fence(app_database
         "SELECT to_regclass('app.analysis_requests')"
     ).fetchone() == (None,)
     app_database.execute("RESET ROLE")
-    assert apply(app_database) == 8
+    assert apply(app_database) == SCHEMA_VERSION
 
 
 def test_old_pending_record_retires_without_new_model_call_or_double_refund(

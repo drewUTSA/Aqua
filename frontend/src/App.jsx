@@ -8,6 +8,7 @@ import AccountActionLanding from "./pages/AccountActionLanding.jsx";
 import NotificationProvider from "./settings/NotificationProvider.jsx";
 import { PreferencesProvider } from "./settings/PreferencesProvider.jsx";
 import { purgeDevicePreferences } from "./settings/deviceStore.js";
+import DataDeletionProvider from "./settings/DataDeletionProvider.jsx";
 
 // Capture once before UI/SDK setup, including StrictMode's initializer replay.
 const initialRoute = typeof window === "undefined" ? { path: "/", proof: null }
@@ -73,8 +74,8 @@ function AccountApp({ route, navigate, clearProof, registerGuard }) {
   }, [auth.status, unlocked, route.path, workspaceRoute, navigate]);
   // Account UI and dataset permission are separate. Pending/failed logout keeps
   // this account mounted but hidden/inert; confirmed logout or switch clears it.
-  return <>
-    {retain && <PreferencesProvider key={accountId} auth={auth} previewEnabled={route.path === "/settings"} registerGuard={registerGuard}>
+  return <DataDeletionProvider auth={auth}>{({ privateEpoch, privateBlocked }) => <>
+    {retain && !privateBlocked && <PreferencesProvider key={`${accountId}:${auth.historyEpoch}:${privateEpoch}`} auth={auth} previewEnabled={route.path === "/settings"} registerGuard={registerGuard}>
       <NotificationProvider auth={auth}>
       <Workspace auth={auth} path={route.path} onNavigate={navigate} hidden={!unlocked || !workspaceRoute} />
       </NotificationProvider>
@@ -84,5 +85,5 @@ function AccountApp({ route, navigate, clearProof, registerGuard }) {
           onProofConsumed={clearProof} onNavigate={navigate} auth={auth} />
       : <main className="not-found"><h1 tabIndex={-1}>Page not found</h1><p>This page is not available.</p>
           <button type="button" onClick={() => navigate(unlocked ? "/" : "/signin")}>Back to AQUA</button></main>)}
-  </>;
+  </>}</DataDeletionProvider>;
 }

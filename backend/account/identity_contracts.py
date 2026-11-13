@@ -6,6 +6,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 
 from account.action_contracts import TOKEN, ActionProof
 from account.policy import identifier
+from retirement.deletion_policy import intent_identifier as deletion_intent
 from auth.password_policy import normalize_email
 
 
@@ -20,6 +21,8 @@ class IdentityTarget(BaseModel):
         "session_revoke",
         "sessions_revoke_all",
         "data_export",
+        "history_delete",
+        "account_delete",
     ]
     target_intent_id: str | None = None
     target_session_id: str | None = None
@@ -28,7 +31,9 @@ class IdentityTarget(BaseModel):
 
     @model_validator(mode="after")
     def exact_target(self):
-        if self.operation == "data_export":
+        if self.operation in {"history_delete", "account_delete"}:
+            deletion_intent(self.target_intent_id)
+        elif self.operation == "data_export":
             identifier(self.target_intent_id)
         elif self.target_intent_id is not None:
             raise ValueError("account_target_invalid")

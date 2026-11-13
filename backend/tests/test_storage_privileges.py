@@ -1,6 +1,6 @@
 import psycopg
 import pytest
-from storage.pool import StorageUnavailable
+from storage.pool import SCHEMA_VERSION, StorageUnavailable
 from storage_fixtures import RUNTIME, BACKUP
 
 
@@ -51,7 +51,7 @@ def test_data_constraints_and_no_default_dataset_grant(storage):
         with pytest.raises(StorageUnavailable):
             with storage.transaction() as conn:
                 conn.execute(statement, params)
-    assert storage.readiness()["schema_version"] == 8
+    assert storage.readiness()["schema_version"] == SCHEMA_VERSION
 
 
 def test_session_child_cannot_reference_another_owner(storage):

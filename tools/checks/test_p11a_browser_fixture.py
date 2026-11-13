@@ -178,7 +178,7 @@ class ExportFixtureTests(unittest.TestCase):
         ]:
             self.assertFalse(fixture.export_route(path, method))
 
-    def test_private_mode_is_keyword_only_default_closed_and_requires_schema8_identity(
+    def test_private_mode_is_keyword_only_default_closed_and_requires_schema9_identity(
         self,
     ):
         for function in (host.host, worker.worker):
@@ -207,7 +207,7 @@ class ExportFixtureTests(unittest.TestCase):
                 )
             resources.assert_not_called()
 
-    def host_case(self, marker=True):
+    def host_case(self, marker=True, schema=9):
         child = SimpleNamespace(
             stdin=Mock(),
             stdout=io.BytesIO(
@@ -215,7 +215,7 @@ class ExportFixtureTests(unittest.TestCase):
                     json.dumps(
                         {
                             "kind": "ready",
-                            "schema_version": 8,
+                            "schema_version": schema,
                             "account_security_fixture": True,
                             "account_identity_fixture": True,
                             "personal_export_fixture": marker,
@@ -266,6 +266,9 @@ class ExportFixtureTests(unittest.TestCase):
         self.assertEqual(command[-4:], ["--origin", ORIGIN, "--image", IMAGE])
         self.assertEqual(host.MAX_SECONDS, 300)
         self.assertEqual(self.host_case(False)[0], 1)
+        for schema in (7, 8, 10, True):
+            with self.subTest(schema=schema):
+                self.assertEqual(self.host_case(schema=schema)[0], 1)
 
     def test_actual_export_forwarding_preserves_captured_request_and_extra_controls_deny(
         self,
@@ -368,7 +371,7 @@ class ExportFixtureTests(unittest.TestCase):
                 "body_exposed": False,
             },
         )
-        self.assertEqual(value.metadata()["schema_version"], 8)
+        self.assertEqual(value.metadata()["schema_version"], 9)
         self.assertEqual(value.analysis.max_executions, 0)
         with self.assertRaises(ValueError):
             value.track({"path": fixture.EXPORTS, "method": "POST"}, {"status": 202})
@@ -464,6 +467,11 @@ class CapacityFixtureTests(unittest.TestCase):
                 return b"Filesystem 1K-blocks Used Available Use% Mounted\ntmpfs 524288 65536 458752 13% /var/lib/postgresql/data\n"
             if "cat" in args:
                 return xml
+            if args[-2:] == (
+                "-c",
+                "SELECT max(version) FROM app.schema_migrations",
+            ):
+                return b"9\n"
             return b""
 
         def process(args, **kwargs):

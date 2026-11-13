@@ -1,0 +1,368 @@
+-- PRIVATE DRAFT. Fixed new independent database only; no production execution.
+-- Source/role/function review and actual bounded fixture checks are required.
+\set ON_ERROR_STOP on
+\connect aqua_retirement
+SET ROLE aqua_retirement_owner;
+
+CREATE TABLE retirement.control (
+ singleton boolean PRIMARY KEY DEFAULT true CHECK(singleton),
+ installation_id uuid NOT NULL, identity_key_id uuid NOT NULL,
+ key_commitment bytea NOT NULL CHECK(octet_length(key_commitment)=32),
+ next_sequence bigint NOT NULL DEFAULT 1 CHECK(next_sequence BETWEEN 1 AND 250001),
+ head_digest bytea NOT NULL CHECK(octet_length(head_digest)=32),
+ acknowledged_sequence bigint NOT NULL DEFAULT -1 CHECK(acknowledged_sequence BETWEEN -1 AND 9007199254740991),
+ acknowledged_digest bytea NOT NULL DEFAULT decode(repeat('00',32),'hex') CHECK(octet_length(acknowledged_digest)=32),
+ intent_count integer NOT NULL DEFAULT 0 CHECK(intent_count BETWEEN 0 AND 250000),
+ owner_count integer NOT NULL DEFAULT 0 CHECK(owner_count BETWEEN 0 AND 100000),
+ fingerprint_count integer NOT NULL DEFAULT 0 CHECK(fingerprint_count BETWEEN 0 AND 250000),
+ reserved_fingerprints integer NOT NULL DEFAULT 0 CHECK(reserved_fingerprints BETWEEN 0 AND 250000),
+ pending_count integer NOT NULL DEFAULT 0 CHECK(pending_count BETWEEN 0 AND 250000),
+ logical_bytes bigint NOT NULL DEFAULT 0 CHECK(logical_bytes BETWEEN 0 AND 134217728),
+ CHECK(fingerprint_count+reserved_fingerprints<=250000),
+ CHECK(acknowledged_sequence<=next_sequence-1 AND next_sequence-1-acknowledged_sequence<=1)
+);
+INSERT INTO retirement.control(installation_id,identity_key_id,key_commitment,head_digest)
+ VALUES(:'installation_id'::uuid,:'identity_key_id'::uuid,decode(:'key_commitment','hex'),decode(repeat('00',32),'hex'));
+
+CREATE TABLE retirement.owners (
+ owner_id uuid PRIMARY KEY,
+ history_floor bigint NOT NULL CHECK(history_floor BETWEEN 2 AND 9007199254740991),
+ privacy_floor bigint NOT NULL CHECK(privacy_floor BETWEEN 2 AND 9007199254740991),
+ auth_floor bigint NOT NULL CHECK(auth_floor BETWEEN 0 AND 9007199254740991),
+ account_closed boolean NOT NULL
+);
+CREATE TABLE retirement.intents (
+ intent_id uuid PRIMARY KEY, owner_id uuid NOT NULL REFERENCES retirement.owners(owner_id),
+ job_id uuid NOT NULL UNIQUE, created_at timestamptz NOT NULL,
+ scope text NOT NULL CHECK(scope IN ('chat_history_v1','account_v1')),
+ history_floor bigint NOT NULL CHECK(history_floor BETWEEN 2 AND 9007199254740991),
+ privacy_floor bigint NOT NULL CHECK(privacy_floor BETWEEN 2 AND 9007199254740991),
+ auth_floor bigint NOT NULL CHECK(auth_floor BETWEEN 0 AND 9007199254740991),
+ account_closed boolean NOT NULL,
+ expected_count integer NOT NULL CHECK(expected_count BETWEEN 0 AND 100000),
+ expected_pages integer NOT NULL CHECK(expected_pages BETWEEN 0 AND 782),
+ expected_root bytea NOT NULL CHECK(octet_length(expected_root)=32),
+ received_count integer NOT NULL DEFAULT 0 CHECK(received_count BETWEEN 0 AND 100000),
+ next_page integer NOT NULL DEFAULT 0 CHECK(next_page BETWEEN 0 AND 782),
+ page_head bytea NOT NULL CHECK(octet_length(page_head)=32), last_payload bytea,
+ state text NOT NULL DEFAULT 'staging' CHECK(state IN ('staging','sealed')),
+ sealed_at timestamptz,
+ CHECK((state='sealed')=(sealed_at IS NOT NULL)),
+ CHECK(sealed_at IS NULL OR (isfinite(sealed_at) AND sealed_at>=created_at)),
+ CHECK(account_closed=(scope='account_v1')),
+ CHECK(expected_pages=(expected_count+127)/128),
+ CHECK(received_count<=expected_count AND next_page<=expected_pages),
+ CHECK((scope='chat_history_v1' AND expected_count=0) OR (scope='account_v1' AND expected_count>=1 AND auth_floor>=1)),
+ CHECK(last_payload IS NULL OR octet_length(last_payload)=114)
+);
+CREATE INDEX retirement_intents_owner ON retirement.intents(owner_id,intent_id);
+CREATE UNIQUE INDEX retirement_one_staging_owner ON retirement.intents(owner_id) WHERE state='staging';
+CREATE TABLE retirement.pages (
+ intent_id uuid NOT NULL REFERENCES retirement.intents(intent_id),
+ ordinal integer NOT NULL CHECK(ordinal BETWEEN 0 AND 781),
+ previous_digest bytea NOT NULL CHECK(octet_length(previous_digest)=32),
+ digest bytea NOT NULL CHECK(octet_length(digest)=32),
+ entries bytea[] NOT NULL CHECK(array_ndims(entries)=1 AND array_lower(entries,1)=1 AND cardinality(entries) BETWEEN 1 AND 128 AND array_position(entries,NULL) IS NULL),
+ PRIMARY KEY(intent_id,ordinal)
+);
+CREATE TABLE retirement.fingerprints (
+ dataset_key text NOT NULL CHECK(dataset_key~'^[a-f0-9]{64}$'),
+ key_id uuid NOT NULL, kind smallint NOT NULL CHECK(kind IN (1,2)),
+ digest bytea NOT NULL CHECK(octet_length(digest)=32),
+ first_intent uuid NOT NULL REFERENCES retirement.intents(intent_id),
+ PRIMARY KEY(dataset_key,key_id,kind,digest)
+);
+CREATE TABLE retirement.journal (
+ sequence bigint PRIMARY KEY CHECK(sequence BETWEEN 1 AND 250000),
+ intent_id uuid NOT NULL UNIQUE REFERENCES retirement.intents(intent_id),
+ previous_digest bytea NOT NULL CHECK(octet_length(previous_digest)=32),
+ digest bytea NOT NULL CHECK(octet_length(digest)=32),
+ header_at timestamptz NOT NULL DEFAULT clock_timestamp(), checkpointed_at timestamptz,
+ CHECK(checkpointed_at IS NULL OR checkpointed_at>=header_at)
+);
+
+CREATE FUNCTION retirement.writer_guard() RETURNS void
+LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,retirement AS $$
+BEGIN
+ IF session_user<>'aqua_retirement_writer' THEN
+  RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='retirement_role_denied';
+ END IF;
+ IF current_setting('fsync')<>'on' OR current_setting('full_page_writes')<>'on' THEN
+  RAISE EXCEPTION USING ERRCODE='55000',MESSAGE='retirement_durability_unproven';
+ END IF;
+ -- Force the ordinary session setting, not a helper-local setting that might
+ -- be restored on function exit. Actual fixtures must verify it remains on
+ -- after return and through COMMIT even when this session began with it off.
+ PERFORM set_config('synchronous_commit','on',false);
+ PERFORM pg_advisory_xact_lock(1095848273,1);
+ IF EXISTS(SELECT 1 FROM retirement.control WHERE acknowledged_sequence<>next_sequence-1) THEN
+  RAISE EXCEPTION USING ERRCODE='55000',MESSAGE='retirement_checkpoint_pending';
+ END IF;
+END $$;
+
+CREATE FUNCTION retirement.identity_context()
+RETURNS TABLE(installation_id uuid,identity_key_id uuid,key_commitment bytea)
+LANGUAGE sql STABLE SECURITY DEFINER SET search_path=pg_catalog,retirement AS $$
+ SELECT c.installation_id,c.identity_key_id,c.key_commitment FROM retirement.control c WHERE c.singleton
+$$;
+
+CREATE FUNCTION retirement.lookup_intent(p_intent uuid)
+RETURNS TABLE(installation_id uuid,intent_id uuid,owner_id uuid,job_id uuid,created_at timestamptz,scope text,
+ history_floor bigint,privacy_floor bigint,auth_floor bigint,account_closed boolean,
+ expected_count integer,expected_pages integer,expected_root bytea,state text,
+ next_page integer,page_head bytea,sequence bigint,event_digest bytea,checkpointed_at timestamptz,sealed_at timestamptz)
+LANGUAGE sql STABLE SECURITY DEFINER SET search_path=pg_catalog,retirement AS $$
+ SELECT c.installation_id,i.intent_id,i.owner_id,i.job_id,i.created_at,i.scope,i.history_floor,i.privacy_floor,i.auth_floor,
+ i.account_closed,i.expected_count,i.expected_pages,i.expected_root,i.state,i.next_page,i.page_head,j.sequence,j.digest,j.checkpointed_at,i.sealed_at
+ FROM retirement.control c CROSS JOIN retirement.intents i LEFT JOIN retirement.journal j ON j.intent_id=i.intent_id
+ WHERE c.singleton AND i.intent_id=p_intent
+$$;
+
+CREATE FUNCTION retirement.begin_intent(p_installation uuid,p_intent uuid,p_owner uuid,
+ p_job uuid,p_created timestamptz,p_scope text,p_history bigint,p_privacy bigint,p_auth bigint,p_count integer,p_root bytea)
+RETURNS text LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,retirement AS $$
+DECLARE c retirement.control%ROWTYPE; i retirement.intents%ROWTYPE; o retirement.owners%ROWTYPE;
+ initial bytea:=sha256(decode('415155413a7265746972656d656e742d70616765733a763100','hex'));
+ owner_new boolean; closed boolean; charge bigint; payload bytea; calculated bytea;
+BEGIN
+ PERFORM retirement.writer_guard();
+ SELECT * INTO STRICT c FROM retirement.control WHERE singleton FOR UPDATE;
+ IF p_installation IS DISTINCT FROM c.installation_id OR p_intent IS NULL OR p_owner IS NULL
+ OR p_job IS NULL OR p_created IS NULL OR NOT isfinite(p_created)
+ OR p_scope IS NULL OR p_scope NOT IN ('chat_history_v1','account_v1')
+ OR p_history IS NULL OR p_history NOT BETWEEN 2 AND 9007199254740991
+ OR p_privacy IS NULL OR p_privacy NOT BETWEEN 2 AND 9007199254740991
+ OR p_auth IS NULL OR p_auth NOT BETWEEN 0 AND 9007199254740991
+ OR p_count IS NULL OR p_count NOT BETWEEN 0 AND 100000
+ OR p_root IS NULL OR octet_length(p_root)<>32
+ OR (p_scope='chat_history_v1' AND (p_count<>0 OR p_root<>initial))
+ OR (p_scope='account_v1' AND (p_count<1 OR p_auth<1)) THEN
+  RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='retirement_header_invalid';
+ END IF;
+ closed:=p_scope='account_v1';
+ SELECT * INTO i FROM retirement.intents WHERE intent_id=p_intent;
+ IF FOUND THEN
+  IF (i.owner_id,i.job_id,i.created_at,i.scope,i.history_floor,i.privacy_floor,i.auth_floor,i.account_closed,i.expected_count,i.expected_root)
+     IS DISTINCT FROM (p_owner,p_job,p_created,p_scope,p_history,p_privacy,p_auth,closed,p_count,p_root) THEN
+   RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='retirement_intent_conflict';
+  END IF;
+  RETURN i.state;
+ END IF;
+ IF EXISTS(SELECT 1 FROM retirement.intents WHERE owner_id=p_owner AND state='staging') THEN
+  RAISE EXCEPTION USING ERRCODE='55000',MESSAGE='retirement_owner_already_pending';
+ END IF;
+ SELECT * INTO o FROM retirement.owners WHERE owner_id=p_owner;
+ owner_new:=NOT FOUND;
+ IF NOT owner_new AND (o.account_closed OR p_history<=o.history_floor OR p_privacy<=o.privacy_floor
+ OR p_auth<o.auth_floor OR (closed AND p_auth<=o.auth_floor)) THEN
+  RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='retirement_floor_not_advanced';
+ END IF;
+ charge:=512+p_count::bigint*256;
+ IF c.intent_count>=250000 OR c.next_sequence>250000 OR (owner_new AND c.owner_count>=100000)
+ OR c.fingerprint_count+c.reserved_fingerprints+p_count>250000
+ OR c.logical_bytes+charge>134217728 THEN
+  RAISE EXCEPTION USING ERRCODE='54000',MESSAGE='retirement_capacity_unavailable';
+ END IF;
+ INSERT INTO retirement.owners VALUES(p_owner,p_history,p_privacy,p_auth,closed)
+ ON CONFLICT(owner_id) DO UPDATE SET history_floor=EXCLUDED.history_floor,privacy_floor=EXCLUDED.privacy_floor,
+ auth_floor=EXCLUDED.auth_floor,account_closed=retirement.owners.account_closed OR EXCLUDED.account_closed;
+ INSERT INTO retirement.intents(intent_id,owner_id,job_id,created_at,scope,history_floor,privacy_floor,auth_floor,account_closed,expected_count,expected_pages,expected_root,page_head)
+ VALUES(p_intent,p_owner,p_job,p_created,p_scope,p_history,p_privacy,p_auth,closed,p_count,(p_count+127)/128,p_root,initial);
+ -- The single immutable event anchors acceptance BEFORE an HTTP success, even
+ -- when the bounded fingerprint pages will be appended asynchronously later.
+ payload:=decode('415155413a7265746972656d656e742d6576656e743a763100','hex')||uuid_send(c.installation_id)||uuid_send(p_owner)||uuid_send(p_intent)
+  ||uuid_send(p_job)||timestamptz_send(p_created)
+  ||CASE WHEN p_scope='chat_history_v1' THEN decode('01','hex') ELSE decode('02','hex') END
+  ||int8send(p_history)||int8send(p_privacy)||int8send(p_auth)||boolsend(closed)||int4send(p_count)||p_root;
+ calculated:=sha256(c.head_digest||int8send(c.next_sequence)||payload);
+ INSERT INTO retirement.journal(sequence,intent_id,previous_digest,digest) VALUES(c.next_sequence,p_intent,c.head_digest,calculated);
+ UPDATE retirement.control SET intent_count=intent_count+1,owner_count=owner_count+owner_new::integer,
+ reserved_fingerprints=reserved_fingerprints+p_count,pending_count=pending_count+1,logical_bytes=logical_bytes+charge,
+ next_sequence=next_sequence+1,head_digest=calculated WHERE singleton;
+ RETURN 'staging';
+END $$;
+
+CREATE FUNCTION retirement.append_page(p_installation uuid,p_intent uuid,p_ordinal integer,p_previous bytea,p_entries bytea[])
+RETURNS bytea LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,retirement AS $$
+DECLARE c retirement.control%ROWTYPE; i retirement.intents%ROWTYPE; old retirement.pages%ROWTYPE;
+ item bytea; last bytea; encoded bytea:=''::bytea; calculated bytea; dataset text; key_id uuid; kind smallint;
+ amount integer; expected integer; added integer:=0; changed integer;
+BEGIN
+ PERFORM retirement.writer_guard();
+ SELECT * INTO STRICT c FROM retirement.control WHERE singleton FOR UPDATE;
+ IF p_installation IS DISTINCT FROM c.installation_id OR p_intent IS NULL OR p_ordinal IS NULL
+ OR p_ordinal NOT BETWEEN 0 AND 781 OR p_previous IS NULL OR octet_length(p_previous)<>32
+ OR p_entries IS NULL OR array_ndims(p_entries) IS DISTINCT FROM 1 OR array_lower(p_entries,1)<>1
+ OR cardinality(p_entries) NOT BETWEEN 1 AND 128 OR array_position(p_entries,NULL) IS NOT NULL THEN
+  RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='retirement_page_invalid';
+ END IF;
+ SELECT * INTO STRICT i FROM retirement.intents WHERE intent_id=p_intent FOR UPDATE;
+ SELECT * INTO old FROM retirement.pages WHERE intent_id=p_intent AND ordinal=p_ordinal;
+ IF FOUND THEN
+  IF old.previous_digest IS DISTINCT FROM p_previous OR old.entries IS DISTINCT FROM p_entries THEN
+   RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='retirement_page_replay_conflict';
+  END IF;
+  RETURN old.digest;
+ END IF;
+ amount:=cardinality(p_entries);
+ expected:=least(128,i.expected_count-i.received_count);
+ IF i.state<>'staging' OR p_ordinal<>i.next_page OR p_previous<>i.page_head OR expected<1 OR amount<>expected THEN
+  RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='retirement_page_sequence_invalid';
+ END IF;
+ last:=i.last_payload;
+ FOREACH item IN ARRAY p_entries LOOP
+  IF octet_length(item)<>114 OR get_byte(item,0)<>1 OR get_byte(item,81) NOT IN (1,2)
+   OR (last IS NOT NULL AND item<=last) THEN
+   RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='retirement_page_payload_invalid';
+  END IF;
+  dataset:=convert_from(substring(item FROM 2 FOR 64),'UTF8');
+  key_id:=encode(substring(item FROM 66 FOR 16),'hex')::uuid;
+  kind:=get_byte(item,81)::smallint;
+  IF dataset!~'^[a-f0-9]{64}$' OR key_id<>c.identity_key_id THEN
+   RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='retirement_page_key_invalid';
+  END IF;
+  INSERT INTO retirement.fingerprints(dataset_key,key_id,kind,digest,first_intent)
+   VALUES(dataset,key_id,kind,substring(item FROM 83 FOR 32),p_intent) ON CONFLICT DO NOTHING;
+  GET DIAGNOSTICS changed=ROW_COUNT;added:=added+changed;
+  encoded:=encoded||item;last:=item;
+ END LOOP;
+ calculated:=sha256(p_previous||int4send(p_ordinal)||encoded);
+ INSERT INTO retirement.pages VALUES(p_intent,p_ordinal,p_previous,calculated,p_entries);
+ UPDATE retirement.intents SET next_page=next_page+1,received_count=received_count+amount,page_head=calculated,last_payload=last WHERE intent_id=p_intent;
+ UPDATE retirement.control SET fingerprint_count=fingerprint_count+added,reserved_fingerprints=reserved_fingerprints-amount WHERE singleton;
+ RETURN calculated;
+END $$;
+
+CREATE FUNCTION retirement.seal_intent(p_installation uuid,p_intent uuid)
+RETURNS TABLE(sequence bigint,event_digest bytea)
+LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,retirement AS $$
+DECLARE c retirement.control%ROWTYPE; i retirement.intents%ROWTYPE;
+BEGIN
+ PERFORM retirement.writer_guard();
+ SELECT * INTO STRICT c FROM retirement.control WHERE singleton FOR UPDATE;
+ IF p_installation IS DISTINCT FROM c.installation_id OR p_intent IS NULL THEN
+  RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='retirement_installation_invalid';
+ END IF;
+ SELECT * INTO STRICT i FROM retirement.intents WHERE intent_id=p_intent FOR UPDATE;
+ IF i.state='sealed' THEN
+  RETURN QUERY SELECT j.sequence,j.digest FROM retirement.journal j WHERE j.intent_id=p_intent;RETURN;
+ END IF;
+ IF i.next_page<>i.expected_pages OR i.received_count<>i.expected_count OR i.page_head<>i.expected_root
+ OR NOT EXISTS(SELECT 1 FROM retirement.journal j WHERE j.intent_id=p_intent AND j.checkpointed_at IS NOT NULL AND j.sequence<=c.acknowledged_sequence)
+ OR EXISTS(
+  SELECT 1 FROM retirement.pages p CROSS JOIN LATERAL unnest(p.entries) AS e(item)
+  WHERE p.intent_id=p_intent AND NOT EXISTS(
+   SELECT 1 FROM retirement.fingerprints f
+   WHERE f.dataset_key=convert_from(substring(e.item FROM 2 FOR 64),'UTF8')
+    AND f.key_id=encode(substring(e.item FROM 66 FOR 16),'hex')::uuid
+    AND f.kind=get_byte(e.item,81) AND f.digest=substring(e.item FROM 83 FOR 32)
+  )
+ ) THEN
+  RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='retirement_manifest_unconfirmed';
+ END IF;
+ UPDATE retirement.intents SET state='sealed',sealed_at=clock_timestamp() WHERE intent_id=p_intent;
+ UPDATE retirement.control SET pending_count=pending_count-1 WHERE singleton;
+ RETURN QUERY SELECT j.sequence,j.digest FROM retirement.journal j WHERE j.intent_id=p_intent;
+END $$;
+
+CREATE FUNCTION retirement.check_google_grant(p_installation uuid,p_dataset text,p_key uuid,p_google bytea,p_mailbox bytea)
+RETURNS TABLE(installation_id uuid,retired boolean)
+LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,retirement AS $$
+DECLARE c retirement.control%ROWTYPE;
+BEGIN
+ PERFORM retirement.writer_guard();
+ SELECT * INTO STRICT c FROM retirement.control WHERE singleton;
+ IF p_installation IS DISTINCT FROM c.installation_id OR p_key IS DISTINCT FROM c.identity_key_id
+ OR p_dataset IS NULL OR p_dataset!~'^[a-f0-9]{64}$' OR p_google IS NULL OR octet_length(p_google)<>32
+ OR p_mailbox IS NULL OR octet_length(p_mailbox)<>32 THEN
+  RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='retirement_grant_input_invalid';
+ END IF;
+ IF c.pending_count<>0 OR c.acknowledged_sequence<>c.next_sequence-1 THEN
+  RAISE EXCEPTION USING ERRCODE='55000',MESSAGE='retirement_authority_pending';
+ END IF;
+ RETURN QUERY SELECT c.installation_id,EXISTS(
+  SELECT 1 FROM retirement.fingerprints f WHERE f.dataset_key IN (p_dataset,repeat('0',64)) AND f.key_id=p_key
+  AND ((f.kind=1 AND f.digest=p_google) OR (f.kind=2 AND f.digest=p_mailbox))
+ );
+END $$;
+
+CREATE FUNCTION retirement.checkpoint()
+RETURNS TABLE(installation_id uuid,identity_key_id uuid,key_commitment bytea,last_sequence bigint,head_digest bytea,
+ acknowledged_sequence bigint,acknowledged_digest bytea,
+ pending_count integer,intent_count integer,owner_count integer,fingerprint_count integer,reserved_fingerprints integer,logical_bytes bigint)
+LANGUAGE sql STABLE SECURITY DEFINER SET search_path=pg_catalog,retirement AS $$
+ SELECT c.installation_id,c.identity_key_id,c.key_commitment,c.next_sequence-1,c.head_digest,c.acknowledged_sequence,c.acknowledged_digest,c.pending_count,
+ c.intent_count,c.owner_count,c.fingerprint_count,c.reserved_fingerprints,c.logical_bytes FROM retirement.control c WHERE c.singleton
+$$;
+
+CREATE FUNCTION retirement.acknowledge_checkpoint(p_installation uuid,p_sequence bigint,p_digest bytea)
+RETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,retirement AS $$
+DECLARE c retirement.control%ROWTYPE;
+BEGIN
+ IF session_user<>'aqua_retirement_checkpoint' THEN
+  RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='retirement_checkpoint_role_denied';
+ END IF;
+ IF current_setting('fsync')<>'on' OR current_setting('full_page_writes')<>'on' THEN
+  RAISE EXCEPTION USING ERRCODE='55000',MESSAGE='retirement_durability_unproven';
+ END IF;
+ PERFORM set_config('synchronous_commit','on',false);
+ PERFORM pg_advisory_xact_lock(1095848273,1);
+ SELECT * INTO STRICT c FROM retirement.control WHERE singleton FOR UPDATE;
+ IF p_installation IS DISTINCT FROM c.installation_id OR p_sequence IS DISTINCT FROM c.next_sequence-1
+ OR p_digest IS DISTINCT FROM c.head_digest THEN
+  RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='retirement_checkpoint_mismatch';
+ END IF;
+ IF c.acknowledged_sequence=p_sequence THEN
+  IF c.acknowledged_digest<>p_digest THEN
+   RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='retirement_checkpoint_replay_conflict';
+  END IF;
+  RETURN;
+ END IF;
+ IF c.acknowledged_sequence<>p_sequence-1 OR (p_sequence>0 AND NOT EXISTS(
+  SELECT 1 FROM retirement.journal j WHERE j.sequence=p_sequence AND j.digest=p_digest AND j.previous_digest=c.acknowledged_digest
+ )) OR (p_sequence=0 AND p_digest<>decode(repeat('00',32),'hex')) THEN
+  RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='retirement_checkpoint_sequence_invalid';
+ END IF;
+ UPDATE retirement.control SET acknowledged_sequence=p_sequence,acknowledged_digest=p_digest WHERE singleton;
+ UPDATE retirement.journal SET checkpointed_at=clock_timestamp() WHERE sequence=p_sequence AND checkpointed_at IS NULL;
+END $$;
+
+CREATE FUNCTION retirement.read_events(p_after bigint,p_limit integer)
+RETURNS TABLE(sequence bigint,previous_digest bytea,event_digest bytea,intent_id uuid,owner_id uuid,job_id uuid,created_at timestamptz,checkpointed_at timestamptz,sealed_at timestamptz,state text,scope text,
+ history_floor bigint,privacy_floor bigint,auth_floor bigint,account_closed boolean,fingerprint_count integer,fingerprint_root bytea)
+LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path=pg_catalog,retirement AS $$
+BEGIN
+ IF p_after IS NULL OR p_after<0 OR p_limit IS NULL OR p_limit NOT BETWEEN 1 AND 128 THEN
+  RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='retirement_page_read_invalid';
+ END IF;
+ RETURN QUERY SELECT j.sequence,j.previous_digest,j.digest,i.intent_id,i.owner_id,i.job_id,i.created_at,j.checkpointed_at,i.sealed_at,i.state,i.scope,i.history_floor,
+ i.privacy_floor,i.auth_floor,i.account_closed,i.expected_count,i.expected_root
+ FROM retirement.journal j JOIN retirement.intents i ON i.intent_id=j.intent_id
+ WHERE j.sequence>p_after ORDER BY j.sequence LIMIT p_limit;
+END $$;
+
+CREATE FUNCTION retirement.read_pages(p_intent uuid,p_after integer,p_limit integer)
+RETURNS TABLE(ordinal integer,previous_digest bytea,digest bytea,entries bytea[])
+LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path=pg_catalog,retirement AS $$
+BEGIN
+ IF p_intent IS NULL OR p_after IS NULL OR p_after NOT BETWEEN -1 AND 781 OR p_limit IS NULL OR p_limit NOT BETWEEN 1 AND 4 THEN
+  RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='retirement_page_read_invalid';
+ END IF;
+ RETURN QUERY SELECT p.ordinal,p.previous_digest,p.digest,p.entries FROM retirement.pages p
+ WHERE p.intent_id=p_intent AND p.ordinal>p_after ORDER BY p.ordinal LIMIT p_limit;
+END $$;
+
+REVOKE ALL ON ALL TABLES IN SCHEMA retirement FROM PUBLIC,aqua_retirement_writer,aqua_retirement_recovery,aqua_retirement_checkpoint;
+REVOKE ALL ON ALL SEQUENCES IN SCHEMA retirement FROM PUBLIC,aqua_retirement_writer,aqua_retirement_recovery,aqua_retirement_checkpoint;
+REVOKE ALL ON ALL FUNCTIONS IN SCHEMA retirement FROM PUBLIC,aqua_retirement_writer,aqua_retirement_recovery,aqua_retirement_checkpoint;
+GRANT USAGE ON SCHEMA retirement TO aqua_retirement_writer,aqua_retirement_recovery,aqua_retirement_checkpoint;
+GRANT EXECUTE ON FUNCTION retirement.identity_context(),retirement.lookup_intent(uuid),retirement.checkpoint()
+ TO aqua_retirement_writer;
+GRANT EXECUTE ON FUNCTION retirement.begin_intent(uuid,uuid,uuid,uuid,timestamptz,text,bigint,bigint,bigint,integer,bytea),
+ retirement.append_page(uuid,uuid,integer,bytea,bytea[]),retirement.seal_intent(uuid,uuid),
+ retirement.check_google_grant(uuid,text,uuid,bytea,bytea) TO aqua_retirement_writer;
+GRANT EXECUTE ON FUNCTION retirement.identity_context(),retirement.checkpoint(),retirement.read_events(bigint,integer),
+ retirement.read_pages(uuid,integer,integer) TO aqua_retirement_recovery;
+GRANT EXECUTE ON FUNCTION retirement.identity_context(),retirement.checkpoint(),
+ retirement.acknowledge_checkpoint(uuid,bigint,bytea) TO aqua_retirement_checkpoint;
+RESET ROLE;

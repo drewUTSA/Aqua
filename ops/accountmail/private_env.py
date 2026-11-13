@@ -10,6 +10,7 @@ import re
 import stat
 
 PRIVATE = Path("/home/ben2004/.aqua-runtime/mail")
+RETIREMENT_FLAG = "ACCOUNT_MAIL_RETIREMENT_LOCK_ENABLED"
 FIELDS = {
     "ACCOUNT_MAIL_ENABLED",
     "ACCOUNT_MAIL_WORKER_ENABLED",
@@ -51,12 +52,7 @@ def _file_info(info: os.stat_result) -> None:
         raise Unavailable("unsafe_private_file")
 
 
-def read_environment(directory: Path) -> tuple[bytes, bool]:
-    """A strict Docker env file, not shell or dotenv code; no ambient secrets."""
-    fd = os.open(directory / "worker.env", os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
-    with os.fdopen(fd, "rb") as source:
-        _file_info(os.fstat(source.fileno()))
-        raw = source.read(16385)
+def _environment(raw):
     if len(raw) > 16384 or any(byte < 32 and byte != 10 or byte >= 127 for byte in raw):
         raise Unavailable("invalid_worker_environment")
     try:
@@ -65,14 +61,15 @@ def read_environment(directory: Path) -> tuple[bytes, bool]:
             if not line or line.startswith("#"):
                 continue
             key, value = line.split("=", 1)
-            if key not in FIELDS or key in env or not value:
+            if key not in FIELDS | {RETIREMENT_FLAG} or key in env or not value:
                 raise ValueError
             env[key] = value
         key = base64.b64decode(
             env["ACCOUNT_MAIL_OUTBOX_KEY"], altchars=b"-_", validate=True
         )
         if (
-            set(env) != FIELDS
+            set(env) not in (FIELDS, FIELDS | {RETIREMENT_FLAG})
+            or env.get(RETIREMENT_FLAG, "false") not in {"true", "false"}
             or len(key) != 32
             or env["ACCOUNT_PUBLIC_ORIGIN"] != "https://aqua-ai.us"
             or env["APP_STORAGE_ENABLED"] != "true"
@@ -93,11 +90,25 @@ def read_environment(directory: Path) -> tuple[bytes, bool]:
             raise ValueError
     except (KeyError, ValueError, UnicodeError):
         raise Unavailable("invalid_worker_environment") from None
+    return env
+
+
+def read_environment(directory: Path) -> tuple[bytes, bool]:
+    """A strict Docker env file, not shell or dotenv code; no ambient secrets."""
+    fd = os.open(directory / "worker.env", os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+    with os.fdopen(fd, "rb") as source:
+        _file_info(os.fstat(source.fileno()))
+        raw = source.read(16385)
+    env = _environment(raw)
     enabled = all(
         env[name] == "true"
         for name in ("ACCOUNT_MAIL_ENABLED", "ACCOUNT_MAIL_WORKER_ENABLED")
     )
     return raw, enabled
+
+
+def retirement_enabled(raw: bytes) -> bool:
+    return _environment(raw).get(RETIREMENT_FLAG, "false") == "true"
 
 
 @contextlib.contextmanager

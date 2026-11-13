@@ -127,3 +127,14 @@ test("an explicitly failed finish reply cannot become successful cleanup", { tim
   assert.equal(finished.report.cleanup, "failed");
   assert.deepEqual(finished.report.remaining_ids, [RUN + "-pg"]);
 });
+test("terminal source/schema evidence retains only a bounded hash, known schema and explicit actual-authority flag", async t => {
+  const value = terminal(); value.report.backend_source_sha256 = 'a'.repeat(64); value.report.schema_version = 9; value.report.actual_independent_authority = true;
+  const bridge = fixture(t, emit(value)); await assert.rejects(bridge.ready, { message: 'bridge_startup_failed' });
+  assert.equal(bridge.finished.report.backend_source_sha256, 'a'.repeat(64)); assert.equal(bridge.finished.report.schema_version, 9); assert.equal(bridge.finished.report.actual_independent_authority, true);
+});
+test("terminal source/schema evidence rejects malformed hashes, unknown schemas and truthy authority strings", async t => {
+  const value = terminal(); value.report.backend_source_sha256 = CANARY; value.report.schema_version = 10; value.report.actual_independent_authority = 'true';
+  const bridge = fixture(t, emit(value)); await assert.rejects(bridge.ready, { message: 'bridge_startup_failed' });
+  for (const key of ['backend_source_sha256', 'schema_version', 'actual_independent_authority']) assert.equal(Object.hasOwn(bridge.finished.report, key), false);
+  assert.equal(JSON.stringify(bridge.finished).includes(CANARY), false);
+});

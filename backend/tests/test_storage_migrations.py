@@ -1,3 +1,4 @@
+from storage.pool import SCHEMA_VERSION
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import replace
 import threading
@@ -9,11 +10,11 @@ from storage_fixtures import MIGRATOR
 
 
 def test_migration_repeats_without_duplicate_state(app_database):
-    assert apply(app_database) == apply(app_database) == 8
+    assert apply(app_database) == apply(app_database) == SCHEMA_VERSION
     app_database.execute("SET ROLE aqua_app_owner")
     assert app_database.execute(
         "SELECT count(*) FROM app.schema_migrations"
-    ).fetchone() == (8,)
+    ).fetchone() == (SCHEMA_VERSION,)
 
 
 def test_failed_migration_rolls_back_schema_and_ledger(app_database):
@@ -25,7 +26,7 @@ def test_failed_migration_rolls_back_schema_and_ledger(app_database):
         "SELECT to_regclass('app.partial_fixture'),to_regclass('app.schema_migrations')"
     ).fetchone() == (None, None)
     app_database.execute("RESET ROLE")
-    assert apply(app_database) == 8
+    assert apply(app_database) == SCHEMA_VERSION
 
 
 def test_unknown_or_tampered_migration_is_not_silently_accepted(app_database):
@@ -49,7 +50,10 @@ def test_concurrent_migrators_apply_one_version(app_database):
             return apply(conn)
 
     with ThreadPoolExecutor(max_workers=2) as workers:
-        assert list(workers.map(lambda _: migrate(), range(2))) == [8, 8]
+        assert list(workers.map(lambda _: migrate(), range(2))) == [
+            SCHEMA_VERSION,
+            SCHEMA_VERSION,
+        ]
 
 
 def test_disconnect_during_migration_leaves_no_partial_schema(app_database):

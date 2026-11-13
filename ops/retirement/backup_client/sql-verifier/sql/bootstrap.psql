@@ -1,0 +1,56 @@
+-- PRIVATE DRAFT: new dedicated DB/roles only. Not an application migration.
+-- No production execution has occurred. Operator supplies passwords over stdin.
+\set ON_ERROR_STOP on
+DO $$ BEGIN
+ IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname IN
+   ('aqua_retirement_owner','aqua_retirement_writer','aqua_retirement_recovery','aqua_retirement_checkpoint'))
+ OR EXISTS (SELECT 1 FROM pg_database WHERE datname='aqua_retirement')
+ THEN RAISE EXCEPTION 'retirement_installation_already_exists'; END IF;
+END $$;
+
+CREATE ROLE aqua_retirement_owner NOLOGIN NOINHERIT NOSUPERUSER NOCREATEDB
+ NOCREATEROLE NOREPLICATION NOBYPASSRLS;
+CREATE ROLE aqua_retirement_writer LOGIN NOINHERIT NOSUPERUSER NOCREATEDB
+ NOCREATEROLE NOREPLICATION NOBYPASSRLS CONNECTION LIMIT 1;
+CREATE ROLE aqua_retirement_recovery LOGIN NOINHERIT NOSUPERUSER NOCREATEDB
+ NOCREATEROLE NOREPLICATION NOBYPASSRLS CONNECTION LIMIT 1;
+CREATE ROLE aqua_retirement_checkpoint LOGIN NOINHERIT NOSUPERUSER NOCREATEDB
+ NOCREATEROLE NOREPLICATION NOBYPASSRLS CONNECTION LIMIT 1;
+SELECT format('ALTER ROLE aqua_retirement_writer PASSWORD %L', :'writer_password') \gexec
+SELECT format('ALTER ROLE aqua_retirement_recovery PASSWORD %L', :'recovery_password') \gexec
+SELECT format('ALTER ROLE aqua_retirement_checkpoint PASSWORD %L', :'checkpoint_password') \gexec
+
+CREATE DATABASE aqua_retirement OWNER aqua_retirement_owner TEMPLATE template0
+ ENCODING 'UTF8' LC_COLLATE 'C' LC_CTYPE 'C' CONNECTION LIMIT 4;
+REVOKE ALL ON DATABASE aqua_retirement FROM PUBLIC;
+GRANT CONNECT ON DATABASE aqua_retirement TO aqua_retirement_writer,aqua_retirement_recovery,aqua_retirement_checkpoint;
+ALTER ROLE aqua_retirement_writer IN DATABASE aqua_retirement SET search_path=pg_catalog,retirement;
+ALTER ROLE aqua_retirement_writer IN DATABASE aqua_retirement SET statement_timeout='3s';
+ALTER ROLE aqua_retirement_writer IN DATABASE aqua_retirement SET lock_timeout='1s';
+ALTER ROLE aqua_retirement_writer IN DATABASE aqua_retirement SET idle_in_transaction_session_timeout='10s';
+ALTER ROLE aqua_retirement_writer IN DATABASE aqua_retirement SET synchronous_commit='on';
+ALTER ROLE aqua_retirement_recovery IN DATABASE aqua_retirement SET search_path=pg_catalog,retirement;
+ALTER ROLE aqua_retirement_recovery IN DATABASE aqua_retirement SET default_transaction_read_only=on;
+ALTER ROLE aqua_retirement_recovery IN DATABASE aqua_retirement SET statement_timeout='3s';
+ALTER ROLE aqua_retirement_recovery IN DATABASE aqua_retirement SET lock_timeout='1s';
+ALTER ROLE aqua_retirement_recovery IN DATABASE aqua_retirement SET idle_in_transaction_session_timeout='10s';
+ALTER ROLE aqua_retirement_checkpoint IN DATABASE aqua_retirement SET search_path=pg_catalog,retirement;
+ALTER ROLE aqua_retirement_checkpoint IN DATABASE aqua_retirement SET statement_timeout='3s';
+ALTER ROLE aqua_retirement_checkpoint IN DATABASE aqua_retirement SET lock_timeout='1s';
+ALTER ROLE aqua_retirement_checkpoint IN DATABASE aqua_retirement SET idle_in_transaction_session_timeout='10s';
+ALTER ROLE aqua_retirement_checkpoint IN DATABASE aqua_retirement SET synchronous_commit='on';
+
+\connect aqua_retirement
+REVOKE ALL ON SCHEMA public FROM PUBLIC;
+SET ROLE aqua_retirement_owner;
+CREATE SCHEMA retirement AUTHORIZATION aqua_retirement_owner;
+REVOKE ALL ON SCHEMA retirement FROM PUBLIC;
+ALTER DEFAULT PRIVILEGES IN SCHEMA retirement REVOKE ALL ON TABLES FROM PUBLIC;
+ALTER DEFAULT PRIVILEGES IN SCHEMA retirement REVOKE ALL ON SEQUENCES FROM PUBLIC;
+-- Function PUBLIC EXECUTE is a global default. A per-schema REVOKE cannot
+-- remove it; retain the explicit installed-function revokes as well.
+ALTER DEFAULT PRIVILEGES FOR ROLE aqua_retirement_owner REVOKE EXECUTE ON FUNCTIONS FROM PUBLIC;
+RESET ROLE;
+
+-- Existing aqua_app roles, privileges, bootstrap and source migrations are not
+-- changed here. No app role is a member of the independent retirement owner.

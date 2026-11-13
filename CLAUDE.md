@@ -2,16 +2,20 @@
 
 Instructions for coding agents working in this repository. Read this file before making changes.
 
-Latest verified checkpoint: P00 through P10 are complete and deployed at
-`d242d2ee1b4a91e2a7ffa1d2ed2568d87e63da09` (PR #56, `Phase10 Identity`),
-private schema 7. The 2026-10-31T04:08:14 UTC release passed after all five
-PR/main CI jobs, fresh stopped-writer encrypted backup and owner-only 30-day
-retention. Protected rows, environment, volumes and mail schedule were preserved;
-live GET-only sign-in smoke passed and its screenshot was reviewed. See
-`docs/implementation/evidence/p10c/release.json`. P11 is the current phase;
-exports and deletion are not deployed. The earlier slices below are historical.
-The prepared P11a source requires schema 8; migration 0008 and export activation
-remain gated release work, not the current production state.
+Latest verified checkpoint: P00 through P10 are complete. P11a personal exports
+are deployed on private schema8 from PR57/main
+`9aeaf4eb91a4db55d3701e8be872f2b1e178a116`. The guarded release passed at
+2026-11-06T01:00:49Z after both seven-job CI runs, a fresh authenticated encrypted
+stopped-writer backup and protected retention. Protected data/configuration,
+volumes and mail schedule were preserved; public GET-only and exact asset checks
+passed. See `docs/implementation/evidence/p11a/release.json`.
+P11b/c deletion remains in preparation. PR58 candidate `7543217` passed all nine
+jobs/210steps; publisher cancellation and production recovery/controller review
+remain active before the final candidate, merged-main CI and schema9 rollout.
+All Mac and Anakin proposals return to ROOT for review before integration.
+The current live site remains online on the verified export release. Historical
+phase slices below are retained; consult `docs/implementation/P11_PROGRESS.md`
+and `AQUA_CODEX_HANDOFF.md` for current evidence and remaining gates.
 The simplified homepage merged as `7c0caae8ac0d5fa1c74866bd898d317c1fc984ea`
 (PR #53, `Phase9 Homepage`). Both required CI runs passed all 29 steps. The
 October 28 23:10:19 UTC frontend-only release preserved the exact P09 backend,
@@ -42,8 +46,7 @@ P10c identity passed 1,635 backend cases, 528 frontend units and all 42 browser
 gates; root reviewed all 104 selected screenshots. Schema-compatible recovery,
 migration rehearsal, PR/main CI and the backup-gated release passed. See
 `docs/implementation/evidence/p10c/verification.json` and `docs/implementation/P10_PROGRESS.md`.
-P11a
-exports are isolated preparation; P11 deletion and P12–P13 remain incomplete.
+P11a exports are deployed on schema8; P11 deletion and P12–P13 remain incomplete.
 No public Google audience or analytical grant changes are authorized.
 
 ### P10a account API (historical foundation slice)
@@ -81,9 +84,9 @@ Reads and writes share the durable 60/account/minute workspace budget. Device
 preferences have separate bounded owner-scoped storage, never a server-sync claim.
 Imports are versioned data only, at most 64 KiB; permissions, consent, secrets,
 custom instructions and destructive operations cannot enter preferences. Schema
-5 was reused without a preference migration; the deployed app schema is 7.
+5 was reused without a preference migration; the deployed app schema is 8.
 P10 account editing, sensitive security actions and identity operations are
-deployed. P11 privacy jobs remain unavailable in production.
+deployed. P11 personal exports are enabled in production; deletion remains unavailable.
 
 ## What this project is
 

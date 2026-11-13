@@ -1,0 +1,141 @@
+{
+  "schemaVersion": 1,
+  "status": "frontend_qualification_passed_pending_ROOT_release_decision",
+  "source_binding": {
+    "frozen_source_manifest_sha256": "084e71996c3ab02a9d8eb8cb8236981a0b3d088c4e862d03271754553e7ab14e",
+    "frozen_frontend_files": 298,
+    "current_canonical_frontend_bytes_equal": true,
+    "frozen_complete_input_files": 754,
+    "whole_current_Git_archive_equality_claimed": false,
+    "boundary": "Runtime/frontend and actually used browser fixture bytes are frozen; later unused CI/operator helper changes require their own fresh-checkout qualification. Earlier interrupted/red artifacts remain historical evidence and are not counted as final passing gates."
+  },
+  "browser_runtime": {
+    "image": "sha256:55227ce9093383a0687659b6fdf26a7881c2c9be022e0354c5c2447c55243e23",
+    "architecture": "arm64",
+    "runtime_files": 195,
+    "runtime_manifest_sha256": "06bd677d5ef72112f5a69a93054f3e5ed64f6713f32c04e6f7038a2e5d29857d"
+  },
+  "units": {
+    "passed": 600,
+    "failed": 0,
+    "skipped": 0,
+    "log_sha256": "16b36a5a1b9daa38291c563d73b2086bf1e047b41672f1595e4d2177f3afcfb7"
+  },
+  "builds": {
+    "themes": [
+      "opal",
+      "legacy"
+    ],
+    "asset_files_each": 14,
+    "asset_manifest_sha256": "16d6fc73a901cb7a6787e0d1b0b520147e99311ab0b71ce470a73ab44f98653a",
+    "initial_JS_bytes": {
+      "opal": 597850,
+      "legacy": 597852
+    },
+    "initial_JS_limit_bytes": 600000,
+    "plotly_engine_bytes_each": 1211597,
+    "plotly_engine_gzip_bytes_each": 404238,
+    "budget_reports_sha256": {
+      "opal": "d50095fac0153c95c5b8864aad00c3da7bca31203de3cdd00f37f9f6b485c2bd",
+      "legacy": "80fbb08c45a165cdfe247c23978d37e1b013a8cba02aa9ee2abb614aa72d6a25"
+    }
+  },
+  "regression_browser": {
+    "status": "passed",
+    "cases": 58,
+    "per_theme": 29,
+    "summary_sha256": "486278178b47a5da05c92a5c40fa38511da5a66528d227c84dddd3dfb77d7cc1",
+    "retries": 0,
+    "assertions_caps_and_real_cooldowns_preserved": true
+  },
+  "signed_deletion_browser": {
+    "status": "passed",
+    "themes": 2,
+    "checks_each": 7,
+    "receipt_sha256": "3c4f8e3569809d5a6bc3a48febce82d6159cf3e1ea0cea9c1f6826ba7c5ef86f",
+    "actual_components": [
+      "React",
+      "application_routes",
+      "two_disposable_PostgreSQL_databases",
+      "Ed25519_signed_authority",
+      "fsync",
+      "bounded_purge",
+      "stale_write_generation_fence"
+    ],
+    "explicit_seams": [
+      "append-only ioctl",
+      "physical-mail mount",
+      "manual scheduler",
+      "synthetic Google and analysis answers"
+    ],
+    "ordinary_production_factory_claimed": false
+  },
+  "standalone_deletion_UI": {
+    "status": "passed",
+    "checks": 6,
+    "receipt_sha256": "4d91ab470b3f7e48d2b3ee3af697a06f279b83f8899c6f69d0c628d7fbcf4162",
+    "scope": "frozen-source Vite synthetic UI fixture; no SQL or built-dist claim"
+  },
+  "visual_review": {
+    "status": "ROOT_reviewed_no_new_P11_blocker",
+    "raw_screenshots": 203,
+    "contact_boards": 11,
+    "full_resolution_details": 8,
+    "receipt_sha256": "edb498f6f711d470f9a394f9d90c657d1d8c2b3b1aed8377e894b72407ff38ea",
+    "limitations": "Visual review complements assertions; historical cosmetic followups remain and this is not blanket accessibility certification."
+  },
+  "native_frontend": {
+    "architecture": "amd64",
+    "base_image": "sha256:4fab90c0016ab600fc11e337766cee54b5ee22e4d2330f6829502bd28f41adcb",
+    "images": {
+      "opal": "sha256:4e589c26179900db708c57771f3e92646215b5df015f069e2481a86e8dac0999",
+      "legacy": "sha256:c5e6540c550edcaac3c362dc96fb302d495294ace546dc0cd89a11054c56d792"
+    },
+    "exact_asset_files_each": 14,
+    "nginx_sha256": "578faec45fe6df79820b1693ad2f7fe401e563d28fee2529ca694654edef1ae7",
+    "whole_Config_and_base_RootFS_preserved": true,
+    "readonly_UID1000_inventory_passed": true,
+    "packaging_receipt_sha256": "f517c467d6b852e07215dd48cc49dc0538270559440e53faed1ffdcec6aa41b9",
+    "proxy_runs": {
+      "opal-proxy120": {
+        "requests": 120,
+        "exercise_seconds": 37.6,
+        "status": "passed",
+        "report_sha256": "509af3f6580c64cd231435ee22d812b8e49c44bcc76baf7b851c0af703879709"
+      },
+      "opal-exports23": {
+        "requests": 23,
+        "exercise_seconds": 15.78,
+        "status": "passed",
+        "report_sha256": "0f6919df0b17369f1fcc398d3307e4b2e063e729287c9c9102a5827f8807b260"
+      },
+      "legacy-proxy120": {
+        "requests": 120,
+        "exercise_seconds": 37.59,
+        "status": "passed",
+        "report_sha256": "03f7aa1cc865903869faad3385a56d293a72dd29b3c3b233daa020fbc4e56bff"
+      },
+      "legacy-exports23": {
+        "requests": 23,
+        "exercise_seconds": 15.77,
+        "status": "passed",
+        "report_sha256": "9368c54afe882aff8a69db1693a048cfb281ea2e73963bca1e755e230b541262"
+      }
+    },
+    "original_probe_sources_and_caps_preserved": true,
+    "proxy_receipt_sha256": "392814a43aaa89478bd02c77b19cab235cfdcd03f3b2d2ad4e08c8654d535344"
+  },
+  "cleanup": {
+    "current_run_browser_processes_absent": true,
+    "current_run_disposable_backend_resources_absent": true,
+    "native_inventory_and_proxy_resources_absent": true,
+    "unrelated_older_artifacts_untouched": true
+  },
+  "scope": {
+    "external_provider_calls": 0,
+    "production_route_calls": 0,
+    "service_restarts": 0,
+    "production_deployments": 0,
+    "hosted_CI_and_ordinary_startup": "separate ROOT-owned gates; not implied by this frontend qualification"
+  }
+}

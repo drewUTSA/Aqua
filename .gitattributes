@@ -1,5 +1,7 @@
-# Shell scripts run on Linux; Windows line endings break them.
-*.sh text eol=lf
+# Hash-pinned fixtures and operator packages must have the same text bytes on
+# Windows and Linux. Git still detects binary assets and leaves them unchanged.
+* text=auto eol=lf
 
-# Corpus bytes are integrity checked and must be stable on every platform.
+# Retain the explicit Linux-script and integrity-corpus policies.
+*.sh text eol=lf
 backend/auth/password_blocklist_sha256.txt text eol=lf

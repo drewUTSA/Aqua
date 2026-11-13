@@ -1,0 +1,81 @@
+{
+  "base_frontend_archive_sha256": "285f721ce3699b2a7b2b08d9fb7fc8841a37de5d6d88d5f51de7089d377be1a4",
+  "checks": [
+    "failed_review_chunk_preserves_workspace_and_safe_focused_close_without_mutation",
+    "typed_confirmation_and_history_remount",
+    "uncertain_history_reconciles_without_replay",
+    "account_uncertainty_receipt_survives_local_revocation_and_clears_on_login",
+    "close_discards_uncertain_receipt_without_new_mutation",
+    "expiry_clears_receipt_without_repeating_render_or_mutation"
+  ],
+  "host": "AnikanSkywalker",
+  "original_failed_run_preserved": true,
+  "production_or_provider_calls": 0,
+  "raw_archive_sha256": "4c3f0223ac188856dc51bc1ac3e2019d4d50230ff45f98ce48ddc5518b52d200",
+  "raw_file_sha256": {
+    "chrome-readiness/REVIEW.md": "a16ca4042a49207ea9a5fee58e1648420a682d269815395a68bed9040267c9ed",
+    "chrome-readiness/attempt-1/native-cleanup.json": "32429d2cfa81e7c4d13f13b0404ee5b3d92e7adfced73195c0e505a4feee0fc9",
+    "chrome-readiness/attempt-1/observe.json": "8c162fc25ebb05095c9691fe3a544d7cae26daf72951d620ef4e7d7a0f10bf5b",
+    "chrome-readiness/attempt-1/summary.json": "d570df4d469cab29139ca653ad09cdae77dea9fbde0b7f84f496b450d693c233",
+    "chrome-readiness/fixture.diff": "c75a6e7441edca5d1c5dd53087fbb457d05d279c3cd9112d9450db20b796190c",
+    "chrome-readiness/run.py": "9080b4a4383473687537f6fd01e66af6941fb8b7b4c5a84803dba5b2426f8557",
+    "chrome-readiness/runner.diff": "e5edad59d9b59f5c792d85d636f6da6aba448559faad56449a84b317fd668753"
+  },
+  "raw_manifest_sha256": "8dcb0bf20dc1cfe455eb6aa95df73ac1a785698ac1c682e9d727148aa2bf7195",
+  "resource_limits": {
+    "aggregate_memory_mib": 1536,
+    "cpus": 2,
+    "log_bytes": 1048576,
+    "pids": 128,
+    "seconds": 90
+  },
+  "resources": {
+    "cpu_affinity_count": 2,
+    "cpu_seconds": 6.328,
+    "deadline_seconds": 90,
+    "elapsed_seconds": 5.422,
+    "exit_code": 0,
+    "job_memory_mib": 1536,
+    "max_processes": 128,
+    "peak_committed_bytes": 707215360,
+    "spawned_processes": 23,
+    "stop_reason": null
+  },
+  "schemaVersion": 1,
+  "scope": [
+    "Synthetic component fixture only; no production/backend acceptance claim.",
+    "Earlier final-source Chrome and Edge startup failures remain recorded separately.",
+    "Windows 1536 MiB cap applies to this reviewed final-source runner; older Edge 1024 MiB proof remains separate.",
+    "No fresh cross-host generated asset parity claimed."
+  ],
+  "source_lineage": {
+    "approved_delta": {
+      "file": "frontend/checks/p11b-deletion-browser.mjs",
+      "new_sha256": "b49dbd995938bb178f98bd910482a21d78549b510675d78faeb0ae5301756074",
+      "old_sha256": "e04cd615650ade6e170da9f6aaa812f70d19ecebe8647b93ce45217f0a9cc137"
+    },
+    "behavior": "Expiry fixture waits for authenticated status and the existing history button before clicking; six assertions and existing deadlines unchanged.",
+    "original_files": 298,
+    "unchanged_files": 297
+  },
+  "status": "ROOT_reviewed_actual_Windows_Chrome_readiness_fix",
+  "strict_cleanup": {
+    "loopback_probes": [
+      {
+        "connect_result": "refused",
+        "listener_count": 0,
+        "native_error": 10061,
+        "port": 5173,
+        "timeout_milliseconds": 3000
+      }
+    ],
+    "native_listener_inventory": "Get-NetTCPConnection -State Listen",
+    "native_process_inventory": "Win32_Process; only scoped IDs/names retained",
+    "note": "10035 alone is inconclusive; confirmation requires OS listener absence and explicit 10061 refusal.",
+    "remaining_profiles": 0,
+    "scoped_process_count": 0,
+    "scoped_processes": [],
+    "status": "confirmed",
+    "utc": "2026-11-06T04:03:34.4435049Z"
+  }
+}

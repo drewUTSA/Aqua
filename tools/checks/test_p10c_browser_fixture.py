@@ -74,11 +74,11 @@ class IdentityFixtureTests(unittest.TestCase):
         target.is_symlink.return_value = False
         target.is_file.return_value = True
         target.stat.return_value.st_size = 32
-        for schema in (6, 7, 8):
+        for schema in (6, 7, 8, 9):
             target.read_text.return_value = f"SCHEMA_VERSION = {schema}\n"
             self.assertEqual(fixture_schema(root), schema)
         for text in (
-            "SCHEMA_VERSION = 9",
+            "SCHEMA_VERSION = 10",
             "SCHEMA_VERSION = True",
             "SCHEMA_VERSION = 7.0",
             "SCHEMA_VERSION = int('7')",

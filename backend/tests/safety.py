@@ -21,6 +21,7 @@ APP_NEGATIVE_DSNS = {
     "postgresql://aqua_app_runtime:fixture-only@127.0.0.1:5432/aqua_test_bank",
 }
 CONFIG_NAMES = {
+    "PRIVATE_DATA_DELETE_ENABLED",
     "PRIVATE_DATA_EXPORT_ENABLED",
     "WEB_CONCURRENCY",
     "UVICORN_WORKERS",

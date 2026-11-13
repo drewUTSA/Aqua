@@ -92,7 +92,7 @@ def verify(docker, create, source, image, run_name, output, archive):
         "kind": "fresh_exact_private_export_capacity",
         "testcase": CAPACITY_CASE,
         "backend_image": image,
-        "schema_version": 8,
+        "schema_version": 9,
         "postgres_data_bytes": 536870912,
         "container_memory_bytes": 1073741824,
         "real_export_output_limit_bytes": 33554432,
@@ -251,6 +251,27 @@ def verify(docker, create, source, image, run_name, output, archive):
             if process.returncode != 0:
                 raise RuntimeError("capacity_test_process_failed")
             selected_case(target)
+            observed_schema = (
+                docker(
+                    "exec",
+                    pg,
+                    "psql",
+                    "-X",
+                    "-A",
+                    "-t",
+                    "-U",
+                    "postgres",
+                    "-d",
+                    "aqua_app",
+                    "-c",
+                    "SELECT max(version) FROM app.schema_migrations",
+                )
+                .decode()
+                .strip()
+            )
+            if observed_schema != "9":
+                raise RuntimeError("capacity_actual_schema_unverified")
+            result["actual_schema_version"] = int(observed_schema)
             result["status"] = "passed"
         except (
             RuntimeError,

@@ -1,0 +1,1371 @@
+{
+  "files": {
+    "app/account/__init__.py": {
+      "bytes": 79,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "4d300929fcb6d0c0e3a6b92377bfd4648fc336a8ad2bfb3e962d810b3b6f55e0",
+      "uid": 1000
+    },
+    "app/account/action_contracts.py": {
+      "bytes": 2747,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "be3becba0a54378a847efdaa76cc833e3b780df3658c90d30f86a7852232a397",
+      "uid": 1000
+    },
+    "app/account/action_requests.py": {
+      "bytes": 4705,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "be524a3b9fafc08b38dab0385a608fdf5bfd41154bc920f18818afbed34d6875",
+      "uid": 1000
+    },
+    "app/account/authority.py": {
+      "bytes": 1468,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "30c82438ff63584664b553f5c8c3a06894c3b2074f3cbaea427057e5eab22beb",
+      "uid": 1000
+    },
+    "app/account/availability.py": {
+      "bytes": 2306,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "ef8034faa2bc44e688d90540bd22fcce94524b262a460a7ecddbf3dd6821b1e4",
+      "uid": 1000
+    },
+    "app/account/contracts.py": {
+      "bytes": 590,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "2851f7475c47d4fa2db49643d2066164bdff0464adc0a3fa1401889b6066ce6f",
+      "uid": 1000
+    },
+    "app/account/credentials.py": {
+      "bytes": 849,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "2efd97df0c42e10d1440daefd6bd4c9cccc5d6d0c7599cd4fc9a374683088ee3",
+      "uid": 1000
+    },
+    "app/account/google_methods.py": {
+      "bytes": 11384,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "95a5ca28f0f9afc08c8c9e74bb89635ea3e1ddd09f0c3564bbb10ae36d9178c9",
+      "uid": 1000
+    },
+    "app/account/google_reauth.py": {
+      "bytes": 6105,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "16d0c3c503fb8465ff03e1b0633aadd2fa70d9426554ae443aeffaeeeead91c3",
+      "uid": 1000
+    },
+    "app/account/google_verification.py": {
+      "bytes": 1403,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "8d673c56a0667e1ac5a0e43a48a6c3891e0de6da2852e1b438638aa6c3598cea",
+      "uid": 1000
+    },
+    "app/account/identity_contracts.py": {
+      "bytes": 4431,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "92eb98e490277acd521f7a5fe30a922baa1ec364545a312a0d75980571346b59",
+      "uid": 1000
+    },
+    "app/account/identity_router.py": {
+      "bytes": 8151,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "feca4240498e5d63ed7d16b7ee3f73e514e3144668f03d34e1cd8cd1afd9c2d5",
+      "uid": 1000
+    },
+    "app/account/identity_runtime.py": {
+      "bytes": 2754,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "3bf508fbd30a6a05554c418529cf7bd5c7c29be47b21f89c44916e0956c820a8",
+      "uid": 1000
+    },
+    "app/account/mail_actions.py": {
+      "bytes": 13966,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "330c072d5a652324ee9fb0de079858cc82464e3bc7d080437bfeab6ac0cc6bde",
+      "uid": 1000
+    },
+    "app/account/notifications.py": {
+      "bytes": 1861,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "ad2d7dd48e33b9481085f5a93c02632f02a14e152483bcd86afde72fbde1c283",
+      "uid": 1000
+    },
+    "app/account/policy.py": {
+      "bytes": 4286,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "65127bf167df616d9387f6559bbc8f7ac98eb990a3ce1839ccf2aafb7104b40d",
+      "uid": 1000
+    },
+    "app/account/proof_consumption.py": {
+      "bytes": 4475,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "28e8c635ad47a09e67861e3fdc3457eea928623ab9eb359eced5956e77a7e3a2",
+      "uid": 1000
+    },
+    "app/account/proofs.py": {
+      "bytes": 7425,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "01e0bcd7fff8b057341e04b439abffd2a477bbbe773ce9f4f54a9b0bac78e956",
+      "uid": 1000
+    },
+    "app/account/reauth.py": {
+      "bytes": 6386,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "b500d551e516c82da1eb3ef69e22fbbf9d85dc4900753d47df811d2cfcb3cb25",
+      "uid": 1000
+    },
+    "app/account/repository.py": {
+      "bytes": 5352,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "e5b1fdb1355b64971ad984254b581f5c0034029287152975deb6f48f8e69b43c",
+      "uid": 1000
+    },
+    "app/account/reset_invalidation.py": {
+      "bytes": 1647,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "4110f19bffbe2efd73f46a0e15ded315001d652e37e51bd0f4019e385bf3ea41",
+      "uid": 1000
+    },
+    "app/account/revocation.py": {
+      "bytes": 1279,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "24d8b91a21638a9dcb9a767155a4b305238ca617868c6dc866c7cb887b53a18d",
+      "uid": 1000
+    },
+    "app/account/router.py": {
+      "bytes": 3295,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "31c5ede5185d344a995394c7d7193e9353895a2bdeca7199004d0fa0d25d12a8",
+      "uid": 1000
+    },
+    "app/account/security_actions.py": {
+      "bytes": 4444,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "7acd8e978489e887bb5e406506e1544a39f98ef8712532f5b7392624752b2937",
+      "uid": 1000
+    },
+    "app/account/security_http.py": {
+      "bytes": 1483,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "f5d56cdff47c5b849f558b8c41baab53d9bb943cb368c346231f13aa3c19ccb2",
+      "uid": 1000
+    },
+    "app/account/security_router.py": {
+      "bytes": 5021,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "764a81683d11474a83dee345a175bff1b1b5807102da294fb16c7c90a027f3f5",
+      "uid": 1000
+    },
+    "app/analysis/__init__.py": {
+      "bytes": 94,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "21a91f22d295d99c41c27c747729a2c864a0bc0713a339d256fb911da1794d2f",
+      "uid": 1000
+    },
+    "app/analysis/admission.py": {
+      "bytes": 4358,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "182220150a53ec9645048fef6f04e65d35bd644f4325f2fc8f653744d76ae697",
+      "uid": 1000
+    },
+    "app/analysis/child.py": {
+      "bytes": 2615,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "0aa035c97cfbd64dcf2b692a88e7db519d699999b1485f04223c5ea1f7ca5af2",
+      "uid": 1000
+    },
+    "app/analysis/child_payload.py": {
+      "bytes": 1168,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "6bb4df89454caf6f9f1c62e8b6eb786ef6b93d8e18c9030ad5d5dc57cd50810b",
+      "uid": 1000
+    },
+    "app/analysis/context.py": {
+      "bytes": 2040,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "9b7cbaf71121a32283cf1abc366c5b1fc787cd91c9527fa45cf9fe158cf062c5",
+      "uid": 1000
+    },
+    "app/analysis/dependencies.py": {
+      "bytes": 1088,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "540bcdde73fa0943cae3d6cdf6324f9d5e103709173a215b430547bf0e0b0b4c",
+      "uid": 1000
+    },
+    "app/analysis/dispatch.py": {
+      "bytes": 5063,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "04617ed14a65e7ab6e5365514efec691d0293fb66f2b4633e3f9a1c8d79cb6e8",
+      "uid": 1000
+    },
+    "app/analysis/engine.py": {
+      "bytes": 537,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "df8977a4ce2d12699ae5f62cb4513924dd375216d4a5746548055c633f98a2dc",
+      "uid": 1000
+    },
+    "app/analysis/events.py": {
+      "bytes": 2521,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "35d6cb6f4bdfd792d3774fef1297baa31e133feb7d455d8033f81e545ecdbfe0",
+      "uid": 1000
+    },
+    "app/analysis/lifecycle.py": {
+      "bytes": 5410,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "faed00739c6865b1f13476795086079edf9cd99034e73e2771b7f4b62fa3a3c3",
+      "uid": 1000
+    },
+    "app/analysis/policy.py": {
+      "bytes": 732,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "ebfaae6f3574b709eeda6f2bdae523a83eb2351761850826c78ef8f9ebf8b8ac",
+      "uid": 1000
+    },
+    "app/analysis/process.py": {
+      "bytes": 5767,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "3845abba81652a111429a4df8665c04311715de6cb12d355668a55f7e5279cd0",
+      "uid": 1000
+    },
+    "app/analysis/process_io.py": {
+      "bytes": 2119,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "b6ce03388b84748d22430789e203221dac7f2f0b1a6ac61aaf74f6ab8be4dadc",
+      "uid": 1000
+    },
+    "app/analysis/queue.py": {
+      "bytes": 4609,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "c2569fed5ecfc2e0e7844745e9db375a915fb74e2863a5b42b98fb5f21ea716d",
+      "uid": 1000
+    },
+    "app/analysis/records.py": {
+      "bytes": 4695,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "2637482129aeee51675871f82e8c0d6d33f14879becbb6e5a180b0351704b99a",
+      "uid": 1000
+    },
+    "app/analysis/router.py": {
+      "bytes": 1237,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "e574e70d0347bc55f5b625340a6bbad3f2349b5c34f8f3e70af1fd84514c4d2f",
+      "uid": 1000
+    },
+    "app/analysis/service.py": {
+      "bytes": 7577,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "347a3ad1a8c9aee5f317c2b0224d4d9c405ed1b43b97b0a431097d33083d0590",
+      "uid": 1000
+    },
+    "app/analysis/settlement.py": {
+      "bytes": 4133,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "1868582143dd8a88c65d54b26e4fb13d12814c7e7fe3d3e5bc409107e237056a",
+      "uid": 1000
+    },
+    "app/analysis/streams.py": {
+      "bytes": 7313,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "af92e53dc0f87eeef1d305884222f049aee0b4b90e6574c84a2a1214c5fa8732",
+      "uid": 1000
+    },
+    "app/auth/__init__.py": {
+      "bytes": 81,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "6b04c7bc22cb311c88fcd9e769cc0648a63af9e6177d7b3b7483f2834d8b57dc",
+      "uid": 1000
+    },
+    "app/auth/accounts.py": {
+      "bytes": 7280,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "f87409fb3f5bdab9cbd2d2554329aaa42d07979af23c8822344f7b8cf9c7918c",
+      "uid": 1000
+    },
+    "app/auth/admission.py": {
+      "bytes": 5977,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "888fb1a0c707eb3d070d3dd7342d60a50f551843fec0a66c99a10f6143e1b4f5",
+      "uid": 1000
+    },
+    "app/auth/config.py": {
+      "bytes": 3338,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "f692587052553f960c4cc44c5332fb59242717626beb2ed5469e8141c0cc4ba3",
+      "uid": 1000
+    },
+    "app/auth/google.py": {
+      "bytes": 914,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "a842ed1e30ea8405846d711950ad806ef2a26e24350b1c3a6aee81858e988975",
+      "uid": 1000
+    },
+    "app/auth/identity_templates.py": {
+      "bytes": 3586,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "7a641af84550ca38d42cfa54d64754b6080a83c46d0b4c31122f9bc650b98204",
+      "uid": 1000
+    },
+    "app/auth/mailconfig.py": {
+      "bytes": 2496,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "52ddda32501fae0fe88cad4e0b5e40c8932c7ac378ed555994305158bdfc6a49",
+      "uid": 1000
+    },
+    "app/auth/mailoutbox.py": {
+      "bytes": 6366,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "e6cdce6d25e9512fe72e0a8711d13868ffed469daa1d6c33154e1e7dcf4ead28",
+      "uid": 1000
+    },
+    "app/auth/mailproof.py": {
+      "bytes": 2421,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "c2e6cf628cbcb5ef8604fa58715cb81c4c95abeaef71bf5f340d3a2866b6ca47",
+      "uid": 1000
+    },
+    "app/auth/mailpurposes.py": {
+      "bytes": 3546,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "ba53e192b01ce88cfb347745fd25934c6119e2bec652dd16741146c8fbf9415d",
+      "uid": 1000
+    },
+    "app/auth/mailqueue.py": {
+      "bytes": 11172,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "ac61093e231357b45f64439764e08076db00e70ad4203c788b1ebc4492d32d7a",
+      "uid": 1000
+    },
+    "app/auth/mailrecipient.py": {
+      "bytes": 3185,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "271e70e2dfadaf5580be2e4e1d97af42f254ee1126cf687087bf56f68a54665c",
+      "uid": 1000
+    },
+    "app/auth/mailtemplates.py": {
+      "bytes": 8263,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "d8c62ed8c0905739181f7c2e68a9973384e6f9892f792cf1d5c57e57110ea4b4",
+      "uid": 1000
+    },
+    "app/auth/mailtransport.py": {
+      "bytes": 3344,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "4023b06e765c90d460d79044f3d7149bca3ad12e012db1a551feaf54521beb12",
+      "uid": 1000
+    },
+    "app/auth/mailworker.py": {
+      "bytes": 3581,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "ae544b6c450a0adc4f80e00781ccc9d5ff90fc57d14dd14d05a1fc8ad3a1d273",
+      "uid": 1000
+    },
+    "app/auth/password_blocklist.py": {
+      "bytes": 1438,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "9fbf61ab8c80b8737b89f136784dac7931ce8b80fc5220a580bb7fbec1258bbc",
+      "uid": 1000
+    },
+    "app/auth/password_blocklist_LICENSE.txt": {
+      "bytes": 1072,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "3dbdc93d5f8829de0941744841730a09c106d0732e5ae0e98ca1d77be7ded66c",
+      "uid": 1000
+    },
+    "app/auth/password_blocklist_provenance.json": {
+      "bytes": 889,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "d700468ae6c98ecc256d8596cd113f9084e04b74abcc9782afcf41db5133ebd4",
+      "uid": 1000
+    },
+    "app/auth/password_blocklist_sha256.txt": {
+      "bytes": 708370,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "a5b8b74b66c0ed54d90098285cb0dbe02217ae41d7c91f0c57cf4a761e14521a",
+      "uid": 1000
+    },
+    "app/auth/password_bootstrap.py": {
+      "bytes": 2678,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "10aeaaf4f0dca5739b3aa0b3802c26aec59b0a0b5712432e3d9ccaf278f3a7d0",
+      "uid": 1000
+    },
+    "app/auth/password_email.py": {
+      "bytes": 3183,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "fe3d3adb00f55890d2cffc59f7d0b1f663074a411bf3838724ca6aa5fd38e603",
+      "uid": 1000
+    },
+    "app/auth/password_errors.py": {
+      "bytes": 2286,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "8f8b0fb5b2eec82a5df64b142c4aa4da0ab74ae8a919a9a7773a5150da9fe53f",
+      "uid": 1000
+    },
+    "app/auth/password_hash.py": {
+      "bytes": 3255,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "c752de861151b39c77f406fd790559d9d4447d285b6bbbc82e53d95106b8fc3e",
+      "uid": 1000
+    },
+    "app/auth/password_limits.py": {
+      "bytes": 4989,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "5c3dffa44e944ee48c2a7a7241be3496b9ecac2fb852ebaa2384003565c517b2",
+      "uid": 1000
+    },
+    "app/auth/password_policy.py": {
+      "bytes": 4719,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "495521e4a50f5bea7dedfb04195ac2438259f7c7ddbfe60d61f677a0a5440762",
+      "uid": 1000
+    },
+    "app/auth/password_records.py": {
+      "bytes": 6679,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "3e65558eacec0c5a8c0d6865cedc128227be288a4bd28eb95cb420b491dd9062",
+      "uid": 1000
+    },
+    "app/auth/password_router.py": {
+      "bytes": 5894,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "e09b665256a2f25adf9f2fbd29d5be04d1020f351695f0efaa3af656f1cc1a79",
+      "uid": 1000
+    },
+    "app/auth/password_sessions.py": {
+      "bytes": 2139,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "1b56ae442f9d7e2fdaf29e67ec63aaae1e4ab133e0209fe344b1967c597e63de",
+      "uid": 1000
+    },
+    "app/auth/password_settings.py": {
+      "bytes": 2133,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "5e112c9b894096721576d926eea7b51af914375e1d5ed846c09b11c305c3868d",
+      "uid": 1000
+    },
+    "app/auth/passwords.py": {
+      "bytes": 5358,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "e034fa19103ac71079c6314330e2bd1c8042516c2cf82857bc913401c7f38c3c",
+      "uid": 1000
+    },
+    "app/auth/router.py": {
+      "bytes": 7963,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "fb1f0fbd1f668b89e5d8acf99e714fc9f4c00fa3ebfe505e6a994805eff650cd",
+      "uid": 1000
+    },
+    "app/auth/security.py": {
+      "bytes": 5189,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "f259c7218217fa581a7025facf96c70c5cdf6f4bf9a9486f2726fd609d849bc5",
+      "uid": 1000
+    },
+    "app/auth/sessions.py": {
+      "bytes": 2339,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "1af1a3b2c58d651ba65d14eb790245cb87948ce91af9c7f226defa901af848a6",
+      "uid": 1000
+    },
+    "app/auth/store.py": {
+      "bytes": 9066,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "93ff7c1e34caf4a1a8ddde445702bb71f5aae0cc18b6f8554ecdcade716cd7f6",
+      "uid": 1000
+    },
+    "app/main.py": {
+      "bytes": 11155,
+      "gid": 1000,
+      "mode": 509,
+      "sha256": "fdc30287ab803589b78d2c2813ef2cfed521efc6613bd0f299681b8445706228",
+      "uid": 1000
+    },
+    "app/migrations/0001_identity.sql": {
+      "bytes": 5175,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "3255ad354362cd186577e49a7d47dea4c4b5127665a989d25ad15961d6a173bc",
+      "uid": 1000
+    },
+    "app/migrations/0002_identity_policy.sql": {
+      "bytes": 2288,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "8b977d0188612df5f4cec37a8c78bc7a25af0d63c3f486dbffbd19b095f3b20b",
+      "uid": 1000
+    },
+    "app/migrations/0003_password_auth.sql": {
+      "bytes": 5537,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "8d0b2b558f3fb94713f5a6e890cb71d2261a2825e05d6e234189b6eac2607210",
+      "uid": 1000
+    },
+    "app/migrations/0004_workspace.sql": {
+      "bytes": 6783,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "0f5b102b3b16d85ca47a08755a7ee546100c9b1dbbd93a9856c62ca4cfddd43e",
+      "uid": 1000
+    },
+    "app/migrations/0005_analysis_lifecycle.sql": {
+      "bytes": 5339,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "a1ab245796d89e016924158e929d2dc6c32cd16dfa992755647454611aa074c8",
+      "uid": 1000
+    },
+    "app/migrations/0006_account_security.sql": {
+      "bytes": 4223,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "245119eb477b17023dd7d07ddc0b5382f44ec6e3fec3458efd95165fe15356c6",
+      "uid": 1000
+    },
+    "app/migrations/0007_identity_actions.sql": {
+      "bytes": 7431,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "3bfed9fa26ffb065f249cc4c1c5c0488692d5968e69403f1ccb17f11c34ee47f",
+      "uid": 1000
+    },
+    "app/migrations/0008_exports.sql": {
+      "bytes": 4947,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "03e1b71b5afd95f35bce2bc2ba29f426aaedd36a29dba852f36951dc3d4dfd7a",
+      "uid": 1000
+    },
+    "app/migrations/0009_retirement_deletion.sql": {
+      "bytes": 13424,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "ea1163a4370b4ff473c2f2e5189267aedf987f4d8c3e5d65c0f24723735d8e13",
+      "uid": 1000
+    },
+    "app/nl2sql/__init__.py": {
+      "bytes": 278,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "4f781130931c9ed80e1958ed3c364b463d80f339de2cb74da5f41d6e896f18c4",
+      "uid": 1000
+    },
+    "app/nl2sql/answer_size.py": {
+      "bytes": 9763,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "db6573125c67cee8b110de567dc9a0f90a44255343e4ea3cd230eb1e57b7bf79",
+      "uid": 1000
+    },
+    "app/nl2sql/auth_config.py": {
+      "bytes": 2073,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "e1fa79d22e8686363b7680ca744ec8462877ee51d10b6a2958f9366a88ef22c2",
+      "uid": 1000
+    },
+    "app/nl2sql/cache.py": {
+      "bytes": 3445,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "f84d18202ec49c74cf5b369d16930aad6a333025624e7d0910eda8273d3c9dc3",
+      "uid": 1000
+    },
+    "app/nl2sql/cache_scope.py": {
+      "bytes": 1701,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "611faa3737bb641379b93079760b452d2f9b7165b992494d8b6a7107e72db2a3",
+      "uid": 1000
+    },
+    "app/nl2sql/config.py": {
+      "bytes": 9988,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "0a73db703b6e5a0ca79c22e6e5f6ec6e956396d04d59d98d5129916426c63d72",
+      "uid": 1000
+    },
+    "app/nl2sql/control.py": {
+      "bytes": 1283,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "d1fc5ed965876c64a2bdcaaf2432dc42f7211eb5666d5847401f6b28de3107a7",
+      "uid": 1000
+    },
+    "app/nl2sql/db.py": {
+      "bytes": 2987,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "b2364c06d9ecfa093f8ddbd8eb2fe6efc591e1fce5f1694b2f718ca94cbde56d",
+      "uid": 1000
+    },
+    "app/nl2sql/display.py": {
+      "bytes": 5124,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "c9a1f3bf2bbd1aa069460288a2a204cd4eb30e1fde1b61f864e194322256a02f",
+      "uid": 1000
+    },
+    "app/nl2sql/errors.py": {
+      "bytes": 2216,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "f89f0ade89097788337a1c8a7d73263f070a319276aaf655f01ca21cd4b2a58d",
+      "uid": 1000
+    },
+    "app/nl2sql/execute.py": {
+      "bytes": 5179,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "c5b8ca14dbe15fd999e61b2237b1be4b839a6fcdf483852f8b9c0139e0bf913f",
+      "uid": 1000
+    },
+    "app/nl2sql/function_policy.py": {
+      "bytes": 4395,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "089e81255fa66be290e6a7f9cd6fde6fbad8beb6b5b74c135d48fdd1ca55de00",
+      "uid": 1000
+    },
+    "app/nl2sql/generate.py": {
+      "bytes": 6140,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "bad94ef9a2e0bd43973ca83196ed4d6513146b0ebeb7fd5a8a4208cfb893e9b9",
+      "uid": 1000
+    },
+    "app/nl2sql/llm.py": {
+      "bytes": 6799,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "340adaa1468242e93aea95833519d4c9778c4f93529cbc9814e144753822c9ae",
+      "uid": 1000
+    },
+    "app/nl2sql/metadata_policy.py": {
+      "bytes": 4551,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "1ce5b1bc56eb616c81fe96f5c2323745453228450db46e584efecf9633008905",
+      "uid": 1000
+    },
+    "app/nl2sql/pipeline.py": {
+      "bytes": 7068,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "5decf2eb8a2f6b7571296a420ef36d311f8eb849837be22b76877d4077221e59",
+      "uid": 1000
+    },
+    "app/nl2sql/presentation.py": {
+      "bytes": 6818,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "0460251cd7a98cbad9fbf04915efc63b99e4fcdbb0d78727f1077f957c5395e0",
+      "uid": 1000
+    },
+    "app/nl2sql/provider_gemini.py": {
+      "bytes": 3850,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "b16ee6a65ee85b783f4bff50bbf8f91a9f69d84cdc8455c0b2ceb316e4962e26",
+      "uid": 1000
+    },
+    "app/nl2sql/provider_ollama.py": {
+      "bytes": 3119,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "4495a5d65d3aeebaa706dd0aa7ab8c4429ef057c07efda099006ab3588f4312d",
+      "uid": 1000
+    },
+    "app/nl2sql/query_service.py": {
+      "bytes": 4654,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "d6f942e4878ed4ce834bf12d5dbdce415d241b389fe82fc63d6a676abf51dfbb",
+      "uid": 1000
+    },
+    "app/nl2sql/relations.py": {
+      "bytes": 952,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "9d9c2b77b69fd10ca29d277c4e8ffcc160c8f932b58ade70cbe17293cedd2815",
+      "uid": 1000
+    },
+    "app/nl2sql/response.py": {
+      "bytes": 8312,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "ac1fd76d9cafbb7f4a898b316517d2b61b5b42195b623cd8de5fe80116dd5e61",
+      "uid": 1000
+    },
+    "app/nl2sql/result_metadata.py": {
+      "bytes": 3838,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "cc4f528195e7e2beb4b9ffd051e4df2942dc7ab150754f603c3633de53daecf5",
+      "uid": 1000
+    },
+    "app/nl2sql/retrieval/__init__.py": {
+      "bytes": 219,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "460ff5d0ef355c76275f9e8fa0d03404901eb77e49a9ce1314bc4b31081e8128",
+      "uid": 1000
+    },
+    "app/nl2sql/retrieval/embed.py": {
+      "bytes": 4589,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "8bd830bb50bf19f64e94d073a2285b628b1e5c52db89e9f565c1d78b1e95fc5c",
+      "uid": 1000
+    },
+    "app/nl2sql/retrieval/select.py": {
+      "bytes": 5286,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "471d488d492fe21b8717e2774cf96c231f39c38a844470c04d68fdf65bc2bb22",
+      "uid": 1000
+    },
+    "app/nl2sql/retrieval/store.py": {
+      "bytes": 8867,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "3bb67d6e2e82fae95855a4206c40fb4cd81b46df523d7d88fab711c700674214",
+      "uid": 1000
+    },
+    "app/nl2sql/schema.py": {
+      "bytes": 8125,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "435b34756dcc9568ddd05d69883eaadd56b0a2b3cce869c8d5f8368c0b7c14c4",
+      "uid": 1000
+    },
+    "app/nl2sql/schema_loader.py": {
+      "bytes": 4403,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "c4871bb3547ab8d8b4302d376412b43f04029a8eff1481bce1d286d1140cc354",
+      "uid": 1000
+    },
+    "app/nl2sql/summarize.py": {
+      "bytes": 3156,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "67600cab975a753455886803505d5acd20f29e17659a5d27c266903e5487ec58",
+      "uid": 1000
+    },
+    "app/nl2sql/validate.py": {
+      "bytes": 14610,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "7f25f44a24678e521547f1a7733cdd073f0af2a71ff4c543cc052044ee7465f5",
+      "uid": 1000
+    },
+    "app/nl2sql/visual_axes.py": {
+      "bytes": 5914,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "7df561553e4ea33b8244953fd4416f32a10d215befef75eda72620979df04158",
+      "uid": 1000
+    },
+    "app/nl2sql/visual_intent.py": {
+      "bytes": 2493,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "f59c2394bc20b24979721ca634fff2c8db8e19fadf0b9b91af2bbf4026b86d11",
+      "uid": 1000
+    },
+    "app/nl2sql/visual_units.py": {
+      "bytes": 2495,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "03eaaa3195e90923468e3f21a1b40da29937f60a73fba50ba45e5d68ee88bcc3",
+      "uid": 1000
+    },
+    "app/nl2sql/visualize.py": {
+      "bytes": 4881,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "ecd97fdb22affe182897e83509ab8a2a16d268f4e7451abe4c163977d36b431d",
+      "uid": 1000
+    },
+    "app/preferences/__init__.py": {
+      "bytes": 80,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "a81841380c82f28835beeac04d3451b7798509e27cdd7bfda06130dd6eb8bb98",
+      "uid": 1000
+    },
+    "app/preferences/contracts.py": {
+      "bytes": 874,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "2073a66e7a68022905a240ff1013cd7155776adbe3fcdeddb3f2951039e0b1a6",
+      "uid": 1000
+    },
+    "app/preferences/repository.py": {
+      "bytes": 2429,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "93f0e526796df8a947f320cf2063e2ccd0a0ae409a431cf110f04295fdaf207e",
+      "uid": 1000
+    },
+    "app/preferences/router.py": {
+      "bytes": 2461,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "e2d32dee8c07f95d1baae8994fabcac086ced1ef217b9044f6dea56ff9b15cdc",
+      "uid": 1000
+    },
+    "app/preferences/schema.py": {
+      "bytes": 2870,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "829a0b5c19e2ad2e29796c8aa5d4ad8fb463ebd3b6fd1e6cbfa518a5d6fbafa0",
+      "uid": 1000
+    },
+    "app/privacy/__init__.py": {
+      "bytes": 68,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "9cf054ebaa95d80b0fb742aec5a033343eff4938dbe1b4901f40c5507e7d8608",
+      "uid": 1000
+    },
+    "app/privacy/admission.py": {
+      "bytes": 1880,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "ff14afc287b141eacf0e6876aab3c49749c648321adf3fc068eb8839eb5230b9",
+      "uid": 1000
+    },
+    "app/privacy/authority.py": {
+      "bytes": 2172,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "4e22d9833fd77453cc08702ec030431c8304b9a43a80309d4c8ae7c4fe08e1b3",
+      "uid": 1000
+    },
+    "app/privacy/contracts.py": {
+      "bytes": 2911,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "948778e62e37bdbcecec668d3cbb8ad31962e886611ef680a890c8391ec70d19",
+      "uid": 1000
+    },
+    "app/privacy/cursors.py": {
+      "bytes": 2181,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "c383fd81c6f26dbc13e14ca85e49d635f2c9601bbf323043000834667ccefa3e",
+      "uid": 1000
+    },
+    "app/privacy/database.py": {
+      "bytes": 2675,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "b21157f9da248e950029137ff068528afd2f8f07552e760d9934cf14564d03f9",
+      "uid": 1000
+    },
+    "app/privacy/deletion_acceptance.py": {
+      "bytes": 6730,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "8eb35a85b094161c486d7210fa48f7760103f54cb6934acf814a015dde73ca6d",
+      "uid": 1000
+    },
+    "app/privacy/deletion_admission.py": {
+      "bytes": 2025,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "66e38d5671154e41e57dfcb6f56d4b12983edd7cece3c56cf6f0a448286123f4",
+      "uid": 1000
+    },
+    "app/privacy/deletion_contracts.py": {
+      "bytes": 2044,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "78d2d96229a5597428e663f71279972724343aad52eb693ee29a340fda0713b0",
+      "uid": 1000
+    },
+    "app/privacy/deletion_dependencies.py": {
+      "bytes": 2075,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "a93694d01805288d8e06f7f2443c90c3eea1eb7f5e2e8ab902de60483cfd1e45",
+      "uid": 1000
+    },
+    "app/privacy/deletion_purge.py": {
+      "bytes": 10866,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "db1fc90cddccabc8808e9af2746bc23d683ef8d74c5489b8c797874c9848aad9",
+      "uid": 1000
+    },
+    "app/privacy/deletion_records.py": {
+      "bytes": 2966,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "774914a73d011f3f9024f1edc51c026addbff2201dcf39a1cc2aa9871c74f367",
+      "uid": 1000
+    },
+    "app/privacy/deletion_router.py": {
+      "bytes": 1969,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "a4605d01f4cfb90387f72a1bbac35cd06e3ac8faf1c63f0b3fad315a18e23449",
+      "uid": 1000
+    },
+    "app/privacy/deletion_service.py": {
+      "bytes": 7027,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "4663d497a62df925df3db4a42b913483b7318da99d0b04078d15f76766761b5d",
+      "uid": 1000
+    },
+    "app/privacy/deletion_worker.py": {
+      "bytes": 6387,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "63cc6474233e7ce69828ab82280e29cbfb54f6a0c2103068e9eed2ce28739f85",
+      "uid": 1000
+    },
+    "app/privacy/dependencies.py": {
+      "bytes": 3496,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "ec4a129be7c5da0196e5c8c149475c5b0c5d3c3da75280ffc0a93051178f5232",
+      "uid": 1000
+    },
+    "app/privacy/download.py": {
+      "bytes": 23872,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "fb584e8ba5270c4940b6fcc2b7d5c58b9d6ca38437fd7098f5bf3b0b2afcda67",
+      "uid": 1000
+    },
+    "app/privacy/headers.py": {
+      "bytes": 1250,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "d98585ea02f0536f8102a3d74d7a1a2fceada7026ed1c1772c4e4450c874f504",
+      "uid": 1000
+    },
+    "app/privacy/policy.py": {
+      "bytes": 3865,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "dd2eef02edcbdfe81dcc680aa8abba76c621e8b878f6b8e5ab5d4456615a1cfc",
+      "uid": 1000
+    },
+    "app/privacy/records.py": {
+      "bytes": 3108,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "dbaf8cd2d213a4e500a1db2ba293e7c80a7fad1c9ae12cc6984f19de717db4a6",
+      "uid": 1000
+    },
+    "app/privacy/result_fragment.py": {
+      "bytes": 1948,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "efcdd59bc19ea78f5e873066b6b0dbd130075c254a8bd3e39fc27d792bbc16b5",
+      "uid": 1000
+    },
+    "app/privacy/retirement.py": {
+      "bytes": 646,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "4570cd22ee3b365bb7d95bc251cb2cc69f99f27996b0115316a5e162b4aee85f",
+      "uid": 1000
+    },
+    "app/privacy/router.py": {
+      "bytes": 3172,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "1d718fd39ecbef3f56929d51a9ae2e8a3f3dc1f960d7c00d17d5311faab787ad",
+      "uid": 1000
+    },
+    "app/privacy/service.py": {
+      "bytes": 9628,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "a7dedfb8b7c909cd07733273b249e6d67c8cc33bd6e62a27dd3c79a59476ecab",
+      "uid": 1000
+    },
+    "app/privacy/snapshot.py": {
+      "bytes": 10444,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "af5cc22aa3f3449776f84dd7c94d2bf2dd12e330f74143d8decf182d366164b3",
+      "uid": 1000
+    },
+    "app/privacy/worker.py": {
+      "bytes": 12583,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "7aaa1abf4fbbdef6fd6a9a07e18b4ad63dce0a430215bdbd9ed3fa852633cba2",
+      "uid": 1000
+    },
+    "app/retirement/__init__.py": {
+      "bytes": 82,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "2499b81ec27573e759b3d3db280bacc386acc22a6b972c336b336f866dfed678",
+      "uid": 1000
+    },
+    "app/retirement/admission.py": {
+      "bytes": 818,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "9dd1422f31292e5abff603eca647c07b1463f218234df22810c2e177a07fb320",
+      "uid": 1000
+    },
+    "app/retirement/checkpoint.py": {
+      "bytes": 10096,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "d4bb5beeae866ab6574ae6180101755da5efb0a202a32080379f5f5625ce63bd",
+      "uid": 1000
+    },
+    "app/retirement/client.py": {
+      "bytes": 12616,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "122eb24c4f41b3c36c77bbb9fccde20e91c631ed2564c152a467c4329f2ba72d",
+      "uid": 1000
+    },
+    "app/retirement/deletion_policy.py": {
+      "bytes": 2773,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "23dd8242cbc20fad5ce07d0bf4ffe5fadfd684af056652345a1374c7563bc35c",
+      "uid": 1000
+    },
+    "app/retirement/fingerprints.py": {
+      "bytes": 3595,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "0f5b617dfef7815ed66d08e936c514fb9d7aa09a438b31d4f0784e2bf3dc4904",
+      "uid": 1000
+    },
+    "app/retirement/identity_manifest.py": {
+      "bytes": 2669,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "204ded83047834df924b8f1e03ce7fbc660316c242990478c3c5479685afc488",
+      "uid": 1000
+    },
+    "app/retirement/intents.py": {
+      "bytes": 7205,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "96939db4c4f826b37a3d60900cd3382a5021cdf39df90e6b065cfaa1499bdbd6",
+      "uid": 1000
+    },
+    "app/retirement/interlock.py": {
+      "bytes": 9508,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "4aab756ff61ec061bde7824f66b152497dcd4f51efa88b834600997a6f5b9a81",
+      "uid": 1000
+    },
+    "app/retirement/mail_physical.py": {
+      "bytes": 3915,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "247ce9111192724308ed292876e62913b26e5336157f0878c679ce639d425316",
+      "uid": 1000
+    },
+    "app/retirement/original_manifest.py": {
+      "bytes": 4886,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "10e9256c6530f00c31c582f342a75d20c6289382c3c968926283f15b2bd66080",
+      "uid": 1000
+    },
+    "app/retirement/pages.py": {
+      "bytes": 2803,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "2c34926be2a41f24d85c0788fb58a23f1ac99926a7432ad327a47e9911a602bd",
+      "uid": 1000
+    },
+    "app/retirement/publisher.py": {
+      "bytes": 8457,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "4e191e26d847361beb7e2dea39434c95252fa43e210dfbce6275e8af976ccdb8",
+      "uid": 1000
+    },
+    "app/retirement/recovery.py": {
+      "bytes": 13137,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "6eb4477006bd4064d978265f85ed3f4060e9cfabb5e8d67efa720c2667466580",
+      "uid": 1000
+    },
+    "app/retirement/revision.py": {
+      "bytes": 985,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "c1853545282b2aaf1de2e2ee1634dcd646e7eeae05414dfa148ef1e379e87425",
+      "uid": 1000
+    },
+    "app/retirement/runtime.py": {
+      "bytes": 5970,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "30b87c0583f93064851aefee7be0f289673534bcde56e7aec72fe590ebc4ab9b",
+      "uid": 1000
+    },
+    "app/retirement/settings.py": {
+      "bytes": 5039,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "9441ae3bcd44a62ac629826a3b0849aa70fd900ed88a68662d5fcfc3c051fb58",
+      "uid": 1000
+    },
+    "app/retirement/startup.py": {
+      "bytes": 3195,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "6a638fc392fdbd34a9a0ed135e7a1c7257a5571c1635ff25be341efa0528a855",
+      "uid": 1000
+    },
+    "app/storage/__init__.py": {
+      "bytes": 78,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "d1299d8af009abf3a281f673373b67cdfe0e4036d91ba3e91f5fcb5b55adb495",
+      "uid": 1000
+    },
+    "app/storage/config.py": {
+      "bytes": 2593,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "f6313541967470ced378748bc1093f505f40751d0e57ea03c4544cb0d5931328",
+      "uid": 1000
+    },
+    "app/storage/migrate.py": {
+      "bytes": 4032,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "606fae5f1df88dd89aaf315f0482290905642fcc9e540dc8afacce66b21a75ba",
+      "uid": 1000
+    },
+    "app/storage/pool.py": {
+      "bytes": 4609,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "18f75148dcbe9f51648a5b139b5ebbd945424bb1f9b6606fb1e45f576043d25a",
+      "uid": 1000
+    },
+    "app/storage/readiness.py": {
+      "bytes": 530,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "b40daec38bd44701faff4890eb90f797c6b924afda942f4274d7d5c45f914df5",
+      "uid": 1000
+    },
+    "app/workspace/__init__.py": {
+      "bytes": 82,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "5345f48f0def68707134328341da1f65967ec693868e28a4fb59faf9d7652bc1",
+      "uid": 1000
+    },
+    "app/workspace/access_logging.py": {
+      "bytes": 961,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "da3fa37f93b02c925dc3d2a29f47d660bfd804a668fed7d9aa59597753ffdbb5",
+      "uid": 1000
+    },
+    "app/workspace/boundary.py": {
+      "bytes": 2727,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "a48c7ad1de15fe9fce4224f9003ef9fdcc27b4da98ccedd1a8acc11ebbb8306a",
+      "uid": 1000
+    },
+    "app/workspace/catalog.py": {
+      "bytes": 7552,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "fd5332b6c2dce52c04aa5c430f0b97d5334ff75f24b2a00c94aaf9dede3b7523",
+      "uid": 1000
+    },
+    "app/workspace/catalog_router.py": {
+      "bytes": 4575,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "60c380071eb414dfbe58549d71db7d4846acb4127f3cb0d038224031d9217bee",
+      "uid": 1000
+    },
+    "app/workspace/chat_router.py": {
+      "bytes": 5284,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "1992630c5730119e331c8915dd0debe369be0894951867d9603c0d9b79431937",
+      "uid": 1000
+    },
+    "app/workspace/completion.py": {
+      "bytes": 6187,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "cc9c96ef14e568e4c451d810a497671ee6fc060eab8c5d2feead5f5926edb19b",
+      "uid": 1000
+    },
+    "app/workspace/contracts.py": {
+      "bytes": 3285,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "3ab26734c5a69117380eaaa407b7c2f8aeabe8fde0bdcab8ae382eb0fec62c75",
+      "uid": 1000
+    },
+    "app/workspace/cursors.py": {
+      "bytes": 2609,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "81f79e882267e00e9b340fdbc9000cd7d11c6ec3f24bdb640c64185cc1aff8d9",
+      "uid": 1000
+    },
+    "app/workspace/database.py": {
+      "bytes": 6057,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "a354ac0942e27db43c5c16a21ae3664eaeee9edd22609069b48d67813326ac9e",
+      "uid": 1000
+    },
+    "app/workspace/dependencies.py": {
+      "bytes": 1133,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "0195ab365dfd3f48260d32fa87ea5ac210e8ebbbeeb23e6f87e6aec7f75ee309",
+      "uid": 1000
+    },
+    "app/workspace/errors.py": {
+      "bytes": 2564,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "ee45ea84331339873b94cb87a1a51a76fbc1c2beb58cba2d9410d9974ae171d6",
+      "uid": 1000
+    },
+    "app/workspace/history.py": {
+      "bytes": 7651,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "3bca945309c344c82c371a17bcb301040488890498957a341f66b4161e4382a8",
+      "uid": 1000
+    },
+    "app/workspace/router.py": {
+      "bytes": 304,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "8659eb09fcd35b8e03dd38a79b837c226145bdd42aeb5b1a946899255ad4061e",
+      "uid": 1000
+    },
+    "app/workspace/service.py": {
+      "bytes": 3767,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "8f6436c7b3a1c424a8187b9bae301d94aa48cbca3af80827b0ee2024b9920d34",
+      "uid": 1000
+    },
+    "app/workspace/submissions.py": {
+      "bytes": 5611,
+      "gid": 1000,
+      "mode": 436,
+      "sha256": "da19bc7eaf4128498f953d727aa27d2c5e0b035eea84fbf789f944596d2540e4",
+      "uid": 1000
+    },
+    "requirements-runtime.lock": {
+      "bytes": 88598,
+      "gid": 0,
+      "mode": 436,
+      "sha256": "cad37d805664670589892c601592623d3a2b73e7c80147e3b7695e2a113339a7",
+      "uid": 0
+    }
+  },
+  "image_id": "sha256:3ee8441fd77cfec284e748dc83067d3bb760db9895268cc354188d5c387e95d6",
+  "manifest_sha256": "cb8ead09212808cd911f2a7536b3fa4cf589feb6f9f2bebcc4cbec69db22a4c4"
+}

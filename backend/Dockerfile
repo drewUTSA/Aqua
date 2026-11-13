@@ -4,6 +4,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
 COPY tools/checks/requirements-runtime.lock /tmp/requirements-runtime.lock
 RUN python -m pip install --no-cache-dir --no-deps --require-hashes -r /tmp/requirements-runtime.lock && python -m pip check
 RUN useradd --uid 1000 --create-home appuser
+RUN install -d -o 1000 -g 1000 -m 0700 /run/aqua-mail-physical
 WORKDIR /app
 COPY --chown=1000:1000 backend/main.py .
 COPY --chown=1000:1000 backend/auth/*.py ./auth/
@@ -16,6 +17,7 @@ COPY --chown=1000:1000 backend/analysis/*.py ./analysis/
 COPY --chown=1000:1000 backend/preferences/*.py ./preferences/
 COPY --chown=1000:1000 backend/account/*.py ./account/
 COPY --chown=1000:1000 backend/privacy/*.py ./privacy/
+COPY --chown=1000:1000 backend/retirement/*.py ./retirement/
 COPY --chown=1000:1000 backend/migrations/*.sql ./migrations/
 USER 1000:1000
 CMD ["uvicorn", "main:app", "--host", "127.0.0.1", "--port", "8000"]

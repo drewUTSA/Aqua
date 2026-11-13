@@ -9,8 +9,10 @@ import time
 
 if __package__:
     from .private_env import Unavailable
+    from .physical_lock import Claim
 else:
     from private_env import Unavailable
+    from physical_lock import Claim
 
 DOCKER = "/usr/bin/docker"
 SOCKET = "/var/run/docker.sock"
@@ -104,6 +106,32 @@ class Docker:
         ):
             raise Unavailable("worker_ownership_unconfirmed")
         return ids[0]
+
+    def lock_mounted(self, ident: str, claim: Claim) -> None:
+        """Inspect only nonsecret bind provenance before starting the child."""
+        claim.verify()
+        mounts = json.loads(
+            self.call("container", "inspect", "--format", "{{json .Mounts}}", ident)
+        )
+        if (
+            type(mounts) is not list
+            or len(mounts) > 8
+            or any(type(item) is not dict for item in mounts)
+        ):
+            raise Unavailable("worker_lock_mount_unconfirmed")
+        selected = [
+            item
+            for item in mounts
+            if item.get("Destination") == "/run/aqua-mail-physical/worker.lock"
+        ]
+        if (
+            len(selected) != 1
+            or selected[0].get("Type") != "bind"
+            or selected[0].get("Source") != str(claim.path)
+            or selected[0].get("RW") is not False
+        ):
+            raise Unavailable("worker_lock_mount_unconfirmed")
+        claim.verify()
 
     def clean(self, nonce: str, expected: str | None) -> bool:
         """Delete only this invocation's labelled ID and prove it is absent."""

@@ -3,7 +3,7 @@ import { accountOwner } from "./accountContract.js";
 import { actionChallenge, actionPassword, actionProof, actionTarget, actionToken, passwordChanged, sessionsRevoked } from "./accountSecurityContract.js";
 
 const input = normalize => { try { return normalize(); } catch { throw new WorkspaceError("invalid_input", 422); } };
-function controls({ signal, csrfToken, timeout } = {}) { return { signal, csrfToken, ...(timeout === undefined ? {} : { timeout }) }; }
+function controls({ signal, csrfToken, timeout, historyContext } = {}) { return { signal, csrfToken, historyContext, ...(timeout === undefined ? {} : { timeout }) }; }
 async function action(path, method, body, options, decode) {
   const transport = controls(options);
   const value = await workspaceRequest(path, { ...transport, method, body, expectedStatuses: [200] });
