@@ -1,7 +1,7 @@
 """Public subset of ROOT-reviewed current201 image inventory; no artifact data."""
 
-IMAGE = "sha256:dc50f945f9c20e5c064e4f89a7d83edc30ed75f9bf47018415d936f07171f044"
-MANIFEST_SHA256 = "74b980666341c0363e90e7fa712e4f5dbfb8ca322cc578a0f1b1b7dc0344c9c5"
+IMAGE = "sha256:22f90a96931b2be471c31455d97c1da68c3b3c6b6c15ac5fcbfcf362d4b491b0"
+MANIFEST_SHA256 = "15d5f7c534b41ce55f94f42b65a013781f91c5e4bbae1868fa219c1fe131c7d9"
 RUNTIME_FILES = {
     "account/__init__.py": "4d300929fcb6d0c0e3a6b92377bfd4648fc336a8ad2bfb3e962d810b3b6f55e0",
     "account/action_contracts.py": "be3becba0a54378a847efdaa76cc833e3b780df3658c90d30f86a7852232a397",
@@ -32,7 +32,7 @@ RUNTIME_FILES = {
     "analysis/__init__.py": "21a91f22d295d99c41c27c747729a2c864a0bc0713a339d256fb911da1794d2f",
     "analysis/admission.py": "182220150a53ec9645048fef6f04e65d35bd644f4325f2fc8f653744d76ae697",
     "analysis/child.py": "0aa035c97cfbd64dcf2b692a88e7db519d699999b1485f04223c5ea1f7ca5af2",
-    "analysis/child_payload.py": "6bb4df89454caf6f9f1c62e8b6eb786ef6b93d8e18c9030ad5d5dc57cd50810b",
+    "analysis/child_payload.py": "af192105ecb376d3de38b40d2c86f9c9de06df48a305f6ade4bb72c3f1ebdeda",
     "analysis/context.py": "9b7cbaf71121a32283cf1abc366c5b1fc787cd91c9527fa45cf9fe158cf062c5",
     "analysis/dependencies.py": "540bcdde73fa0943cae3d6cdf6324f9d5e103709173a215b430547bf0e0b0b4c",
     "analysis/dispatch.py": "04617ed14a65e7ab6e5365514efec691d0293fb66f2b4633e3f9a1c8d79cb6e8",
@@ -97,7 +97,7 @@ RUNTIME_FILES = {
     "nl2sql/auth_config.py": "e1fa79d22e8686363b7680ca744ec8462877ee51d10b6a2958f9366a88ef22c2",
     "nl2sql/cache.py": "f84d18202ec49c74cf5b369d16930aad6a333025624e7d0910eda8273d3c9dc3",
     "nl2sql/cache_scope.py": "611faa3737bb641379b93079760b452d2f9b7165b992494d8b6a7107e72db2a3",
-    "nl2sql/config.py": "0a73db703b6e5a0ca79c22e6e5f6ec6e956396d04d59d98d5129916426c63d72",
+    "nl2sql/config.py": "64f5d0af2f8847ea930300ee34bb2efc9166c5d9214d3230c7515fa641e49cc1",
     "nl2sql/control.py": "d1fc5ed965876c64a2bdcaaf2432dc42f7211eb5666d5847401f6b28de3107a7",
     "nl2sql/db.py": "b2364c06d9ecfa093f8ddbd8eb2fe6efc591e1fce5f1694b2f718ca94cbde56d",
     "nl2sql/display.py": "c9a1f3bf2bbd1aa069460288a2a204cd4eb30e1fde1b61f864e194322256a02f",
@@ -120,7 +120,7 @@ RUNTIME_FILES = {
     "nl2sql/retrieval/graph.py": "857517932252a37b540a3ee039e49ae9df5bcedd3c911751a74eb2c759e062d4",
     "nl2sql/retrieval/hybrid.py": "8a9177d40176fee646e322d67932a1cd458b44af2bb649f263892b06f541ce4c",
     "nl2sql/retrieval/query.py": "bee538226d74bdb015f2163620d17c0c4830129646a21e2d370cdf6612088523",
-    "nl2sql/retrieval/select.py": "0bddf8784b7cbfd502cfa2a530f981944529f477fc7dbcd9ecf11bf1364ccd2f",
+    "nl2sql/retrieval/select.py": "2c9c98039fdd64ae6ba71522f73a5aef9063b6fb4989a3fcde24c455e3564fcf",
     "nl2sql/retrieval/store.py": "3bb67d6e2e82fae95855a4206c40fb4cd81b46df523d7d88fab711c700674214",
     "nl2sql/schema.py": "435b34756dcc9568ddd05d69883eaadd56b0a2b3cce869c8d5f8368c0b7c14c4",
     "nl2sql/schema_loader.py": "c4871bb3547ab8d8b4302d376412b43f04029a8eff1481bce1d286d1140cc354",

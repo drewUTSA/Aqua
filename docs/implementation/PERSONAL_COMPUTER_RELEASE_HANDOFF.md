@@ -1,4 +1,4 @@
-# Personal-computer release handoff — November 13, 2026
+# Personal-computer release handoff â€” November 13, 2026
 
 ## Resume instruction from Ben
 
@@ -19,7 +19,7 @@ The subsequent [AI knowledge slice](AI_KNOWLEDGE_PROGRESS.md) adapts curated
 examples, hybrid identifier/semantic search and evaluation gates from a read-only
 review of the local GH Logistics repositories. No company corpus was imported.
 Its final runtime profile is
-`sha256:dc50f945f9c20e5c064e4f89a7d83edc30ed75f9bf47018415d936f07171f044`
+`sha256:22f90a96931b2be471c31455d97c1da68c3b3c6b6c15ac5fcbfcf362d4b491b0`
 (197 compiled / 200 app / 201 complete files). Source-bound installer and normal
 runtime recovery receipts are in `evidence/ai/`; check the PR and distinct main
 CI before release. Both Google redirect and hybrid retrieval remain off. The

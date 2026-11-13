@@ -1,5 +1,5 @@
 {
-  "app_manifest_sha256": "78cf5d8deaf6dabd8328e2c900ab0c6c03c234bd91d39a994341c305d2bdec42",
+  "app_manifest_sha256": "75b8e41c420e402744bd847f6c69c15c6e000707844c6ddaff5ca95ed8280223",
   "files": {
     "app/account/__init__.py": {
       "bytes": 79,
@@ -205,10 +205,10 @@
       "uid": 1000
     },
     "app/analysis/child_payload.py": {
-      "bytes": 1168,
+      "bytes": 1204,
       "gid": 1000,
       "mode": 436,
-      "sha256": "6bb4df89454caf6f9f1c62e8b6eb786ef6b93d8e18c9030ad5d5dc57cd50810b",
+      "sha256": "af192105ecb376d3de38b40d2c86f9c9de06df48a305f6ade4bb72c3f1ebdeda",
       "uid": 1000
     },
     "app/analysis/context.py": {
@@ -681,10 +681,10 @@
       "uid": 1000
     },
     "app/nl2sql/config.py": {
-      "bytes": 9988,
+      "bytes": 10197,
       "gid": 1000,
       "mode": 436,
-      "sha256": "0a73db703b6e5a0ca79c22e6e5f6ec6e956396d04d59d98d5129916426c63d72",
+      "sha256": "64f5d0af2f8847ea930300ee34bb2efc9166c5d9214d3230c7515fa641e49cc1",
       "uid": 1000
     },
     "app/nl2sql/control.py": {
@@ -842,10 +842,10 @@
       "uid": 1000
     },
     "app/nl2sql/retrieval/select.py": {
-      "bytes": 5510,
+      "bytes": 5477,
       "gid": 1000,
       "mode": 436,
-      "sha256": "0bddf8784b7cbfd502cfa2a530f981944529f477fc7dbcd9ecf11bf1364ccd2f",
+      "sha256": "2c9c98039fdd64ae6ba71522f73a5aef9063b6fb4989a3fcde24c455e3564fcf",
       "uid": 1000
     },
     "app/nl2sql/retrieval/store.py": {
@@ -1409,6 +1409,6 @@
       "uid": 0
     }
   },
-  "image_id": "sha256:dc50f945f9c20e5c064e4f89a7d83edc30ed75f9bf47018415d936f07171f044",
-  "manifest_sha256": "74b980666341c0363e90e7fa712e4f5dbfb8ca322cc578a0f1b1b7dc0344c9c5"
+  "image_id": "sha256:22f90a96931b2be471c31455d97c1da68c3b3c6b6c15ac5fcbfcf362d4b491b0",
+  "manifest_sha256": "15d5f7c534b41ce55f94f42b65a013781f91c5e4bbae1868fa219c1fe131c7d9"
 }

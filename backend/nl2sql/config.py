@@ -89,6 +89,7 @@ class Settings:
     # Retrieve relevant tables and examples per question (Phase 4). Off
     # until the indexer has run and the eval shows it helps.
     retrieval: bool = False
+    retrieval_hybrid_enabled: bool = False
     # Tell the model how many rows the question asks for (answer_size.py):
     # a number, the top 10 for plurals, first place and ties for singulars.
     answer_size_rules: bool = True
@@ -158,6 +159,7 @@ def settings_from(environ: Mapping[str, str]) -> Settings:
 
     think = get("OLLAMA_THINK")
     retrieval = get("RETRIEVAL")
+    hybrid = get("RETRIEVAL_HYBRID_ENABLED")
     fallback = get("LLM_FALLBACK")
     size_rules = get("ANSWER_SIZE_RULES")
     cache_seconds = get("ANSWER_CACHE_SECONDS")
@@ -209,6 +211,9 @@ def settings_from(environ: Mapping[str, str]) -> Settings:
         llm_provider=provider,
         llm_fallback=_flag("LLM_FALLBACK", fallback) if fallback else True,
         retrieval=_flag("RETRIEVAL", retrieval) if retrieval else False,
+        retrieval_hybrid_enabled=(
+            _flag("RETRIEVAL_HYBRID_ENABLED", hybrid) if hybrid else False
+        ),
         answer_size_rules=(
             _flag("ANSWER_SIZE_RULES", size_rules) if size_rules else True
         ),

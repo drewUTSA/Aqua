@@ -119,7 +119,6 @@ def test_hybrid_selection_reuses_one_embedding_and_the_two_original_lookups(
     from nl2sql.config import Settings
     from nl2sql.retrieval import select
 
-    monkeypatch.setenv("RETRIEVAL_HYBRID_ENABLED", "true" if enabled else "false")
     inputs, lookups = [], []
     monkeypatch.setattr(
         select,
@@ -143,8 +142,35 @@ def test_hybrid_selection_reuses_one_embedding_and_the_two_original_lookups(
             return SimpleNamespace(fetchall=lambda: [])
 
     monkeypatch.setattr(select, "connect", lambda settings: Connection())
-    context = select.VectorRetriever(Settings()).select(
+    context = select.VectorRetriever(Settings(retrieval_hybrid_enabled=enabled)).select(
         "Show account balances", schema()
     )
     assert len(inputs) == 1 and len(lookups) == 2
     assert ("account" in context.tables) is enabled
+
+
+@pytest.mark.parametrize("value,expected", [("true", True), ("false", False)])
+def test_typed_flag_survives_the_restricted_worker_payload(value, expected):
+    from analysis.child_payload import payload
+    from nl2sql.config import Settings, settings_from
+
+    settings = settings_from({"RETRIEVAL_HYBRID_ENABLED": value})
+    job = {
+        "model": "ollama",
+        "user_id": "synthetic",
+        "grant_version": 1,
+        "auth_epoch": 1,
+        "context": [],
+        "context_digest": b"0" * 32,
+        "request_id": None,
+    }
+    sent = payload(job, "account balance", settings, 10)["settings"]
+    assert Settings(**sent).retrieval_hybrid_enabled is expected
+    assert "session_secret" not in sent and "indexer_database_url" not in sent
+
+
+def test_invalid_hybrid_flag_cannot_silently_change_retrieval():
+    from nl2sql.config import ConfigError, settings_from
+
+    with pytest.raises(ConfigError, match="RETRIEVAL_HYBRID_ENABLED"):
+        settings_from({"RETRIEVAL_HYBRID_ENABLED": "sometimes"})

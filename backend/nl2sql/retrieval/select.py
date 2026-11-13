@@ -15,7 +15,6 @@ Which tables go in the prompt:
 from __future__ import annotations
 
 from collections.abc import Iterable, Sequence
-import os
 from typing import Any
 
 import psycopg
@@ -139,6 +138,6 @@ class VectorRetriever:
             examples = conn.execute(
                 _EXAMPLES_SQL, (model, vector, TOP_EXAMPLES)
             ).fetchall()
-        if os.environ.get("RETRIEVAL_HYBRID_ENABLED", "false") == "true":
+        if self.settings.retrieval_hybrid_enabled:
             nearest = hybrid_tables(schema, nearest, question, TOP_TABLES)
         return assemble(schema, nearest, examples)

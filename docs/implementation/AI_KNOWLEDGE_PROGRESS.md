@@ -1,4 +1,4 @@
-# Prepared analysis and hybrid retrieval — opt-in source
+# Prepared analysis and hybrid retrieval â€” opt-in source
 
 Ben requested a review of the GH Logistics repositories' local-AI patterns and
 bookkeeping-style preparation, with better speed/quality and preserved security.
@@ -19,6 +19,9 @@ changed. Detailed local source identities stay in the task's verification record
    worked SQL examples exactly as before. Empty/unauthorized indexes retain
    their existing availability/deny behavior. An unauthorized vector hit is
    denied before fusion; it cannot disappear behind authorized lexical hits.
+   The flag is parsed into immutable typed settings and crosses only the
+   existing restricted analytical-worker payload. It does not depend on the
+   sanitized child's environment; application/identity secrets remain excluded.
 2. The lexical pass uses only the current job's approved table/column names.
    It reads no sampled values, comments, result rows, other accounts' history or
    company document content. Preparation is request-local, capped at 2,048
@@ -107,7 +110,8 @@ the public Aqua repository, connected to Aqua users or sent to a model.
 
 ## Qualification limits
 
-The 36 added pure/transport tests passed in the networkless pinned runtime.
+The initial 36 added pure/transport tests passed in the networkless pinned runtime.
+Three additional cases verify typed flag parsing and restricted-worker delivery.
 The synthetic benchmark measures identifier recovery and CPU overhead only;
 its intentionally missed vector targets do not measure real semantic retrieval,
 end-to-end latency, financial correctness or model accuracy. Full retained
@@ -115,15 +119,17 @@ backend, exact native inventory/recovery and PR/main CI are still required for
 the combined source. Both flags and the live schema8 release remain unchanged.
 
 The final installed runtime was independently inventoried as
-`sha256:dc50f945f9c20e5c064e4f89a7d83edc30ed75f9bf47018415d936f07171f044`:
+`sha256:22f90a96931b2be471c31455d97c1da68c3b3c6b6c15ac5fcbfcf362d4b491b0`:
 197 compiled files, 200 app files and one dependency lock. Its disposable
 installer/genesis recovery and ordinary-runtime flag-off purge, invalid-restored
 startup denial and retained-authority recovery all passed with cleanup and zero
 production mutations. See `evidence/ai/`. Encrypted independent retention and
 total-host restore remain unproven release gates. The first full backend run
 caught two new CLI tests depending on pytest's parent import path; their
-entry-point/root-directory repair is under a fresh full run. Preserve that red
-evidence; do not represent the partial run as passing. Consult the PR's exact
+entry-point/root-directory repair passed a complete 1,935-case matrix on the
+preceding image. The subsequent typed-worker flag repair has a fresh image and
+full run; do not substitute the older result for it. Preserve the initial red
+evidence. Consult the PR's exact
 head and distinct main checks for the eventual integrated result.
 
 Before enabling hybrid retrieval, compare held-out table recall, SQL/result
