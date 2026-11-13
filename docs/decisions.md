@@ -2,6 +2,23 @@
 
 Each entry records the decision, the alternatives considered, and why.
 
+## November 13, 2026: Bounded join paths and owned follow-up retrieval
+
+**Decision.** Build approved schema adjacency once per retrieval, retain existing
+bridges and add bounded deterministic paths between selected relations. Use at
+most two already authorized prior questions in the same embedding call, with a
+12,000-byte UTF-8 input cap and no SQL/rows/private identifiers in that input.
+
+**Alternatives.** Repeated whole-catalog scans, full-schema fallback for every
+follow-up, a second model planning call, or an external agent/tool framework.
+
+**Reasoning.** Missing join metadata and context-free follow-up embeddings are
+concrete retrieval failures. Request-local graph work addresses them within the
+existing SQL-only pipeline and its budget, without new providers, storage or
+application-data permissions. Component measurements are recorded in
+[P12 progress](implementation/P12_PROGRESS.md); model accuracy and complete
+application capacity remain separate verification requirements.
+
 ## October 2026: Stack and layout
 
 **Decision.** FastAPI backend with the NL2SQL pipeline in `backend/nl2sql/`, React and Vite frontend, Gemini API (AI Studio keys) as the model, PostgreSQL on Tiger Cloud as the database, deployed with docker-compose at `/srv/bank-ai`.

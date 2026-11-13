@@ -149,6 +149,85 @@ def test_empty_index_raises_so_the_pipeline_falls_back() -> None:
         assemble(SCHEMA, [], [])
 
 
+def test_assemble_includes_complete_short_join_path_without_unrelated_tables() -> None:
+    schema = Schema(
+        tables={
+            "payment": table("payment", "payment_id", refs=("rental",)),
+            "rental": table("rental", "rental_id", refs=("inventory",)),
+            "inventory": table("inventory", "inventory_id", refs=("film",)),
+            "film": table("film", "film_id"),
+            "unrelated": table("unrelated", "unrelated_id"),
+        }
+    )
+    context = assemble(schema, ["payment", "film"], [])
+    assert set(context.tables) == {"payment", "rental", "inventory", "film"}
+    assert "CREATE TABLE rental" in context.schema_text
+    assert "CREATE TABLE unrelated" not in context.schema_text
+
+
+def test_selection_does_not_rescan_schema_related_for_every_catalog_table(
+    monkeypatch,
+) -> None:
+    def refuse(*args, **kwargs):
+        raise AssertionError("quadratic per-table relationship rescan")
+
+    monkeypatch.setattr(Schema, "related", refuse)
+    assert choose_tables(SCHEMA, ["film", "category"], []) == {
+        "film",
+        "category",
+        "film_category",
+    }
+
+
+def test_followup_embedding_uses_only_owned_questions_in_the_same_single_call(
+    monkeypatch,
+) -> None:
+    from contextlib import nullcontext
+    import time
+    from nl2sql.control import Budget, CURRENT
+    from nl2sql.retrieval import select as selection
+
+    inputs = []
+
+    def embed_once(question, *args):
+        inputs.append(question)
+        return [0.0] * EMBED_DIMENSIONS
+
+    class Connection:
+        def execute(self, sql, parameters):
+            if "schema_doc" in sql:
+                return [("payment",)]
+            return SimpleNamespace(fetchall=lambda: [])
+
+    monkeypatch.setattr(selection, "embed_query", embed_once)
+    monkeypatch.setattr(
+        selection, "connect", lambda settings: nullcontext(Connection())
+    )
+    budget = Budget(
+        time.monotonic() + 120,
+        lambda stage: None,
+        context=[
+            {
+                "question": "Payments by customer",
+                "sql": "SQL_PRIVATE_SENTINEL",
+                "message_id": "ID_PRIVATE_SENTINEL",
+            }
+        ],
+    )
+    token = CURRENT.set(budget)
+    try:
+        context = selection.VectorRetriever(SETTINGS).select("And last month?", SCHEMA)
+    finally:
+        CURRENT.reset(token)
+    assert len(inputs) == 1
+    assert json.loads(inputs[0]) == {
+        "earlier_questions": ["Payments by customer"],
+        "current_question": "And last month?",
+    }
+    assert "PRIVATE_SENTINEL" not in inputs[0]
+    assert context.tables == ("payment",)
+
+
 # ---- the indexer's dataset loading ----
 
 
