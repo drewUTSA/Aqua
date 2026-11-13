@@ -86,6 +86,8 @@ jobs:
           aqua-runtime:check python - --expect guarded < tools/checks/telemetry_probe.py
       - name: Backend contracts and both disposable database fixtures
         run: python tools/checks/run_backend.py --image aqua-runtime:check
+      - name: Synthetic private history, metadata and pool capacity
+        run: python tools/checks/run_capacity.py --image aqua-runtime:check --output .check-results/capacity/report.json
       - name: Private workspace access-log protection
         run: >-
           docker run --rm -i --network none --read-only --cap-drop ALL
