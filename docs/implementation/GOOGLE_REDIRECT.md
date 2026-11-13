@@ -85,6 +85,15 @@ production document/CSP. Backend attacks use real disposable private PostgreSQL
 and mocked Google verification. They do not prove real provider-console setup,
 physical iPhone behavior, encrypted independent retention or total-host recovery.
 
+The complete isolated backend matrix passed all 1,897 unique cases across bank
+and Pagila fixtures, including the retained capacity case, restore/privilege
+checks and all 39 added redirect cases, with cleanup confirmed. All 630 frontend
+unit cases pass. Both interface builds pass their unchanged delivery ceilings;
+54 synthetic browser journeys per shell passed across the three engines before
+the final retained foreground-clock correction. Exact-head and merged-main CI
+must qualify the final source. See [the backend receipt](evidence/mobile/backend-matrix.json)
+and [native receipts](evidence/mobile/native-qualification.json).
+
 References: [Google browser support](https://developers.google.com/identity/gsi/web/guides/supported-browsers),
 [GIS initialization and redirect URI](https://developers.google.com/identity/gsi/web/reference/js-reference),
 [server verification and double-submit](https://developers.google.com/identity/gsi/web/guides/verify-google-id-token),
