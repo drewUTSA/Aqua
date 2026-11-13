@@ -102,6 +102,13 @@ were refreshed, preserving exact source, lock and image assertions. Source/lock,
 Black and Ruff checks pass. Final PR/main CI and all retained browser jobs remain
 required for the final integrated candidate.
 
+The first P12 CI candidate `7ee8265` correctly stopped at the old compiled-file
+count (191) in the closed36 fixture suite. Its inventory guard now requires
+exactly the two named new retrieval modules, the original191 remaining entries
+and 193 compiled inputs total. No case identity, skip allowance, resource limit
+or runtime hash comparison changed. This structural inventory update requires
+a fresh complete run; the earlier failed run remains recorded.
+
 Complete P12 still requires broader mixed HTTP load and agreed production SLOs,
 provider stage/cancellation/slow-stream measurements, chart/bundle/resource
 measurements and documented capacity limits. Existing backend tests retain the
