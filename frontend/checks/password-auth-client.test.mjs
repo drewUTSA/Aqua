@@ -56,7 +56,7 @@ for (const [label, action, endpoint, invoke, payload, success, expected] of [
       assert.equal(init.mode, "same-origin");
       assert.equal(init.cache, "no-store");
       assert.equal(init.redirect, "error");
-      assert.equal(init.referrerPolicy, "no-referrer");
+      assert.equal(init.referrerPolicy, init.method === "GET" ? "no-referrer" : "strict-origin");
       assert.equal(init.headers.Origin, undefined);
       assert.equal(init.headers.Cookie, undefined);
     }
