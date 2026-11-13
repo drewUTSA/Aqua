@@ -1,13 +1,14 @@
 import React, { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { useChat } from "../../hooks/useChat.js";
 import { useWorkspace } from "../../hooks/useWorkspace.js";
 import OpalSidebar from "./OpalSidebar.jsx";
 import VisualWorkspace from "./VisualWorkspace.jsx";
+import { SidebarSearchDialog } from "./SidebarRecentsDialogs.jsx";
+import QuickSwitcherBoundary from "./QuickSwitcherBoundary.jsx";
 import OpalBackdrop from "../auth/OpalBackdrop.jsx";
 import { UI_SHELL } from "../../services/runtimeConfig.js";
 import { usePreferences } from "../../settings/PreferencesProvider.jsx";
 import { useNotifications } from "../../settings/NotificationProvider.jsx";
-import { workspaceShortcut } from "./quickSwitchPolicy.js";
+import { workspaceShortcut } from "./workspaceShortcuts.js";
 import "../../styles/quick-switcher.css";
 import "../../styles/workspace.css";
 import "../../styles/legacy-workspace.css";
@@ -18,16 +19,13 @@ import "../../styles/homepage.css";
 const SettingsShell = lazy(() => import("../../pages/SettingsShell.jsx"));
 const PromptLibraryDialog = lazy(() => import("./PromptLibraryDialog.jsx"));
 const QuickSwitcher = lazy(() => import("./QuickSwitcher.jsx"));
-const ChatSearch = lazy(() => import("./SidebarRecentsDialogs.jsx").then((module) => ({ default: module.SidebarSearchDialog })));
+const DemoWorkspace = lazy(() => import("./DemoWorkspace.jsx"));
 
 export default function Workspace({ auth, hidden, path, onNavigate }) {
-  return auth.demoMode ? <DemoWorkspace auth={auth} hidden={hidden} path={path} onNavigate={onNavigate} />
+  return auth.demoMode ? <Suspense fallback={<p role="status">Opening the demo workspace…</p>}><DemoWorkspace auth={auth}>
+    {(chat) => <WorkspaceView auth={auth} hidden={hidden} path={path} onNavigate={onNavigate} chat={chat} />}
+  </DemoWorkspace></Suspense>
     : <LiveWorkspace auth={auth} hidden={hidden} path={path} onNavigate={onNavigate} />;
-}
-function DemoWorkspace(props) {
-  const { auth } = props;
-  const chat = useChat({ demoMode: auth.demoMode, canQuery: auth.canQuery, csrfToken: auth.csrfToken, onAuthFailure: auth.refresh });
-  return <WorkspaceView {...props} chat={chat} />;
 }
 function LiveWorkspace(props) {
   const { auth, hidden } = props;
@@ -126,8 +124,8 @@ function WorkspaceView({ auth, hidden, path, onNavigate, chat }) {
       <VisualWorkspace chat={chat} auth={auth} preferences={{ account, device }} onDeviceChange={preferences.persistDeviceValue} chartTheme={theme} inputRef={inputRef} focusRequest={focus} onOpenPrompts={openPrompts} shell={UI_SHELL} visible={!hidden && !settings} scrollPositions={scrollPositions.current} />
     </div>
     {settings && <Suspense fallback={<p role="status">Opening Settings…</p>}><SettingsShell auth={auth} onBack={() => go("/")} onNavigate={go} /></Suspense>}
-    {quickOpen && !hidden && <Suspense fallback={<p role="status">Opening workspace shortcuts…</p>}><QuickSwitcher chat={chat} onClose={() => setQuickOpen(false)} onSelect={select} onAction={quickAction} /></Suspense>}
-    {searchOpen && !hidden && <Suspense fallback={<p role="status">Opening chat search…</p>}><ChatSearch chat={chat} onSelect={select} onClose={() => setSearchOpen(false)} /></Suspense>}
+    {quickOpen && !hidden && <QuickSwitcherBoundary onClose={() => setQuickOpen(false)}><Suspense fallback={<p role="status">Opening workspace shortcuts…</p>}><QuickSwitcher chat={chat} onClose={() => setQuickOpen(false)} onSelect={select} onAction={quickAction} /></Suspense></QuickSwitcherBoundary>}
+    {searchOpen && !hidden && <SidebarSearchDialog chat={chat} onSelect={select} onClose={() => setSearchOpen(false)} />}
     {promptsOpen && !hidden && !settings && <Suspense fallback={<p role="status">Opening saved prompts…</p>}><PromptLibraryDialog chat={chat} suggestions={account.suggestions} onClose={() => setPromptsOpen(false)} onPrompt={(value) => { prompt(value); setPromptsOpen(false); }} /></Suspense>}
     </div>
   </div>;

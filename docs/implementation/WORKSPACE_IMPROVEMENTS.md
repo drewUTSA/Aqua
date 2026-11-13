@@ -50,6 +50,24 @@ editing in the search field. Neither selection nor opening a draft submits it.
 
 ## Verification
 
+The first integrated navigation browser gate caught an initial-script budget
+regression: `e357a0e` delivered 601,319 bytes against the retained 600,000-byte limit.
+The keyboard policy now loads separately from the on-demand switcher index;
+the shared search dialog no longer has a redundant self-import wrapper, and the
+demo's hook/seeded history loads only when demo mode opens. The Opal initial
+script is now 591,593 bytes (Legacy 591,595), including the optional-download
+recovery boundary, with no limit raised and all 611 tests still passing.
+Demo, account ownership, draft state and both shells require their existing
+browser qualification on the resulting head. The earlier failed CI is retained.
+
+An isolated static demo explicitly returned 503 for `QuickSwitcher-*.js` and
+made every API unavailable. The real browser displayed “Shortcuts unavailable”;
+closing it retained the unsent composer text and restored focus without sending.
+This tests the actual rejected module and local recovery boundary, not a mocked
+React error. The separately loaded demo also bootstrapped normally. The owned
+loopback server and screenshots belong to the task verification directory; no
+production file or account was used. Full authenticated/browser CI remains required.
+
 After integration with the P11 deletion and P12 retrieval branches, all 611
 frontend tests pass: the retained 600 plus these eleven regressions. Both Opal
 and Legacy production builds and their existing bundle guards pass; the locked
