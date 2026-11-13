@@ -87,6 +87,8 @@ jobs:
           python tools/checks/check_lock.py
           python tools/checks/test_retrieval_graph.py
           python tools/checks/test_retrieval_query.py
+          python tools/checks/benchmark_hybrid.py
+          python tools/checks/test_compare_runs.py
           python -m black --check backend eval tools/checks ops
           python -m ruff check backend eval tools/checks ops
           python tools/checks/p05_browser_cleanup_test.py

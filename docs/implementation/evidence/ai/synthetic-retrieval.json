@@ -1,0 +1,1 @@
+{"additional_provider_calls": 0, "cases": 4, "catalog_tables": 512, "kind": "synthetic_identifier_recovery", "max_ms": 2.9810999985784292, "median_ms": 1.819749999413034, "real_model_accuracy_measured": false, "recovered_targets": 4, "samples": 120, "top_k": 4}

@@ -17,6 +17,7 @@ FIELDS = frozenset(
         "llm_provider",
         "llm_fallback",
         "retrieval",
+        "retrieval_hybrid_enabled",
         "answer_size_rules",
         "answer_cache_seconds",
     }

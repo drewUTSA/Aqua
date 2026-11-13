@@ -30,6 +30,7 @@ from nl2sql.pipeline import Context
 from nl2sql.retrieval.embed import EmbeddingError, embed_query, to_pgvector
 from nl2sql.retrieval.graph import select_tables
 from nl2sql.retrieval.query import retrieval_query
+from nl2sql.retrieval.hybrid import hybrid_tables
 from nl2sql.schema import Schema
 
 TOP_TABLES = 4
@@ -137,4 +138,6 @@ class VectorRetriever:
             examples = conn.execute(
                 _EXAMPLES_SQL, (model, vector, TOP_EXAMPLES)
             ).fetchall()
+        if self.settings.retrieval_hybrid_enabled:
+            nearest = hybrid_tables(schema, nearest, question, TOP_TABLES)
         return assemble(schema, nearest, examples)

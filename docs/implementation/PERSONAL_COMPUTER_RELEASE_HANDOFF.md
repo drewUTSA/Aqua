@@ -1,4 +1,4 @@
-# Personal-computer release handoff — November 13, 2026
+# Personal-computer release handoff â€” November 13, 2026
 
 ## Resume instruction from Ben
 
@@ -14,6 +14,17 @@ Read this record with the root handoff, `CLAUDE.md`, `P11_PROGRESS.md`,
 does not qualify a different source, dependency graph, image or environment.
 
 ### Office integration checkpoint
+
+The subsequent [AI knowledge slice](AI_KNOWLEDGE_PROGRESS.md) adapts curated
+examples, hybrid identifier/semantic search and evaluation gates from a read-only
+review of the local GH Logistics repositories. No company corpus was imported.
+Its final runtime profile is
+`sha256:22f90a96931b2be471c31455d97c1da68c3b3c6b6c15ac5fcbfcf362d4b491b0`
+(197 compiled / 200 app / 201 complete files). Source-bound installer and normal
+runtime recovery receipts are in `evidence/ai/`; check the PR and distinct main
+CI before release. Both Google redirect and hybrid retrieval remain off. The
+ordinary schema8 production deployment and the personal-computer backup gate
+remain in force; use this newer profile only for its matching reviewed source.
 
 PR60 subsequently merged as `96b6b1001918c4611d806ef37f7d097daf35a248`
 after all nine jobs passed on `607f969`. Distinct main CI `43500790670` also

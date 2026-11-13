@@ -1,7 +1,7 @@
 """Fresh native installer QA resources; never production names, data or config.
 
-Proposal only: exact reviewed child-lineage source pins are mandatory. Runtime200
-means the exact 199 /app files plus the image's /tmp/requirements-runtime.lock;
+Proposal only: exact reviewed child-lineage source pins are mandatory. Runtime201
+means the exact 200 /app files plus the image's /tmp/requirements-runtime.lock;
 the lock is independently pinned and never mounted or substituted by this QA.
 No host third-party dependencies; psycopg runs only in the immutable runtime.
 """
@@ -20,15 +20,15 @@ from pathlib import Path
 
 from prepare_retirement_stage import checked_archive, full_source, put, stage
 
-IMAGE = "sha256:3895904499335b9399351792914097a8f7c67bf3367be22f3b9d97fcd2f8234b"
+IMAGE = "sha256:22f90a96931b2be471c31455d97c1da68c3b3c6b6c15ac5fcbfcf362d4b491b0"
 POSTGRES = (
     "postgres@sha256:3645570cccdfa447589da9f57dd740faa29b30938e861289a5574b6ca6b03826"
 )
 HBA_SHA256 = "a9efd9abbd930abd4914dd4fbd1c87f4dd1e7363549f5ed96d3daa48c8be1dc1"
 RUNTIME_MANIFEST_SHA256 = (
-    "1e9fbda91bb2c0a1b09a47695d09613dccd1ed6c90e11e5f3a30e4d230c727b0"
+    "15d5f7c534b41ce55f94f42b65a013781f91c5e4bbae1868fa219c1fe131c7d9"
 )
-APP_MANIFEST_SHA256 = "ae8d1575a56f4968efe985d929f90480b9d447ee91dab387c040ec93c7d68e44"
+APP_MANIFEST_SHA256 = "75b8e41c420e402744bd847f6c69c15c6e000707844c6ddaff5ca95ed8280223"
 LOCK_SHA256 = "cad37d805664670589892c601592623d3a2b73e7c80147e3b7695e2a113339a7"
 LOCK_BYTES = 88598
 BASE = Path("/srv/bank-ai/.check-results")
@@ -68,7 +68,7 @@ for p in Path('/app').rglob('*'):
  if not stat.S_ISREG(s.st_mode) or p.resolve(strict=True)!=p:raise RuntimeError('runtime_nonregular')
  raw=p.read_bytes()
  actual[str(p.relative_to('/app'))]={'sha256':hashlib.sha256(raw).hexdigest(),'bytes':len(raw)}
-if len(actual)!=199 or actual!=v['runtime_files']:raise RuntimeError('runtime_source_mismatch')
+if len(actual)!=200 or actual!=v['runtime_files']:raise RuntimeError('runtime_source_mismatch')
 lock=Path('/tmp/requirements-runtime.lock');s=lock.lstat()
 if not stat.S_ISREG(s.st_mode) or lock.resolve(strict=True)!=lock or s.st_size!=v['lock_bytes']:raise RuntimeError('runtime_lock_metadata')
 raw=lock.read_bytes()
@@ -78,7 +78,7 @@ def connect(role,password,database='aqua_app'):
 if v['action']=='migrate':
  with connect('aqua_app_migrator',v['password']) as c:
   if apply(c)!=9:raise RuntimeError('schema9_required')
- print(json.dumps({'schema_version':9,'runtime_files':200,'app_files':199,'lock_files':1,'exact_runtime':True}))
+ print(json.dumps({'schema_version':9,'runtime_files':201,'app_files':200,'lock_files':1,'exact_runtime':True}))
 elif v['action']=='denials':
  with connect('aqua_app_runtime',v['password']) as c:
   if c.execute('SELECT current_user').fetchone()!=('aqua_app_runtime',):raise RuntimeError('runtime_identity')
@@ -363,11 +363,11 @@ class Rehearsal:
             )
         }
         if (
-            len(self.runtime_files) != 199
+            len(self.runtime_files) != 200
             or hashlib.sha256(canonical(self.runtime_files)).hexdigest()
             != APP_MANIFEST_SHA256
         ):
-            raise RuntimeError("rehearsal_exact_app199_manifest_required")
+            raise RuntimeError("rehearsal_exact_app200_manifest_required")
         if (
             self.command("image", "inspect", self.image, "--format={{.Id}}").strip()
             != self.image.encode()
@@ -500,8 +500,8 @@ class Rehearsal:
         )
         if result != {
             "schema_version": 9,
-            "runtime_files": 200,
-            "app_files": 199,
+            "runtime_files": 201,
+            "app_files": 200,
             "lock_files": 1,
             "exact_runtime": True,
         }:
