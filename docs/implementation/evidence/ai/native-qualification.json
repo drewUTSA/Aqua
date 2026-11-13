@@ -1,0 +1,146 @@
+[
+  {
+    "phase": "installer",
+    "run": "aqua-retirement-host-dfc85e6b7f067266ce6318c0",
+    "source_sha256": "c6b391f38b3b594d310cc5ce703cb97660e2e42f883a733221add4c24a88dca7"
+  },
+  {
+    "app_role_authority_denied": true,
+    "archive": {
+      "bytes": 51200,
+      "dump_bytes": 39645,
+      "dump_sha256": "69ad5524be3d8560d4f80b44d8c951c0a3e3caece8b176f25e871ea819209c7e",
+      "members": 5,
+      "sha256": "8a2dd020a7ced149310093cf893b6060ff093c0993e73c9c457d9895607c99c4"
+    },
+    "cleanup": true,
+    "controllers_exited": true,
+    "encrypted_retention_proven": false,
+    "genesis_recovery_cli": {
+      "cron_resumed": false,
+      "events_verified": 0,
+      "mode": "retained_authority_app_only",
+      "pending_manifest": false,
+      "physical_mail_validation": "child_owner_mode_readonly_named_inode",
+      "protected_sha256": "ee0543eef4e88dfea9ad9deccd2de645e9337c7730dc6c745a2072f4f60bdcaf",
+      "purge_batches": 0,
+      "ready": true,
+      "total_host_authority_restore_supported": false,
+      "total_host_restore_supported": false,
+      "writers_resumed": false
+    },
+    "image_id": "sha256:dc50f945f9c20e5c064e4f89a7d83edc30ed75f9bf47018415d936f07171f044",
+    "installer_keeper_held": true,
+    "keeper_released_after_checks": true,
+    "phase": "genesis_recovery_CLI",
+    "production_mutations": 0,
+    "run": "aqua-retirement-host-dfc85e6b7f067266ce6318c0",
+    "source_sha256": "c6b391f38b3b594d310cc5ce703cb97660e2e42f883a733221add4c24a88dca7",
+    "status": "passed",
+    "total_host_restore_proven": false,
+    "wrong_password_rejected": true
+  },
+  {
+    "phase": "normal",
+    "run": "aqua-retirement-host-99b8f9d8e7197cf3e7897a0f",
+    "source_sha256": "ddf60072142cad31df034d2b4f47485342e2dfe2059ff017e60454d83528df56"
+  },
+  {
+    "accepted_flag_off_purge": {
+      "checkpoint_device": 64513,
+      "checkpoint_inode": 668342,
+      "checks": [
+        "normal_settings_load_and_Runtime_create_final_compiled_image_single_uvicorn_flag_false",
+        "accepted_account_receipt_and_actual_background_purge_continue_flag_false"
+      ],
+      "injected_runtime": false,
+      "mail_device": 64513,
+      "mail_inode": 668339,
+      "ordinary_runtime": true,
+      "private_data_delete_enabled": false,
+      "runtime_sha256": "91013fb9f1536de5677b318a2f6f3e54039e6664d3faa8c0813bc0fcb9dfebac",
+      "status": "passed",
+      "web_processes": 1
+    },
+    "append_flags_cleared": true,
+    "append_flags_never_set": false,
+    "cleanup": true,
+    "existing_running_containers_unchanged": true,
+    "image": "sha256:dc50f945f9c20e5c064e4f89a7d83edc30ed75f9bf47018415d936f07171f044",
+    "normal_runtime_injected": false,
+    "normal_web_runtime": "ordinary_settings_load_Runtime_create_no_injection",
+    "offline_retained_recovery": {
+      "new_UUID_distinct": true,
+      "new_UUID_legacy_grants": 0,
+      "offline_recovery": {
+        "events_verified": 2,
+        "mode": "retained_authority_app_only",
+        "pending_manifest": false,
+        "protected_sha256": "5ce1d75174b22aa1671b1797cd539c75011075ab3915dfd24979e2ba45c07a25",
+        "purge_batches": 15,
+        "ready": true,
+        "total_host_authority_restore_supported": false
+      },
+      "setup_actor_normal_factory_claimed": false,
+      "status": "passed"
+    },
+    "private_inputs_read": false,
+    "production_mutations": 0,
+    "recovered_ready": {
+      "checkpoint_device": 64513,
+      "checkpoint_inode": 668342,
+      "checks": [
+        "normal_settings_load_and_Runtime_create_final_compiled_image_single_uvicorn_flag_false",
+        "new_UUID_legacy_grant_denied_and_new_deletion_creation_closed"
+      ],
+      "injected_runtime": false,
+      "mail_device": 64513,
+      "mail_inode": 668339,
+      "ordinary_runtime": true,
+      "private_data_delete_enabled": false,
+      "runtime_sha256": "91013fb9f1536de5677b318a2f6f3e54039e6664d3faa8c0813bc0fcb9dfebac",
+      "status": "passed",
+      "web_processes": 1
+    },
+    "remaining_resources": [],
+    "restored_closed": {
+      "actual_child_exit_code": 3,
+      "checkpoint_device": 64513,
+      "checkpoint_inode": 668342,
+      "checks": [
+        "ordinary_final_image_flag_false_invalid_restored_history_exits_ASGI_startup_closed"
+      ],
+      "failure_category": "retirement_authority_unavailable",
+      "injected_runtime": false,
+      "mail_device": 64513,
+      "mail_inode": 668339,
+      "ordinary_runtime": true,
+      "private_api_admitted": false,
+      "private_data_delete_enabled": false,
+      "runtime_sha256": "91013fb9f1536de5677b318a2f6f3e54039e6664d3faa8c0813bc0fcb9dfebac",
+      "startup_mode": "startup_exited_closed",
+      "status": "passed",
+      "stderr_sha256": "937cbd1c46b1c088e94bbe6d869ea4dbc8d694e3a1022a388f73f942ff4ff3b4",
+      "web_processes": 0
+    },
+    "run": "aqua-retirement-host-99b8f9d8e7197cf3e7897a0f",
+    "runtime195_manifest_sha256": "74b980666341c0363e90e7fa712e4f5dbfb8ca322cc578a0f1b1b7dc0344c9c5",
+    "seed_diagnostics": {
+      "diagnostic_lines": 3,
+      "diagnostic_sha256": "0d468f18459dd0fd28748b4f3cd45065a0ac6b650db07c2d7e5245e48a7d8123",
+      "last_category": "setup_diagnostic"
+    },
+    "seed_runtime": "explicit_existing_TestClient_setup_actor",
+    "source_sha256": "ddf60072142cad31df034d2b4f47485342e2dfe2059ff017e60454d83528df56",
+    "status": "passed",
+    "total_host_restore_supported": false,
+    "whole_install_controller_exercised": false
+  },
+  {
+    "status": "passed",
+    "qualifiers": [
+      "installer",
+      "normal"
+    ]
+  }
+]

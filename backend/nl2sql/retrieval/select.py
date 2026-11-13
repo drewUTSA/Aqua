@@ -15,6 +15,7 @@ Which tables go in the prompt:
 from __future__ import annotations
 
 from collections.abc import Iterable, Sequence
+import os
 from typing import Any
 
 import psycopg
@@ -30,6 +31,7 @@ from nl2sql.pipeline import Context
 from nl2sql.retrieval.embed import EmbeddingError, embed_query, to_pgvector
 from nl2sql.retrieval.graph import select_tables
 from nl2sql.retrieval.query import retrieval_query
+from nl2sql.retrieval.hybrid import hybrid_tables
 from nl2sql.schema import Schema
 
 TOP_TABLES = 4
@@ -137,4 +139,6 @@ class VectorRetriever:
             examples = conn.execute(
                 _EXAMPLES_SQL, (model, vector, TOP_EXAMPLES)
             ).fetchall()
+        if os.environ.get("RETRIEVAL_HYBRID_ENABLED", "false") == "true":
+            nearest = hybrid_tables(schema, nearest, question, TOP_TABLES)
         return assemble(schema, nearest, examples)

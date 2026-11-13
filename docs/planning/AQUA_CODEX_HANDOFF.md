@@ -6,6 +6,11 @@ backup/recovery work to his personal computer. Read
 before any production migration or deletion activation. Continue code and
 isolated qualification while that work is pending; use current CI/source evidence.
 
+The subsequent [AI knowledge work](../implementation/AI_KNOWLEDGE_PROGRESS.md)
+adds opt-in hybrid retrieval and offline preparation/evaluation tools. Its
+default-off feature and current exact-image qualification do not authorize
+production indexing, model training or release.
+
 Current order is **P11 release gates → P12 capacity/retrieval qualification →
 P13 hardening/restricted launch**. Do not restart completed P00–P10 from the
 historical kickoff instruction below. See the current

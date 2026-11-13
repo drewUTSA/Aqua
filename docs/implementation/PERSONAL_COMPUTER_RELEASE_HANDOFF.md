@@ -15,6 +15,17 @@ does not qualify a different source, dependency graph, image or environment.
 
 ### Office integration checkpoint
 
+The subsequent [AI knowledge slice](AI_KNOWLEDGE_PROGRESS.md) adapts curated
+examples, hybrid identifier/semantic search and evaluation gates from a read-only
+review of the local GH Logistics repositories. No company corpus was imported.
+Its final runtime profile is
+`sha256:dc50f945f9c20e5c064e4f89a7d83edc30ed75f9bf47018415d936f07171f044`
+(197 compiled / 200 app / 201 complete files). Source-bound installer and normal
+runtime recovery receipts are in `evidence/ai/`; check the PR and distinct main
+CI before release. Both Google redirect and hybrid retrieval remain off. The
+ordinary schema8 production deployment and the personal-computer backup gate
+remain in force; use this newer profile only for its matching reviewed source.
+
 PR60 subsequently merged as `96b6b1001918c4611d806ef37f7d097daf35a248`
 after all nine jobs passed on `607f969`. Distinct main CI `43500790670` also
 passed all nine jobs. Recheck current source/CI when resuming. The newer

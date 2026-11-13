@@ -27,6 +27,15 @@ historical kickoff instruction below. See the current
 [P13 no-go checklist](docs/implementation/P13_PROGRESS.md). Prepared code and
 passing isolated checks do not imply production activation or a public launch.
 
+**AI knowledge follow-up:** The local GH Logistics repository review informed
+an optional metadata-only hybrid ranker, an offline reviewed-analysis pack
+compiler and a paired holdout comparison gate. See
+[the AI knowledge record](docs/implementation/AI_KNOWLEDGE_PROGRESS.md).
+`RETRIEVAL_HYBRID_ENABLED=false` remains the default. No company corpus,
+automatic training, new dataset grant or production indexing was introduced.
+The combined source uses the exact 201-file runtime profile recorded there;
+do not reuse an earlier image's recovery proof for a later candidate.
+
 Prepared October 16, 2026. This single file contains the approved frontend/backend scope, all 14 implementation phases, detailed technical specifications, security test gates, code standards and acceptance checks. Place it at the AQUA repository root as `AQUA_CODEX_HANDOFF.md`.
 
 ## Instructions to the implementing Codex

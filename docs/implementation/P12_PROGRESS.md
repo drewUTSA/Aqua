@@ -7,6 +7,11 @@ works, retaining the existing tests. Production backup/recovery and activation
 are handed to his personal computer as recorded in the release handoff. This
 branch prepares independent P12 code; it does not complete the P11 release gate.
 
+Ben's subsequent GH Logistics local-AI request adds a separate
+[reviewed knowledge/hybrid retrieval slice](AI_KNOWLEDGE_PROGRESS.md), with an
+offline paired holdout gate. Hybrid retrieval remains off pending real held-out
+evaluation. These additions do not close the mixed-workload or release gates.
+
 ## Bounded retrieval graph
 
 The previous table selector called `Schema.related` for every catalog relation,
