@@ -1,0 +1,55 @@
+{
+  "append_flags_cleared": true,
+  "cleanup": true,
+  "directory": "/srv/bank-ai/.check-results/p11bc-durability-1ba9e582adc220f1eb4e9a75",
+  "exit_code": 0,
+  "image_id": "sha256:3ee8441fd77cfec284e748dc83067d3bb760db9895268cc354188d5c387e95d6",
+  "initializer": {
+    "device": 64513,
+    "existing_authority_never_replaced": true,
+    "genesis_sha256": "1af212af6f656407cbc0a7399e345d93e748869156e7c0f323b6b4f4076a4ff3",
+    "initializer_exit_required_before_flag": true,
+    "inode": 656108,
+    "signer_admitted": false,
+    "status": "initialized",
+    "wrong_key_no_file_created": true
+  },
+  "kernel": {
+    "checks": [
+      "actual_GETFLAGS_and_current_ProtectedFile_genesis",
+      "fresh_nonappend_open",
+      "fresh_nonappend_write",
+      "clear_descriptor_O_APPEND",
+      "ftruncate",
+      "O_TRUNC",
+      "unlink",
+      "rename_checkpoint",
+      "rename_over_checkpoint",
+      "clear_append_flag_without_capability",
+      "replace_bind_mount_root",
+      "real_signed208byte_append_fsync_preserves_old_prefix",
+      "malicious_append_poison_fails_closed_no_repair"
+    ],
+    "independent_SQL_composition_proven": false,
+    "kernel_append_mocked": false,
+    "mail_mount_proven": false,
+    "preexisting_fd_revocation_claimed": false,
+    "prior_prefix_sha256": "1af212af6f656407cbc0a7399e345d93e748869156e7c0f323b6b4f4076a4ff3",
+    "production_inputs": false,
+    "protected_sha256": "5ae9e6878b52d13a4f5e6454288de5c66fc071e001533e48a246ee2352d6612b",
+    "record_bytes": 208,
+    "signer_effective_capabilities": 0,
+    "signer_uid": 1000,
+    "status": "passed"
+  },
+  "private_inputs_read": false,
+  "production_changed": false,
+  "provisioning_sequence": [
+    "initializer_removed_and_absence_confirmed",
+    "append_set_readback_and_setter_exit",
+    "new_signer_created_after_flag"
+  ],
+  "remaining_containers": [],
+  "run": "p11bc-durability-1ba9e582adc220f1eb4e9a75",
+  "source_sha256": "f6490cbcb39ccd92abcb6faa9eacbe0f385ce8558ccdfc14d81d55d3c0e0b4b2"
+}

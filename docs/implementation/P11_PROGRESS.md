@@ -1,5 +1,25 @@
 # P11 progress
 
+**Latest November 13 checkpoint:** All nine jobs in run `43476718496` passed
+on `44c481d`, including the original 48 publisher controls and full disposable
+backend/database matrix. Tailscale and key-only SSH are now verified from the
+office PC; read-only production readiness confirms schema8 and the exact P11a
+images. The source-bound native image below passed the actual kernel/inode
+durability gate with no production input or change and confirmed scoped cleanup.
+Ben directed backup-key discovery and final backup/recovery execution to his
+personal computer. See [the release handoff](PERSONAL_COMPUTER_RELEASE_HANDOFF.md).
+
+The new native image is
+`sha256:3ee8441fd77cfec284e748dc83067d3bb760db9895268cc354188d5c387e95d6`.
+Its 194 application inputs match the existing reviewed source; the sole runtime
+input delta is the patched dependency lock. The native rehearsal profiles now
+bind that image and the actual 195-file metadata inventory, with an added pure
+source/lock coherence guard. See [runtime inventory](evidence/p11bc/resume-20261113/runtime-inventory.json)
+and [actual host durability](evidence/p11bc/resume-20261113/host-durability.json).
+The refreshed installer/ordinary-runtime rehearsals and exact latest PR/main CI
+remain required. Production schema9 installation/activation remains pending the
+personal-computer recovery/backup gate; no later step below supersedes it.
+
 ## November 13 resumption — publisher measurement repair
 
 PR #58 at `1c2d99e` passed eight browser jobs but its main checks job failed in

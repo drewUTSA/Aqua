@@ -1,5 +1,12 @@
 # AQUA — complete Codex implementation handoff
 
+**November 13 resumption:** Ben directed recovery-key discovery and the final
+backup/recovery work to his personal computer. Read
+[the personal-computer release handoff](docs/implementation/PERSONAL_COMPUTER_RELEASE_HANDOFF.md)
+before any production migration or deletion activation. SSH/Tailscale access,
+the verified schema8 production baseline and the remaining release gates are
+recorded there. Continue code and isolated qualification while that work is pending.
+
 Prepared October 16, 2026. This single file contains the approved frontend/backend scope, all 14 implementation phases, detailed technical specifications, security test gates, code standards and acceptance checks. Place it at the AQUA repository root as `AQUA_CODEX_HANDOFF.md`.
 
 ## Instructions to the implementing Codex

@@ -1,7 +1,7 @@
 """Public subset of ROOT-approved final195 image inventory; no artifact data."""
 
-IMAGE = "sha256:aba612fc0f6368a6dbf7c40ceddf06de8c3b87a31c00863c7fc528762ad8eeb5"
-MANIFEST_SHA256 = "06bd677d5ef72112f5a69a93054f3e5ed64f6713f32c04e6f7038a2e5d29857d"
+IMAGE = "sha256:3ee8441fd77cfec284e748dc83067d3bb760db9895268cc354188d5c387e95d6"
+MANIFEST_SHA256 = "cb8ead09212808cd911f2a7536b3fa4cf589feb6f9f2bebcc4cbec69db22a4c4"
 RUNTIME_FILES = {
     "account/__init__.py": "4d300929fcb6d0c0e3a6b92377bfd4648fc336a8ad2bfb3e962d810b3b6f55e0",
     "account/action_contracts.py": "be3becba0a54378a847efdaa76cc833e3b780df3658c90d30f86a7852232a397",

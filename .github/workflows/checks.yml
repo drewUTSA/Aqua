@@ -47,6 +47,7 @@ jobs:
           python tools/checks/test_retirement_durability.py
           python tools/checks/run_retirement_native_test.py
           python tools/checks/test_retirement_signals.py
+          python tools/checks/test_retirement_runtime_pins.py
           python tools/checks/test_retirement_host.py
           python tools/checks/test_retirement_host_cleanup.py
       - name: Audit pinned runtime dependencies

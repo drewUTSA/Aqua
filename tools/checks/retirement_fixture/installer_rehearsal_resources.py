@@ -20,16 +20,16 @@ from pathlib import Path
 
 from prepare_retirement_stage import checked_archive, full_source, put, stage
 
-IMAGE = "sha256:aba612fc0f6368a6dbf7c40ceddf06de8c3b87a31c00863c7fc528762ad8eeb5"
+IMAGE = "sha256:3ee8441fd77cfec284e748dc83067d3bb760db9895268cc354188d5c387e95d6"
 POSTGRES = (
     "postgres@sha256:3645570cccdfa447589da9f57dd740faa29b30938e861289a5574b6ca6b03826"
 )
 HBA_SHA256 = "a9efd9abbd930abd4914dd4fbd1c87f4dd1e7363549f5ed96d3daa48c8be1dc1"
 RUNTIME_MANIFEST_SHA256 = (
-    "06bd677d5ef72112f5a69a93054f3e5ed64f6713f32c04e6f7038a2e5d29857d"
+    "cb8ead09212808cd911f2a7536b3fa4cf589feb6f9f2bebcc4cbec69db22a4c4"
 )
 APP_MANIFEST_SHA256 = "cb25c67853e87afe98bf4b9a83511bf67c32982b48039eba38add7a16ecccabf"
-LOCK_SHA256 = "8d530e7ec6b196c26e7e1949ee806749bebb61660609c1bb98c0e226f70a712b"
+LOCK_SHA256 = "cad37d805664670589892c601592623d3a2b73e7c80147e3b7695e2a113339a7"
 LOCK_BYTES = 88598
 BASE = Path("/srv/bank-ai/.check-results")
 DOCKER = [
