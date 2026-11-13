@@ -2,6 +2,8 @@
 
 import time
 from dataclasses import replace
+from datetime import datetime, timedelta, timezone
+from types import SimpleNamespace
 import pytest
 from analysis import streams
 from auth.accounts import grant_state
@@ -18,6 +20,50 @@ def verification(start, credential, operation="password_add"):
         "challenge_token": start["challenge_token"],
         "credential": credential,
     }
+
+
+def freeze_verification_clock(monkeypatch, instant):
+    from account import google_verification
+
+    class VerificationClock:
+        @staticmethod
+        def now(zone):
+            return instant.astimezone(zone)
+
+    monkeypatch.setattr(google_verification, "datetime", VerificationClock)
+
+
+@pytest.mark.parametrize(
+    "offset,accepted", [(30, True), (31, False), (-300, True), (-301, False)]
+)
+def test_google_assertion_exact_clock_boundaries(monkeypatch, offset, accepted):
+    from account import google_verification
+
+    instant = datetime(2026, 11, 13, tzinfo=timezone.utc)
+    freeze_verification_clock(monkeypatch, instant)
+    claims = {
+        "iat": int(instant.timestamp()) + offset,
+        "nonce": "expected",
+        "aud": "fixture-client",
+        "iss": "https://accounts.google.com",
+        "sub": "fixture-subject",
+        "email": "fixture@example.com",
+        "email_verified": True,
+    }
+    monkeypatch.setattr(google_verification, "verify_google_token", lambda *_: claims)
+    settings = SimpleNamespace(google_client_id="fixture-client")
+    created = instant - timedelta(seconds=270)
+    if accepted:
+        assert (
+            google_verification.fresh_identity(
+                "fixture", settings, "expected", created
+            )["sub"]
+            == "fixture-subject"
+        )
+    else:
+        with pytest.raises(WorkspaceError) as error:
+            google_verification.fresh_identity("fixture", settings, "expected", created)
+        assert (error.value.code, error.value.status) == ("proof_invalid", 403)
 
 
 def test_google_only_recent_proof_is_password_flag_independent_and_not_a_login(
@@ -66,11 +112,14 @@ def test_google_only_recent_proof_is_password_flag_independent_and_not_a_login(
     ],
 )
 def test_invalid_google_assertion_burns_challenge_without_issuing_proof(
-    identity_security, change
+    identity_security, change, monkeypatch
 ):
     secure = identity_security
     client, _ = secure.client(linked=False)
     start = secure.google_start(client)
+    # Keep the +31s assertion outside the exact +30s skew even when the
+    # HTTP/fixture work crosses a second boundary on a busy CI runner.
+    freeze_verification_clock(monkeypatch, datetime.now(timezone.utc))
     changes = {
         "nonce": {"nonce": "different"},
         "aud": {"aud": "foreign-client"},
