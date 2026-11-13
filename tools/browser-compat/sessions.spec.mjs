@@ -3,8 +3,9 @@ import { setup } from "./fixture.mjs";
 import { EMAIL_A, EMAIL_B, PASSWORD, VERIFY_PROOF, RESET_PROOF } from "../../frontend/checks/p05-browser-fixture.mjs";
 
 let env;
-test.beforeEach(async ({ page, context }) => { env = await setup(page, context); });
+test.beforeEach(async ({ page, context }) => { env = null; env = await setup(page, context); });
 test.afterEach(async () => {
+  if (!env) return; // Preserve a browser-launch failure without a cleanup error.
   await env.close(); expect(env.failures).toEqual([]); expect(env.external).toEqual([]);
 });
 const login = async page => {
@@ -69,6 +70,7 @@ test("a hung optional Google configuration does not block the password method", 
 test("a hung session check reaches bounded recovery and an explicit retry succeeds", async ({ page }) => {
   env.blocked.add("/api/auth/me");
   await page.clock.install(); await page.goto(`${env.origin}/signin`);
+  await expect.poll(() => env.attempts("/api/auth/me", "GET")).toBe(1);
   await page.clock.fastForward(31000);
   await expect(page.getByRole("button", { name: "Check connection again" })).toBeVisible();
   env.blocked.clear();

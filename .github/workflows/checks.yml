@@ -50,6 +50,10 @@ jobs:
           node checks/plotly-bundle.mjs dist
       - name: Synthetic session, recovery and email journeys
         working-directory: tools/browser-compat
+        # GitHub mounts a borrowed HOME owned by a different UID. Firefox
+        # requires the actual container user's home; this is root's real home.
+        env:
+          HOME: /root
         run: node node_modules/@playwright/test/cli.js test --project=${{ matrix.engine }}
       - name: Retain synthetic browser evidence
         if: ${{ !cancelled() }}
