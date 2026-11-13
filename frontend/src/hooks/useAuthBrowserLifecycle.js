@@ -3,12 +3,13 @@ import { clearHistory } from "../services/historyAuthority.js";
 import { attachAuthBrowserEvents } from "../services/authBrowserEvents.js";
 import { googleConfig } from "../services/authProviderConfig.js";
 
-export function useAuthBrowserLifecycle({ initialState, demoMode, stateRef, begin, replace, finish, isCurrent, refresh, channel, cancelDeadline, active }) {
+export function useAuthBrowserLifecycle({ initialState, demoMode, stateRef, sessionMayRemain, begin, replace, finish, isCurrent, refresh, channel, cancelDeadline, active }) {
   useEffect(() => {
     if (demoMode) return undefined;
     const lock = () => {
       if (["signingout", "logoutfailed"].includes(stateRef.current.status)) return;
       const controller = begin();
+      sessionMayRemain.current = true;
       clearHistory();
       replace({ ...initialState, status: "signedout" });
       finish(controller);
@@ -18,7 +19,8 @@ export function useAuthBrowserLifecycle({ initialState, demoMode, stateRef, begi
     };
     const events = attachAuthBrowserEvents({
       onRefresh: (options) => void refresh(options), onLock: lock,
-      canRefresh: () => !["signedout", "signingin", "signingout", "logoutfailed"].includes(stateRef.current.status),
+      canRefresh: () => !["signingin", "signingout", "logoutfailed"].includes(stateRef.current.status)
+        && (stateRef.current.status !== "signedout" || sessionMayRemain.current),
       onOffline: () => {
         const current = stateRef.current;
         if (["signingout", "logoutfailed"].includes(current.status)) return;
@@ -31,6 +33,6 @@ export function useAuthBrowserLifecycle({ initialState, demoMode, stateRef, begi
       if (channel.current === events) channel.current = null;
       events.dispose();
     };
-  }, [initialState, begin, demoMode, refresh, replace, finish, isCurrent, stateRef, channel, cancelDeadline, active]);
+  }, [initialState, begin, demoMode, refresh, replace, finish, isCurrent, stateRef, sessionMayRemain, channel, cancelDeadline, active]);
 
 }

@@ -26,6 +26,7 @@ export function useGoogleAuth({ demoMode = DEMO_MODE } = {}) {
   const cancelDeadline = useRef(() => {});
   const mounted = useRef(false);
   const channel = useRef(null);
+  const sessionMayRemain = useRef(false);
   const notify = (type = "changed") => channel.current?.notify(type);
   const replace = useCallback((next) => {
     if (!mounted.current) return;
@@ -66,7 +67,7 @@ export function useGoogleAuth({ demoMode = DEMO_MODE } = {}) {
       finish(controller);
       // Password login can start as soon as the session is known to be absent;
       // a slow or broken Google config request must not hold that form hostage.
-      if (!session && isCurrent(controller)) { clearHistory(); replace({ ...initialState, status: "signedout" }); }
+      if (!session && isCurrent(controller)) { sessionMayRemain.current = false; clearHistory(); replace({ ...initialState, status: "signedout" }); }
       const google = session ? { config: null, googleError: "" } : await googleConfig(controller.signal);
       if (isCurrent(controller)) replace({ ...initialState, status: session ? "authenticated" : "signedout", session, ...google });
     } catch (error) {
@@ -156,6 +157,7 @@ export function useGoogleAuth({ demoMode = DEMO_MODE } = {}) {
     }
     if (!isCurrent(controller)) { finish(controller); return; }
     disableGoogleAutoSelect();
+    sessionMayRemain.current = false;
     clearHistory();
     replace({ ...initialState, status: "signedout" });
     notify();
@@ -172,6 +174,7 @@ export function useGoogleAuth({ demoMode = DEMO_MODE } = {}) {
     // Reset may commit even if its response is lost. Lock cached identities at
     // the start of the attempt; never replay it or restore stale cached access.
     const controller = begin();
+    sessionMayRemain.current = true;
     disableGoogleAutoSelect();
     clearHistory();
     replace({ ...initialState, status: "signedout" });
@@ -182,7 +185,7 @@ export function useGoogleAuth({ demoMode = DEMO_MODE } = {}) {
     }).catch(() => {});
   }, [begin, replace, finish, isCurrent]);
 
-  useAuthBrowserLifecycle({ initialState, demoMode, stateRef, begin, replace, finish, isCurrent, refresh, channel, cancelDeadline, active });
+  useAuthBrowserLifecycle({ initialState, demoMode, stateRef, sessionMayRemain, begin, replace, finish, isCurrent, refresh, channel, cancelDeadline, active });
 
   return {
     ...state, demoMode, historyEpoch, refresh, logout, acceptCredential, authenticatePassword, sessionEnded,
