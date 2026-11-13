@@ -10,8 +10,8 @@ merged status, deployment and enablement are separate claims.
 The navigation slice adds an accessible quick switcher for loaded titles,
 drafts and existing actions, plus explicit search/loading/error states. It adds
 no permissions, persistent index, provider traffic or automatic submission.
-The retained 600 frontend tests and eleven added regressions pass together
-(611 total). Both Opal and Legacy production builds pass the existing bundle
+The retained 600 frontend tests, eleven workspace and three artifact-budget
+regressions pass together (614 total). Both Opal and Legacy production builds pass the existing bundle
 guard. The locked frontend audit reports zero known vulnerabilities. Earlier
 synthetic browser review covered keyboard navigation, focus, mobile layout,
 draft retention and unsaved-preference protection; see
@@ -19,7 +19,10 @@ draft retention and unsaved-preference protection; see
 
 The integrated browser caught a 601,319-byte initial script against its unchanged
 600,000-byte ceiling. Keeping the switcher index and demo history out of initial
-delivery now yields 591,593/591,595 bytes (Opal/Legacy). A local recovery boundary
+delivery now yields 591,684/591,686 JS bytes (Opal/Legacy). The separate 80,000-byte
+CSS cap caught an 80,495-byte initial stylesheet; moving dialog-only styles on
+demand reduced both shells to 79,295 CSS bytes. The offline guard now checks both
+unchanged limits before long browser journeys. A local recovery boundary
 also contained a real 503 optional-shortcut download in the synthetic demo,
 retaining unsent text and the workspace; the owned test server was stopped.
 

@@ -1,0 +1,5 @@
+.workspace-quick-switch { display: inline-flex; align-items: center; gap: .6rem; min-height: 44px; padding: .4rem .8rem; border: 1px solid var(--pref-border); border-radius: .75rem; background: var(--pref-panel); color: var(--pref-text); font: inherit; cursor: pointer; }
+.workspace-quick-switch kbd { font: inherit; font-size: .75em; color: var(--pref-muted); }
+.workspace-quick-switch:focus-visible { outline: 3px solid var(--pref-accent); outline-offset: 3px; }
+@media (max-width: 600px) { .workspace-quick-switch kbd { display: none; } .workspace-quick-switch { padding-inline: .6rem; } }
+@media (forced-colors: active) { .workspace-quick-switch { border: 1px solid ButtonText; } }

@@ -50,6 +50,16 @@ editing in the search field. Neither selection nor opening a draft submits it.
 
 ## Verification
 
+**Latest delivery correction:** The unchanged browser gate separately caps CSS
+at 80,000 bytes. The first JavaScript repair still delivered 80,495 CSS bytes, so
+`c5d2e45` correctly failed. Only the header's shortcut styles remain initial;
+dialog styles now load with the dialog. The offline artifact guard enforces the
+same 600,000-byte JS / 80,000-byte CSS ceilings before browser startup. Three new
+regressions prove exact limits pass and one extra JS or CSS byte fails. All 614
+frontend tests pass (600 retained, eleven workspace cases, three budget cases).
+Final local builds deliver 591,684 JS bytes / 79,295 CSS bytes in Opal, and 591,686 /
+79,295 in Legacy. No existing browser assertion or ceiling was changed.
+
 The first integrated navigation browser gate caught an initial-script budget
 regression: `e357a0e` delivered 601,319 bytes against the retained 600,000-byte limit.
 The keyboard policy now loads separately from the on-demand switcher index;
@@ -68,7 +78,7 @@ React error. The separately loaded demo also bootstrapped normally. The owned
 loopback server and screenshots belong to the task verification directory; no
 production file or account was used. Full authenticated/browser CI remains required.
 
-After integration with the P11 deletion and P12 retrieval branches, all 611
+After integration with the P11 deletion and P12 retrieval branches, the earlier 611
 frontend tests pass: the retained 600 plus these eleven regressions. Both Opal
 and Legacy production builds and their existing bundle guards pass; the locked
 frontend audit reports zero known vulnerabilities. This is local integrated

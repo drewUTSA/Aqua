@@ -9,7 +9,7 @@ import { UI_SHELL } from "../../services/runtimeConfig.js";
 import { usePreferences } from "../../settings/PreferencesProvider.jsx";
 import { useNotifications } from "../../settings/NotificationProvider.jsx";
 import { workspaceShortcut } from "./workspaceShortcuts.js";
-import "../../styles/quick-switcher.css";
+import "../../styles/workspace-shortcuts.css";
 import "../../styles/workspace.css";
 import "../../styles/legacy-workspace.css";
 import "../../styles/workspace-library.css";

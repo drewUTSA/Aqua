@@ -19,8 +19,10 @@ PR58 merged as `19d031e4733a468fd61c14b2b0403cbafd28b222` and PR59 as
 `79fc1294ee8048df0df3e6cbb4092017a36c40e6`, each after all nine exact-head
 PR jobs passed. PR60 carries the workspace improvements and this expanded
 handoff. Its initial-script regression was repaired under the unchanged
-600,000-byte limit: Opal 591,593 bytes and Legacy 591,595 bytes, with all 611
-frontend tests passing locally. A real rejected shortcut download was also
+600,000-byte JS / 80,000-byte CSS limits: Opal 591,684 JS bytes and Legacy 591,686,
+both 79,295 CSS bytes, with all 614 frontend tests passing locally. The initial
+stylesheet regression and its failing CI remain recorded; the build guard now
+checks both retained ceilings before browser startup. A real rejected shortcut download was also
 rehearsed in an isolated demo; the workspace and unsent draft survived.
 
 Final PR60 and combined merged-main CI must be read from GitHub when resuming.
