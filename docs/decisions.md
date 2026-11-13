@@ -19,6 +19,22 @@ application-data permissions. Component measurements are recorded in
 [P12 progress](implementation/P12_PROGRESS.md); model accuracy and complete
 application capacity remain separate verification requirements.
 
+## November 13, 2026: Account-scoped workspace shortcuts
+
+**Decision.** Add an on-demand quick switcher over loaded chat titles and
+visit-local recovery entries, with explicit navigation to the existing server
+search. Bind chat search display to the criteria of its successful page and
+distinguish loading, failed and empty results.
+
+**Alternatives.** Search private message bodies, automatically fetch every
+history page, persist a client-side search index, or replace the existing sidebar.
+
+**Reasoning.** GH QA's explicit selection and honest lookup-scope patterns fit
+Aqua's bounded, owner-scoped workspace. Local title filtering improves navigation
+without extra server load, private persistence, provider calls or a new dependency.
+Existing unsaved-preference navigation and modal focus guards remain authoritative.
+See [the implementation record](implementation/WORKSPACE_IMPROVEMENTS.md).
+
 ## October 2026: Stack and layout
 
 **Decision.** FastAPI backend with the NL2SQL pipeline in `backend/nl2sql/`, React and Vite frontend, Gemini API (AI Studio keys) as the model, PostgreSQL on Tiger Cloud as the database, deployed with docker-compose at `/srv/bank-ai`.

@@ -1,11 +1,10 @@
 import React, { useId, useState } from "react";
 import PreferenceDialog from "../../settings/PreferenceDialog.jsx";
+import { chatSearchPresentation } from "./chatSearchPresentation.js";
 
 export function SidebarSearchDialog({ chat, onSelect, onClose }) {
   const inputId = useId(), [search, setSearch] = useState(chat.filters?.search || ""), [localSearch, setLocalSearch] = useState("");
-  const items = (chat.conversations || []).filter((item) => chat.durable ? item.messageCount > 0 : item.messages?.length > 0);
-  const matches = chat.durable ? items : items.filter((item) => item.title.toLowerCase().includes(localSearch.toLowerCase()));
-  const loading = chat.durable && chat.chats.loading;
+  const { matches, loading, failed, status } = chatSearchPresentation(chat, localSearch);
   return <PreferenceDialog title="Search chats" className="refined-search-dialog" onClose={onClose}>
     <form className="sidebar-search" onSubmit={(event) => { event.preventDefault();
       if (chat.durable) chat.filter({ search: search.trim(), projectId: null, archived: false }); else setLocalSearch(search.trim());
@@ -13,14 +12,15 @@ export function SidebarSearchDialog({ chat, onSelect, onClose }) {
       autoComplete="off" onChange={(event) => setSearch(event.target.value)} />
       <div className="settings-dialog-actions"><button type="button" onClick={onClose}>Close search</button>
         <button type="submit" disabled={loading}>Search</button></div>
-      <p className="sidebar-search__status" role="status">{loading ? "Loading matching chats…" : `${matches.length} ${matches.length === 1 ? "chat matches" : "chats match"} on this page.`}</p>
+      <p className="sidebar-search__status" role="status">{status}</p>
+      {!loading && !failed && <p className="refined-sidebar-note">{(chat.durable ? chat.filters?.search : localSearch) ? `Showing results for “${chat.durable ? chat.filters.search : localSearch}”.` : "Showing the current chat list."}</p>}
       <p className="refined-sidebar-note">{chat.durable ? "Matches titles starting with your text. Message contents are not searched." : "Searches titles in this visit only."}</p>
       {(search || chat.filters?.search) && <button type="button" onClick={() => { setSearch(""); setLocalSearch("");
         if (chat.durable) chat.filter({ search: "", projectId: null, archived: false }); }}>Clear chat search</button>}
     </form>
     <div className="refined-search-results">{!loading && matches.map((item) => <button type="button" key={item.id}
       aria-current={item.id === chat.activeConversationId ? "page" : undefined} onClick={() => { onClose(); onSelect(item.id, item); }}>{item.title}</button>)}</div>
-    {chat.durable && chat.chats.cursor && <button type="button" disabled={loading} onClick={chat.moreChats}>More matching chats</button>}
+    {chat.durable && !failed && chat.chats.cursor && <button type="button" disabled={loading} onClick={chat.moreChats}>More matching chats</button>}
   </PreferenceDialog>;
 }
 export function SidebarRecoveryDialog({ items, onSelect, onClose }) {

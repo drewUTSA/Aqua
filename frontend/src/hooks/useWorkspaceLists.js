@@ -22,10 +22,10 @@ export function useWorkspaceLists({ csrfToken, onError, enabled = true }) {
   }, []);
   const refreshChats = useCallback(async (cursor = null, selected = current.current.filters) => {
     const ticket = ++generation.current;
-    setChats((previous) => ({ ...previous, loading: true }));
+    setChats((previous) => ({ ...previous, loading: true, error: false }));
     try { const page = await read((signal) => listChats({ ...selected, cursor, signal, ...options() }), "chats");
-      if (alive.current && ticket === generation.current) setChats({ ...page, loading: false });
-    } catch (error) { if (alive.current && ticket === generation.current && error.name !== "AbortError") { setChats((previous) => ({ ...previous, loading: false })); current.current.onError(error); } }
+      if (alive.current && ticket === generation.current) setChats({ ...page, criteria: { ...selected }, loading: false, error: false });
+    } catch (error) { if (alive.current && ticket === generation.current && error.name !== "AbortError") { setChats((previous) => ({ ...previous, loading: false, error: true })); current.current.onError(error); } }
   }, [read]);
   const refreshPersonal = useCallback(async (kind, cursor = null) => {
     const load = kind === "projects" ? listProjects : listPrompts, save = kind === "projects" ? setProjects : setPrompts;
