@@ -23,10 +23,13 @@ from nl2sql.errors import ContextDenied, RetrievalUnavailable
 from nl2sql.validate import UnsafeQueryError, validate_sql
 
 from nl2sql.config import Settings
+from nl2sql.control import CURRENT
 from nl2sql.db import DatabaseError, connect
 from nl2sql.generate import Example
 from nl2sql.pipeline import Context
 from nl2sql.retrieval.embed import EmbeddingError, embed_query, to_pgvector
+from nl2sql.retrieval.graph import select_tables
+from nl2sql.retrieval.query import retrieval_query
 from nl2sql.schema import Schema
 
 TOP_TABLES = 4
@@ -57,16 +60,8 @@ class RetrievalError(RetrievalUnavailable):
 def choose_tables(
     schema: Schema, nearest: Iterable[str], example_tables: Iterable[str]
 ) -> set[str]:
-    """The nearest tables, the examples' tables, and the links between them."""
-    chosen = {
-        t.lower() for t in [*nearest, *example_tables] if t.lower() in schema.tables
-    }
-    bridges = {
-        name
-        for name in schema.tables
-        if name not in chosen and len((schema.related([name]) - {name}) & chosen) >= 2
-    }
-    return chosen | bridges
+    """Approved nearest/example relations plus bounded connecting join paths."""
+    return select_tables(schema.tables, nearest, example_tables)
 
 
 def assemble(
@@ -131,7 +126,9 @@ class VectorRetriever:
             raise ContextDenied("Retrieval connection failed closed.") from None
 
     def _select(self, question: str, schema: Schema) -> Context:
-        vector = to_pgvector(embed_query(question, self.settings, self.embed_client))
+        budget = CURRENT.get()
+        query = retrieval_query(question, budget.context if budget else ())
+        vector = to_pgvector(embed_query(query, self.settings, self.embed_client))
         model = self.settings.gemini_embed_model
         with connect(self.settings) as conn:
             nearest = [

@@ -1,0 +1,36 @@
+{
+  "app_role_authority_denied": true,
+  "archive": {
+    "bytes": 51200,
+    "dump_bytes": 39644,
+    "dump_sha256": "02c34f1690753e1a96a01c4ef3cba778112235c3a46b3acb19434752c3db578c",
+    "members": 5,
+    "sha256": "8771c97bb89346d9504d36fa3a69e9d0af5f7ecd4ca7cf405ed7ca5d293a7f84"
+  },
+  "cleanup": true,
+  "controllers_exited": true,
+  "encrypted_retention_proven": false,
+  "genesis_recovery_cli": {
+    "cron_resumed": false,
+    "events_verified": 0,
+    "mode": "retained_authority_app_only",
+    "pending_manifest": false,
+    "physical_mail_validation": "child_owner_mode_readonly_named_inode",
+    "protected_sha256": "bf640f895f318d41f277ce68006b9734a2b6ddc7d603e4d1cbe4243c187027b3",
+    "purge_batches": 0,
+    "ready": true,
+    "total_host_authority_restore_supported": false,
+    "total_host_restore_supported": false,
+    "writers_resumed": false
+  },
+  "image_id": "sha256:3ee8441fd77cfec284e748dc83067d3bb760db9895268cc354188d5c387e95d6",
+  "installer_keeper_held": true,
+  "keeper_released_after_checks": true,
+  "phase": "genesis_recovery_CLI",
+  "production_mutations": 0,
+  "run": "aqua-retirement-host-b3ac4dc91b8b1291ad04c7da",
+  "source_sha256": "db4eaa228af9ee3e3822fc38b4fe975665703b6346e458ba5b19c94535aa133f",
+  "status": "passed",
+  "total_host_restore_proven": false,
+  "wrong_password_rejected": true
+}

@@ -36,8 +36,14 @@ input delta is the patched dependency lock. The native rehearsal profiles now
 bind that image and the actual 195-file metadata inventory, with an added pure
 source/lock coherence guard. See [runtime inventory](evidence/p11bc/resume-20261113/runtime-inventory.json)
 and [actual host durability](evidence/p11bc/resume-20261113/host-durability.json).
-The refreshed installer/ordinary-runtime rehearsals and exact latest PR/main CI
-remain required. Production schema9 installation/activation remains pending the
+The refreshed actual installer/genesis/export/recovery-CLI rehearsal and ordinary
+compiled-runtime rehearsal now pass on `73270e4` with strict cleanup. The latter
+proved flag-off accepted purge, closed restored-history startup, retained-authority
+recovery and readiness without injecting a runtime factory. See
+[installer receipt](evidence/p11bc/resume-20261113/installer.json) and
+[ordinary-runtime receipt](evidence/p11bc/resume-20261113/normal-runtime.json).
+These do not prove independent encrypted retention or total-host recovery.
+Exact latest PR/main CI remains required. Production schema9 installation/activation remains pending the
 personal-computer recovery/backup gate; no later step below supersedes it.
 
 ## November 13 resumption — publisher measurement repair

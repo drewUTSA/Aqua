@@ -1,7 +1,7 @@
-"""Public subset of ROOT-approved final195 image inventory; no artifact data."""
+"""Public subset of ROOT-approved current197 image inventory; no artifact data."""
 
-IMAGE = "sha256:3ee8441fd77cfec284e748dc83067d3bb760db9895268cc354188d5c387e95d6"
-MANIFEST_SHA256 = "cb8ead09212808cd911f2a7536b3fa4cf589feb6f9f2bebcc4cbec69db22a4c4"
+IMAGE = "sha256:ccd43eed575e6a36958041268ac2b0dd38c49dc4d51e74198bb93bf78f1d595c"
+MANIFEST_SHA256 = "a67e983fb6b9b6136c17ebf59290d12a29dd73e7569ddf6050d6eb4587a18844"
 RUNTIME_FILES = {
     "account/__init__.py": "4d300929fcb6d0c0e3a6b92377bfd4648fc336a8ad2bfb3e962d810b3b6f55e0",
     "account/action_contracts.py": "be3becba0a54378a847efdaa76cc833e3b780df3658c90d30f86a7852232a397",
@@ -114,7 +114,9 @@ RUNTIME_FILES = {
     "nl2sql/result_metadata.py": "cc4f528195e7e2beb4b9ffd051e4df2942dc7ab150754f603c3633de53daecf5",
     "nl2sql/retrieval/__init__.py": "460ff5d0ef355c76275f9e8fa0d03404901eb77e49a9ce1314bc4b31081e8128",
     "nl2sql/retrieval/embed.py": "8bd830bb50bf19f64e94d073a2285b628b1e5c52db89e9f565c1d78b1e95fc5c",
-    "nl2sql/retrieval/select.py": "471d488d492fe21b8717e2774cf96c231f39c38a844470c04d68fdf65bc2bb22",
+    "nl2sql/retrieval/graph.py": "857517932252a37b540a3ee039e49ae9df5bcedd3c911751a74eb2c759e062d4",
+    "nl2sql/retrieval/query.py": "bee538226d74bdb015f2163620d17c0c4830129646a21e2d370cdf6612088523",
+    "nl2sql/retrieval/select.py": "0fcab1a197fc7222e8cbfe8f34aa4a763c82b326ad4ae813fb3d94a4747f9885",
     "nl2sql/retrieval/store.py": "3bb67d6e2e82fae95855a4206c40fb4cd81b46df523d7d88fab711c700674214",
     "nl2sql/schema.py": "435b34756dcc9568ddd05d69883eaadd56b0a2b3cce869c8d5f8368c0b7c14c4",
     "nl2sql/schema_loader.py": "c4871bb3547ab8d8b4302d376412b43f04029a8eff1481bce1d286d1140cc354",

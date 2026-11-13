@@ -1,0 +1,57 @@
+{
+  "measurements": [
+    {
+      "column_sequence_visits": {
+        "candidate": 24,
+        "previous": 480
+      },
+      "median_ms": {
+        "candidate": 0.0997,
+        "previous": 1.1211
+      },
+      "samples_each": 5,
+      "selected_tables": {
+        "candidate": 10,
+        "previous": 4
+      },
+      "tables": 24
+    },
+    {
+      "column_sequence_visits": {
+        "candidate": 128,
+        "previous": 15872
+      },
+      "median_ms": {
+        "candidate": 0.4101,
+        "previous": 37.1543
+      },
+      "samples_each": 5,
+      "selected_tables": {
+        "candidate": 10,
+        "previous": 4
+      },
+      "tables": 128
+    },
+    {
+      "column_sequence_visits": {
+        "candidate": 512,
+        "previous": 260096
+      },
+      "median_ms": {
+        "candidate": 1.5289,
+        "previous": 603.3419
+      },
+      "samples_each": 5,
+      "selected_tables": {
+        "candidate": 10,
+        "previous": 4
+      },
+      "tables": 512
+    }
+  ],
+  "os": "Linux",
+  "processor": "",
+  "python": "3.12.14",
+  "scope": "synthetic retrieval graph only",
+  "status": "passed"
+}
