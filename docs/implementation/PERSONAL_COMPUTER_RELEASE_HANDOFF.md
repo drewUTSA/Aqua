@@ -124,6 +124,42 @@ ledger coverage. App-only recovery with retained authority is a separate claim.
 
 ## Continue P12 and P13
 
+### First action in the personal-computer chat
+
+Open the actual Aqua checkout and give Codex this instruction:
+
+> Read `AQUA_CODEX_HANDOFF.md` and
+> `docs/implementation/PERSONAL_COMPUTER_RELEASE_HANDOFF.md`. Resume the
+> November 13 office work. Preserve current changes and all tests. Discover this
+> computer's existing recovery identity and backup controller using metadata
+> first; do not display secret contents or replace older backups/keys. Verify
+> the exact PR/main state and complete the remaining isolated recovery, capacity
+> and launch gates before proposing the concrete production cutover.
+
+The user has deliberately deferred key discovery from Richard-Station. An
+empty search here is not a reason to generate replacement identities or claim
+older backups are lost. If an identity cannot be found on the personal computer,
+report that precise gap and preserve every existing backup before choosing a
+future-only key. A new key does not recover ciphertext encrypted to an old one.
+
+### Current code and evidence pointers
+
+- PR58: `codex/aqua-p11-deletion`; exact latest complete CI is required. Its
+  prior `73270e4` run hit the outer 20-minute job limit after eight jobs passed;
+  `dfe2734` gives that sequential job 30 minutes without changing inner limits.
+- PR59: `codex/aqua-p12-ai-reliability`, initially stacked on PR58. Read
+  [P12 progress](P12_PROGRESS.md) for actual source/runtime pins, the 1,854-test
+  Linux result and synthetic graph/history/metadata/pool measurements. Current
+  CI still governs integration. Real model accuracy remains unmeasured.
+- `codex/aqua-workspace-navigation` contains the preserved office navigation
+  work integrated with P11/P12. Its 611 frontend tests and both builds pass.
+  Read [P13 progress](P13_PROGRESS.md) for the current no-go decision and public
+  header/discovery observations. P13 is preparation, not a completed launch.
+
+Use GitHub's current PR heads/checks and source inventory as truth when resuming.
+These branch names and earlier receipts are discovery pointers, not authority
+to deploy a stale image or replay a migration blindly.
+
 The office workspace contains a navigation slice on
 `codex/aqua-workspace-navigation` and bounded retrieval-graph improvements on
 `codex/aqua-p12-ai-reliability`. They are separate from PR #58; inspect their

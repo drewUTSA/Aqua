@@ -50,6 +50,13 @@ editing in the search field. Neither selection nor opening a draft submits it.
 
 ## Verification
 
+After integration with the P11 deletion and P12 retrieval branches, all 611
+frontend tests pass: the retained 600 plus these eleven regressions. Both Opal
+and Legacy production builds and their existing bundle guards pass; the locked
+frontend audit reports zero known vulnerabilities. This is local integrated
+verification. Final exact-head PR/main CI and deployment remain separate gates.
+The 575-test checkpoint below describes the earlier pre-P11 source.
+
 All 564 original frontend tests passed unchanged before adding regressions.
 Added policy and real-component rendering cases cover title-only indexing,
 owner input replacement, deduplication, bounds, hostile-title escaping, demo
