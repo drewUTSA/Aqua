@@ -19,7 +19,10 @@ def run(image: str, output: Path) -> int:
         archive = source_archive()
         report["source_archive_sha256"] = hashlib.sha256(archive).hexdigest()
         _, runner = provision_core(
-            "aqua-p12-capacity-" + secrets.token_hex(12), image, owned, archive
+            image=image,
+            run_name="aqua-p12-capacity-" + secrets.token_hex(12),
+            containers=owned,
+            archive=archive,
         )
         raw = docker(
             "exec",
