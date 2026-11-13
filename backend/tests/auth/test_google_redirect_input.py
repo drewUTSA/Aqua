@@ -1,8 +1,12 @@
 """Reject ambiguous or oversized browser transport before identity work."""
 
+import asyncio
 import json
+from types import SimpleNamespace
 
 import pytest
+from fastapi import HTTPException
+from auth import google_redirect_protocol as protocol
 
 from _auth_test_helpers import CLIENT_ID
 from _durable_route_helpers import TOKEN, challenge
@@ -106,3 +110,39 @@ def test_read_only_state_needs_unambiguous_first_party_binding(
     response = client.get(BASE + "-state", headers=outgoing)
     assert response.status_code == 403 and verified == []
     assert "set-cookie" not in response.headers
+
+
+def test_stalled_body_is_cancelled_with_no_payload_reflection(monkeypatch):
+    closed = []
+
+    async def stream():
+        try:
+            await asyncio.sleep(1)
+            yield b"PRIVATE_CREDENTIAL"
+        finally:
+            closed.append(True)
+
+    request = SimpleNamespace(url=SimpleNamespace(query=""), stream=stream)
+    monkeypatch.setattr(protocol, "READ_SECONDS", 0.001)
+    with pytest.raises(HTTPException) as result:
+        asyncio.run(
+            protocol.payload(request, SimpleNamespace(google_client_id=CLIENT_ID))
+        )
+    assert result.value.status_code == 408 and closed == [True]
+    assert "PRIVATE" not in result.value.detail
+
+
+def test_chunked_oversize_body_stops_before_parsing_or_identity_work():
+    reads = []
+
+    async def stream():
+        for _ in range(8):
+            reads.append(True)
+            yield b"x" * 8192
+
+    request = SimpleNamespace(url=SimpleNamespace(query=""), stream=stream)
+    with pytest.raises(HTTPException) as result:
+        asyncio.run(
+            protocol.payload(request, SimpleNamespace(google_client_id=CLIENT_ID))
+        )
+    assert result.value.status_code == 413 and len(reads) == 3

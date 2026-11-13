@@ -24,12 +24,13 @@ repairs are not a schema9 deployment or a completed live Google iOS acceptance.
 
 The subsequent [Google redirect transport](GOOGLE_REDIRECT.md) is implemented
 behind a default-off flag, reusing the existing durable Google login. Its exact
-native image is `sha256:9cf3904fbd3676d197bdc07ff03f09caf345ea9de8e364140387e1a00052bd09`;
+native image is `sha256:3895904499335b9399351792914097a8f7c67bf3367be22f3b9d97fcd2f8234b`;
 the 196 compiled / 199 app / 200 complete-file inventory and clean disposable
 installer/ordinary-runtime recovery receipts are in `evidence/mobile/`.
 These source-bound rehearsals still do not prove independent encrypted
-retention or total-host authority recovery. Configure the existing Google
-client's exact HTTPS redirect URI before enablement; keep it off until the
+retention or total-host authority recovery. The existing Google client's exact
+HTTPS redirect URI was saved and reopened successfully on November 13. Verify
+it is still present before enablement; keep the application flag off until the
 reviewed source is deployed and physical-device acceptance passes.
 
 PR58 merged as `19d031e4733a468fd61c14b2b0403cbafd28b222` and PR59 as

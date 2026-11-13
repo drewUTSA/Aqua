@@ -5,6 +5,14 @@ supported browsers. It is not a deployed callback or a successful live Google
 acceptance claim. `GOOGLE_REDIRECT_ENABLED` defaults to `false`. The independent
 email/password method remains available while Google is unavailable.
 
+On November 13 Ben signed into the existing `aqua-ai` Google project locally.
+The existing client's ID was matched to the running application's public ID;
+`https://aqua-ai.us/api/auth/google/redirect` was added, saved and verified by
+reopening the client. Its existing `https://aqua-ai.us` JavaScript origin was
+preserved. No secret was created/rotated and no audience or scope was changed.
+Google's console warns of five minutes to several hours of propagation.
+This completes console preparation, not application activation or phone acceptance.
+
 ## Browser and server contract
 
 When explicitly enabled on an HTTPS origin, the existing config response adds
@@ -17,6 +25,8 @@ flag, the original callback mode and response shape remain.
 `POST /api/auth/google/redirect` accepts a bounded Google form or JSON body
 containing credential, Google CSRF token and optional matching client ID. It
 rejects duplicates, unknown fields, query parameters and oversized bodies.
+Reading the body has a total ten-second deadline, including a chunked stream;
+timeout/oversize rejection occurs before any challenge consumption or identity work.
 The callback document makes no authentication mutation, issues no cookie,
 consumes no challenge and calls no provider. It can receive a navigation with
 missing Lax cookies or `Origin: null`. That allowance ends at the inert document;
@@ -85,14 +95,19 @@ production document/CSP. Backend attacks use real disposable private PostgreSQL
 and mocked Google verification. They do not prove real provider-console setup,
 physical iPhone behavior, encrypted independent retention or total-host recovery.
 
-The complete isolated backend matrix passed all 1,897 unique cases across bank
+The preceding complete isolated backend matrix passed all 1,897 unique cases across bank
 and Pagila fixtures, including the retained capacity case, restore/privilege
 checks and all 39 added redirect cases, with cleanup confirmed. All 630 frontend
 unit cases pass. Both interface builds pass their unchanged delivery ceilings;
 54 synthetic browser journeys per shell passed across the three engines before
 the final retained foreground-clock correction. Exact-head and merged-main CI
 must qualify the final source. See [the backend receipt](evidence/mobile/backend-matrix.json)
-and [native receipts](evidence/mobile/native-qualification.json).
+and [native receipts](evidence/mobile/native-qualification.json). That backend
+receipt predates the final body-read deadline. Two additional stream/deadline
+cases raise the final matrix to 1,899; its fresh-output rerun and exact-head CI
+must pass on the current bounded runtime before integration. An earlier local
+rerun passed all core and capacity cases but correctly refused to overwrite an
+existing evidence file; that run is not reported as a complete matrix pass.
 
 References: [Google browser support](https://developers.google.com/identity/gsi/web/guides/supported-browsers),
 [GIS initialization and redirect URI](https://developers.google.com/identity/gsi/web/reference/js-reference),

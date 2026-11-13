@@ -1,5 +1,6 @@
 """Bounded GIS request parsing and unambiguous double-submit cookies."""
 
+import asyncio
 import json
 import re
 from urllib.parse import parse_qsl
@@ -8,6 +9,7 @@ from auth.security import tokens_match
 from nl2sql.config import Settings
 
 MAX_BYTES = 16384
+READ_SECONDS = 10
 
 
 def cookie(request: Request, name: str) -> str:
@@ -40,10 +42,14 @@ async def payload(request: Request, settings: Settings) -> dict[str, str]:
     if request.url.query:
         raise HTTPException(400, "Start a new sign-in attempt.")
     raw = bytearray()
-    async for chunk in request.stream():
-        if len(raw) + len(chunk) > MAX_BYTES:
-            raise HTTPException(413, "Request is too large.")
-        raw.extend(chunk)
+    try:
+        async with asyncio.timeout(READ_SECONDS):
+            async for chunk in request.stream():
+                if len(raw) + len(chunk) > MAX_BYTES:
+                    raise HTTPException(413, "Request is too large.")
+                raw.extend(chunk)
+    except TimeoutError:
+        raise HTTPException(408, "Start a new sign-in attempt.") from None
     kind = request.headers.get("content-type", "").split(";", 1)[0].lower()
     try:
         if kind == "application/json":

@@ -1,5 +1,5 @@
 {
-  "app_manifest_sha256": "adb8fb343d036df03d62d259015c5800158b875afec740cdd4d3ba61202eb456",
+  "app_manifest_sha256": "ae8d1575a56f4968efe985d929f90480b9d447ee91dab387c040ec93c7d68e44",
   "files": {
     "app/account/__init__.py": {
       "bytes": 79,
@@ -366,10 +366,10 @@
       "uid": 1000
     },
     "app/auth/google_redirect_protocol.py": {
-      "bytes": 3613,
+      "bytes": 3837,
       "gid": 1000,
       "mode": 436,
-      "sha256": "89c0a9d6187001eac8e11443d68c02109949f96d95fb46b7d15eef1dd345f2cd",
+      "sha256": "b7941ff25d80691b7210ff430722c954490b50f56dfae5192ce24be3e4dbf824",
       "uid": 1000
     },
     "app/auth/identity_templates.py": {
@@ -1402,6 +1402,6 @@
       "uid": 0
     }
   },
-  "image_id": "sha256:9cf3904fbd3676d197bdc07ff03f09caf345ea9de8e364140387e1a00052bd09",
-  "manifest_sha256": "fc784775fc0567da31ce969b7e534fef02e6ca5e2bb5344c82f3b2668dccf737"
+  "image_id": "sha256:3895904499335b9399351792914097a8f7c67bf3367be22f3b9d97fcd2f8234b",
+  "manifest_sha256": "1e9fbda91bb2c0a1b09a47695d09613dccd1ed6c90e11e5f3a30e4d230c727b0"
 }

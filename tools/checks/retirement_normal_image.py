@@ -1,7 +1,7 @@
 """Public subset of ROOT-approved current200 image inventory; no artifact data."""
 
-IMAGE = "sha256:9cf3904fbd3676d197bdc07ff03f09caf345ea9de8e364140387e1a00052bd09"
-MANIFEST_SHA256 = "fc784775fc0567da31ce969b7e534fef02e6ca5e2bb5344c82f3b2668dccf737"
+IMAGE = "sha256:3895904499335b9399351792914097a8f7c67bf3367be22f3b9d97fcd2f8234b"
+MANIFEST_SHA256 = "1e9fbda91bb2c0a1b09a47695d09613dccd1ed6c90e11e5f3a30e4d230c727b0"
 RUNTIME_FILES = {
     "account/__init__.py": "4d300929fcb6d0c0e3a6b92377bfd4648fc336a8ad2bfb3e962d810b3b6f55e0",
     "account/action_contracts.py": "be3becba0a54378a847efdaa76cc833e3b780df3658c90d30f86a7852232a397",
@@ -55,7 +55,7 @@ RUNTIME_FILES = {
     "auth/google.py": "a842ed1e30ea8405846d711950ad806ef2a26e24350b1c3a6aee81858e988975",
     "auth/google_redirect.py": "7beb85452d272e988cfe613a978f52d7653afa27d50b4c94e732cfc3963675a7",
     "auth/google_redirect_bridge.py": "800c54fa7925188c854728b29e67530c747bc990637745a120b2ed9e8d584329",
-    "auth/google_redirect_protocol.py": "89c0a9d6187001eac8e11443d68c02109949f96d95fb46b7d15eef1dd345f2cd",
+    "auth/google_redirect_protocol.py": "b7941ff25d80691b7210ff430722c954490b50f56dfae5192ce24be3e4dbf824",
     "auth/identity_templates.py": "7a641af84550ca38d42cfa54d64754b6080a83c46d0b4c31122f9bc650b98204",
     "auth/mailconfig.py": "52ddda32501fae0fe88cad4e0b5e40c8932c7ac378ed555994305158bdfc6a49",
     "auth/mailoutbox.py": "e6cdce6d25e9512fe72e0a8711d13868ffed469daa1d6c33154e1e7dcf4ead28",
