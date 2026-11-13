@@ -37,7 +37,7 @@ test("all five security actions use exact private routes, closed bodies and inde
     { proof_token: PROOF, new_password: NEW }, { proof_token: PROOF }, { proof_token: PROOF }]);
   for (const { init } of calls) {
     assert.equal(init.credentials, "same-origin"); assert.equal(init.mode, "same-origin"); assert.equal(init.cache, "no-store");
-    assert.equal(init.redirect, "error"); assert.equal(init.referrerPolicy, "no-referrer"); assert.equal(init.headers["X-CSRF-Token"], "synthetic-csrf");
+    assert.equal(init.redirect, "error"); assert.equal(init.referrerPolicy, init.method === "GET" ? "no-referrer" : "strict-origin"); assert.equal(init.headers["X-CSRF-Token"], "synthetic-csrf");
     assert.equal(init.headers["Content-Type"], "application/json");
   }
 });

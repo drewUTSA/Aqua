@@ -18,6 +18,7 @@ export async function setup(page, context) {
   await load(root);
   const fixture = makeFixture(), failures = [], external = [], blocked = new Set(), held = [];
   const counts = new Map();
+  const origins = [];
   let setCookies = true, origin;
   const types = { js: "application/javascript", css: "text/css", svg: "image/svg+xml", html: "text/html", woff2: "font/woff2" };
   const server = createServer((req, res) => {
@@ -33,6 +34,12 @@ export async function setup(page, context) {
     if (url.pathname.startsWith("/api/")) {
       const key = `${req.method} ${url.pathname}`;
       counts.set(key, (counts.get(key) || 0) + 1);
+      if (!["GET", "HEAD"].includes(req.method)) {
+        const originValid = req.headers.origin === origin;
+        const refererPrivate = !req.headers.referer || req.headers.referer === origin + "/";
+        origins.push({ originValid, refererPrivate });
+        if (!originValid || !refererPrivate) return reply(403, {});
+      }
       if (blocked.has(url.pathname)) { held.push(res); return; }
       if (url.pathname === "/api/auth/me" && !req.headers.cookie?.split("; ").includes("aqua-fixture=session")) return reply(401, {});
       void (async () => {
@@ -63,7 +70,7 @@ export async function setup(page, context) {
     if (url.origin !== origin) { external.push(url.origin); return route.abort(); }
     return route.continue();
   });
-  return { fixture, origin, failures, external, blocked,
+  return { fixture, origin, failures, external, blocked, origins,
     attempts(path, method = "POST") { return counts.get(`${method} ${path}`) || 0; },
     denyCookies() { setCookies = false; },
     async close() {

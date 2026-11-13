@@ -22,6 +22,17 @@ preload and subdomain policies were not enabled as part of this targeted fix.
 
 ## Source repairs
 
+Cross-engine verification found another concrete fault: `mode: "same-origin"`
+combined with `referrerPolicy: "no-referrer"` makes Firefox/WebKit serialize a
+mutation's Origin as `null`. The server correctly rejects it. Protected
+mutations now use `strict-origin`, so only the origin is sent, with no page
+path, query or fragment. GETs retain `no-referrer`; same-origin mode, blocked
+redirects, exact server Origin and CSRF checks remain. All retained unit cases
+remain; four transport expectations now distinguish reads from mutations.
+The browser fixture now enforces exact mutation Origin and origin-only/no
+Referer instead of accepting requests irrespective of those browser headers.
+A real Firefox red case with the old build was retained before the repair.
+
 - Optional BroadcastChannel construction, messaging and close tolerate storage
   denial. Messages remain metadata-only; authenticated server reads decide
   authority. Existing revocation/owner fences remain in place.

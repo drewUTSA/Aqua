@@ -95,9 +95,11 @@ async function request(path, expectedStatus, signal, payload, csrfToken) {
   checkAbort(signal);
   let response;
   try {
+    // no-referrer + same-origin mode can serialize Origin as null in Safari/
+    // Firefox. Mutations send only the origin, retaining strict server CSRF.
     response = await fetch(`${ROOT}${path}`, {
       method: payload ? "POST" : "GET", credentials: "same-origin", mode: "same-origin",
-      cache: "no-store", redirect: "error", referrerPolicy: "no-referrer", signal,
+      cache: "no-store", redirect: "error", referrerPolicy: payload ? "strict-origin" : "no-referrer", signal,
       headers: { Accept: "application/json", ...(payload ? {
         "Content-Type": "application/json", "X-CSRF-Token": csrfToken
       } : {}) },

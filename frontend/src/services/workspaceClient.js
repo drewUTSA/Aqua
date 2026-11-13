@@ -42,7 +42,8 @@ export async function workspaceRequest(path, { method = "GET", body, csrfToken, 
   const timer = setTimeout(cancel, timeout);
   try {
     const response = await fetch(`/api/v1${path}`, { method, credentials: "same-origin", mode: "same-origin", cache: "no-store", redirect: "error",
-      referrerPolicy: "no-referrer", signal: controller.signal, headers: { Accept: "application/json", ...historyHeaders(history), ...(method !== "GET" ? {
+      // Keep a non-null Origin on protected mutations without sending paths.
+      referrerPolicy: method === "GET" ? "no-referrer" : "strict-origin", signal: controller.signal, headers: { Accept: "application/json", ...historyHeaders(history), ...(method !== "GET" ? {
         "Content-Type": "application/json", "X-CSRF-Token": csrfToken } : {}) }, ...(body ? { body: JSON.stringify(body) } : {}) });
     if (controller.signal.aborted) { await response.body?.cancel(); throw aborted(); }
     try { observeHistory(response, history); } catch (error) { await response.body?.cancel(); throw error; }

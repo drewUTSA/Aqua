@@ -7,6 +7,7 @@ test.beforeEach(async ({ page, context }) => { env = null; env = await setup(pag
 test.afterEach(async () => {
   if (!env) return; // Preserve a browser-launch failure without a cleanup error.
   await env.close(); expect(env.failures).toEqual([]); expect(env.external).toEqual([]);
+  expect(env.origins.every(value => value.originValid && value.refererPrivate)).toBe(true);
 });
 const login = async page => {
   await page.goto(`${env.origin}/signin`);
@@ -160,4 +161,13 @@ test("a different owner in cookie confirmation cannot adopt the login response",
   await expect(page.getByRole("button", { name: "Quick switch", exact: true })).toBeHidden();
   expect(env.fixture.count("/api/v1/auth/password-login")).toBe(1);
   expect(env.fixture.queryCount()).toBe(0);
+});
+
+test("workspace mutations retain exact Origin and expose no referrer path", async ({ page }) => {
+  await login(page);
+  await page.getByRole("textbox", { name: "Ask AQUA about your financial data", exact: true }).fill("Show synthetic totals");
+  await page.getByRole("button", { name: "Send message", exact: true }).click();
+  await expect(page.getByText("Synthetic answer for this account.", { exact: true })).toBeVisible();
+  expect(env.fixture.queryCount()).toBeGreaterThan(0);
+  expect(env.origins.every(value => value.originValid && value.refererPrivate)).toBe(true);
 });
