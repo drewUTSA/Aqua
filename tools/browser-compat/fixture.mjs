@@ -2,7 +2,9 @@
 import { createServer } from "node:http";
 import { readFile, readdir } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
-import { makeFixture, GOOGLE_STUB } from "../../frontend/checks/p05-browser-fixture.mjs";
+import { makeFixture } from "../../frontend/checks/p05-browser-fixture.mjs";
+import { googleStub } from "./google-stub.mjs";
+import { redirectRoute } from "./redirect-route.mjs";
 
 export async function setup(page, context) {
   const files = new Map();
@@ -24,7 +26,7 @@ export async function setup(page, context) {
     const url = new URL(req.url, origin);
     const reply = (status, body, headers = {}) => {
       if (res.destroyed) return;
-      const login = req.method === "POST" && ["/api/auth/google", "/api/v1/auth/password-login"].includes(url.pathname) && status === 200;
+      const login = req.method === "POST" && ["/api/auth/google", "/api/v1/auth/password-login", "/api/auth/google/redirect-complete"].includes(url.pathname) && status === 200;
       const logout = url.pathname === "/api/auth/logout" && status === 204;
       if (setCookies && (login || logout)) headers["Set-Cookie"] = `aqua-fixture=${login ? "session" : ""}; Path=/; HttpOnly; SameSite=Lax${logout ? "; Max-Age=0" : ""}`;
       res.writeHead(status, { "Content-Type": "application/json", "Cache-Control": "no-store", ...headers });
@@ -42,7 +44,15 @@ export async function setup(page, context) {
           if (size > 8192) return reply(413, {});
           chunks.push(chunk);
         }
-        await fixture.route({ url: url.href, method: req.method, headers: req.headers, postData: Buffer.concat(chunks).toString("utf8") }, reply);
+        const raw = Buffer.concat(chunks).toString("utf8");
+        if (redirectRoute({ req, res, url, raw, origin, fixture, reply })) return;
+        await fixture.route({ url: url.href, method: req.method, headers: req.headers, postData: raw }, (status, body, headers) => {
+          if (url.pathname === "/api/auth/config" && fixture.redirectMode && status === 200) {
+            body.redirect_path = "/api/auth/google/redirect";
+            headers = { ...headers, "Set-Cookie": "aqua-fixture-login=challenge; Path=/; HttpOnly; SameSite=Lax" };
+          }
+          return reply(status, body, headers);
+        });
       })().catch(() => { failures.push("fixture_exception"); reply(503, {}); });
       return;
     }
@@ -56,9 +66,7 @@ export async function setup(page, context) {
   await context.route("**/*", async route => {
     const url = new URL(route.request().url());
     if (url.href === "https://accounts.google.com/gsi/client") {
-      // The real provider is never called; its optional observer isn't needed.
-      const stub = GOOGLE_STUB.slice(0, GOOGLE_STUB.indexOf("  const channel=")) + "})();";
-      return route.fulfill({ status: 200, contentType: "application/javascript", body: stub });
+      return route.fulfill({ status: 200, contentType: "application/javascript", body: googleStub });
     }
     if (url.origin !== origin) { external.push(url.origin); return route.abort(); }
     return route.continue();

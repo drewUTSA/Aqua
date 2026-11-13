@@ -33,6 +33,7 @@ from auth.store import IdentityStore
 from nl2sql.config import Settings
 from storage.pool import StorageUnavailable
 from account.security_http import binding_cookie, identity_cookie
+from auth.google_redirect import redirect_path, router as redirect_router
 
 router = APIRouter(prefix="/api/auth", tags=["authentication"])
 log = logging.getLogger("aqua.auth")
@@ -81,6 +82,7 @@ def login_config(
     store: IdentityStore = Depends(get_store),
 ) -> dict[str, Any]:
     ensure_configured(settings, google=True)
+    redirect = redirect_path(settings)
     token = new_token()
     csrf = bound_value(settings, token, "login-csrf")
     try:
@@ -101,6 +103,7 @@ def login_config(
         "nonce": bound_value(settings, token, "google-nonce"),
         "csrf_token": csrf,
         "capabilities": _capabilities(settings),
+        **({"redirect_path": redirect} if redirect else {}),
     }
 
 
@@ -223,3 +226,6 @@ def logout(
     log.info("auth_event action=allow reason=session_revoked")
     clear_auth_cookie(response, settings, binding_cookie(settings))
     clear_auth_cookie(response, settings, identity_cookie(settings))
+
+
+router.include_router(redirect_router)

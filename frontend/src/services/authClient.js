@@ -72,7 +72,9 @@ export async function fetchAuthConfig({ signal } = {}) {
   if (!body || !["client_id", "nonce", "csrf_token"].every((key) => typeof body[key] === "string" && body[key])) {
     throw new AuthError(502);
   }
+  if (body.redirect_path !== undefined && body.redirect_path !== "/api/auth/google/redirect") throw new AuthError(502);
   return { client_id: body.client_id, nonce: body.nonce, csrf_token: body.csrf_token,
+    ...(body.redirect_path === undefined ? {} : { redirect_path: body.redirect_path }),
     ...(body.capabilities === undefined ? {} : { capabilities: capabilitiesResponse(body.capabilities) }) };
 }
 
