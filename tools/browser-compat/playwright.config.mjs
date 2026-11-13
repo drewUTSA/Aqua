@@ -1,7 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 
 export default defineConfig({
-  testDir: ".", testMatch: "sessions.spec.mjs", workers: 1, retries: 0,
+  testDir: ".", testMatch: "*.spec.mjs", workers: 1, retries: 0,
   timeout: 45000, expect: { timeout: 7000 },
   reporter: [["list"], ["json", { outputFile: "results/report.json" }]],
   outputDir: "results/artifacts",

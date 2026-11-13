@@ -38,10 +38,16 @@ class NormalGuards(unittest.TestCase):
                 self.assertEqual(value.get("pool_opens", 0), 0)
 
     def test_exact_compiled_runtime_subset_is_public_and_root_pinned(self):
-        additions = {"nl2sql/retrieval/graph.py", "nl2sql/retrieval/query.py"}
+        additions = {
+            "nl2sql/retrieval/graph.py",
+            "nl2sql/retrieval/query.py",
+            "auth/google_redirect.py",
+            "auth/google_redirect_bridge.py",
+            "auth/google_redirect_protocol.py",
+        }
         self.assertTrue(additions <= RUNTIME_FILES.keys())
         self.assertEqual(len(RUNTIME_FILES.keys() - additions), 191)
-        self.assertEqual(len(RUNTIME_FILES), 193)
+        self.assertEqual(len(RUNTIME_FILES), 196)
         self.assertEqual(len(MANIFEST_SHA256), 64)
         self.assertEqual(IMAGE, runner.IMAGE)
         self.assertIn("main.py", RUNTIME_FILES)

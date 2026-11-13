@@ -14,6 +14,12 @@ and query preserved while schema8 stayed healthy. See
 for source changes, additional browser checks and the separate Google iOS
 redirect/physical-device acceptance still required.
 
+The subsequent [Google redirect source](docs/implementation/GOOGLE_REDIRECT.md)
+is prepared behind `GOOGLE_REDIRECT_ENABLED=false`; it does not enable a new
+audience, callback or grant on the running service. Ben requested work stop at
+5:00 p.m. Central on November 13; record the exact stopping checkpoint and
+remaining release gates when handing off.
+
 Current order is **P11 release gates → P12 capacity/retrieval qualification →
 P13 hardening/restricted launch**. Do not restart completed P00–P10 from the
 historical kickoff instruction below. See the current

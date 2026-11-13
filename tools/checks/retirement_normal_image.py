@@ -1,7 +1,7 @@
-"""Public subset of ROOT-approved current197 image inventory; no artifact data."""
+"""Public subset of ROOT-approved current200 image inventory; no artifact data."""
 
-IMAGE = "sha256:ccd43eed575e6a36958041268ac2b0dd38c49dc4d51e74198bb93bf78f1d595c"
-MANIFEST_SHA256 = "a67e983fb6b9b6136c17ebf59290d12a29dd73e7569ddf6050d6eb4587a18844"
+IMAGE = "sha256:3895904499335b9399351792914097a8f7c67bf3367be22f3b9d97fcd2f8234b"
+MANIFEST_SHA256 = "1e9fbda91bb2c0a1b09a47695d09613dccd1ed6c90e11e5f3a30e4d230c727b0"
 RUNTIME_FILES = {
     "account/__init__.py": "4d300929fcb6d0c0e3a6b92377bfd4648fc336a8ad2bfb3e962d810b3b6f55e0",
     "account/action_contracts.py": "be3becba0a54378a847efdaa76cc833e3b780df3658c90d30f86a7852232a397",
@@ -53,6 +53,9 @@ RUNTIME_FILES = {
     "auth/admission.py": "888fb1a0c707eb3d070d3dd7342d60a50f551843fec0a66c99a10f6143e1b4f5",
     "auth/config.py": "f692587052553f960c4cc44c5332fb59242717626beb2ed5469e8141c0cc4ba3",
     "auth/google.py": "a842ed1e30ea8405846d711950ad806ef2a26e24350b1c3a6aee81858e988975",
+    "auth/google_redirect.py": "7beb85452d272e988cfe613a978f52d7653afa27d50b4c94e732cfc3963675a7",
+    "auth/google_redirect_bridge.py": "800c54fa7925188c854728b29e67530c747bc990637745a120b2ed9e8d584329",
+    "auth/google_redirect_protocol.py": "b7941ff25d80691b7210ff430722c954490b50f56dfae5192ce24be3e4dbf824",
     "auth/identity_templates.py": "7a641af84550ca38d42cfa54d64754b6080a83c46d0b4c31122f9bc650b98204",
     "auth/mailconfig.py": "52ddda32501fae0fe88cad4e0b5e40c8932c7ac378ed555994305158bdfc6a49",
     "auth/mailoutbox.py": "e6cdce6d25e9512fe72e0a8711d13868ffed469daa1d6c33154e1e7dcf4ead28",
@@ -75,7 +78,7 @@ RUNTIME_FILES = {
     "auth/password_sessions.py": "1b56ae442f9d7e2fdaf29e67ec63aaae1e4ab133e0209fe344b1967c597e63de",
     "auth/password_settings.py": "5e112c9b894096721576d926eea7b51af914375e1d5ed846c09b11c305c3868d",
     "auth/passwords.py": "e034fa19103ac71079c6314330e2bd1c8042516c2cf82857bc913401c7f38c3c",
-    "auth/router.py": "fb1f0fbd1f668b89e5d8acf99e714fc9f4c00fa3ebfe505e6a994805eff650cd",
+    "auth/router.py": "036a5e6329e49a4b4ac1e6afd895d7bd1081327a46ac931e663a43b5089adf1f",
     "auth/security.py": "f259c7218217fa581a7025facf96c70c5cdf6f4bf9a9486f2726fd609d849bc5",
     "auth/sessions.py": "1af1a3b2c58d651ba65d14eb790245cb87948ce91af9c7f226defa901af848a6",
     "auth/store.py": "93ff7c1e34caf4a1a8ddde445702bb71f5aae0cc18b6f8554ecdcade716cd7f6",

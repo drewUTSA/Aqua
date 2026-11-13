@@ -17,7 +17,10 @@ export default function GoogleSignInButton({ auth, disabled = false }) {
     setStatus("loading");
     void loadGoogleIdentity().then((google) => {
       if (cancelled) return;
-      google.initialize({ client_id: config.client_id, nonce: config.nonce, auto_select: false, callback: ({ credential }) => { if (!cancelled) void auth.acceptCredential(credential); } });
+      google.initialize({ client_id: config.client_id, nonce: config.nonce, auto_select: false,
+        ...(config.redirect_path === "/api/auth/google/redirect"
+          ? { ux_mode: "redirect", login_uri: `${window.location.origin}${config.redirect_path}` }
+          : { callback: ({ credential }) => { if (!cancelled) void auth.acceptCredential(credential); } }) });
       const render = () => {
         if (cancelled) return;
         const nextWidth = Math.max(200, Math.min(400, Math.floor(container.clientWidth || 300)));
