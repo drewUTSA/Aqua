@@ -31,7 +31,7 @@ export default function QuickSwitcher({ chat, onClose, onSelect, onAction }) {
       <input ref={input} id={id} type="search" value={query} maxLength={120} autoComplete="off" spellCheck={false}
         aria-describedby={`${id}-scope ${id}-count`} placeholder="Search your workspace…" onChange={(event) => setQuery(event.target.value)} />
       <p id={`${id}-scope`} className="quick-switcher__hint">{chat.durable ? "Searches loaded titles in this account. Choose “Search saved chats” to look beyond this page." : "Searches demo titles in this visit. Demo chats are not saved to an account."}</p>
-      <p id={`${id}-count`} role="status" className="quick-switcher__hint">{items.length ? `${items.length} shortcuts shown · ↑ ↓ to navigate` : "No loaded matches. Try fewer words or search saved chats."}</p>
+      <p id={`${id}-count`} role="status" className="quick-switcher__hint">{items.length ? `${items.length} ${items.length === 1 ? "shortcut" : "shortcuts"} shown · ↑ ↓ to navigate` : "No loaded matches. Try fewer words or search saved chats."}</p>
       <div ref={results} className="quick-switcher__results" aria-label="Workspace shortcuts">
         {items.map((item) => <button key={item.id} type="button" onClick={() => choose(item)}
           aria-current={item.kind === "chat" && item.item.id === chat.activeConversationId ? "page" : undefined}>

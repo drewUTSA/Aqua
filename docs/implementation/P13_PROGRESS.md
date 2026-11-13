@@ -49,6 +49,9 @@ copy an untested policy into a production proxy or mark these gaps resolved.
 2. Finish P12 mixed HTTP/provider/stream measurements, bounded synthetic model
    evaluation, agreed limits and SLOs. Component timings do not prove model
    accuracy or peak concurrent-user capacity.
+   The 10,000-chat owner fixture exceeds the unchanged policy of 100 active
+   chats/account, 1,000 total/account and 10,000 service-wide. It is a deliberate
+   stress fixture, not a higher quota or a representative mixed HTTP workload.
 3. Qualify the actual TLS/tunnel/proxy chain, response policy, rate-limit trust,
    private database reachability, secure-cookie/CSRF behavior and safe logs.
    Preserve the application database's network isolation and analytical grants.
