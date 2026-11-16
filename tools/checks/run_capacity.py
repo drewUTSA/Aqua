@@ -68,5 +68,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--image", required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--mixed-http", action="store_true")
     args = parser.parse_args()
+    if args.mixed_http:
+        from mixed_capacity_runner import run_mixed
+
+        raise SystemExit(run_mixed(args.image, args.output))
     raise SystemExit(run(args.image, args.output))
