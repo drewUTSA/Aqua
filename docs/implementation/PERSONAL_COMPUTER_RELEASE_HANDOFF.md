@@ -2,6 +2,17 @@
 
 ## Resume instruction from Ben
 
+**November16 companion source profile:** the default-off reviewed help slice
+adds ten runtime modules. Its current exact image is
+`sha256:61034825653941c528a17bd66d3d0072c18b1a57d82377053d349d6204c7ef66`
+(207 compiled /210 app /211 complete files). See
+[the source and current-image qualification](COMPANION_HELP_TOOLS.md) and
+`evidence/companion/`. Fresh synthetic installer and ordinary-runtime recovery
+rehearsals pass for those exact bytes. They do not supply the missing original
+encrypted backup/key, independent authority retention or total-host recovery.
+Current PR/main CI and production backup/release gates remain required.
+The historical image profiles below apply only to their matching source.
+
 Ben requested completion of the remaining phases and useful AI improvements,
 preserving the existing tests. On November 13 he directed that recovery-key
 discovery and the backup/recovery work be handed to his personal computer, where

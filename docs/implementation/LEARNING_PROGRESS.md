@@ -1,5 +1,30 @@
 # Aqua learning and companion foundations — November 16, 2026
 
+## Subsequent measured experiments
+
+The approved20train/5validation public packet was actually trained with a
+pinned Qwen3-4B NF4 QLoRA recipe on the local RTX5070. Five optimizer updates
+changed the adapter and lowered train/validation loss. The complete paired
+protected test regressed from33/67 to30/67 exact matches (43→39 lenient) and was
+slower. **This adapter is rejected: do not convert, import or activate it, and
+do not train against the67 protected failures.** Lower loss is not SQL accuracy.
+No production model tags or weights changed. The original source-preparation
+description below is historical; its future-training language is superseded.
+
+A separate new synthetic tool-selection packet completed32 real calls with
+fresh installed-digest checks: qwen3:4b5/16 correct,10 incorrect and1 denied;
+qwen3:8b10/16 correct and6 incorrect. Both retain the full16-case denominator.
+No proposed tool executed. Neither model passes this packet or qualifies an
+automatic planner. Preserve the packet as evaluation evidence and develop
+against separately reviewed examples before a new independent evaluation.
+
+[Reviewed help tools](COMPANION_HELP_TOOLS.md) are a separate default-off source
+addition: source-cited deterministic help and explicit draft preparation.
+They do not claim model learning, persistent memory or autonomous execution.
+Actual image/backend/browser and current PR/main CI gates remain mandatory.
+
+## Original source-preparation checkpoint
+
 Ben requested broad Aqua context, useful trends and a companion that improves
 through measured learning. This source slice prepares four related components;
 it does not enable a conversational agent or update production model weights.
@@ -86,7 +111,7 @@ backend/security/browser check in exact-head PR and distinct main CI.
 
 The live analytical endpoint still returns authoritative NXDOMAIN. P11 encrypted
 backup/authority recovery and retention are unresolved; schema8 remains deployed.
-Actual trained-adapter quality, production companion integration/owned memory,
+The rejected trained adapter, production companion integration/owned memory,
 live trend input qualification, mixed workload capacity, physical-device mobile
 acceptance and the P13 release gates remain open. None of these offline modules
 adds an analytical grant, arbitrary tool/SQL execution or a production capability.

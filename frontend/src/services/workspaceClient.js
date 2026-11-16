@@ -19,22 +19,23 @@ function query(values) {
   for (const [key, value] of Object.entries(values)) if (value !== undefined && value !== null && value !== "") params.set(key, String(value));
   return params.size ? `?${params}` : "";
 }
-async function readBody(response, signal, history) {
+async function readBody(response, signal, history, maxBytes) {
   const length = response.headers.get("Content-Length"), type = response.headers.get("Content-Type")?.split(";", 1)[0].trim();
-  if (type !== "application/json" || (length !== null && (!/^\d{1,10}$/.test(length) || Number(length) > MAX_BYTES)) || !response.body?.getReader) {
+  if (type !== "application/json" || (length !== null && (!/^\d{1,10}$/.test(length) || Number(length) > maxBytes)) || !response.body?.getReader) {
     await response.body?.cancel(); throw new WorkspaceError("invalid_response");
   }
   const reader = response.body.getReader(), chunks = []; let bytes = 0;
   try {
     while (true) { if (signal.aborted) throw aborted(); assertHistory(history); const { value, done } = await reader.read(); assertHistory(history); if (signal.aborted) throw aborted();
-      if (done) break; bytes += value.byteLength; if (bytes > MAX_BYTES) throw new WorkspaceError("invalid_response"); chunks.push(value); }
+      if (done) break; bytes += value.byteLength; if (bytes > maxBytes) throw new WorkspaceError("invalid_response"); chunks.push(value); }
     const result = new Uint8Array(bytes); let offset = 0; for (const chunk of chunks) { result.set(chunk, offset); offset += chunk.byteLength; }
     return JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(result));
   } finally { await reader.cancel().catch(() => {}); reader.releaseLock(); }
 }
-export async function workspaceRequest(path, { method = "GET", body, csrfToken, signal, timeout = 15000, historyContext,
+export async function workspaceRequest(path, { method = "GET", body, csrfToken, signal, timeout = 15000, historyContext, maxBytes = MAX_BYTES,
   expectedStatuses = method === "DELETE" ? [204] : method === "POST" ? [200, 201] : [200] } = {}) {
   if (signal?.aborted) throw aborted();
+  if (!Number.isSafeInteger(maxBytes) || maxBytes < 1 || maxBytes > MAX_BYTES) throw new WorkspaceError("invalid_input");
   const history = bindHistoryIntent(body, historyContext || captureHistory(csrfToken));
   if (method !== "GET" && (!csrfToken || /[\r\n]/.test(csrfToken))) throw new WorkspaceError("unauthenticated", 401);
   const controller = new AbortController(), cancel = () => controller.abort();
@@ -52,7 +53,7 @@ export async function workspaceRequest(path, { method = "GET", body, csrfToken, 
       const retry = response.headers.get("Retry-After"), seconds = /^\d{1,5}$/.test(retry || "") ? Math.min(Number(retry), 86400) : null;
       throw new WorkspaceError(({ 401: "unauthenticated", 403: "forbidden", 404: "not_found", 409: "conflict", 422: "invalid_input", 429: "throttled" })[response.status] || "unavailable", response.status, seconds);
     }
-    const result = response.status === 204 ? null : await readBody(response, controller.signal, history);
+    const result = response.status === 204 ? null : await readBody(response, controller.signal, history, maxBytes);
     assertHistory(history); return result;
   } catch (error) {
     if (signal?.aborted) throw aborted();

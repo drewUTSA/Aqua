@@ -5,6 +5,8 @@ only HTTP peer is that container's loopback; no storage/provider is configured.
 """
 
 import json
+import hashlib
+from pathlib import Path
 import signal
 import subprocess
 import sys
@@ -54,6 +56,13 @@ try:
                 prefix + suffix, params={"cursor": canary}
             ).status_code in {401, 403, 422, 503}
         assert client.post(prefix + "/cancel", json={}).status_code in {401, 403, 503}
+        for suffix in ("/capabilities", "/help"):
+            assert client.get(
+                "/api/v1/companion" + suffix, params={"question": canary}
+            ).status_code in {401, 404, 405, 422, 503}
+        assert client.post(
+            "/api/v1/companion/help", json={"schemaVersion": 1, "question": canary}
+        ).status_code in {401, 403, 404, 503}
 finally:
     child.terminate()
     try:
@@ -71,6 +80,23 @@ assert b"GET /api/health HTTP/1.1" in output, "ordinary_access_log_missing"
 assert b"PRIVATE_WORKSPACE_RUNTIME_CANARY" not in output, "private_access_log_leak"
 assert b"/api/v1/chats" not in output, "workspace_access_log_not_suppressed"
 assert b"/api/v1/analysis-requests" not in output, "analysis_access_log_not_suppressed"
+assert b"/api/v1/companion" not in output, "companion_access_log_not_suppressed"
+companion_files = {
+    path.name: hashlib.sha256(path.read_bytes()).hexdigest()
+    for path in sorted(Path("/app/companion").glob("*.py"))
+}
+assert set(companion_files) == {
+    "__init__.py",
+    "application.py",
+    "choices.py",
+    "context.py",
+    "data.py",
+    "data_contract.py",
+    "knowledge.py",
+    "policy.py",
+    "router.py",
+    "service.py",
+}, "companion_runtime_inventory_mismatch"
 print(
     json.dumps(
         {
@@ -79,6 +105,7 @@ print(
             "ordinary_access_log": "retained",
             "private_workspace_access_log": "suppressed",
             "real_data_accessed": False,
+            "companion_source_sha256": companion_files,
         }
     )
 )

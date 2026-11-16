@@ -9,6 +9,7 @@ import { AI_MODELS } from "../mocks/aiModels.js";
 import { DEMO_MODE } from "./runtimeConfig.js";
 export * from "./workspaceClient.js";
 export * from "./analysisClient.js";
+export * from "./companionClient.js";
 
 function useMock(options) {
   return options.demoMode ?? DEMO_MODE;

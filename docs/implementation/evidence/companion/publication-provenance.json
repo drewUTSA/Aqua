@@ -1,0 +1,23 @@
+{
+  "raw_source_receipts_preserved": true,
+  "files": [
+    {
+      "file": "runtime-inventory.json",
+      "source_receipt_sha256": "7e33e254a904531df763eea2a98f25717d1c927b6d1cdac09600dccf16609106",
+      "published_sha256": "b954566ced4e8d92ae1df9ed1cdbe267fffa63acf06adc3e54d26b3267ed1d31",
+      "normalization": "CRLF_to_LF_only"
+    },
+    {
+      "file": "native-qualification.json",
+      "source_receipt_sha256": "aa0fe01cebca3c32a46dc67dcb8633de84341adf6b4e453388c6bbef6e5ac07b",
+      "published_sha256": "8af2a87fbba9837f4fffc66577db8cf59b46f52f963412ae58146cb7440eb423",
+      "normalization": "CRLF_to_LF_only"
+    },
+    {
+      "file": "tool-choice-research.json",
+      "source_receipt_sha256": "f408b0bfbe9805ba22562b3f367c0a2afb774e542fe2959b1ff8b354dab44aad",
+      "published_sha256": "f408b0bfbe9805ba22562b3f367c0a2afb774e542fe2959b1ff8b354dab44aad",
+      "normalization": "none"
+    }
+  ]
+}

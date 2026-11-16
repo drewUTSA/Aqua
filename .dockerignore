@@ -13,6 +13,7 @@
 !backend/account/*.py
 !backend/privacy/*.py
 !backend/retirement/*.py
+!backend/companion/*.py
 !backend/migrations/*.sql
 !tools/checks/Dockerfile
 !tools/checks/requirements-runtime.lock

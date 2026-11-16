@@ -587,3 +587,21 @@ exact-cleanup checks for each pair. Pytest's successful subtest metadata does no
 inflate unique-case counts. Failed commands retain progress and fixture metadata
 so an individual stall remains diagnosable. This changes test orchestration only;
 the hosted run must still pass before any merge or release.
+
+## November 16: reviewed help before autonomous tool selection
+
+The companion's first application capability is source-cited Aqua help and an
+explicit closed choice between help and preparing a data-question draft. The
+existing offline context/choice guards become the shared runtime implementation;
+data analysis still enters the existing durable submission path and rechecks
+current authority. Help uses current session guards and account admission, with
+no analytical grant required, no provider call and no private history access.
+
+A new generic agent loop, model-based intent classifier, vector help index or
+automatic trend action would add unqualified work and ambiguous authority. The
+small reviewed help snapshot instead provides useful guidance, exact source
+revision citations and honest abstention with deterministic bounds. It retains
+active/reviewed/superseded provenance and requires source review for promotion.
+The separately typed feature policy defaults off. UI integration, complete
+current-image checks and release qualification are separate checkpoints; the
+rejected fine-tuned adapter and existing server model configuration stay unchanged.

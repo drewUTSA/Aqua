@@ -308,6 +308,24 @@ def new_body(receipt: str) -> dict:
     }
 
 
+def single_ordinary_uvicorn(child, until):
+    """An empty proc cmdline can briefly precede exec visibility, never identity."""
+    expected = (
+        [argument.encode() for argument in ARGV],
+        [sys.executable.encode(), *[argument.encode() for argument in ARGV]],
+    )
+    while time.monotonic() < until and child.poll() is None:
+        raw = Path(f"/proc/{child.pid}/cmdline").read_bytes()
+        if Path(f"/proc/{child.pid}/task/{child.pid}/children").read_text().strip():
+            break
+        if raw:
+            if raw.endswith(b"\0") and raw.split(b"\0")[:-1] in expected:
+                return
+            break
+        time.sleep(0.005)
+    raise RuntimeError("normal_runtime_probe_not_single_ordinary_uvicorn")
+
+
 def same_inodes(expected):
     checkpoint = Path("/run/aqua-retirement/checkpoints.bin")
     mail = Path("/run/aqua-retirement/mail-worker.lock")
@@ -450,18 +468,9 @@ def execute(value: dict) -> dict:
         os.set_blocking(child.stderr.fileno(), False)
         diagnostic = bytearray()
         _phase = "argv"
-        actual = Path(f"/proc/{child.pid}/cmdline").read_bytes().split(b"\0")[:-1]
-        if (
-            actual
-            not in (
-                [argument.encode() for argument in ARGV],
-                [sys.executable.encode(), *[argument.encode() for argument in ARGV]],
-            )
-            or Path(f"/proc/{child.pid}/task/{child.pid}/children").read_text().strip()
-        ):
-            raise RuntimeError("normal_runtime_probe_not_single_ordinary_uvicorn")
-        _phase = "startup"
         until = time.monotonic() + 12
+        single_ordinary_uvicorn(child, until)
+        _phase = "startup"
         while True:
             stderr_read(child, diagnostic)
             if child.poll() is not None:
