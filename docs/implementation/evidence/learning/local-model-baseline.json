@@ -1,0 +1,304 @@
+{
+  "cleanup": "removed_and_absence_confirmed",
+  "dataset_sha256": "6beaed8ab52fda0ef865dfb97aeac56a7ff502836a1f32d62128b46852c4c3ed",
+  "holdout": {
+    "cases": 24,
+    "completed": 24,
+    "correct": 22
+  },
+  "image": "sha256:9e80cc7ba7d95410160ea6f0645855abda1a861412ee525e3418d3865967e12f",
+  "kind": "synthetic_local_model_first_attempt_qualification",
+  "limits": {
+    "case_seconds": 120,
+    "cleanup_seconds_per_command": 15,
+    "concurrency": 1,
+    "downloads": false,
+    "execute": false,
+    "fallback": false,
+    "heldout_test_cases": 24,
+    "inference_window_seconds": 900,
+    "kind": "synthetic_local_model_plan",
+    "max_calls": 32,
+    "max_prompt_bytes": 65536,
+    "max_response_bytes": 1048576,
+    "max_sql_bytes": 32768,
+    "model": "qwen3:4b",
+    "pilot_train_cases": 4,
+    "provider": "server_loopback_11434",
+    "provisioning": "existing_fixture_per_command_and_startup_bounds",
+    "remote_physical_exit_on_timeout": "unknown_stop_all_calls",
+    "retrieval": false,
+    "ssh_alias": "aqua-codex",
+    "think": false,
+    "transport_seconds": 45
+  },
+  "model_digest_attested": false,
+  "model_digest_declared": "359d7dd4bcdab3d86b87d73ac27966f4dbb9f5efdfcc75d34a8764a09474fae7",
+  "production_activation_authorized": false,
+  "provider_calls": 28,
+  "real_inference_requested": true,
+  "records": [
+    {
+      "id": "synthetic-bank-train-account",
+      "phase": "pilot_train",
+      "provider_calls": 1,
+      "seconds": 3.937999999994645,
+      "status": "correct"
+    },
+    {
+      "id": "synthetic-bank-train-district",
+      "phase": "pilot_train",
+      "provider_calls": 1,
+      "seconds": 2.2190000000118744,
+      "status": "correct"
+    },
+    {
+      "id": "synthetic-pagila-train-category",
+      "phase": "pilot_train",
+      "provider_calls": 1,
+      "seconds": 2.3429999999934807,
+      "status": "correct"
+    },
+    {
+      "id": "synthetic-pagila-train-staff",
+      "phase": "pilot_train",
+      "provider_calls": 1,
+      "seconds": 1.9530000000086147,
+      "status": "correct"
+    },
+    {
+      "id": "synthetic-bank-trans-count",
+      "phase": "holdout_test",
+      "provider_calls": 1,
+      "seconds": 2.2190000000118744,
+      "status": "correct"
+    },
+    {
+      "id": "synthetic-bank-trans-sum",
+      "phase": "holdout_test",
+      "provider_calls": 1,
+      "seconds": 2.5309999999881256,
+      "status": "incorrect"
+    },
+    {
+      "id": "synthetic-bank-trans-largest",
+      "phase": "holdout_test",
+      "provider_calls": 1,
+      "seconds": 2.0,
+      "status": "correct"
+    },
+    {
+      "id": "synthetic-bank-trans-smallest",
+      "phase": "holdout_test",
+      "provider_calls": 1,
+      "seconds": 2.0940000000118744,
+      "status": "correct"
+    },
+    {
+      "id": "synthetic-bank-trans-filter",
+      "phase": "holdout_test",
+      "provider_calls": 1,
+      "seconds": 2.0939999999827705,
+      "status": "correct"
+    },
+    {
+      "id": "synthetic-bank-trans-credit",
+      "phase": "holdout_test",
+      "provider_calls": 1,
+      "seconds": 3.0469999999913853,
+      "status": "correct"
+    },
+    {
+      "id": "synthetic-bank-trans-purpose",
+      "phase": "holdout_test",
+      "provider_calls": 1,
+      "seconds": 2.0780000000086147,
+      "status": "correct"
+    },
+    {
+      "id": "synthetic-bank-trans-range",
+      "phase": "holdout_test",
+      "provider_calls": 1,
+      "seconds": 2.125,
+      "status": "correct"
+    },
+    {
+      "id": "synthetic-bank-account-join",
+      "phase": "holdout_test",
+      "provider_calls": 1,
+      "seconds": 2.1410000000032596,
+      "status": "correct"
+    },
+    {
+      "id": "synthetic-bank-district-name",
+      "phase": "holdout_test",
+      "provider_calls": 1,
+      "seconds": 2.062000000005355,
+      "status": "correct"
+    },
+    {
+      "id": "synthetic-bank-order-count",
+      "phase": "holdout_test",
+      "provider_calls": 1,
+      "seconds": 1.9530000000086147,
+      "status": "correct"
+    },
+    {
+      "id": "synthetic-bank-loan-count",
+      "phase": "holdout_test",
+      "provider_calls": 1,
+      "seconds": 1.9219999999913853,
+      "status": "correct"
+    },
+    {
+      "id": "synthetic-pagila-film-count",
+      "phase": "holdout_test",
+      "provider_calls": 1,
+      "seconds": 2.1719999999913853,
+      "status": "correct"
+    },
+    {
+      "id": "synthetic-pagila-film-filter",
+      "phase": "holdout_test",
+      "provider_calls": 1,
+      "seconds": 2.062000000005355,
+      "status": "correct"
+    },
+    {
+      "id": "synthetic-pagila-film-min",
+      "phase": "holdout_test",
+      "provider_calls": 1,
+      "seconds": 2.0789999999979045,
+      "status": "correct"
+    },
+    {
+      "id": "synthetic-pagila-film-max",
+      "phase": "holdout_test",
+      "provider_calls": 1,
+      "seconds": 2.0929999999934807,
+      "status": "correct"
+    },
+    {
+      "id": "synthetic-pagila-film-year",
+      "phase": "holdout_test",
+      "provider_calls": 1,
+      "seconds": 2.0940000000118744,
+      "status": "correct"
+    },
+    {
+      "id": "synthetic-pagila-film-rating",
+      "phase": "holdout_test",
+      "provider_calls": 1,
+      "seconds": 1.9530000000086147,
+      "status": "correct"
+    },
+    {
+      "id": "synthetic-pagila-film-prefix",
+      "phase": "holdout_test",
+      "provider_calls": 1,
+      "seconds": 2.062999999994645,
+      "status": "correct"
+    },
+    {
+      "id": "synthetic-pagila-film-title",
+      "phase": "holdout_test",
+      "provider_calls": 1,
+      "seconds": 2.014999999984866,
+      "status": "incorrect"
+    },
+    {
+      "id": "synthetic-pagila-category-count",
+      "phase": "holdout_test",
+      "provider_calls": 1,
+      "seconds": 1.8910000000032596,
+      "status": "correct"
+    },
+    {
+      "id": "synthetic-pagila-actor-count",
+      "phase": "holdout_test",
+      "provider_calls": 1,
+      "seconds": 2.0,
+      "status": "correct"
+    },
+    {
+      "id": "synthetic-pagila-staff-count",
+      "phase": "holdout_test",
+      "provider_calls": 1,
+      "seconds": 1.9839999999967404,
+      "status": "correct"
+    },
+    {
+      "id": "synthetic-pagila-store-count",
+      "phase": "holdout_test",
+      "provider_calls": 1,
+      "seconds": 1.9690000000118744,
+      "status": "correct"
+    }
+  ],
+  "remaining_ids": [],
+  "remote_physical_exit": "not_independently_proven",
+  "remote_physical_exit_on_failure": "unknown",
+  "remote_source_sha256": "83f789f20c6d013a56a65f1c23174264e9c72378548e3e3be5e924951fd97777",
+  "response_sha256": [
+    "7558f8deed74cff0b8249399000ca1144123d7c1b773121c7c5dd0bf45f3cb2f",
+    "3a646428c73f473c590a8f04cbb420e2919c4d06d79d80e594fc0322b3e39988",
+    "ab5bcccf3776b4b48fb5e6d16783c3412e45c46e3530ee9450cb7ef99f538b13",
+    "fff083f331b0bb90e6b8457c5fc887071b87b1ffbe5a4361b2f1f2af0e26c8d4",
+    "511d1b1a177618b4fcccb5c6c720e4e2cd1acb350e55b4ae83a1958cc6b92686",
+    "80a86a526ff310e485b9868a5300f634c76381b4f2fe88cb4fe8c61f1fffb180",
+    "352d1fa1e675562ff7a7dc8ad25bd25bda0d71d1c8c41ff0a860f3cf654d549b",
+    "aaf1784710a068b86bb6c5cb4825a0b0b550c204b22c24044e4556f4677ae916",
+    "f147080c41ea912f129230be8c309717bbd96a777cd968efc268250fbe287269",
+    "17fba2fdad1dddb535547524b541b1fef7951f7c0823af62668e8bcb137bf671",
+    "45144d6b89815f85283bff9c1a599745bd5292bf4a7c27135772126a71aaab89",
+    "0b4a8f346fb0cecaf49452c4fb62b3a7e1547e64d0056c03f95d0a5039b0ceca",
+    "365ea5d2b19ad067d53ac89aa1c8c9297138572891e1fedfc0af8d676756e449",
+    "b70b120bfbe6a1ec79a8581d7e8f35ff495a8d12c6fe9df7f9c5aa00d4f3855d",
+    "2a2b4e23489e4ada795a82339a0ae2f18d982111de23cdd6846f2394865a8c6e",
+    "921ff6c7b655271e8204e3f41d11b91024ecae7dafa104a4a6e8b703598ddb16",
+    "57d657ef4a29f141bcf2e4da98a58d3d454a982cd8de38eb14686ab1ff65ad2f",
+    "0b8698f382efa0238a939e7620a1bfa3574ebf3cbf6c54dd18ea28a686cbc637",
+    "273ad642e0fddc5ef6997dc325192e0294f1c6b5149a40f2f1a3b00e27ae36d3",
+    "1efb4e23723fe5418573892e84b78a5a83376cd9efb7e500c14488389b995490",
+    "e137fdaaf1d166cf36abb6c221777d333b4ace78522c28ca407a041f7a47ddbb",
+    "839e27a39632eea6d05d3d37f445354dad3fdf7a8bbf5b0dd2179aa84de71c76",
+    "0d204ad3cd5a1d9f553430892111744fd46d70d106bef87c9f7a6cf728898c51",
+    "40742490b91c954ec6f60eac1340eefafece0bfc9588e5431ef87fc74af1b3b8",
+    "33c012ea6a56de266ddc0a2232b2692fc79a878a760a60fb86eaaa5b5677ee40",
+    "9d42401935b74d2ce48adb30eb1357a5e4ea7b593647c4c17a788cc8a9678ba4",
+    "e9e5f48ab8eb2db0983a9ccfd8c25618945696ba7d760b6660b01d4518dd8398",
+    "3275cb6946fc0825ef83d15537c54fa75b048cf0e52134f027e3e8e446788d07"
+  ],
+  "selected_case_ids": [
+    "synthetic-bank-train-account",
+    "synthetic-bank-train-district",
+    "synthetic-pagila-train-category",
+    "synthetic-pagila-train-staff",
+    "synthetic-bank-trans-count",
+    "synthetic-bank-trans-sum",
+    "synthetic-bank-trans-largest",
+    "synthetic-bank-trans-smallest",
+    "synthetic-bank-trans-filter",
+    "synthetic-bank-trans-credit",
+    "synthetic-bank-trans-purpose",
+    "synthetic-bank-trans-range",
+    "synthetic-bank-account-join",
+    "synthetic-bank-district-name",
+    "synthetic-bank-order-count",
+    "synthetic-bank-loan-count",
+    "synthetic-pagila-film-count",
+    "synthetic-pagila-film-filter",
+    "synthetic-pagila-film-min",
+    "synthetic-pagila-film-max",
+    "synthetic-pagila-film-year",
+    "synthetic-pagila-film-rating",
+    "synthetic-pagila-film-prefix",
+    "synthetic-pagila-film-title",
+    "synthetic-pagila-category-count",
+    "synthetic-pagila-actor-count",
+    "synthetic-pagila-staff-count",
+    "synthetic-pagila-store-count"
+  ],
+  "source_archive_sha256": "92619105ce4b66a18cd5b7a34b268745ba95a37de08cbff2bf5b65c1cd247402",
+  "status": "completed"
+}

@@ -1,5 +1,15 @@
 # P12 capacity and AI reliability — implementation in progress
 
+## November 16 learning qualification
+
+The subsequent [learning and companion foundation](LEARNING_PROGRESS.md) adds a
+bounded existing-model evaluation path, offline context/capability contracts,
+monthly numerical trend learning and reviewed supervised-data export guards.
+The real qwen3:4b baseline completed 22/24 synthetic held-out SQL cases after
+four separate pilots. No Ollama weights or production routing changed. These
+component results and offline foundations do not close broader P12 capacity,
+trained-adapter qualification or the P11/P13 release gates.
+
 ## Scope
 
 Ben authorized continuing the remaining phases and improving how Aqua's AI
