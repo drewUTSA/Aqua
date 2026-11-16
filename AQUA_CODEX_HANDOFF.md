@@ -1,3 +1,15 @@
+## November16 bank MCP product scope
+
+Ben clarified a commercial U.S. bank MCP overlay for bank-wide employee help,
+finance education, permissioned analytics and human-approved proposed actions.
+[The banking foundation](docs/implementation/BANK_MCP_FOUNDATION.md) adds only
+pure offline source/scope/report/proposal contracts and19 guarded tests. It is
+not an MCP server, bank identity integration, durable approval, trained banking
+model or deployed feature. The public banking review packet remains unapproved;
+existing protected tests and the rejected adapter remain unchanged. Real bank
+systems/policies/identity, protocol authorization and operational acceptance are
+separate required work. Preserve the existing release/recovery gates.
+
 # AQUA — complete Codex implementation handoff
 
 **November16 companion follow-up:** [reviewed help tools](docs/implementation/COMPANION_HELP_TOOLS.md)
