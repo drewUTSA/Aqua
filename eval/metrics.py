@@ -110,7 +110,9 @@ def summarize_run(records: Iterable[dict[str, Any]]) -> dict[str, Any]:
         "execution_accuracy_lenient": rate(records, "lenient"),
         "validity_rate": (
             round(
-                sum(1 for r in records if r["status"] not in ("rejected", "outage"))
+                # Only outcomes reached after SQL validation count as valid.
+                # New/unknown evaluator failures must not inflate this metric.
+                sum(1 for r in records if r["status"] in {"ok", "query_failed"})
                 / total,
                 3,
             )
@@ -120,6 +122,16 @@ def summarize_run(records: Iterable[dict[str, Any]]) -> dict[str, Any]:
         "rejected": sum(1 for r in records if r["status"] == "rejected"),
         "query_failed": sum(1 for r in records if r["status"] == "query_failed"),
         "outage": sum(1 for r in records if r["status"] == "outage"),
+        **{
+            status: sum(1 for r in records if r["status"] == status)
+            for status in (
+                "denied",
+                "budget_exhausted",
+                "gold_failed",
+                "evaluation_failed",
+                "answer_failed",
+            )
+        },
         "retried": sum(1 for r in records if r.get("attempts", 1) > 1),
         "median_seconds": latencies[len(latencies) // 2] if latencies else None,
         "by_difficulty": by_difficulty,

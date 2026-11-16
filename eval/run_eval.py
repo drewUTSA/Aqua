@@ -5,6 +5,7 @@ From the repo root, with the backend's virtual environment active and
 
     python eval/run_eval.py                    # test questions, no retrieval
     python eval/run_eval.py --retrieval        # same questions, with retrieval
+    python eval/run_eval.py --retrieval --hybrid on  # explicitly qualify hybrid
     python eval/run_eval.py --limit 5          # quick smoke run
     python eval/run_eval.py --ids t47          # rerun one question, e.g. after an outage
     python eval/run_eval.py --model ollama     # compare against the other provider
@@ -22,10 +23,10 @@ app, so the comparison is like for like.
 
 from __future__ import annotations
 
-import argparse
 from dataclasses import replace
 import datetime as dt
 import json
+import secrets
 import sys
 import time
 from pathlib import Path
@@ -35,11 +36,20 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "backend"))
 sys.path.insert(0, str(ROOT))
 
+from eval import arguments, case_runner  # noqa: E402
 from eval.metrics import exact_match, lenient_match, summarize_run  # noqa: E402
+from eval.compare_runs import MAX_BYTES, indexed, records as parse_records  # noqa: E402
+from eval.experiment import (  # noqa: E402
+    create_text,
+    digest,
+    experiment,
+    source_identity,
+    write_json,
+)
 from nl2sql.config import load_settings  # noqa: E402
-from nl2sql.db import DatabaseError  # noqa: E402
+from nl2sql.db import DatabaseError as DatabaseError  # noqa: E402
 from nl2sql.execute import execute  # noqa: E402
-from nl2sql.llm import LLMError  # noqa: E402
+from nl2sql.llm import LLMError as LLMError  # noqa: E402
 from nl2sql.pipeline import answer_question  # noqa: E402
 from nl2sql.schema import get_schema  # noqa: E402
 from nl2sql.validate import validate_sql  # noqa: E402
@@ -49,11 +59,28 @@ RESULTS = ROOT / "eval" / "results"
 
 
 def load(path: Path, split: str) -> list[dict[str, Any]]:
-    items = [
-        json.loads(line)
-        for line in path.read_text(encoding="utf-8").splitlines()
-        if line.strip()
-    ]
+    return select_items(read_dataset(path), split)
+
+
+def read_dataset(path: Path) -> bytes:
+    with path.open("rb") as source:
+        return source.read(MAX_BYTES + 1)
+
+
+def select_items(raw: bytes, split: str) -> list[dict[str, Any]]:
+    items = parse_records(raw)
+    indexed(items)  # Duplicate IDs cannot silently alter a selected holdout.
+    for item in items:
+        if (
+            item.get("split") not in {"train", "test"}
+            or item.get("difficulty") not in {"easy", "medium", "hard"}
+            or not isinstance(item.get("question"), str)
+            or not 1 <= len(item["question"]) <= 12000
+            or not isinstance(item.get("sql"), str)
+            or not 1 <= len(item["sql"]) <= 32768
+            or ("ordered" in item and type(item["ordered"]) is not bool)
+        ):
+            raise ValueError("dataset_case_invalid")
     return [i for i in items if split == "all" or i["split"] == split]
 
 
@@ -63,99 +90,52 @@ def run_gold(item: dict[str, Any], settings, schema) -> list[tuple]:
 
 
 def check_gold(items: list[dict[str, Any]], settings, schema) -> int:
-    """Run every gold query; report any that fail or return nothing."""
-    problems = 0
-    for item in items:
-        try:
-            rows = run_gold(item, settings, schema)
-        except Exception as exc:  # noqa: BLE001 - report every kind of failure
-            print(f"FAIL {item['id']}: {exc}")
-            problems += 1
-            continue
-        flag = "" if rows else "  <- returns no rows"
-        print(f"ok   {item['id']}: {len(rows)} row(s){flag}")
-    print(f"\n{len(items) - problems} of {len(items)} gold queries ran.")
-    return 1 if problems else 0
+    return case_runner.check_gold(
+        items, settings, schema, gold_runner=run_gold, clock=time
+    )
 
 
 def evaluate(item: dict[str, Any], settings, schema, retriever) -> dict[str, Any]:
-    gold = run_gold(item, settings, schema)
-    record = {
-        "id": item["id"],
-        "difficulty": item["difficulty"],
-        "question": item["question"],
-        "gold_sql": item["sql"],
-        "exact": False,
-        "lenient": False,
-    }
-    started = time.perf_counter()
-    try:
-        answer = answer_question(
-            item["question"], settings, schema, retriever=retriever
-        )
-    except (LLMError, DatabaseError) as exc:
-        return record | {"status": "outage", "error": str(exc), "seconds": None}
-    seconds = round(time.perf_counter() - started, 2)
-    record |= {
-        "sql": answer.sql,
-        "attempts": answer.attempts,
-        "seconds": seconds,
-        "used_retrieval": answer.used_retrieval,
-        "answered_by": answer.model,
-    }
-    if answer.error is not None:
-        return record | {"status": answer.error_code, "error": answer.error}
-    ordered = bool(item.get("ordered"))
-    return record | {
-        "status": "ok",
-        "exact": exact_match(gold, answer.rows, ordered),
-        "lenient": lenient_match(gold, answer.rows, ordered),
-    }
+    return case_runner.evaluate(
+        item,
+        settings,
+        schema,
+        retriever,
+        gold_runner=run_gold,
+        pipeline=answer_question,
+        exact_scorer=exact_match,
+        lenient_scorer=lenient_match,
+        clock=time,
+    )
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--dataset", type=Path, default=DEFAULT_DATASET)
-    parser.add_argument("--split", choices=["test", "train", "all"], default="test")
-    parser.add_argument(
-        "--retrieval", action="store_true", help="use the vector retriever"
-    )
-    parser.add_argument("--limit", type=int, help="only the first N questions")
-    parser.add_argument(
-        "--ids", help="only these question ids, comma separated, e.g. t47,t50"
-    )
-    parser.add_argument(
-        "--check-gold", action="store_true", help="run gold SQL only; no model calls"
-    )
-    parser.add_argument(
-        "--model",
-        choices=["ollama", "gemini"],
-        help="provider to evaluate; default is LLM_PROVIDER from .env",
-    )
-    parser.add_argument(
-        "--fallback",
-        action="store_true",
-        help="let Gemini outages fall back to Ollama, as the app does; off by "
-        "default so the scores measure the chosen model only",
-    )
-    parser.add_argument(
-        "--pause",
-        type=float,
-        default=0.0,
-        help="seconds to wait between questions, to stay under a free-tier "
-        "tokens-per-minute limit (Gemma 4 26B: 16,000 input tokens a minute)",
-    )
-    args = parser.parse_args(argv)
+    parser, args = arguments.parse(argv, DEFAULT_DATASET, __doc__.splitlines()[0])
 
-    settings = replace(load_settings(), llm_fallback=args.fallback)
+    settings = replace(
+        load_settings(),
+        llm_fallback=args.fallback,
+        retrieval=args.retrieval,
+        retrieval_hybrid_enabled=args.hybrid == "on",
+    )
     if args.model:
         settings = replace(settings, llm_provider=args.model)
-    schema = get_schema(settings)
-    items = load(args.dataset, args.split)
+    dataset_bytes = read_dataset(args.dataset)
+    items = select_items(dataset_bytes, args.split)
     if args.ids:
-        wanted = {i.strip() for i in args.ids.split(",")}
+        requested = [i.strip() for i in args.ids.split(",")]
+        wanted = set(requested)
+        if (
+            "" in wanted
+            or len(wanted) != len(requested)
+            or not wanted <= {item["id"] for item in items}
+        ):
+            parser.error("--ids must name distinct cases in the selected split")
         items = [i for i in items if i["id"] in wanted]
     items = items[: args.limit]
+    if not items:
+        parser.error("selected dataset is empty")
+    schema = get_schema(settings)
     if args.check_gold:
         return check_gold(items, settings, schema)
 
@@ -165,17 +145,33 @@ def main(argv: list[str] | None = None) -> int:
 
         retriever = VectorRetriever(settings)
 
-    mode = "retrieval" if args.retrieval else "baseline"
-    model = (
-        settings.gemini_model
-        if settings.llm_provider == "gemini"
-        else settings.ollama_model
+    mode = (
+        (
+            "retrieval-hybrid"
+            if settings.retrieval_hybrid_enabled
+            else "retrieval-semantic"
+        )
+        if args.retrieval
+        else "baseline"
     )
-    stamp = dt.datetime.now().strftime("%Y%m%d-%H%M%S")
+    receipt = experiment(
+        dataset_bytes,
+        items,
+        settings,
+        schema,
+        source_sha256=source_identity(ROOT),
+        retrieval=args.retrieval,
+        index_revision=args.index_revision,
+        data_revision=args.data_revision,
+    )
+    stamp = dt.datetime.now().strftime("%Y%m%d-%H%M%S-%f")
+    if RESULTS.is_symlink():
+        raise ValueError("results_directory_invalid")
     RESULTS.mkdir(parents=True, exist_ok=True)
-    out = RESULTS / f"{stamp}-{mode}-{model.replace(':', '-')}.jsonl"
+    out = RESULTS / f"{stamp}-{mode}-{receipt.sha256[:12]}-{secrets.token_hex(4)}.jsonl"
+    write_json(out.with_suffix(".experiment.json"), receipt.metadata())
     records = []
-    with out.open("w", encoding="utf-8") as handle:
+    with create_text(out) as handle:
         for number, item in enumerate(items, start=1):
             if args.pause and number > 1:
                 time.sleep(args.pause)
@@ -184,17 +180,22 @@ def main(argv: list[str] | None = None) -> int:
             handle.write(json.dumps(record, default=str) + "\n")
             handle.flush()
             mark = "PASS" if record["lenient"] else record["status"].upper()
-            print(f"[{number}/{len(items)}] {mark:12} {item['id']} {item['question']}")
+            print(f"[{number}/{len(items)}] {mark:12}")
 
     summary = summarize_run(records) | {
         "mode": mode,
-        "provider": settings.llm_provider,
-        "model": model,
-        "dataset": args.dataset.name,
         "split": args.split,
+        "experiment_sha256": receipt.sha256,
     }
-    out.with_suffix(".summary.json").write_text(
-        json.dumps(summary, indent=2), encoding="utf-8"
+    write_json(out.with_suffix(".summary.json"), summary)
+    write_json(
+        out.with_suffix(".receipt.json"),
+        {
+            "experiment_sha256": receipt.sha256,
+            "results_sha256": digest(out.read_bytes()),
+            "cases": len(records),
+            "experiment": receipt.metadata(),
+        },
     )
     print(json.dumps(summary, indent=2))
     print(f"\nPer-question results: {out}")

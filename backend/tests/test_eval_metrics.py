@@ -116,3 +116,30 @@ def test_summary_counts_accuracy_and_failure_kinds() -> None:
     assert (summary["rejected"], summary["outage"], summary["retried"]) == (1, 1, 1)
     assert summary["median_seconds"] == 3.0
     assert summary["by_difficulty"]["easy"] == {"n": 2, "exact": 0.5, "lenient": 1.0}
+
+
+def test_only_known_post_validation_outcomes_contribute_to_validity() -> None:
+    statuses = (
+        "ok",
+        "query_failed",
+        "rejected",
+        "outage",
+        "denied",
+        "budget_exhausted",
+        "gold_failed",
+        "evaluation_failed",
+        "answer_failed",
+        "future_unknown_failure",
+    )
+    records = [
+        {"status": status, "exact": False, "lenient": False, "seconds": None}
+        for status in statuses
+    ]
+    summary = summarize_run(records)
+    assert summary["validity_rate"] == 0.2
+    assert summary["n"] == len(statuses)
+    assert summary["execution_accuracy_exact"] == 0
+    assert summary["denied"] == summary["budget_exhausted"] == 1
+    assert summary["gold_failed"] == summary["evaluation_failed"] == 1
+    denied_only = summarize_run([records[4]])
+    assert denied_only["validity_rate"] == 0
