@@ -192,6 +192,50 @@ def test_non_test_holdout_is_never_promoted_into_either_partition():
         prepare(holdout=HOLDOUT | {"split": "train"})
 
 
+def test_equivalent_protected_records_keep_both_ids_and_still_exclude_training():
+    from eval.sft_contract import exclude_holdout
+
+    protected = [
+        HOLDOUT
+        | {
+            "id": "t12",
+            "question": "What is the highest replacement cost of any film?",
+            "sql": "SELECT max(replacement_cost) FROM film",
+        },
+        HOLDOUT
+        | {
+            "id": "z14",
+            "question": "What is the highest replacement cost?",
+            "sql": "/* same protected SQL */ select max(replacement_cost) from film",
+            "rule": "single",
+        },
+    ]
+    raw = b"\n".join(encode(c) for c in protected)
+    tables = TABLES | {"film"}
+    assert exclude_holdout(SOURCE["examples"], raw, digest(raw), tables) == 2
+    for field, value in (
+        ("id", "z14"),
+        ("question", "What is the highest replacement cost?"),
+        ("sql", "SELECT MAX(replacement_cost) FROM film"),
+    ):
+        examples = copy.deepcopy(SOURCE["examples"])
+        examples[0][field] = value
+        with pytest.raises(ExportDenied, match="duplicate_or_holdout_leakage"):
+            exclude_holdout(examples, raw, digest(raw), tables)
+
+
+def test_duplicate_protected_ids_and_unbounded_rule_metadata_are_denied():
+    from eval.sft_contract import exclude_holdout
+
+    duplicate = b"\n".join((encode(HOLDOUT), encode(HOLDOUT)))
+    with pytest.raises(ExportDenied, match="holdout_invalid"):
+        exclude_holdout(SOURCE["examples"], duplicate, digest(duplicate), TABLES)
+    for rule in (True, "x" * 33, "not a closed identifier"):
+        raw = encode(HOLDOUT | {"rule": rule})
+        with pytest.raises(ExportDenied, match="holdout_rule_invalid"):
+            exclude_holdout(SOURCE["examples"], raw, digest(raw), TABLES)
+
+
 def test_create_only_export_and_partial_failure_manifest_boundary(
     tmp_path, monkeypatch
 ):
