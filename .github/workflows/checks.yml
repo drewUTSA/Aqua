@@ -93,6 +93,7 @@ jobs:
           python tools/checks/test_ai_replay_runner.py
           python tools/checks/test_public_delivery.py
           python tools/checks/test_public_delivery_routes.py
+          python tools/checks/test_local_model.py
           python -m black --check backend eval tools/checks ops
           python -m ruff check backend eval tools/checks ops
           python tools/checks/p05_browser_cleanup_test.py

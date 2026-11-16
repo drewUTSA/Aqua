@@ -1,5 +1,16 @@
 # Decisions
 
+## November 16, 2026: Separate companion context, numerical learning and weight training
+
+Qualify the installed local model on fixed synthetic SQL before adapting it.
+Keep reviewed Aqua help/owned context in bounded scoped data contracts, numerical
+trend fitting in an explicit approximate tool, and supervised weight-training
+data in a separately reviewed export. Model usage alone is not weight training;
+test failures never become training examples automatically. No generic agent
+framework, company corpus, arbitrary tools or runtime training dependency is
+introduced. These offline components preserve the existing application/SQL
+authorization and release gates. See `implementation/LEARNING_PROGRESS.md`.
+
 ## November 16, 2026: bind AI experiments and qualify retrieval in isolated replay
 
 The evaluator previously omitted the production per-case call/deadline Budget,
