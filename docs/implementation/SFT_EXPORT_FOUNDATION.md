@@ -43,15 +43,21 @@ Validation is an internal development partition, not the independent test set.
 
 The independent holdout has test-only JSONL records with `id`, `split: "test"`,
 `question` and `sql`. Existing optional `tables`, `difficulty` and `ordered`
-fields are accepted. The8MiB/2,000-case bound is retained. It must be a separately
+fields and a bounded optional `rule` identifier are accepted. The 8MiB/2,000-case
+bound is retained. It must be a separately
 reviewed artifact, not a selection promoted automatically from this source.
 
 IDs, NFKC/casefold/punctuation/whitespace-normalized questions and validated
-canonical SQL must be unique across training, validation and holdout. Equivalent
-SQL formatting/comments do not evade this check. SQL alias rewrites, paraphrases,
+canonical SQL must be unique across training/validation and disjoint from every
+protected holdout record. Protected records retain unique IDs, but may repeat
+question forms or canonical SQL; all records remain protected and counted. For
+example, public Pagila test records t12/z14 both ask for the maximum replacement
+cost and remain excluded. Equivalent SQL formatting/comments do not evade
+exclusion. SQL alias rewrites, paraphrases,
 near-duplicates and other semantic leakage still require independent human
-review; canonicalization does not prove semantic independence. This deliberately
-strict first contract also rejects duplicate forms inside the holdout.
+review; canonicalization does not prove semantic independence. This exclusion
+contract does not claim that repeated protected questions form statistically
+independent evaluation cases.
 
 ## Dry-run and create-only export
 

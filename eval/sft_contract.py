@@ -182,8 +182,19 @@ def exclude_holdout(
     if not 1 <= len(heldout) <= MAX_CASES:
         raise ExportDenied("holdout_budget_invalid")
     seen = [set(), set(), set()]
-    allowed = {"id", "split", "question", "sql", "tables", "difficulty", "ordered"}
-    for case in heldout + examples:
+    allowed = {
+        "id",
+        "split",
+        "question",
+        "sql",
+        "tables",
+        "difficulty",
+        "ordered",
+        "rule",
+    }
+    for is_holdout, case in [(True, c) for c in heldout] + [
+        (False, c) for c in examples
+    ]:
         if (
             type(case) is not dict
             or not set(case) <= allowed
@@ -193,14 +204,24 @@ def exclude_holdout(
             or not bounded_text(case["sql"], 16384)
         ):
             raise ExportDenied("case_contract_invalid")
-        if case in heldout and case["split"] != "test":
+        if "rule" in case and (
+            type(case["rule"]) is not str
+            or re.fullmatch(r"[a-z][a-z0-9_]{0,31}", case["rule"]) is None
+        ):
+            raise ExportDenied("holdout_rule_invalid")
+        if is_holdout and case["split"] != "test":
             raise ExportDenied("independent_test_only_holdout_required")
         keys = (
             case["id"],
             question_key(case["question"]),
             sql_key(case["sql"], tables),
         )
-        if not keys[1] or any(key in values for key, values in zip(keys, seen)):
+        # Protected test records may cover the same question/SQL with distinct
+        # IDs. Keep every record; all their forms still exclude export examples.
+        # indexed() above continues to reject duplicate protected IDs.
+        if not keys[1] or (
+            not is_holdout and any(key in values for key, values in zip(keys, seen))
+        ):
             raise ExportDenied("duplicate_or_holdout_leakage")
         for key, values in zip(keys, seen):
             values.add(key)
