@@ -1,5 +1,5 @@
 import React, { useLayoutEffect } from "react";
-import WaterSparkles from "../components/aqua/WaterSparkles.jsx";
+import OpalBackdrop from "../components/auth/OpalBackdrop.jsx";
 import LocalLink from "../components/navigation/LocalLink.jsx";
 import "../styles/legal-page.css";
 
@@ -55,11 +55,10 @@ export default function LegalPage({ kind, onNavigate }) {
   const title = privacy ? "Privacy Policy" : "Terms of Service";
   useLayoutEffect(() => {
     document.title = `${title} | AQUA`;
-    document.getElementById("legal-heading")?.focus({ preventScroll: true });
+    document.getElementById("legal-heading")?.focus();
   }, [title]);
   return <main className="legal-page" data-testid="legal-page">
-    <div className="ambient-light" aria-hidden="true" />
-    <WaterSparkles />
+    <OpalBackdrop />
     <article className="legal-page__content">
       <nav className="legal-page__nav" aria-label="AQUA pages">
         <LocalLink to="/" onNavigate={onNavigate}>Back to AQUA</LocalLink>

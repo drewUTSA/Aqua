@@ -6,7 +6,7 @@ const FRAME_KINDS = new Set(["non_object", "response_shape", "response_payload_s
 const METHODS = new Set([
   "Browser.getVersion", "Browser.close", "Target.getTargets", "Target.attachToTarget", "Target.createTarget", "Target.closeTarget",
   "Page.enable", "Page.navigate", "Page.captureScreenshot", "Page.addScriptToEvaluateOnNewDocument", "Page.bringToFront",
-  "Network.enable", "Network.getCookies", "Runtime.enable", "Runtime.evaluate", "Fetch.enable", "Fetch.fulfillRequest", "Fetch.continueRequest", "Fetch.failRequest",
+  "Network.enable", "Network.getCookies", "Runtime.enable", "Runtime.evaluate", "Runtime.addBinding", "Fetch.enable", "Fetch.fulfillRequest", "Fetch.continueRequest", "Fetch.failRequest",
   "Emulation.setDeviceMetricsOverride", "Emulation.setEmulatedMedia", "Input.dispatchKeyEvent", "DOM.enable", "DOM.getDocument", "DOM.querySelector", "CSS.enable", "CSS.getPlatformFontsForNode",
   "Accessibility.getFullAXTree",
 ]);
@@ -131,7 +131,11 @@ export class BrowserPipe {
   request(method, params, target, maximum, stage) {
     if (this.failure || this.stopped) return Promise.reject(new Error(this.failure || "browser_closed"));
     const task = { method, stage, target, started: performance.now(), timeout: Math.min(maximum, Math.max(0, this.deadline - performance.now())) };
-    if (!METHODS.has(method)) { this.fail("browser_protocol_method_rejected", task); return Promise.reject(new Error(this.failure)); }
+    if (!METHODS.has(method) || method === "Runtime.addBinding" && (!record(params)
+      || Reflect.ownKeys(params).length !== 1 || !Object.hasOwn(params, "name")
+      || params.name !== "__aquaCspViolation")) {
+      this.fail("browser_protocol_method_rejected", task); return Promise.reject(new Error(this.failure));
+    }
     if (this.pending.size >= MAX_PENDING) { this.fail("browser_protocol_pending_bound", task); return Promise.reject(new Error(this.failure)); }
     if (task.timeout <= 0) { this.fail("browser_protocol_deadline", task); return Promise.reject(new Error(this.failure)); }
     return new Promise((resolve, reject) => {

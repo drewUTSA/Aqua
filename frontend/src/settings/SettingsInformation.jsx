@@ -16,7 +16,7 @@ export default function SettingsInformation({ category, auth, onNavigate }) {
   if (category === "workspace") return <aside className="settings-information"><p>New Chat remains the start screen. Optional attachment tools are unavailable; the composer and send/stop controls remain visible.</p></aside>;
   if (category === "accessibility") return <aside className="settings-information"><h3>Keyboard shortcuts</h3>
     <p>Tab and Shift+Tab move between controls. Escape closes menus and dialogs. Shift+Enter adds a new line. The Send shortcut is available in Chat & AI.</p>
-    <p>Optional single-key shortcuts are not installed. Browser and assistive technology shortcuts remain available.</p></aside>;
+    <p>Ctrl/Cmd + K opens workspace shortcuts. Ctrl/Cmd + / focuses your question outside editable controls. No unmodified single-key shortcuts are installed. Browser and assistive technology shortcuts remain available.</p></aside>;
   if (category === "notifications") return <NotificationSettings auth={auth} onConfirmed={notifications.confirm} />;
   if (category === "account") return <AccountFoundation auth={auth} />;
   if (category === "region") {

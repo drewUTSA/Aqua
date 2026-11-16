@@ -42,12 +42,17 @@ test("shortcuts work across platforms and never override composition, modal or h
   assert.equal(workspaceShortcut(key(), { hidden: true }), null);
 });
 
-test("slash focuses the composer only outside editable text and without modifiers", () => {
+test("only modified slash focuses the composer, without taking single-key or editable-control input", () => {
   const slash = key({ key: "/", ctrlKey: false });
-  assert.equal(workspaceShortcut(slash), "composer");
-  assert.equal(workspaceShortcut({ ...slash, target: { closest: () => ({ tagName: "TEXTAREA" }) } }), null);
-  assert.equal(workspaceShortcut({ ...slash, metaKey: true }), null);
-  assert.equal(workspaceShortcut({ ...slash, shiftKey: true }), null);
+  assert.equal(workspaceShortcut(slash), null);
+  for (const modifier of [{ ctrlKey: true }, { metaKey: true }]) {
+    assert.equal(workspaceShortcut({ ...slash, ...modifier }), "composer");
+    for (const tagName of ["INPUT", "TEXTAREA", "SELECT", "CONTENTEDITABLE"]) {
+      assert.equal(workspaceShortcut({ ...slash, ...modifier, target: { closest: () => ({ tagName }) } }), null);
+    }
+    assert.equal(workspaceShortcut({ ...slash, ...modifier, shiftKey: true }), null);
+    assert.equal(workspaceShortcut({ ...slash, ...modifier }, { modalOpen: true }), null);
+  }
 });
 
 const filters = { search: "new", archived: false, projectId: null };

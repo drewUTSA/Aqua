@@ -93,6 +93,7 @@ jobs:
           python tools/checks/test_ai_replay_runner.py
           python tools/checks/test_public_delivery.py
           python tools/checks/test_public_delivery_routes.py
+          python tools/checks/test_csp_headers.py
           python tools/checks/test_local_model.py
           python -m black --check backend eval tools/checks ops
           python -m ruff check backend eval tools/checks ops
@@ -199,6 +200,18 @@ jobs:
           export AQUA_CHROME_EXECUTABLE="$(command -v google-chrome)"
           test -x "$AQUA_CHROME_EXECUTABLE"
           node checks/p05-browser.mjs
+      - name: Opal optional failures, list retries and public route journeys
+        timeout-minutes: 4
+        working-directory: frontend
+        env:
+          AQUA_P05_EXPECTED_SHELL: opal
+        run: |
+          export AQUA_CHROME_EXECUTABLE="$(command -v google-chrome)"
+          test -x "$AQUA_CHROME_EXECUTABLE"
+          for journey in optional-settings optional-prompts projects-initial-failure prompts-initial-failure settings-search composer-layout public-routes; do
+            export AQUA_P05_ARTIFACT_DIR="${{ runner.temp }}/aqua-p05/opal/reliability/$journey"
+            JOURNEY="$journey" node --input-type=module -e "await import('./checks/p05-browser.mjs?journey=' + process.env.JOURNEY)"
+          done
       - name: Real private-database browser journeys and rate-limit recovery
         env:
           AQUA_P05_EXPECTED_SHELL: opal
@@ -226,6 +239,20 @@ jobs:
           export AQUA_P08_BACKEND_IMAGE="$(docker image inspect aqua-runtime:check --format '{{.Id}}')"
           export AQUA_P08_BRIDGE_ARGS_JSON="$(python -c 'import json,os; print(json.dumps(["-u","../tools/checks/p08_browser_backend.py","--image",os.environ["AQUA_P08_BACKEND_IMAGE"]]))')"
           node checks/p08-browser.mjs
+      - name: Opal selected result table reset in a fresh two-job fixture
+        timeout-minutes: 4
+        working-directory: frontend
+        env:
+          AQUA_P05_EXPECTED_SHELL: opal
+          AQUA_P08_DIST: ${{ github.workspace }}/frontend/dist
+          AQUA_P08_ARTIFACT_DIR: ${{ runner.temp }}/aqua-p08-table/opal
+        run: |
+          export AQUA_CHROME_EXECUTABLE="$(command -v google-chrome)"
+          test -x "$AQUA_CHROME_EXECUTABLE"
+          export AQUA_P08_BRIDGE_EXECUTABLE="$(command -v python)"
+          export AQUA_P08_BACKEND_IMAGE="$(docker image inspect aqua-runtime:check --format '{{.Id}}')"
+          export AQUA_P08_BRIDGE_ARGS_JSON="$(python -c 'import json,os; print(json.dumps(["-u","../tools/checks/p08_browser_backend.py","--image",os.environ["AQUA_P08_BACKEND_IMAGE"]]))')"
+          node checks/p08-table-reset-browser.mjs
       - name: Opal Settings preferences and isolated database save/import journeys
         timeout-minutes: 4
         working-directory: frontend
@@ -273,6 +300,10 @@ jobs:
           test -x "$AQUA_CHROME_EXECUTABLE"
           export AQUA_P05_ARTIFACT_DIR="${{ runner.temp }}/aqua-p05/legacy/synthetic"
           node frontend/checks/p05-browser.mjs
+          for journey in optional-settings optional-prompts projects-initial-failure prompts-initial-failure settings-search composer-layout public-routes; do
+            export AQUA_P05_ARTIFACT_DIR="${{ runner.temp }}/aqua-p05/legacy/reliability/$journey"
+            JOURNEY="$journey" node --input-type=module -e "await import('./frontend/checks/p05-browser.mjs?journey=' + process.env.JOURNEY)"
+          done
           export AQUA_P05_ARTIFACT_DIR="${{ runner.temp }}/aqua-p05/legacy/real"
           export AQUA_P05_BRIDGE_EXECUTABLE="$(command -v python)"
           export AQUA_P05_BRIDGE_ARGS_JSON='["tools/checks/p05_browser_backend.py","--image","aqua-runtime:check","--workspace-analysis"]'
@@ -292,6 +323,20 @@ jobs:
           export AQUA_P08_BACKEND_IMAGE="$(docker image inspect aqua-runtime:check --format '{{.Id}}')"
           export AQUA_P08_BRIDGE_ARGS_JSON="$(python -c 'import json,os; print(json.dumps(["-u","../tools/checks/p08_browser_backend.py","--image",os.environ["AQUA_P08_BACKEND_IMAGE"]]))')"
           node checks/p08-browser.mjs
+      - name: Classic selected result table reset in a fresh two-job fixture
+        timeout-minutes: 4
+        working-directory: frontend
+        env:
+          AQUA_P05_EXPECTED_SHELL: legacy
+          AQUA_P08_DIST: ${{ github.workspace }}/frontend/dist
+          AQUA_P08_ARTIFACT_DIR: ${{ runner.temp }}/aqua-p08-table/legacy
+        run: |
+          export AQUA_CHROME_EXECUTABLE="$(command -v google-chrome)"
+          test -x "$AQUA_CHROME_EXECUTABLE"
+          export AQUA_P08_BRIDGE_EXECUTABLE="$(command -v python)"
+          export AQUA_P08_BACKEND_IMAGE="$(docker image inspect aqua-runtime:check --format '{{.Id}}')"
+          export AQUA_P08_BRIDGE_ARGS_JSON="$(python -c 'import json,os; print(json.dumps(["-u","../tools/checks/p08_browser_backend.py","--image",os.environ["AQUA_P08_BACKEND_IMAGE"]]))')"
+          node checks/p08-table-reset-browser.mjs
       - name: Classic Settings preferences and isolated database save/import journeys
         timeout-minutes: 4
         working-directory: frontend
@@ -338,6 +383,12 @@ jobs:
             ${{ runner.temp }}/aqua-p05/legacy/synthetic/*.png
             ${{ runner.temp }}/aqua-p05/legacy/real/*.json
             ${{ runner.temp }}/aqua-p05/legacy/real/*.png
+            ${{ runner.temp }}/aqua-p05/opal/reliability/**/*.json
+            ${{ runner.temp }}/aqua-p05/opal/reliability/**/*.png
+            ${{ runner.temp }}/aqua-p05/legacy/reliability/**/*.json
+            ${{ runner.temp }}/aqua-p05/legacy/reliability/**/*.png
+            ${{ runner.temp }}/aqua-p08-table/**/*.json
+            ${{ runner.temp }}/aqua-p08-table/**/*.png
             ${{ runner.temp }}/aqua-p08/opal/*.json
             ${{ runner.temp }}/aqua-p08/opal/*.png
             ${{ runner.temp }}/aqua-p08/legacy/*.json

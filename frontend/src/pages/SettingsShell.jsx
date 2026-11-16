@@ -2,6 +2,7 @@ import React, { useEffect, useLayoutEffect, useState } from "react";
 import { usePreferences } from "../settings/PreferencesProvider.jsx";
 import { ACCOUNT_DEFAULTS, DEVICE_DEFAULTS } from "../settings/schema.js";
 import { CATEGORIES, sectionDefaults } from "../settings/controls.js";
+import { searchSettings } from "../settings/settingsSearch.js";
 import SettingsControl from "../settings/SettingsControl.jsx";
 import SettingsInformation from "../settings/SettingsInformation.jsx";
 import PreferenceDialog from "../settings/PreferenceDialog.jsx";
@@ -22,8 +23,7 @@ export default function SettingsShell({ auth, onBack, onNavigate }) {
   const preferences = usePreferences(), [categoryId, setCategory] = useState("appearance"), [search, setSearch] = useState("");
   const [mobileIndex, setMobileIndex] = useState(true), [reset, setReset] = useState(null);
   const category = CATEGORIES.find((item) => item.id === categoryId), query = search.trim().toLowerCase();
-  const results = query ? CATEGORIES.map((item) => ({ ...item, fields: item.fields.filter((field) => `${item.title} ${field.label} ${field.help}`.toLowerCase().includes(query)) }))
-    .filter((item) => item.fields.length || `${item.title} ${item.description}`.toLowerCase().includes(query)) : [category];
+  const results = query ? searchSettings(query) : [category];
   useLayoutEffect(() => { document.title = "Settings | AQUA"; document.getElementById("settings-heading")?.focus({ preventScroll: true }); }, []);
   useEffect(() => { document.title = query ? "Search settings | AQUA" : `${category.title} settings | AQUA`; }, [category.title, query]);
   const navigate = (target) => preferences.requestLeave(() => onNavigate(target));
