@@ -44,7 +44,7 @@ export default function VisualPane({ visuals, shell, owner, suspended, hidden, c
         {result.descriptor && activated && !suspended && <div hidden={view.mode !== "chart"}><PlotlyChart key={owner} descriptor={result.descriptor} table={result.table} theme={chartTheme || shell} preferences={preferences?.account}
           devicePreferences={preferences?.device} revisionKey={selected?.id}
           onTableView={() => change((previous) => ({ ...previous, mode: "table" }))} /></div>}
-        {(!result.descriptor || view.mode === "table" || suspended) && <FinancialTable table={result.table} preferences={preferences?.account} />}
+        {(!result.descriptor || view.mode === "table" || suspended) && <FinancialTable key={selected?.id} table={result.table} preferences={preferences?.account} />}
       </>}
       {!result && !view.pending && <p>No selected visual. Choose a result in this conversation.</p>}
     </div>

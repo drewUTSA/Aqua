@@ -42,6 +42,6 @@ export default function QuickSwitcher({ chat, onClose, onSelect, onAction }) {
       </div>
       {!items.length && <button type="button" onClick={() => { onClose(); onAction("search"); }}>Search saved chats</button>}
     </div>
-    <div className="quick-switcher__footer"><span>Esc to close · / to focus your question</span><button type="button" onClick={onClose}>Close</button></div>
+    <div className="quick-switcher__footer"><span>Esc to close · Ctrl/Cmd + / to focus your question</span><button type="button" onClick={onClose}>Close</button></div>
   </PreferenceDialog>;
 }

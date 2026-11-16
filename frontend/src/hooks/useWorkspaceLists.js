@@ -29,9 +29,9 @@ export function useWorkspaceLists({ csrfToken, onError, enabled = true }) {
   }, [read]);
   const refreshPersonal = useCallback(async (kind, cursor = null) => {
     const load = kind === "projects" ? listProjects : listPrompts, save = kind === "projects" ? setProjects : setPrompts;
-    save((previous) => ({ ...previous, loading: true }));
-    try { const page = await read((signal) => load({ cursor, signal, ...options() }), kind); if (alive.current) save({ ...page, fromCursor: cursor, loading: false }); }
-    catch (error) { if (alive.current && error.name !== "AbortError") { save((previous) => ({ ...previous, loading: false })); current.current.onError(error); } }
+    save((previous) => ({ ...previous, loading: true, error: false }));
+    try { const page = await read((signal) => load({ cursor, signal, ...options() }), kind); if (alive.current) save({ ...page, fromCursor: cursor, loading: false, error: false }); }
+    catch (error) { if (alive.current && error.name !== "AbortError") { save((previous) => ({ ...previous, loading: false, error: true, failedCursor: cursor })); current.current.onError(error); } }
   }, [read]);
   useEffect(() => { if (!enabled) return; void refreshChats(null, filters); }, [enabled, filters, refreshChats]);
   useEffect(() => { if (enabled) void refreshPersonal("projects"); }, [enabled, refreshPersonal]);
@@ -51,6 +51,7 @@ export function useWorkspaceLists({ csrfToken, onError, enabled = true }) {
     filter: (value) => setFilters((previous) => ({ ...previous, ...value })),
     moreChats: () => refreshChats(chats.cursor), moreProjects: () => refreshPersonal("projects", projects.cursor), morePrompts: () => refreshPersonal("prompts", prompts.cursor),
     firstProjects: () => refreshPersonal("projects"), firstPrompts: () => refreshPersonal("prompts"),
+    retryProjects: () => refreshPersonal("projects", projects.failedCursor ?? null), retryPrompts: () => refreshPersonal("prompts", prompts.failedCursor ?? null),
     saveProject: (item, name, requestId) => mutate((opts) => saveProject(item?.id, item ? { revision: item.revision, name } : { client_request_id: requestId || operationId(), name }, opts), "projects"),
     deleteProject: (item) => { if (current.current.filters.projectId === item.id) setFilters((previous) => ({ ...previous, projectId: null }));
       return mutate((opts) => deleteProject(item.id, item.revision, opts), "projects"); },

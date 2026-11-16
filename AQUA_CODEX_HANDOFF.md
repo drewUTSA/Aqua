@@ -1,5 +1,11 @@
 # AQUA — complete Codex implementation handoff
 
+**November 16 site review:** [the source review record](docs/implementation/SITE_REVIEW_20261116.md)
+tracks optional-interface recovery, list retries, Settings search, result-table
+state, public-page polish and document-only CSP qualification. These changes
+do not close the analytical DNS, recovery/retention, physical-device, live Google
+or P12/P13 release gates. Companion tools are a separate reviewed source slice.
+
 **November 13 resumption:** Ben directed recovery-key discovery and the final
 backup/recovery work to his personal computer. Read
 [the personal-computer release handoff](docs/implementation/PERSONAL_COMPUTER_RELEASE_HANDOFF.md)

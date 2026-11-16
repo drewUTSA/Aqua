@@ -27,11 +27,22 @@ const { default: SettingsInformation } = await import(await jsxModule(new URL(".
 const { default: AccountSecurityDialog } = await import(await jsxModule(new URL("../src/settings/AccountSecurityDialog.jsx", import.meta.url)));
 const { default: AccountIdentityDialog } = await import(await jsxModule(new URL("../src/settings/AccountIdentityDialog.jsx", import.meta.url)));
 const { default: NotificationSettings } = await import(await jsxModule(new URL("../src/settings/NotificationSettings.jsx", import.meta.url)));
+const { default: AccountActionLanding } = await import(await jsxModule(new URL("../src/pages/AccountActionLanding.jsx", import.meta.url)));
 const owner = "11111111-1111-4111-8111-111111111111";
 const auth = { demoMode: false, status: "authenticated", user: { id: owner, name: "Auth cached name", email: "example@example.invalid" }, csrfToken: "test-only" };
 const caps = { profile_edit: true, method_list: true, session_list: true, recent_proof: false, email_change: false, password_change: false, password_add: false,
   google_link: false, google_unlink: false, session_revoke: false, sessions_revoke_all: false, notification_delivery: false, in_app_notifications: true };
 const render = (Component, props) => renderToStaticMarkup(React.createElement(Component, props));
+
+test("mail handoff remains inert while using the shared touch-sized account navigation action", (t) => {
+  const calls = t.mock.method(globalThis, "fetch", () => { throw Error("Unexpected account request"); });
+  let navigations = 0;
+  const html = render(AccountActionLanding, { onNavigate() { navigations++; } });
+  assert.match(html, /Opening this link makes no account change/);
+  assert.match(html, /<button type="button" class="auth-primary">Go to AQUA settings<\/button>/);
+  assert.doesNotMatch(html, /<form|<input|token=|password_add|email_change/);
+  assert.equal(calls.mock.calls.length, 0); assert.equal(navigations, 0);
+});
 
 test("Account Settings SSR has explicit read-only reviews and never starts a request", (t) => {
   const calls = t.mock.method(globalThis, "fetch", () => { throw Error("Unexpected network request"); });

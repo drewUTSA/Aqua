@@ -8,6 +8,8 @@ import { createHash } from "node:crypto";
 import { FixtureBridge } from "./p05-browser-bridge.mjs";
 import { BrowserPipe } from "./p05-browser-pipe.mjs";
 import { browserFixtureMode, requireFixtureSchema, SECURE_ACCOUNT_ORIGIN, staticFixtureResponse } from "./p10b-browser-mode.mjs";
+import { documentPolicyHeaders, loadDocumentPolicies } from "./csp-policy.mjs";
+import { CSP_BINDING, CSP_OBSERVER_SOURCE, CSP_PROBE_PATH, CSP_PROBE_SOURCE, createCspDiagnostics, observeCspBinding } from "./csp-browser-probes.mjs";
 
 export const LIMITS = Object.freeze({ milliseconds: 150000, requests: 250, api: 160, paused: 16, perSecond: 5, bodyBytes: 16384, fakeJobs: 12 });
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -31,9 +33,11 @@ export function setupDiagnostic(error, ctx) {
 }
 
 export async function openP08Browser(options) {
-  const { secureAccountFixture, personalDeletionFixture = false } = browserFixtureMode(options);
+  const { secureAccountFixture, personalDeletionFixture = false, cspEnforcedFixture = false } = browserFixtureMode(options);
   const ctx = { started: performance.now(), stage: "configuration", results: [], screenshots: [], assets: [], external: 0, requests: 0, api: 0,
     errors: [], protocolDiagnostics: [], runtimeErrors: 0, consoleLeaks: 0, navigating: false, pending: 0, maximumPending: 0, secrets: new Set() };
+  const policies = loadDocumentPolicies(), cspMode = cspEnforcedFixture ? "enforced-fixture" : "source";
+  ctx.csp = createCspDiagnostics(cspMode, policies.sha256);
   const artifacts = configured("AQUA_P08_ARTIFACT_DIR"), dist = configured("AQUA_P08_DIST"), executable = configured("AQUA_P08_BRIDGE_EXECUTABLE");
   const argv = JSON.parse(process.env.AQUA_P08_BRIDGE_ARGS_JSON || "[]");
   if (!Array.isArray(argv) || !argv.length || argv.length > 12 || argv.some((arg) => typeof arg !== "string" || arg.length > 1024)) throw Error("fixture_arguments_invalid");
@@ -107,7 +111,8 @@ export async function openP08Browser(options) {
       const pathname = new URL(request.url, "http://127.0.0.1").pathname, key = files.has(pathname) ? pathname : !path.extname(pathname) ? "/index.html" : null;
       if (!key) { response.writeHead(pathname === "/favicon.ico" ? 204 : 404); response.end(); return; }
       const type = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".woff2": "font/woff2", ".svg": "image/svg+xml" }[path.extname(key)] || "application/octet-stream";
-      response.writeHead(200, { "Content-Type": type, "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff", "Referrer-Policy": "no-referrer" }); response.end(files.get(key)); });
+      response.writeHead(200, { "Content-Type": type, "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff", "Referrer-Policy": "no-referrer",
+        ...(path.extname(key) === ".html" ? Object.fromEntries(documentPolicyHeaders(cspMode, policies).map(({ name, value }) => [name, value])) : {}) }); response.end(files.get(key)); });
     await new Promise((resolve) => ctx.server.listen(0, "127.0.0.1", resolve)); ctx.origin = `http://127.0.0.1:${ctx.server.address().port}`;
     }
     ctx.bridge = new FixtureBridge(executable, argv, ctx.origin); const ready = await ctx.bridge.ready;
@@ -144,6 +149,9 @@ export async function openP08Browser(options) {
     ctx.cdp.onEvent = (event) => {
       if (event.sessionId !== ctx.sessionId) return;
       if (ctx.cdp.stopping) return;
+      if (event.method === "Runtime.bindingCalled" && event.params.name === CSP_BINDING) {
+        observeCspBinding(ctx.csp, event.params.payload); return;
+      }
       if (event.method === "Runtime.exceptionThrown") ctx.runtimeErrors++;
       if (event.method === "Runtime.consoleAPICalled" && [...ctx.secrets].some((secret) => JSON.stringify(event.params.args).includes(secret))) ctx.consoleLeaks++;
       if (event.method === "Network.loadingFailed" && event.params.canceled && aborted.size < LIMITS.requests) aborted.add(event.params.requestId);
@@ -160,7 +168,12 @@ export async function openP08Browser(options) {
           for (const [name, value] of result.headers) if (name.toLowerCase() === "set-cookie") remember(value.split(";", 1)[0].split("=").slice(1).join("="));
           await ctx.cdp.send("Fetch.fulfillRequest", { requestId, responseCode: result.status, responseHeaders: result.headers.map(([name, value]) => ({ name, value })), ...(result.status === 204 ? {} : { body: result.bodyBase64 || "" }) });
         } else if (url.origin === ctx.origin && request.method === "GET") {
-          if (secureAccountFixture) { const result = staticFixtureResponse(files, url); await ctx.cdp.send("Fetch.fulfillRequest", { requestId, responseCode: result.status, responseHeaders: result.headers, ...(result.status === 204 ? {} : { body: result.body }) }); }
+          if (cspEnforcedFixture && url.pathname === CSP_PROBE_PATH && !url.search) {
+            if (++ctx.csp.probe_script_requests !== 1) throw Error("csp_canary_repeated");
+            await ctx.cdp.send("Fetch.fulfillRequest", { requestId, responseCode: 200,
+              responseHeaders: [{ name: "Content-Type", value: "text/javascript" }, { name: "Cache-Control", value: "no-store" }, { name: "X-Content-Type-Options", value: "nosniff" }], body: CSP_PROBE_SOURCE.toString("base64") });
+          }
+          else if (secureAccountFixture) { const result = staticFixtureResponse(files, url, cspMode, policies); await ctx.cdp.send("Fetch.fulfillRequest", { requestId, responseCode: result.status, responseHeaders: result.headers, ...(result.status === 204 ? {} : { body: result.body }) }); }
           else await ctx.cdp.send("Fetch.continueRequest", { requestId });
         }
         else { ctx.external++; await ctx.cdp.send("Fetch.failRequest", { requestId, errorReason: "BlockedByClient" }); }
@@ -169,6 +182,8 @@ export async function openP08Browser(options) {
           ctx.protocolDiagnostics.push(error.browserDiagnostic || { category: ["bridge_closed", "bridge_request_timeout", "bridge_operation_failed", "bridge_exited"].includes(error.message) ? error.message : "fixed_contract_bound" }); } }).finally(() => { ctx.pending--; });
     };
     for (const method of ["Page.enable", "Network.enable", "Runtime.enable"]) await ctx.cdp.send(method);
+    await ctx.cdp.send("Runtime.addBinding", { name: CSP_BINDING });
+    await ctx.cdp.send("Page.addScriptToEvaluateOnNewDocument", { source: CSP_OBSERVER_SOURCE });
     await ctx.cdp.send("Fetch.enable", { patterns: [{ urlPattern: "*", requestStage: "Request" }] });
     await ctx.cdp.send("Page.addScriptToEvaluateOnNewDocument", { source: "window.google={accounts:{id:{initialize(){},disableAutoSelect(){},renderButton(){}}}};" });
     await ctx.cdp.send("Emulation.setDeviceMetricsOverride", { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });

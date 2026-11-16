@@ -10,6 +10,8 @@ export default function SidebarProjects({ chat, projectChats, onNewChat, onSelec
       onClick={() => { setVisible(true); onEdit({ kind: "project", mode: "create" }); }}><span aria-hidden="true">+</span></button></div>
     {visible && <div className="refined-section-content">
       {!chat.durable && <p className="refined-sidebar-note">Projects are available with a signed-in account.</p>}
+      {projects.error && <div><p className="refined-sidebar-note" role="alert">Projects could not be loaded.{projects.items.length > 0 ? " Showing previously loaded projects; they may be out of date." : ""}</p>
+        <button type="button" className="refined-more" disabled={projects.loading} onClick={chat.retryProjects}>Retry projects</button></div>}
       {projects.items.map((project) => <div className="refined-project" key={project.id}>
         <div className="refined-project__row"><button type="button" className="refined-project-select" title={project.name}
           aria-expanded={projectChats.projectId === project.id} onClick={() => projectChats.toggle(project.id)}>
@@ -29,9 +31,9 @@ export default function SidebarProjects({ chat, projectChats, onNewChat, onSelec
         </div>}
       </div>)}
       {projects.loading && <p className="refined-sidebar-note" role="status">Loading projects…</p>}
-      {chat.durable && !projects.loading && !projects.items.length && <p className="refined-sidebar-note">No projects yet.</p>}
-      {projects.cursor && <button type="button" className="refined-more" disabled={projects.loading} onClick={chat.moreProjects}>More projects</button>}
-      {projects.fromCursor && <button type="button" className="refined-more" disabled={projects.loading} onClick={chat.firstProjects}>First projects</button>}
+      {chat.durable && !projects.loading && !projects.error && !projects.items.length && <p className="refined-sidebar-note">No projects yet.</p>}
+      {!projects.error && projects.cursor && <button type="button" className="refined-more" disabled={projects.loading} onClick={chat.moreProjects}>More projects</button>}
+      {!projects.error && projects.fromCursor && <button type="button" className="refined-more" disabled={projects.loading} onClick={chat.firstProjects}>First projects</button>}
     </div>}
   </section>;
 }
