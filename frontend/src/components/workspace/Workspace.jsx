@@ -3,7 +3,8 @@ import { useWorkspace } from "../../hooks/useWorkspace.js";
 import OpalSidebar from "./OpalSidebar.jsx";
 import VisualWorkspace from "./VisualWorkspace.jsx";
 import { SidebarSearchDialog } from "./SidebarRecentsDialogs.jsx";
-import QuickSwitcherBoundary from "./QuickSwitcherBoundary.jsx";
+import QuickSwitcherBoundary, { OptionalDialogLoading } from "./QuickSwitcherBoundary.jsx";
+import { assertHistory, captureHistory } from "../../services/historyAuthority.js";
 import OpalBackdrop from "../auth/OpalBackdrop.jsx";
 import { UI_SHELL } from "../../services/runtimeConfig.js";
 import { usePreferences } from "../../settings/PreferencesProvider.jsx";
@@ -19,6 +20,7 @@ import "../../styles/homepage.css";
 const SettingsShell = lazy(() => import("../../pages/SettingsShell.jsx"));
 const PromptLibraryDialog = lazy(() => import("./PromptLibraryDialog.jsx"));
 const QuickSwitcher = lazy(() => import("./QuickSwitcher.jsx"));
+const CompanionToolsDialog = lazy(() => import("./CompanionToolsDialog.jsx"));
 const DemoWorkspace = lazy(() => import("./DemoWorkspace.jsx"));
 
 export default function Workspace({ auth, hidden, path, onNavigate }) {
@@ -48,6 +50,8 @@ function WorkspaceView({ auth, hidden, path, onNavigate, chat }) {
   useEffect(() => { setSidebar(device.sidebar !== "collapsed"); }, [device.sidebar]);
   const [notice, setNotice] = useState(""), [promptsOpen, setPromptsOpen] = useState(false);
   const [quickOpen, setQuickOpen] = useState(false), [searchOpen, setSearchOpen] = useState(false);
+  const [companionOpen, setCompanionOpen] = useState(false);
+  const companionScope = useRef(null);
   const inputRef = useRef(null), dialogRef = useRef(null), navigationRef = useRef(null);
   const scrollPositions = useRef(new Map());
   const settings = path === "/settings";
@@ -65,6 +69,15 @@ function WorkspaceView({ auth, hidden, path, onNavigate, chat }) {
   const openPrompts = () => { chat.openPrompts?.(); setPromptsOpen(true); };
   useEffect(() => { if (hidden || settings) setPromptsOpen(false); }, [hidden, settings]);
   useEffect(() => { setQuickOpen(false); setSearchOpen(false); }, [hidden, path]);
+  useEffect(() => { setCompanionOpen(false); companionScope.current = null; }, [hidden, path, auth.user?.id, auth.csrfToken, chat.activeConversationId]);
+  const openCompanion = () => {
+    try { companionScope.current = captureHistory(auth.csrfToken); setCompanionOpen(true); } catch { setCompanionOpen(false); }
+  };
+  const applyCompanionDraft = (value, expected) => {
+    try { assertHistory(companionScope.current); } catch { return false; }
+    if (hidden || settings || !auth.canQuery || expected.targetId !== chat.activeConversationId || expected.draft !== chat.draft) return false;
+    chat.setDraft(value); setCompanionOpen(false); focusComposer(); return true;
+  };
   useEffect(() => {
     const keyboard = (event) => {
       const action = workspaceShortcut(event, { hidden, modalOpen: !!document.querySelector("dialog[open]") });
@@ -115,6 +128,7 @@ function WorkspaceView({ auth, hidden, path, onNavigate, chat }) {
       <span className="breadcrumb"><strong title={caption}>{caption}</strong></span>
       <button type="button" className="workspace-quick-switch" aria-haspopup="dialog" aria-keyshortcuts="Control+k Meta+k" onClick={() => setQuickOpen(true)}>
         <span>Quick switch</span><kbd aria-hidden="true">Ctrl / ⌘ K</kbd></button>
+      {!auth.demoMode && !settings && <button type="button" className="workspace-quick-switch" data-open-companion aria-label="Open Aqua tools" aria-haspopup="dialog" onClick={openCompanion}>Help</button>}
       {(auth.demoMode || !auth.canQuery) && <span className="data-badge">{auth.demoMode ? "Demo data" : "Access pending"}</span>}
     </header>
     {notice && <p className="workspace-notice" role="status">{notice}</p>}
@@ -125,6 +139,11 @@ function WorkspaceView({ auth, hidden, path, onNavigate, chat }) {
     </div>
     {settings && <QuickSwitcherBoundary kind="settings" onClose={() => go("/")}><Suspense fallback={<p role="status">Opening Settings…</p>}><SettingsShell auth={auth} onBack={() => go("/")} onNavigate={go} /></Suspense></QuickSwitcherBoundary>}
     {quickOpen && !hidden && <QuickSwitcherBoundary onClose={() => setQuickOpen(false)}><Suspense fallback={<p role="status">Opening workspace shortcuts…</p>}><QuickSwitcher chat={chat} onClose={() => setQuickOpen(false)} onSelect={select} onAction={quickAction} /></Suspense></QuickSwitcherBoundary>}
+    {companionOpen && !hidden && !settings && !auth.demoMode && <QuickSwitcherBoundary title="Aqua tools unavailable"
+      message="The optional help window could not open. Your conversation and composer are still available."
+      closeLabel="Close Aqua tools" onClose={() => setCompanionOpen(false)}><Suspense fallback={<OptionalDialogLoading title="Aqua tools" closeLabel="Close Aqua tools" onClose={() => setCompanionOpen(false)} />}>
+      <CompanionToolsDialog key={`${auth.user?.id}:${chat.activeConversationId}`} auth={auth} targetId={chat.activeConversationId} draft={chat.draft}
+        onApply={applyCompanionDraft} onClose={() => setCompanionOpen(false)} /></Suspense></QuickSwitcherBoundary>}
     {searchOpen && !hidden && <SidebarSearchDialog chat={chat} onSelect={select} onClose={() => setSearchOpen(false)} />}
     {promptsOpen && !hidden && !settings && <QuickSwitcherBoundary kind="prompts" onClose={() => setPromptsOpen(false)}><Suspense fallback={<p role="status">Opening saved prompts…</p>}><PromptLibraryDialog chat={chat} suggestions={account.suggestions} onClose={() => setPromptsOpen(false)} onPrompt={(value) => { prompt(value); setPromptsOpen(false); }} /></Suspense></QuickSwitcherBoundary>}
     </div>

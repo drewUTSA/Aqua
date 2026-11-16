@@ -21,6 +21,8 @@ def test_current_http_surface_is_explicit():
         ("/api/v1/analysis-requests/{request_id}", "GET"),
         ("/api/v1/analysis-requests/{request_id}/cancel", "POST"),
         ("/api/v1/analysis-requests/{request_id}/events", "GET"),
+        ("/api/v1/companion/capabilities", "GET"),
+        ("/api/v1/companion/help", "POST"),
         ("/api/auth/config", "GET"),
         ("/api/auth/google", "POST"),
         ("/api/auth/google/redirect", "POST"),

@@ -12,10 +12,15 @@ export default class QuickSwitcherBoundary extends React.Component {
       <button type="button" autoFocus onClick={this.props.onClose}>Back to workspace</button>
     </section>;
     const prompts = this.props.kind === "prompts";
-    return <PreferenceDialog title={prompts ? "Saved prompts unavailable" : "Shortcuts unavailable"} onClose={this.props.onClose}>
-      <p role="alert">{prompts ? "Saved prompts could not open. Your conversation and unsent text are still available."
-        : "Workspace shortcuts could not open. You can keep using the sidebar."}</p>
-      <button type="button" onClick={this.props.onClose}>{prompts ? "Close saved prompts" : "Close shortcuts"}</button>
+    return <PreferenceDialog title={this.props.title || (prompts ? "Saved prompts unavailable" : "Shortcuts unavailable")} onClose={this.props.onClose}>
+      <p role="alert">{this.props.message || (prompts ? "Saved prompts could not open. Your conversation and unsent text are still available."
+        : "Workspace shortcuts could not open. You can keep using the sidebar.")}</p>
+      <button type="button" onClick={this.props.onClose}>{this.props.closeLabel || (prompts ? "Close saved prompts" : "Close shortcuts")}</button>
     </PreferenceDialog>;
   }
+}
+
+export function OptionalDialogLoading({ title, onClose, closeLabel }) {
+  return <PreferenceDialog title={title} onClose={onClose}><p role="status">Opening optional toolsâ€¦</p>
+    <button type="button" onClick={onClose}>{closeLabel}</button></PreferenceDialog>;
 }

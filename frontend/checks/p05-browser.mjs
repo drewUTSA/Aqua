@@ -14,6 +14,8 @@ import { initialHomepageChecks, mobileHomepageChecks } from './homepage-browser-
 import { workspaceJourneys, pendingWorkspaceJourney } from "./p06-browser-checks.mjs";
 import { analysisJourneys } from "./p07-browser-checks.mjs";
 import { runSyntheticNoticeChecks } from "./p10c-notice-browser-checks.mjs";
+import { runCompanionToolsChecks } from "./companion-tools-browser-checks.mjs";
+import { installCompanionToolsFixture } from "./companion-tools-fixture.mjs";
 import { RELIABILITY_JOURNEYS, reliabilityFault, optionalViewFailure, personalListRetry, settingsActionSearch, modifiedComposerShortcut, measureComposerFooters, publicRouteWalkthrough, PUBLIC_ROUTE_CASES } from "./workspace-reliability-browser.mjs";
 import { LOCAL_PATHS } from "../src/services/routes.js";
 import { makeFixture, GOOGLE_STUB, EMAIL_A, EMAIL_B, PASSWORD, VERIFY_PROOF, RESET_PROOF } from "./p05-browser-fixture.mjs";
@@ -21,8 +23,8 @@ import { EXPECTED_SHELL, assertShell, assertLoginDelivery, capturePerformance, a
 
 const MAX_MS = 240000, MAX_REQUESTS = 900, MAX_API = 320;
 const JOURNEY=new URL(import.meta.url).searchParams.get("journey");
-const NOTICE_ONLY=JOURNEY==="c-notices", RELIABILITY_ONLY=RELIABILITY_JOURNEYS.includes(JOURNEY);
-if(JOURNEY!==null&&!NOTICE_ONLY&&!RELIABILITY_ONLY)throw Error("browser_journey_invalid");
+const NOTICE_ONLY=JOURNEY==="c-notices", RELIABILITY_ONLY=RELIABILITY_JOURNEYS.includes(JOURNEY), COMPANION_ONLY=JOURNEY==="companion-tools";
+if(JOURNEY!==null&&!NOTICE_ONLY&&!RELIABILITY_ONLY&&!COMPANION_ONLY)throw Error("browser_journey_invalid");
 const started = performance.now();
 const frontend = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 function configuredPath(name, fallback) {
@@ -42,6 +44,8 @@ async function ensureArtifacts() {
 }
 const temporaryRoot = await realpath(tmpdir());
 const fixture = makeFixture();
+const companionFixture = COMPANION_ONLY ? installCompanionToolsFixture(fixture) : null;
+let companionToolsJourney = null;
 const results = [], screenshots = [], external = [], protocolFailures = [], performanceSamples = [], scrollObservations = [];
 const sessions = new Set(), fonts = [], transitions = new Set(), closingSessions = new Set();
 let browser, cdp, profile, server, sessionId, origin, deadline, homepageMenuTextAudit=null;
@@ -220,6 +224,9 @@ try {
     void (async () => {
       const { requestId, request } = event.params; const url = new URL(request.url); requestCount++;
       const targetSession = event.sessionId;
+      if (COMPANION_ONLY && companionFixture.blockChunk && url.origin === origin && /^\/assets\/CompanionToolsDialog-[A-Za-z0-9_-]+\.js$/.test(url.pathname)) {
+        await cdp.send("Fetch.failRequest", { requestId, errorReason: "BlockedByClient" }, targetSession); return;
+      }
       const reply = (status, body, headers = {}) => cdp.send("Fetch.fulfillRequest", {
         requestId, responseCode: status, responseHeaders: Object.entries({ "Content-Type": "application/json", "Cache-Control": "no-store", ...headers }).map(([name, value]) => ({ name, value })),
         ...(status === 204 ? {} : { body: Buffer.from(JSON.stringify(body ?? {})).toString("base64") })
@@ -249,7 +256,7 @@ try {
     });
   };
   await preparePage();
-  if(!NOTICE_ONLY&&!RELIABILITY_ONLY){
+  if(!NOTICE_ONLY&&!RELIABILITY_ONLY&&!COMPANION_ONLY){
   await viewport(1440, 900); await navigate();
   await waitFor("Boolean(document.querySelector('[data-testid=fixture-google-button]'))", "google_fixture_ready");
   await assertLoginDelivery(check); performanceSamples.push(await capturePerformance(evaluate, "desktop-signin"));
@@ -585,6 +592,7 @@ try {
     reliabilityJourney={...reliabilityJourney,journey:JOURNEY,faults:reliabilityFaults,analysis_calls:0,additional_mutations:0};
     }
   }
+  if(COMPANION_ONLY)companionToolsJourney=await runCompanionToolsChecks({check,click,fill,waitFor,evaluate,navigate,signIn,viewport,screenshot,fixture},{emailA:EMAIL_A,emailB:EMAIL_B,help:companionFixture});
   assert.equal(fixture.forbiddenCalls,0);assert.equal(consoleLeaks,0);assert.equal(runtimeErrors,0);assert.equal(protocolFailures.length,0);assert.equal(external.length,0);assert.ok(apiRequests<=MAX_API&&requestCount<=MAX_REQUESTS&&performance.now()-started<=MAX_MS);
   await writeFile(path.join(artifacts, "browser-version.json"), JSON.stringify({ browser: version.product }, null, 2) + "\n");
   await writeFile(path.join(artifacts, "font-diagnostics.json"), JSON.stringify(fonts, null, 2) + "\n");
@@ -608,9 +616,10 @@ try {
 }
 if (!failure && protocolFailures.length) failure = "interception_failure";
 const report = { status: failure ? "failed" : "passed", failure, failureLayout, checked_utc: new Date().toISOString(),
-  mode: NOTICE_ONLY?"production_build_c_notification_synthetic_api_browser":RELIABILITY_ONLY?"production_build_reliability_synthetic_api_browser":"production_build_synthetic_api_browser", expected_shell: EXPECTED_SHELL, browser_diagnostic: failureDiagnostic ?? cdp?.diagnostic ?? null, homepage_menu_text_audit:homepageMenuTextAudit, loadedAssets, results, screenshots, performanceSamples,
+  mode: COMPANION_ONLY?"production_build_companion_tools_synthetic_api_browser":NOTICE_ONLY?"production_build_c_notification_synthetic_api_browser":RELIABILITY_ONLY?"production_build_reliability_synthetic_api_browser":"production_build_synthetic_api_browser", expected_shell: EXPECTED_SHELL, browser_diagnostic: failureDiagnostic ?? cdp?.diagnostic ?? null, homepage_menu_text_audit:homepageMenuTextAudit, loadedAssets, results, screenshots, performanceSamples,
   limits: { maximum_seconds: MAX_MS / 1000, maximum_requests: MAX_REQUESTS, maximum_api_requests: MAX_API },
   observations: { requestCount, staticRequests, apiRequests, external_attempts: external.length, consoleLeaks, runtimeErrors, forbidden_api_calls: fixture.forbiddenCalls, protocolFailures, canceledInterceptions, scrollObservations },notification_privacy_journey:notificationPrivacyJourney,reliability_journey:RELIABILITY_ONLY?{journey:JOURNEY,faults:reliabilityFaults,...reliabilityJourney}:null,
+  companion_tools_journey:companionToolsJourney,
   cleanup: cleanup ? "browser_stopped_loopback_closed_temporary_profile_removed" : "failed",
   elapsed_seconds: Math.round((performance.now() - started) / 10) / 100,
   limitations: ["Synthetic intercepted API and GIS contracts; no actual backend, Google, email, database or production-origin validation.", "400% reflow represented by a 320 CSS-pixel viewport; 200% text doubles computed text sizes.", "Small viewport models keyboard-constrained space; it is not an actual mobile OS keyboard test.", "Navigation timings are local observations, not production performance guarantees; initial delivery byte limits are deterministic.", "Keyboard and semantic assertions are not a complete screen-reader or contrast audit.", "Screenshots require human/agent visual review; saving them alone is not visual approval."] };

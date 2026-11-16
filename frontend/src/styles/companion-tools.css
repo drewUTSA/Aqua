@@ -1,0 +1,21 @@
+.companion-tools-dialog { width: min(42rem, calc(100vw - var(--space-6))); overflow-wrap: anywhere; }
+.companion-tools-dialog :is(p,li,label,legend,input,textarea,button) { font-size: calc(1rem * var(--pref-text-scale, 1)); }
+.companion-tools__choice { display: flex; flex-wrap: wrap; gap: var(--space-2); border: 0; padding: 0; margin-block: var(--space-4); }
+.companion-tools__choice legend { margin-bottom: var(--space-2); }
+.companion-tools__choice [aria-pressed="true"] { border-color: var(--pref-accent); background: var(--pref-accent); color: var(--pref-on-accent); }
+.companion-tools-dialog form { display: grid; gap: var(--space-3); }
+.companion-tools-dialog :is(input,textarea) { width: 100%; min-width: 0; padding: var(--space-3); border: 1px solid var(--pref-border); border-radius: var(--radius-sm);
+  color: var(--pref-text); background: var(--pref-raised); font: inherit; }
+.companion-tools-dialog textarea { min-height: 7rem; resize: vertical; }
+.opal-workspace .companion-tools-dialog :is(input,textarea) { font-size: calc(1rem * var(--pref-text-scale, 1)); }
+.companion-tools-dialog :is(button,input,textarea) { min-width: 44px; min-height: 44px; }
+.companion-tools__guide { display: grid; gap: var(--space-3); min-width: 0; margin: 0; padding: var(--space-3); border: 1px solid var(--pref-border); border-radius: var(--radius-sm); }
+.companion-tools__guide legend { padding-inline: var(--space-2); }
+.companion-tools__field { display: grid; gap: var(--space-2); min-width: 0; }
+.companion-tools__guide-error { margin: 0; color: var(--pref-danger); }
+.companion-tools-dialog [data-companion-answer] { margin-top: var(--space-6); border-top: 1px solid var(--pref-border); }
+.companion-tools-dialog li span { display: block; overflow-wrap: anywhere; }
+.companion-tools-dialog [data-companion-error] { color: var(--pref-danger); }
+@media (forced-colors: active) {
+  .companion-tools-dialog :is(input,textarea,button) { border-color: ButtonText; }
+}

@@ -1,5 +1,13 @@
 # AQUA — complete Codex implementation handoff
 
+**November16 companion follow-up:** [reviewed help tools](docs/implementation/COMPANION_HELP_TOOLS.md)
+add a default-off, source-cited help window and explicit draft preparation.
+Both-shell local tests and fresh211-file image installer/normal-runtime QA pass;
+final combined-source CI is required. The trained SQL adapter regressed33→30/67
+and is rejected. New real selector research scored4b5/16 and8b10/16; automatic
+tool selection stays disabled. None of this changes the schema8 production
+release or closes the DNS/recovery/retention/device/provider acceptance gates.
+
 **November 16 site review:** [the source review record](docs/implementation/SITE_REVIEW_20261116.md)
 tracks optional-interface recovery, list retries, Settings search, result-table
 state, public-page polish and document-only CSP qualification. These changes

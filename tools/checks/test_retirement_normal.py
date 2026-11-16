@@ -45,10 +45,20 @@ class NormalGuards(unittest.TestCase):
             "auth/google_redirect.py",
             "auth/google_redirect_bridge.py",
             "auth/google_redirect_protocol.py",
+            "companion/__init__.py",
+            "companion/application.py",
+            "companion/choices.py",
+            "companion/context.py",
+            "companion/data.py",
+            "companion/data_contract.py",
+            "companion/knowledge.py",
+            "companion/policy.py",
+            "companion/router.py",
+            "companion/service.py",
         }
         self.assertTrue(additions <= RUNTIME_FILES.keys())
         self.assertEqual(len(RUNTIME_FILES.keys() - additions), 191)
-        self.assertEqual(len(RUNTIME_FILES), 197)
+        self.assertEqual(len(RUNTIME_FILES), 207)
         self.assertEqual(len(MANIFEST_SHA256), 64)
         self.assertEqual(IMAGE, runner.IMAGE)
         self.assertIn("main.py", RUNTIME_FILES)

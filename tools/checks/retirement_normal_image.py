@@ -1,7 +1,7 @@
-"""Public subset of ROOT-reviewed current201 image inventory; no artifact data."""
+"""Current211 image profile; original historical receipts remain unchanged."""
 
-IMAGE = "sha256:22f90a96931b2be471c31455d97c1da68c3b3c6b6c15ac5fcbfcf362d4b491b0"
-MANIFEST_SHA256 = "15d5f7c534b41ce55f94f42b65a013781f91c5e4bbae1868fa219c1fe131c7d9"
+IMAGE = "sha256:61034825653941c528a17bd66d3d0072c18b1a57d82377053d349d6204c7ef66"
+MANIFEST_SHA256 = "53c6df0e1a6da2ca7d40c3cefe4c11f823ada7472f98e6a75576e62534776d3d"
 RUNTIME_FILES = {
     "account/__init__.py": "4d300929fcb6d0c0e3a6b92377bfd4648fc336a8ad2bfb3e962d810b3b6f55e0",
     "account/action_contracts.py": "be3becba0a54378a847efdaa76cc833e3b780df3658c90d30f86a7852232a397",
@@ -82,7 +82,17 @@ RUNTIME_FILES = {
     "auth/security.py": "f259c7218217fa581a7025facf96c70c5cdf6f4bf9a9486f2726fd609d849bc5",
     "auth/sessions.py": "1af1a3b2c58d651ba65d14eb790245cb87948ce91af9c7f226defa901af848a6",
     "auth/store.py": "93ff7c1e34caf4a1a8ddde445702bb71f5aae0cc18b6f8554ecdcade716cd7f6",
-    "main.py": "fdc30287ab803589b78d2c2813ef2cfed521efc6613bd0f299681b8445706228",
+    "companion/__init__.py": "31983077341a8a4228c0644060ddcb89ec1b4bfa0e29110685af8c7316110dd4",
+    "companion/application.py": "cf4878d65ca1be714b8ba20ea9816e1488e2b8058ca9e6a5af974bd2f40cb46c",
+    "companion/choices.py": "302942495e7d7d241f81715cdc9029e745ad6ef682e5616cd22f7e7ef9571fce",
+    "companion/context.py": "b61d7c828aaaa894b0587538688d3a7a57e1eb97ead7a0de4af5bfe9cb9bfc79",
+    "companion/data.py": "163cad71fc0e6d0aa64dd4da0ade791692ca130d37f633e720c1c2047c5372b4",
+    "companion/data_contract.py": "ac6818af7df6213d3d7644af867e139345a6418b728e668a820fef79ee3eefab",
+    "companion/knowledge.py": "7ac82653f2bba49339477b8fcc51c5e369547ced121bef6972567e550e7af652",
+    "companion/policy.py": "71fd7f80e5d9c75ddcb2967f220d0a72e9bfa5b1153a460534fc78fbe3ff63c4",
+    "companion/router.py": "a9fc52b64f052dd846048515cae751c6d05b6d2872210a3c32864c31b91f52ac",
+    "companion/service.py": "10809a09da11e0abf5d9ecbde15eeedb69a14534f887858f388a29ab66e10323",
+    "main.py": "1548f2fa872b63e2e96e2b2d25e8ced1eaf61b8edaaf0729426c7864a16df624",
     "migrations/0001_identity.sql": "3255ad354362cd186577e49a7d47dea4c4b5127665a989d25ad15961d6a173bc",
     "migrations/0002_identity_policy.sql": "8b977d0188612df5f4cec37a8c78bc7a25af0d63c3f486dbffbd19b095f3b20b",
     "migrations/0003_password_auth.sql": "8d0b2b558f3fb94713f5a6e890cb71d2261a2825e05d6e234189b6eac2607210",
@@ -186,7 +196,7 @@ RUNTIME_FILES = {
     "storage/readiness.py": "b40daec38bd44701faff4890eb90f797c6b924afda942f4274d7d5c45f914df5",
     "workspace/__init__.py": "5345f48f0def68707134328341da1f65967ec693868e28a4fb59faf9d7652bc1",
     "workspace/access_logging.py": "da3fa37f93b02c925dc3d2a29f47d660bfd804a668fed7d9aa59597753ffdbb5",
-    "workspace/boundary.py": "a48c7ad1de15fe9fce4224f9003ef9fdcc27b4da98ccedd1a8acc11ebbb8306a",
+    "workspace/boundary.py": "151a59f4f97bf8aeeef1e5d4212437a613a74ccc841776cbf4f391843e873840",
     "workspace/catalog.py": "fd5332b6c2dce52c04aa5c430f0b97d5334ff75f24b2a00c94aaf9dede3b7523",
     "workspace/catalog_router.py": "60c380071eb414dfbe58549d71db7d4846acb4127f3cb0d038224031d9217bee",
     "workspace/chat_router.py": "1992630c5730119e331c8915dd0debe369be0894951867d9603c0d9b79431937",
