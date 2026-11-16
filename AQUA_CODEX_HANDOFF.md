@@ -1,3 +1,15 @@
+## November16 portable analytical preparation
+
+[Optional PostgreSQL/pgvector setup](docs/implementation/PORTABLE_ANALYTICS.md)
+now qualifies a fresh pinned public-Pagila candidate locally:52 actual cases,
+including exact denials, privileges and rollback, with complete cleanup. It
+preserves historical Tiger defaults and adds no production service/configuration
+or cutover. The financial/Berka source and unavailable Tiger contents are not
+restored by this test. Dataset preservation, encrypted recovery, authority/grant
+handling, app integration and release gates remain required before any live
+connection change. Bank MCP contracts remain offline and training remains
+unapproved; the existing rejected adapter and protected tests stay unchanged.
+
 ## November16 bank MCP product scope
 
 Ben clarified a commercial U.S. bank MCP overlay for bank-wide employee help,
