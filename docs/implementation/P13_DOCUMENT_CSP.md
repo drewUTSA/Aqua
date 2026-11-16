@@ -48,6 +48,14 @@ CSP observer. Any unexpected application violation fails the P08 qualification.
 Actual nginx checks verify document200/404 policy headers and the absence of a
 competing document CSP on readiness and hashed assets.
 
+The blocked base element stays inert until the fixture document is discarded.
+Removing it caused Chromium to re-evaluate the base and emit a second deliberate
+violation. A fixed minimal local document reproduced nine events before that
+cleanup repair and exactly eight afterward, with the same policy hash, no
+external transport and confirmed cleanup. Unexpected application events still
+fail; no allowance, policy or budget was relaxed. The full Plotly journey remains
+the combined application acceptance gate.
+
 Root's local qualification passes eleven focused Node guards, three Python CSP
 guards, both production builds and the actual network-none nginx fixture
 (29 requests across14 routes,24 policy responses, exact cleanup). The current

@@ -36,7 +36,9 @@ function browserCanaries() {
   let evalBlocked = false;
   try { new Function("return 1")(); } catch { evalBlocked = true; }
   const base = document.createElement("base"); base.href = "https://aqua-csp-probe.invalid/base/"; document.head.appendChild(base);
-  const baseBlocked = document.baseURI === originalBase; base.remove();
+  // Removing a blocked base makes Chromium re-evaluate it and emit a second
+  // violation. Keep this inert probe until the fixture document is discarded.
+  const baseBlocked = document.baseURI === originalBase;
   const image = document.createElement("img"); image.src = "https://aqua-csp-probe.invalid/image"; parent.appendChild(image);
   const frame = document.createElement("iframe"); frame.src = "https://aqua-csp-probe.invalid/frame"; parent.appendChild(frame);
   const object = document.createElement("object"); object.data = "https://aqua-csp-probe.invalid/object"; parent.appendChild(object);
