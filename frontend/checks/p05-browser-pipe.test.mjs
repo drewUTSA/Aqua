@@ -17,6 +17,26 @@ function fixture(t, options = {}) {
   return { child, client, requests, reply: (value) => child.stdio[4].write(encode(value)) };
 }
 
+test("CSP observation admits only its fixed sanitized binding under the existing session and deadline", async (t) => {
+  const { CSP_BINDING } = await import("./csp-browser-probes.mjs");
+  const { client, requests, reply } = fixture(t, { session: () => "synthetic-session" });
+  const pending = client.send("Runtime.addBinding", { name: CSP_BINDING });
+  assert.equal(requests.length, 1);
+  assert.deepEqual(requests[0].params, { name: "__aquaCspViolation" });
+  assert.equal(requests[0].sessionId, "synthetic-session");
+  reply({ id: requests[0].id, sessionId: "synthetic-session", result: {} });
+  assert.deepEqual(await pending, {});
+});
+
+test("arbitrary bindings and widened binding parameters fail before browser transport", async (t) => {
+  for (const params of [{}, { name: CANARY }, { name: "__aquaCspViolation", executionContextId: 1 }, []]) {
+    const { client, requests } = fixture(t);
+    await assert.rejects(client.send("Runtime.addBinding", params), { message: "browser_protocol_method_rejected" });
+    assert.equal(requests.length, 0);
+    assert.ok(!JSON.stringify(client.diagnostic).includes(CANARY));
+  }
+});
+
 test("the exact read-only accessibility-tree method is bounded and other Accessibility methods stay denied", async (t) => {
   const { client, requests, reply } = fixture(t, { session: () => "synthetic-session" });
   const tree = client.send("Accessibility.getFullAXTree");
