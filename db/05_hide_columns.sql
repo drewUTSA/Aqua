@@ -17,13 +17,7 @@ BEGIN;
 
 -- Postgres checks table-level grants first, so the table grant must go
 -- before column grants can limit anything.
-REVOKE SELECT ON public.staff FROM nl2sql_reader;
-GRANT SELECT (staff_id, first_name, last_name, address_id, email, store_id,
-              active, username, last_update)
-    ON public.staff TO nl2sql_reader;
-
--- Same for the view that exposes staff details.
-REVOKE SELECT ON public.staff_list FROM nl2sql_reader;
+\ir hidden_staff_grants.sql
 
 COMMIT;
 

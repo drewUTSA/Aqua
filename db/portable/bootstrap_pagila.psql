@@ -1,0 +1,63 @@
+-- OPTIONAL, one-shot setup for a fresh dedicated public-Pagila analytical DB.
+-- This is NOT a live migration, restore adapter, indexer or container installer.
+-- Read docs/implementation/PORTABLE_ANALYTICS.md before operator review/use.
+\set ON_ERROR_STOP on
+\set ECHO none
+\set ECHO_HIDDEN off
+
+-- All operator inputs are required; missing/unknown choices fail before DDL.
+\if :{?aqua_expected_database}
+\else
+    DO $$ BEGIN RAISE EXCEPTION 'portable_database_required'; END $$;
+\endif
+\if :{?aqua_dataset_revision}
+\else
+    DO $$ BEGIN RAISE EXCEPTION 'portable_dataset_revision_required'; END $$;
+\endif
+\if :{?aqua_vector_version}
+\else
+    DO $$ BEGIN RAISE EXCEPTION 'portable_vector_version_required'; END $$;
+\endif
+\if :{?aqua_portable_index}
+\else
+    DO $$ BEGIN RAISE EXCEPTION 'portable_index_profile_required'; END $$;
+\endif
+
+BEGIN;
+SET LOCAL search_path = pg_catalog;
+SET LOCAL statement_timeout = '10s';
+SET LOCAL lock_timeout = '1s';
+SET LOCAL idle_in_transaction_session_timeout = '60s';
+SELECT pg_try_advisory_xact_lock(1095848295, 1) AS portable_locked \gset
+\if :portable_locked
+\else
+    DO $$ BEGIN RAISE EXCEPTION 'portable_bootstrap_busy'; END $$;
+\endif
+\ir preflight.sql
+
+-- Reserve both cluster-wide names transactionally before either password prompt.
+-- A concurrent creation must error/roll back, never become a legacy ALTER target.
+CREATE ROLE nl2sql_reader NOLOGIN;
+CREATE ROLE nl2sql_indexer NOLOGIN;
+
+-- No CASCADE, IF-NOT-EXISTS masking or arbitrary extension schema/version.
+SELECT NOT EXISTS (SELECT FROM pg_extension WHERE extname = 'vector')
+    AS portable_create_vector \gset
+\if :portable_create_vector
+    CREATE EXTENSION vector WITH SCHEMA public VERSION :'aqua_vector_version';
+\endif
+SET LOCAL search_path = pg_catalog, public;
+
+-- Reuse exactly the reviewed roles, tables, grants and hidden-column source.
+\ir ../03_users.sql
+\set aqua_retrieval_index exact
+\ir ../04_retrieval.sql
+-- 05's outer BEGIN/COMMIT remains for its historical standalone entrypoint;
+-- reuse its shared grants here without prematurely committing this bootstrap.
+\ir ../hidden_staff_grants.sql
+\ir verify.sql
+COMMIT;
+
+\unset reader_password
+\unset indexer_password
+SELECT 'portable_pagila_prepared_not_activated' AS status;

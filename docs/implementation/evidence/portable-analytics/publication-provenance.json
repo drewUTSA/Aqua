@@ -1,0 +1,17 @@
+{
+  "raw_source_receipts_preserved": true,
+  "files": [
+    {
+      "file": "initial-failure.json",
+      "source_receipt_sha256": "f860414301c739a2a9350ef1f4925fa79a1fb311cb069b0dc4f5de63532434b8",
+      "published_sha256": "f860414301c739a2a9350ef1f4925fa79a1fb311cb069b0dc4f5de63532434b8",
+      "normalization": "none"
+    },
+    {
+      "file": "qualification.json",
+      "source_receipt_sha256": "d9389baa7e304f305a04f8cf3384333aba8dd68056827fe80187d6fbbca4dee7",
+      "published_sha256": "d9389baa7e304f305a04f8cf3384333aba8dd68056827fe80187d6fbbca4dee7",
+      "normalization": "none"
+    }
+  ]
+}

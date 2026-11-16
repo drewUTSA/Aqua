@@ -21,6 +21,20 @@
 
 \set ON_ERROR_STOP on
 
+-- BEGIN reviewed index profile. The historical entrypoint still defaults to
+-- DiskANN. Only the separate fresh portable bootstrap selects exact scans.
+\if :{?aqua_retrieval_index}
+\else
+    \set aqua_retrieval_index diskann
+\endif
+SELECT :'aqua_retrieval_index' IN ('diskann', 'exact') AS retrieval_index_valid,
+       :'aqua_retrieval_index' = 'diskann' AS retrieval_diskann \gset
+\if :retrieval_index_valid
+\else
+    DO $$ BEGIN RAISE EXCEPTION 'retrieval_index_configuration_invalid'; END $$;
+\endif
+-- END reviewed index profile.
+
 CREATE SCHEMA IF NOT EXISTS retrieval;
 
 -- One row per Pagila table or view. `content` is the text that was
@@ -57,8 +71,28 @@ CREATE TABLE IF NOT EXISTS retrieval.example_query (
 -- Approximate nearest-neighbour index (pgvectorscale) for when the
 -- example store grows from query logs. schema_doc has about 25 rows, so
 -- a plain scan is faster there and it gets no index.
+-- BEGIN reviewed optional index.
+\if :retrieval_diskann
 CREATE INDEX IF NOT EXISTS example_query_embedding_idx
     ON retrieval.example_query USING diskann (embedding vector_cosine_ops);
+\else
+    -- Exact pgvector search uses the same columns/operators and no ANN index.
+    -- Refuse to mislabel an existing ANN-equipped store as an exact profile.
+    DO $$ BEGIN
+        IF EXISTS (
+            SELECT 1 FROM pg_index i
+            JOIN pg_class c ON c.oid = i.indrelid
+            JOIN pg_namespace n ON n.oid = c.relnamespace
+            JOIN pg_class x ON x.oid = i.indexrelid
+            JOIN pg_am a ON a.oid = x.relam
+            WHERE n.nspname = 'retrieval'
+              AND (a.amname <> 'btree' OR i.indexprs IS NOT NULL)
+        ) THEN
+            RAISE EXCEPTION 'retrieval_exact_index_state_invalid';
+        END IF;
+    END $$;
+\endif
+-- END reviewed optional index.
 
 -- Reader: the app looks up similar rows at question time. Read only.
 GRANT USAGE ON SCHEMA retrieval TO nl2sql_reader;
