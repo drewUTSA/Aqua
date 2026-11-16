@@ -1,5 +1,24 @@
 # Decisions
 
+## November 16, 2026: bind AI experiments and qualify retrieval in isolated replay
+
+The evaluator previously omitted the production per-case call/deadline Budget,
+could abandon the run on gold/context failures, rounded fast timings to zero,
+and labelled semantic and hybrid retrieval alike. It now preserves complete
+outcomes, exact measured timings, explicit hybrid selection and hash-only
+experiment/result receipts. A strict paired experiment comparison checks
+declared identity matches before the existing execution/latency gate.
+
+A separate networkless synthetic replay uses the retained disposable Bank and
+Pagila fixtures, production retrieval/validation/execution and frozen proposed
+SQL. This allows meaningful regression work while the live analytical endpoint
+returns authoritative NXDOMAIN. It avoids routing fixture evaluation through
+production credentials or spending provider quota. Frozen inputs deliberately
+do not measure real model or semantic embedding quality; those require a
+separate held-out experiment. No production runtime or flag was changed.
+
+See `docs/implementation/AI_QUALIFICATION.md` for the contracts and limits.
+
 Each entry records the decision, the alternatives considered, and why.
 
 ## November 13, 2026: Bounded join paths and owned follow-up retrieval

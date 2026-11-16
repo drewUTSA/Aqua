@@ -89,6 +89,8 @@ jobs:
           python tools/checks/test_retrieval_query.py
           python tools/checks/benchmark_hybrid.py
           python tools/checks/test_compare_runs.py
+          python tools/checks/test_compare_experiments.py
+          python tools/checks/test_ai_replay_runner.py
           python -m black --check backend eval tools/checks ops
           python -m ruff check backend eval tools/checks ops
           python tools/checks/p05_browser_cleanup_test.py
@@ -140,6 +142,11 @@ jobs:
           aqua-runtime:check python - --expect guarded < tools/checks/telemetry_probe.py
       - name: Backend contracts and both disposable database fixtures
         run: python tools/checks/run_backend.py --image aqua-runtime:check
+      - name: Frozen retrieval and SQL replay in disposable storage
+        run: >-
+          python tools/checks/run_ai_replay.py
+          --image "$(docker image inspect aqua-runtime:check --format '{{.Id}}')"
+          --output "${{ runner.temp }}/aqua-ai-replay.json"
       - name: Synthetic private history, metadata and pool capacity
         run: python tools/checks/run_capacity.py --image aqua-runtime:check --output .check-results/capacity/report.json
       - name: Private workspace access-log protection
