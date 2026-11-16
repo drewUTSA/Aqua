@@ -97,6 +97,7 @@ jobs:
           python tools/checks/test_companion_packaging.py
           python tools/checks/test_normal_runtime_argv.py
           python tools/checks/test_mixed_capacity.py
+          python -m unittest discover -s tools/checks -p 'test_banking_*.py'
           python tools/checks/test_local_model.py
           python -m black --check backend eval tools/checks ops
           python -m ruff check backend eval tools/checks ops
