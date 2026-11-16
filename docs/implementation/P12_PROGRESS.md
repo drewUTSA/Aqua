@@ -1,5 +1,16 @@
 # P12 capacity and AI reliability — implementation in progress
 
+## November 16 mixed HTTP local qualification
+
+The explicit [mixed HTTP capacity mode](MIXED_HTTP_CAPACITY.md) adds a fresh,
+bounded real Uvicorn/auth/history/job/metadata-stream workload over the existing
+disposable storage fixture. It preserves the original component measurements,
+all production budgets and source-only archive. Ninety-six fixed reads, six
+closed fake analyses, cancellation/queued recovery and two actual HTTP stream
+disconnects pass on the final combined local source, with exact-resource cleanup;
+current PR and main CI remain required. No production SLO,
+external provider, GPU/OS-child or public-network backpressure result is implied.
+
 ## November 16 learning qualification
 
 The subsequent [learning and companion foundation](LEARNING_PROGRESS.md) adds a

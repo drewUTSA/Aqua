@@ -96,6 +96,7 @@ jobs:
           python tools/checks/test_csp_headers.py
           python tools/checks/test_companion_packaging.py
           python tools/checks/test_normal_runtime_argv.py
+          python tools/checks/test_mixed_capacity.py
           python tools/checks/test_local_model.py
           python -m black --check backend eval tools/checks ops
           python -m ruff check backend eval tools/checks ops
@@ -155,6 +156,22 @@ jobs:
           --output "${{ runner.temp }}/aqua-ai-replay.json"
       - name: Synthetic private history, metadata and pool capacity
         run: python tools/checks/run_capacity.py --image aqua-runtime:check --output .check-results/capacity/report.json
+      - name: Fixed mixed HTTP, fake analysis and stream recovery capacity
+        timeout-minutes: 5
+        run: >-
+          python tools/checks/run_capacity.py --mixed-http
+          --image "$(docker image inspect aqua-runtime:check --format '{{.Id}}')"
+          --output .check-results/capacity/mixed-http.json
+      - name: Retain bounded synthetic capacity reports
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: capacity-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            .check-results/capacity/report.json
+            .check-results/capacity/mixed-http.json
+          if-no-files-found: warn
+          retention-days: 7
       - name: Private workspace access-log protection
         run: >-
           docker run --rm -i --network none --read-only --cap-drop ALL

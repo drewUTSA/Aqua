@@ -1,0 +1,170 @@
+{
+  "cleanup": "removed_and_absence_confirmed",
+  "image": "sha256:61034825653941c528a17bd66d3d0072c18b1a57d82377053d349d6204c7ef66",
+  "measurements": {
+    "history": {
+      "deep_plan": {
+        "Execution Time": 0.033,
+        "Plan": {
+          "Actual Loops": 1,
+          "Actual Rows": 99,
+          "Actual Startup Time": 0.007,
+          "Actual Total Time": 0.021,
+          "Async Capable": false,
+          "Local Dirtied Blocks": 0,
+          "Local Hit Blocks": 0,
+          "Local Read Blocks": 0,
+          "Local Written Blocks": 0,
+          "Node Type": "Limit",
+          "Parallel Aware": false,
+          "Plan Rows": 1,
+          "Plan Width": 56,
+          "Plans": [
+            {
+              "Actual Loops": 1,
+              "Actual Rows": 1,
+              "Actual Startup Time": 0.001,
+              "Actual Total Time": 0.002,
+              "Alias": "users",
+              "Async Capable": false,
+              "Index Cond": "(id = 'f88afd35-596a-4055-b281-0a6c68d98daf'::uuid)",
+              "Index Name": "users_pkey",
+              "Local Dirtied Blocks": 0,
+              "Local Hit Blocks": 0,
+              "Local Read Blocks": 0,
+              "Local Written Blocks": 0,
+              "Node Type": "Index Scan",
+              "Parallel Aware": false,
+              "Parent Relationship": "InitPlan",
+              "Plan Rows": 1,
+              "Plan Width": 8,
+              "Relation Name": "users",
+              "Rows Removed by Index Recheck": 0,
+              "Scan Direction": "Forward",
+              "Shared Dirtied Blocks": 0,
+              "Shared Hit Blocks": 2,
+              "Shared Read Blocks": 0,
+              "Shared Written Blocks": 0,
+              "Startup Cost": 0.15,
+              "Subplan Name": "InitPlan 1",
+              "Temp Read Blocks": 0,
+              "Temp Written Blocks": 0,
+              "Total Cost": 8.17
+            },
+            {
+              "Actual Loops": 1,
+              "Actual Rows": 99,
+              "Actual Startup Time": 0.006,
+              "Actual Total Time": 0.016,
+              "Alias": "chats",
+              "Async Capable": false,
+              "Filter": "(history_generation = (InitPlan 1).col1)",
+              "Index Cond": "((user_id = 'f88afd35-596a-4055-b281-0a6c68d98daf'::uuid) AND (archived = false) AND (ROW(last_activity_at, id) < ROW('2026-01-01 00:01:40+00'::timestamp with time zone, '35cbe543-424d-4420-bbb5-e4d21a108465'::uuid)))",
+              "Index Name": "chats_owner_activity",
+              "Local Dirtied Blocks": 0,
+              "Local Hit Blocks": 0,
+              "Local Read Blocks": 0,
+              "Local Written Blocks": 0,
+              "Node Type": "Index Scan",
+              "Parallel Aware": false,
+              "Parent Relationship": "Outer",
+              "Plan Rows": 1,
+              "Plan Width": 56,
+              "Relation Name": "chats",
+              "Rows Removed by Filter": 0,
+              "Rows Removed by Index Recheck": 0,
+              "Scan Direction": "Forward",
+              "Shared Dirtied Blocks": 0,
+              "Shared Hit Blocks": 8,
+              "Shared Read Blocks": 0,
+              "Shared Written Blocks": 0,
+              "Startup Cost": 0.29,
+              "Temp Read Blocks": 0,
+              "Temp Written Blocks": 0,
+              "Total Cost": 8.31
+            }
+          ],
+          "Shared Dirtied Blocks": 0,
+          "Shared Hit Blocks": 8,
+          "Shared Read Blocks": 0,
+          "Shared Written Blocks": 0,
+          "Startup Cost": 8.45,
+          "Temp Read Blocks": 0,
+          "Temp Written Blocks": 0,
+          "Total Cost": 16.48
+        },
+        "Planning": {
+          "Local Dirtied Blocks": 0,
+          "Local Hit Blocks": 0,
+          "Local Read Blocks": 0,
+          "Local Written Blocks": 0,
+          "Shared Dirtied Blocks": 0,
+          "Shared Hit Blocks": 0,
+          "Shared Read Blocks": 0,
+          "Shared Written Blocks": 0,
+          "Temp Read Blocks": 0,
+          "Temp Written Blocks": 0
+        },
+        "Planning Time": 0.069,
+        "Triggers": []
+      },
+      "first_page": {
+        "max_ms": 0.8503,
+        "p50_ms": 0.5169,
+        "p95_ms": 0.835,
+        "samples": 30
+      },
+      "large_owner_chats": 10000,
+      "page_100": {
+        "max_ms": 0.7637,
+        "p50_ms": 0.5376,
+        "p95_ms": 0.7233,
+        "samples": 30
+      },
+      "page_size": 100,
+      "small_owner_chats": 20,
+      "small_owners": 100,
+      "unique_traversed": 10000
+    },
+    "metadata": {
+      "bank": {
+        "first_load_ms": 5.5721,
+        "tables": 8,
+        "warm_catalog": {
+          "max_ms": 2.2257,
+          "p50_ms": 1.2155,
+          "p95_ms": 2.1141,
+          "samples": 30
+        }
+      },
+      "pagila": {
+        "first_load_ms": 2.9581,
+        "tables": 15,
+        "warm_catalog": {
+          "max_ms": 1.8224,
+          "p50_ms": 1.2177,
+          "p95_ms": 1.7102,
+          "samples": 30
+        }
+      }
+    },
+    "pool": {
+      "connections": 1,
+      "overflow_rejected_ms": 0.1628,
+      "recovery": {
+        "max_ms": 1.6287,
+        "p50_ms": 1.3571,
+        "p95_ms": 1.5292,
+        "samples": 30
+      },
+      "wait_seconds": 0.2,
+      "waiting": 1
+    },
+    "python": "3.12.14",
+    "scope": "networkless disposable synthetic databases; no providers",
+    "status": "passed"
+  },
+  "remaining_ids": [],
+  "source_archive_sha256": "237c2346775bc9bd9c7b2339f7f6fc118a15a7bec28516729235e223a77d159a",
+  "status": "passed"
+}
