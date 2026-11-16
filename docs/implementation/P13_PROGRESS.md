@@ -5,6 +5,23 @@ recovery-key discovery, backup/recovery and release execution to his personal
 computer. The application remains on its healthy P11a/schema8 release. Code,
 merged status, deployment and enablement are separate claims.
 
+## November 16 restricted-delivery source qualification
+
+The isolated personal-computer branch prepares exact SPA routing, real unknown
+route/asset 404s, explicit restricted robots/noindex policy and a text sitemap
+404. All prior API, rate, identity, export, stream and hashed-asset configuration
+bytes remain unchanged. The accompanying opt-in public checker uses seven fixed
+unauthenticated paths, no credentials and bounded requests/bytes/deadlines.
+
+Local qualification passed 20 offline guards and four network-none nginx
+exercises: 29 delivery requests across all 14 routes, the retained 120-request
+proxy exercise, 64 identity requests and 23 export requests. Every owned
+container was removed and absence confirmed. Source/secret, lock, formatting
+and lint checks passed. See [the implementation and limits](P13_PUBLIC_DELIVERY_CHECK.md).
+Exact-head PR and distinct merged-main CI remain required. These are source
+results; production still has the earlier discovery/404 gaps and schema8.
+No CSP/HSTS, Google audience, grants or production configuration changed.
+
 ## Prepared workspace improvements
 
 The navigation slice adds an accessible quick switcher for loaded titles,

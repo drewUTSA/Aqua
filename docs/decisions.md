@@ -21,6 +21,21 @@ See `docs/implementation/AI_QUALIFICATION.md` for the contracts and limits.
 
 Each entry records the decision, the alternatives considered, and why.
 
+## November 16, 2026: Closed routes and restricted discovery
+
+Serve the SPA shell only for the exact current frontend route set, keeping
+query-string behavior. Unknown routes and missing files return HTTP404. For
+the current restricted rollout, return a plain robots Disallow policy, noindex
+HTML metadata and a plain HTTP404 sitemap response. Preserve the existing API,
+identity, export, stream, rate and asset configuration bytes. A public discovery
+policy needs its own review before expansion; crawler hints do not grant or
+restrict application access. CSP/HSTS await actual ingress/browser qualification.
+
+The public inspection tool defaults to a plan. Explicit execution permits only
+bounded unauthenticated GETs to fixed Aqua paths, with a credential-free child
+and sanitized create-only receipts. Completion of that diagnostic does not
+certify launch readiness or authorize a cutover.
+
 ## November 13, 2026: Bounded join paths and owned follow-up retrieval
 
 **Decision.** Build approved schema adjacency once per retrieval, retain existing

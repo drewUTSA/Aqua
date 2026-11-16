@@ -91,6 +91,8 @@ jobs:
           python tools/checks/test_compare_runs.py
           python tools/checks/test_compare_experiments.py
           python tools/checks/test_ai_replay_runner.py
+          python tools/checks/test_public_delivery.py
+          python tools/checks/test_public_delivery_routes.py
           python -m black --check backend eval tools/checks ops
           python -m ruff check backend eval tools/checks ops
           python tools/checks/p05_browser_cleanup_test.py
@@ -162,6 +164,8 @@ jobs:
         run: python tools/checks/run_proxy.py
       - name: Identity action aliases, denial and recovery in a separate isolated proxy
         run: python tools/checks/run_proxy.py --identity-actions
+      - name: Restricted discovery and exact SPA routes in an isolated proxy
+        run: python tools/checks/run_public_delivery_proxy.py --output .check-results/p13-public-delivery-proxy.json
       # The offline SSR tests import React from this locked dependency tree.
       - name: Install locked frontend dependencies
         working-directory: frontend
