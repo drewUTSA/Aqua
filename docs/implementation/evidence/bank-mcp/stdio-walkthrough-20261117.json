@@ -1,0 +1,1366 @@
+{
+  "all_sdk_contexts_exited": true,
+  "bank_authentication_tested": false,
+  "calls": [
+    {
+      "bytes": 1629,
+      "denied": false,
+      "persona": "none",
+      "result_sha256": "fd1b08aedbe7eb461d6c4dd705feca502148c70eb5de1f82ab5c211dfec1322f",
+      "seconds": 0.001531,
+      "tool": "demo_context"
+    },
+    {
+      "bytes": 1108,
+      "denied": true,
+      "persona": "none",
+      "result_sha256": "37ce696b4fd2811553f20ebfd4b4ce3c62c4d38af7b4fe752094ac2a354d31de",
+      "seconds": 0.000709,
+      "tool": "run_demo_report"
+    },
+    {
+      "bytes": 1108,
+      "denied": true,
+      "persona": "none",
+      "result_sha256": "37ce696b4fd2811553f20ebfd4b4ce3c62c4d38af7b4fe752094ac2a354d31de",
+      "seconds": 0.000687,
+      "tool": "demo_context"
+    },
+    {
+      "bytes": 1973,
+      "denied": false,
+      "persona": "teller",
+      "result_sha256": "4aae1273fd8bc9683e87d851800894c8ab6f2737e4229e0ba4e16f17bb176273",
+      "seconds": 0.001146,
+      "tool": "demo_context"
+    },
+    {
+      "bytes": 1601,
+      "denied": false,
+      "persona": "teller",
+      "result_sha256": "e29473b8126b8a8d2ebc86e2b2c53db487eb96c44cce7ab84ccabec8efb3f0e8",
+      "seconds": 0.000728,
+      "tool": "list_authorized_reports"
+    },
+    {
+      "bytes": 1108,
+      "denied": true,
+      "persona": "teller",
+      "result_sha256": "37ce696b4fd2811553f20ebfd4b4ce3c62c4d38af7b4fe752094ac2a354d31de",
+      "seconds": 0.000686,
+      "tool": "run_demo_report"
+    },
+    {
+      "bytes": 1108,
+      "denied": true,
+      "persona": "teller",
+      "result_sha256": "37ce696b4fd2811553f20ebfd4b4ce3c62c4d38af7b4fe752094ac2a354d31de",
+      "seconds": 0.000692,
+      "tool": "analyze_monthly_trend"
+    },
+    {
+      "bytes": 2147,
+      "denied": false,
+      "persona": "analyst",
+      "result_sha256": "62056fb11c954df36207b835b7ea599e83c745ce13603f60cd12829ff559d7db",
+      "seconds": 0.001042,
+      "tool": "demo_context"
+    },
+    {
+      "bytes": 2497,
+      "denied": false,
+      "persona": "analyst",
+      "result_sha256": "c410436e859d8e1b8138eaa457b14bbcca514368d0876b8723bc652cc87dc610",
+      "seconds": 0.00084,
+      "tool": "list_authorized_reports"
+    },
+    {
+      "bytes": 2873,
+      "denied": false,
+      "persona": "manager",
+      "result_sha256": "3798d15832636dab0f51f7b7f0d880700fff9eb5f3aaac8b1ae0123f21e29c71",
+      "seconds": 0.001182,
+      "tool": "demo_context"
+    },
+    {
+      "bytes": 7715,
+      "denied": false,
+      "persona": "manager",
+      "result_sha256": "5f4dac61e3be1eebb4cf074eb306345887777d7f3fd659fd69a02f763d8f4a20",
+      "seconds": 0.001099,
+      "tool": "list_authorized_reports"
+    },
+    {
+      "bytes": 4067,
+      "denied": false,
+      "persona": "manager",
+      "result_sha256": "f027e0278d963c719c3601c520d208471135940b1e4c92c83261a94900e20a6b",
+      "seconds": 0.001203,
+      "tool": "run_demo_report"
+    },
+    {
+      "bytes": 2895,
+      "denied": false,
+      "persona": "manager",
+      "result_sha256": "2ced93106c34c053ab766f972e8550a6a5a6f4252cd9323de849b6fb5e05a6b0",
+      "seconds": 0.001109,
+      "tool": "prepare_review_proposal"
+    },
+    {
+      "bytes": 3123,
+      "denied": false,
+      "persona": "manager",
+      "result_sha256": "ab438d1c20a5671cc38b82f42d1436c401f6e9ba323cea2edef0b42b95429126",
+      "seconds": 0.000836,
+      "tool": "run_demo_report"
+    },
+    {
+      "bytes": 2887,
+      "denied": false,
+      "persona": "manager",
+      "result_sha256": "994239ba0a745c742c0dfd8c4a2dce13065348f2685755a3c9c938de48af02c9",
+      "seconds": 0.000976,
+      "tool": "prepare_review_proposal"
+    },
+    {
+      "bytes": 3281,
+      "denied": false,
+      "persona": "manager",
+      "result_sha256": "ff7ddfbdab794cc8516303ef6da5b7807305b69311c114e0e373b6a01a44ddd5",
+      "seconds": 0.00083,
+      "tool": "run_demo_report"
+    },
+    {
+      "bytes": 2897,
+      "denied": false,
+      "persona": "manager",
+      "result_sha256": "c82cdb91060bc1f057a20c5ca8ccc3db24dac1fe51d5d433c3f39e75ce698f1e",
+      "seconds": 0.001175,
+      "tool": "prepare_review_proposal"
+    },
+    {
+      "bytes": 3261,
+      "denied": false,
+      "persona": "manager",
+      "result_sha256": "208a88f597503cf3f118ad74e74af87e769847b7d2d5f1e700135bca254cc412",
+      "seconds": 0.001089,
+      "tool": "run_demo_report"
+    },
+    {
+      "bytes": 2905,
+      "denied": false,
+      "persona": "manager",
+      "result_sha256": "32f2607c8e07c8c4cde288b2a47952a2f1267aaeb15225204e325765c6de79e0",
+      "seconds": 0.001019,
+      "tool": "prepare_review_proposal"
+    },
+    {
+      "bytes": 3997,
+      "denied": false,
+      "persona": "manager",
+      "result_sha256": "856474ae722183a480d61c0e0a1f526ccdde575a7efb87d1f72ce6ef58e18376",
+      "seconds": 0.000852,
+      "tool": "run_demo_report"
+    },
+    {
+      "bytes": 2895,
+      "denied": false,
+      "persona": "manager",
+      "result_sha256": "5c0ae16e886cd727aca469bf356cc3309efed906accbf9386833e3924af2f981",
+      "seconds": 0.000949,
+      "tool": "prepare_review_proposal"
+    },
+    {
+      "bytes": 2821,
+      "denied": false,
+      "persona": "manager",
+      "result_sha256": "a58a0ce2ff783d2c283fd317caa1daaea0860358f371fb8744ae3e464e4f30b7",
+      "seconds": 0.000782,
+      "tool": "run_demo_report"
+    },
+    {
+      "bytes": 2897,
+      "denied": false,
+      "persona": "manager",
+      "result_sha256": "6be3cc1c502bbbf04542cbeb577f9fc3b7517ae0281d2aae3a36101f7d3f3c05",
+      "seconds": 0.001014,
+      "tool": "prepare_review_proposal"
+    },
+    {
+      "bytes": 2963,
+      "denied": false,
+      "persona": "manager",
+      "result_sha256": "8edb7398218f8361276d3144f8b0f878b273b0a814563b060fa742a36feece02",
+      "seconds": 0.000908,
+      "tool": "run_demo_report"
+    },
+    {
+      "bytes": 2903,
+      "denied": false,
+      "persona": "manager",
+      "result_sha256": "e51b95c5f2127b0c6fa665a12409940a18c6875c20d66296ebc8400f62406986",
+      "seconds": 0.000905,
+      "tool": "prepare_review_proposal"
+    },
+    {
+      "bytes": 3293,
+      "denied": false,
+      "persona": "manager",
+      "result_sha256": "971c161806d27fa21bfccc8b23014dcf752060ba02ea5ef5907f5347aaa1d1d3",
+      "seconds": 0.000864,
+      "tool": "run_demo_report"
+    },
+    {
+      "bytes": 2895,
+      "denied": false,
+      "persona": "manager",
+      "result_sha256": "42894e9f288cf33b071adfc0a9b471c2d5ae666993dd9a69eef454bec8e2527a",
+      "seconds": 0.000918,
+      "tool": "prepare_review_proposal"
+    },
+    {
+      "bytes": 7229,
+      "denied": false,
+      "persona": "manager",
+      "result_sha256": "f86bddb79c87e79cb3081884df694bd83f2adabc25e294adf1964397fd33a171",
+      "seconds": 0.00121,
+      "tool": "run_demo_report"
+    },
+    {
+      "bytes": 2895,
+      "denied": false,
+      "persona": "manager",
+      "result_sha256": "b493a6551bf52c24de4e8434ef1ba2c1ab4d47d47e22b049ec2d270047f18044",
+      "seconds": 0.001055,
+      "tool": "prepare_review_proposal"
+    },
+    {
+      "bytes": 2739,
+      "denied": false,
+      "persona": "manager",
+      "result_sha256": "f3e546a9376da26a56883eac01230acce611dd6dd612a0c4aaa2ae93efd1b210",
+      "seconds": 0.000929,
+      "tool": "run_demo_report"
+    },
+    {
+      "bytes": 2887,
+      "denied": false,
+      "persona": "manager",
+      "result_sha256": "4df24bd6d58556199d5231efaad2a71a2c9911a1bb8387785e24ab5bf027ed79",
+      "seconds": 0.000937,
+      "tool": "prepare_review_proposal"
+    },
+    {
+      "bytes": 2957,
+      "denied": false,
+      "persona": "manager",
+      "result_sha256": "87c399837e96af510b688d679012d4868c34454541ade2a473a0ff06b4acd5a1",
+      "seconds": 0.000971,
+      "tool": "run_demo_report"
+    },
+    {
+      "bytes": 2899,
+      "denied": false,
+      "persona": "manager",
+      "result_sha256": "b6c3854ffb1dc1a29babf1d3a227241cb6f338b1f754a21188da02f52a2e71ab",
+      "seconds": 0.000956,
+      "tool": "prepare_review_proposal"
+    },
+    {
+      "bytes": 2897,
+      "denied": false,
+      "persona": "manager",
+      "result_sha256": "91c35950b413d6a8ad551febe81ad5fb6de640e59c49d23d69fd2e13f6fc3daa",
+      "seconds": 0.000867,
+      "tool": "run_demo_report"
+    },
+    {
+      "bytes": 2901,
+      "denied": false,
+      "persona": "manager",
+      "result_sha256": "cf0464bfa864e49ad13c6c9296500b79d0258da4bdf1f3afd9eead8584fd52fb",
+      "seconds": 0.00103,
+      "tool": "prepare_review_proposal"
+    },
+    {
+      "bytes": 2957,
+      "denied": false,
+      "persona": "manager",
+      "result_sha256": "0b0a62381b1a372b984615c70c35dc5cf063aef193f178fac5ab68702068fd56",
+      "seconds": 0.000906,
+      "tool": "run_demo_report"
+    },
+    {
+      "bytes": 2891,
+      "denied": false,
+      "persona": "manager",
+      "result_sha256": "d8ccfd85cb49d72eb241c1c43f8da5f40b5f11af37215309ad8f30c6e3b5dacd",
+      "seconds": 0.000909,
+      "tool": "prepare_review_proposal"
+    },
+    {
+      "bytes": 2899,
+      "denied": false,
+      "persona": "manager",
+      "result_sha256": "8e38f5e0a79d86f77967be9b0387ae8543f68f7607da5869bac7016a40f0e772",
+      "seconds": 0.00096,
+      "tool": "run_demo_report"
+    },
+    {
+      "bytes": 2895,
+      "denied": false,
+      "persona": "manager",
+      "result_sha256": "8e24d807f2e1d47648a9250abd17487dff87245b0e02483b02b17d203cd4c0d6",
+      "seconds": 0.001032,
+      "tool": "prepare_review_proposal"
+    },
+    {
+      "bytes": 3287,
+      "denied": false,
+      "persona": "manager",
+      "result_sha256": "8131501e90a0ce52320fd810acef77d33bb5e5c4202d11c411e6970c15661a15",
+      "seconds": 0.000912,
+      "tool": "run_demo_report"
+    },
+    {
+      "bytes": 2899,
+      "denied": false,
+      "persona": "manager",
+      "result_sha256": "81ea5d8a496ef248c4d1ceed41415e3b84eaea0a01baeecfc6c57b56f0cef264",
+      "seconds": 0.000932,
+      "tool": "prepare_review_proposal"
+    },
+    {
+      "bytes": 2975,
+      "denied": false,
+      "persona": "manager",
+      "result_sha256": "0d287be54d33b7d4603ba92d4958fbb4d1fed047abde416b24e7659a572cc89d",
+      "seconds": 0.0009,
+      "tool": "run_demo_report"
+    },
+    {
+      "bytes": 2889,
+      "denied": false,
+      "persona": "manager",
+      "result_sha256": "d667ba97150667ba9703b3b6aeac0ffd05ca9661f1e7e8e1a18e68baa6645667",
+      "seconds": 0.000973,
+      "tool": "prepare_review_proposal"
+    },
+    {
+      "bytes": 3145,
+      "denied": false,
+      "persona": "manager",
+      "result_sha256": "e34477c0feea2b78573154e3ce9ea4b63f91a2791c6db54d08508ca39ddc6135",
+      "seconds": 0.000938,
+      "tool": "run_demo_report"
+    },
+    {
+      "bytes": 2881,
+      "denied": false,
+      "persona": "manager",
+      "result_sha256": "adde0b3214392675c57bc7e3632bdaf0afbedd0552003db52762c12dafa8d313",
+      "seconds": 0.000968,
+      "tool": "prepare_review_proposal"
+    },
+    {
+      "bytes": 4077,
+      "denied": false,
+      "persona": "manager",
+      "result_sha256": "ccef15fe7e2a97001e90c1689253747275511890bbaef3f87cbb5b4ef4a6f1ee",
+      "seconds": 0.001379,
+      "tool": "search_demo_guidance"
+    },
+    {
+      "bytes": 4029,
+      "denied": false,
+      "persona": "manager",
+      "result_sha256": "8936d3a2394602b7bfb571c4106b6551f6c623cd06ac5e7c9b114d0a1534babd",
+      "seconds": 0.00104,
+      "tool": "search_demo_guidance"
+    },
+    {
+      "bytes": 4047,
+      "denied": false,
+      "persona": "manager",
+      "result_sha256": "be22d63aeb341999a2fc25d791086bea10a06701ba938c31d5950dbaaa0e753c",
+      "seconds": 0.000951,
+      "tool": "search_demo_guidance"
+    },
+    {
+      "bytes": 4035,
+      "denied": false,
+      "persona": "manager",
+      "result_sha256": "ee9ab23b06615938fb99120c8610c7a49de7e3be35b1a05cc7ce95ae2dc0f40c",
+      "seconds": 0.00094,
+      "tool": "search_demo_guidance"
+    },
+    {
+      "bytes": 6629,
+      "denied": false,
+      "persona": "manager",
+      "result_sha256": "864a88c5c73ef38a661ec4c0f4d9627df6c83348c0d8f50ec640cab629724add",
+      "seconds": 0.001095,
+      "tool": "search_demo_guidance"
+    },
+    {
+      "bytes": 4067,
+      "denied": false,
+      "persona": "manager",
+      "result_sha256": "b36b51d218e983ea5afa9ba9f98a00697927548b95851b650a55fba50e9be017",
+      "seconds": 0.000982,
+      "tool": "search_demo_guidance"
+    },
+    {
+      "bytes": 4081,
+      "denied": false,
+      "persona": "manager",
+      "result_sha256": "a249d305e99e75a9750abac83895f8818dd2e5fa8bbde08de86f121a0289b940",
+      "seconds": 0.000906,
+      "tool": "search_demo_guidance"
+    },
+    {
+      "bytes": 4081,
+      "denied": false,
+      "persona": "manager",
+      "result_sha256": "ce4184953b0efe88572ba1f0db072a5b34471ba18d25a267715b86d22f701b64",
+      "seconds": 0.000877,
+      "tool": "search_demo_guidance"
+    },
+    {
+      "bytes": 4173,
+      "denied": false,
+      "persona": "manager",
+      "result_sha256": "846e88d29cf6256453d90ce02917e88a65bcff871be6eb9385cdee953f3c9291",
+      "seconds": 0.000869,
+      "tool": "search_demo_guidance"
+    },
+    {
+      "bytes": 4033,
+      "denied": false,
+      "persona": "manager",
+      "result_sha256": "94e3822479e476c9b987e752db47cef45dfeafb6628af9055068569552f9cf60",
+      "seconds": 0.000838,
+      "tool": "search_demo_guidance"
+    },
+    {
+      "bytes": 4097,
+      "denied": false,
+      "persona": "manager",
+      "result_sha256": "c15b0c60359d152dc2e3e4d3d6ac1ced982e3bd41ab35bbbf48cde63d2260d52",
+      "seconds": 0.000934,
+      "tool": "search_demo_guidance"
+    },
+    {
+      "bytes": 4137,
+      "denied": false,
+      "persona": "manager",
+      "result_sha256": "41b5064c89eceb898750164eee0c48fe01f8833cfd4b39faa1b91484df3ecbd1",
+      "seconds": 0.000981,
+      "tool": "search_demo_guidance"
+    },
+    {
+      "bytes": 4045,
+      "denied": false,
+      "persona": "manager",
+      "result_sha256": "dbf080b8bc2ef8c547914c5dab76e394a606bcaffb7efa4144a6326c051ddace",
+      "seconds": 0.001026,
+      "tool": "search_demo_guidance"
+    },
+    {
+      "bytes": 4057,
+      "denied": false,
+      "persona": "manager",
+      "result_sha256": "7940395b6574ecc2996beae5d4a78bb60a07e4b93772797832709420019232d5",
+      "seconds": 0.000894,
+      "tool": "search_demo_guidance"
+    },
+    {
+      "bytes": 4067,
+      "denied": false,
+      "persona": "manager",
+      "result_sha256": "b9b24f878dca18cb4a42a13b40d68fd954ec2748efabb513ae926a5efd6dd873",
+      "seconds": 0.000859,
+      "tool": "search_demo_guidance"
+    },
+    {
+      "bytes": 4051,
+      "denied": false,
+      "persona": "manager",
+      "result_sha256": "589acee6a3e381483c5866afa9298f2702c98fe5d404e91d643a11ec1ab176eb",
+      "seconds": 0.000812,
+      "tool": "search_demo_guidance"
+    },
+    {
+      "bytes": 3999,
+      "denied": false,
+      "persona": "manager",
+      "result_sha256": "fef11fd19d98a0bd5e74e4faa0615d6a4d3d46d5bfd5e553bb65566bf337458c",
+      "seconds": 0.001006,
+      "tool": "search_demo_guidance"
+    },
+    {
+      "bytes": 4151,
+      "denied": false,
+      "persona": "manager",
+      "result_sha256": "e2a60bb361d4bf328b83237e19d067f7a70927287d360fc8ffeda45245126fc3",
+      "seconds": 0.000927,
+      "tool": "search_demo_guidance"
+    },
+    {
+      "bytes": 4041,
+      "denied": false,
+      "persona": "manager",
+      "result_sha256": "d8b05391e9d867e280c7d73f093363831e5ab6f2be02c7f61236e948c5393375",
+      "seconds": 0.000935,
+      "tool": "search_demo_guidance"
+    },
+    {
+      "bytes": 4073,
+      "denied": false,
+      "persona": "manager",
+      "result_sha256": "52652528ecc11e16a09460f27b911550525466db1786a5d9f136042254e49254",
+      "seconds": 0.000978,
+      "tool": "search_demo_guidance"
+    },
+    {
+      "bytes": 8729,
+      "denied": false,
+      "persona": "manager",
+      "result_sha256": "13f601965482c3aee625d5ff45a61404da00766935a9b3ca112054546df41d08",
+      "seconds": 0.0057,
+      "tool": "analyze_monthly_trend"
+    },
+    {
+      "bytes": 8783,
+      "denied": false,
+      "persona": "manager",
+      "result_sha256": "1774760ce75b7e6e3d1339daba1759fe53190f8f830c667c7f6b949d94e0ce59",
+      "seconds": 0.00149,
+      "tool": "analyze_monthly_trend"
+    },
+    {
+      "bytes": 8769,
+      "denied": false,
+      "persona": "manager",
+      "result_sha256": "8bfcd22b40b12218507ffd0c54a6ddd6c30829170a978a8726e1810128630038",
+      "seconds": 0.001497,
+      "tool": "analyze_monthly_trend"
+    },
+    {
+      "bytes": 2845,
+      "denied": false,
+      "persona": "manager",
+      "result_sha256": "c6a6f98afbffd61b1d0f63bd4f1163efa2637032ef3a4eedb5893bfa9f2f1890",
+      "seconds": 0.001104,
+      "tool": "calculate_finance"
+    },
+    {
+      "bytes": 4061,
+      "denied": false,
+      "persona": "manager",
+      "result_sha256": "37352090e264ca7379d293e8619392ff000fa691098a78b47529b030361eab42",
+      "seconds": 0.001038,
+      "tool": "calculate_finance"
+    },
+    {
+      "bytes": 2749,
+      "denied": false,
+      "persona": "manager",
+      "result_sha256": "af6f8f2084b684ccffe377cec600e65d8ebbbc7c63493f511a0ca3dac6402625",
+      "seconds": 0.001001,
+      "tool": "calculate_finance"
+    },
+    {
+      "bytes": 2987,
+      "denied": false,
+      "persona": "manager",
+      "result_sha256": "b8d6a5d1969709019744b67d004a8df4b5481e70dc212c76970dccb4eae80738",
+      "seconds": 0.000904,
+      "tool": "calculate_finance"
+    },
+    {
+      "bytes": 3215,
+      "denied": false,
+      "persona": "manager",
+      "result_sha256": "3a6ecaa286f26a7db41bf5d0a341125a5ebfdae6b0d5a498904e5ee40250e436",
+      "seconds": 0.000899,
+      "tool": "calculate_finance"
+    },
+    {
+      "bytes": 1108,
+      "denied": true,
+      "persona": "manager",
+      "result_sha256": "37ce696b4fd2811553f20ebfd4b4ce3c62c4d38af7b4fe752094ac2a354d31de",
+      "seconds": 0.000722,
+      "tool": "prepare_review_proposal"
+    },
+    {
+      "bytes": 1108,
+      "denied": true,
+      "persona": "manager",
+      "result_sha256": "37ce696b4fd2811553f20ebfd4b4ce3c62c4d38af7b4fe752094ac2a354d31de",
+      "seconds": 0.000719,
+      "tool": "execute_payment"
+    }
+  ],
+  "elapsedSeconds": 2.614938,
+  "external_providers": 0,
+  "finishedUtc": "2026-11-17T14:53:13.893283+00:00",
+  "kind": "synthetic_bank_mcp_stdio_walkthrough",
+  "model_training": false,
+  "production_changes": false,
+  "result_bytes_total": 260293,
+  "samples": {
+    "amortizing_loan_payment": {
+      "approval_recorded": false,
+      "assumptions": [
+        "The fixed nominal annual rate, expressed as a percentage, is divided by 12; monthly payments occur at period end.",
+        "The ordinary annuity formula determines the scheduled payment; a zero rate uses principal / months.",
+        "Each month's interest and payment are rounded to cents; the last payment clears the exact remaining cent balance.",
+        "No fees, taxes, insurance, day-count adjustment, changing rates, prepayments or bank product terms are included.",
+        "Inputs whose cent-rounded payment cannot amortize principal are declined rather than shown as a loan quote."
+      ],
+      "bank_quote": false,
+      "currency": "USD",
+      "execution_enabled": false,
+      "explanation": "The illustrated monthly payment is 34.00 USD. After monthly cent rounding, the final payment is 34.01 USD and total interest is 2.01 USD.",
+      "inputs": {
+        "annual_rate_percent": "12",
+        "currency": "USD",
+        "principal_usd": "100",
+        "term_months": "3"
+      },
+      "operation": "amortizing_loan_payment",
+      "provenance": {
+        "external_data_used": false,
+        "formula_version": "aqua-demo-finance-v1",
+        "input_source": "caller_supplied_illustration",
+        "kind": "deterministic_calculation"
+      },
+      "result": {
+        "final_payment_adjusted": true,
+        "final_payment_usd": "34.01",
+        "first_payment_usd": "34.00",
+        "months_elapsed": "3",
+        "paid_off_early": false,
+        "remaining_balance_usd": "0.00",
+        "requested_term_months": "3",
+        "scheduled_monthly_payment_usd": "34.00",
+        "total_interest_usd": "2.01",
+        "total_payments_usd": "102.01",
+        "total_principal_usd": "100.00"
+      },
+      "rounding": {
+        "mode": "ROUND_HALF_UP",
+        "money_decimals": 2,
+        "percent_and_ratio_decimals": 6,
+        "working_precision_digits": 60
+      },
+      "schemaVersion": 1,
+      "status": "calculated"
+    },
+    "deposits": [
+      {
+        "accounts": 1200,
+        "branch": "north",
+        "closing_balance_usd": "1461250.00",
+        "product": "checking"
+      },
+      {
+        "accounts": 650,
+        "branch": "north",
+        "closing_balance_usd": "1155500.00",
+        "product": "savings"
+      },
+      {
+        "accounts": 1800,
+        "branch": "central",
+        "closing_balance_usd": "2223000.00",
+        "product": "checking"
+      },
+      {
+        "accounts": 900,
+        "branch": "central",
+        "closing_balance_usd": "1604000.00",
+        "product": "savings"
+      },
+      {
+        "accounts": 200,
+        "branch": "central",
+        "closing_balance_usd": "1382500.00",
+        "product": "business_checking"
+      },
+      {
+        "accounts": 800,
+        "branch": "south",
+        "closing_balance_usd": "947750.00",
+        "product": "checking"
+      },
+      {
+        "accounts": 500,
+        "branch": "south",
+        "closing_balance_usd": "854750.00",
+        "product": "savings"
+      }
+    ],
+    "gl_operating_expense": {
+      "as_of": "2026-11-16",
+      "bank_authentication": false,
+      "bank_name": "Aqua Harbor Demo Bank",
+      "chronological_evaluation": {
+        "approximate": true,
+        "baseline": "last_observation_v1",
+        "binding": {
+          "dataset_sha256": "8c27aa965ae4087fc965f66957ab08dde9b18de1cf6abdd321102afb6f8cdd37",
+          "scope_sha256": "b3e8da1621d63213f1df570a205be11b91c6adea63c9a28e72eab6db73f1a819",
+          "series_sha256": "816d94fcf134d0dd50aef53caebaadd5d6b8eb1a1ae26f82905a56c7a7462be8",
+          "source_sha256": "454bf3046a0c8c7b9b7d41e25738b90eca44523f08c81ecccb70a1bdce4d5e54"
+        },
+        "eligible_folds": 6,
+        "evaluated_folds": 6,
+        "first_evaluation_period": "2026-05-01",
+        "interpretation": "observed_holdouts_only_not_future_performance",
+        "kind": "historical_rolling_origin_evaluation",
+        "last_evaluation_period": "2026-10-01",
+        "last_observation": {
+          "mae": "3166.666666666666666667",
+          "rmse": "3188.521078284831829264"
+        },
+        "mae_comparison": "lower_error",
+        "method": "ols_monthly_v1",
+        "minimum_evaluation_folds": 6,
+        "qualification_established": false,
+        "status": "evaluated",
+        "training_minimum_points": 12,
+        "trend": {
+          "mae": "1360.320480173421349892",
+          "rmse": "1404.372333526203571023"
+        },
+        "unit": "USD",
+        "version": 1
+      },
+      "currency": "USD",
+      "definition": "Monthly SUM of fictional operating_expense ledger entries as positive USD costs; only the defined fixture scope is represented.",
+      "excluded_partial_periods": [
+        "2026-11"
+      ],
+      "explanation": "This describes 18 complete fictional ledger months. Six later observations were evaluated using only earlier observations, against a last-observation baseline. The partial November period is excluded. These checks do not establish future accuracy, causation or performance on a real bank.",
+      "historical_fit": {
+        "aggregation": "monthly_sum",
+        "approximate": true,
+        "binding": {
+          "dataset_sha256": "8c27aa965ae4087fc965f66957ab08dde9b18de1cf6abdd321102afb6f8cdd37",
+          "scope_sha256": "b3e8da1621d63213f1df570a205be11b91c6adea63c9a28e72eab6db73f1a819",
+          "series_sha256": "816d94fcf134d0dd50aef53caebaadd5d6b8eb1a1ae26f82905a56c7a7462be8",
+          "source_sha256": "454bf3046a0c8c7b9b7d41e25738b90eca44523f08c81ecccb70a1bdce4d5e54"
+        },
+        "fitted_direction": "rising",
+        "in_sample_mae": "1000",
+        "in_sample_r_squared": "0.994286568784372802",
+        "in_sample_rmse": "1332.042719021262328051",
+        "intercept": "151543.859649122807017544",
+        "interpretation": "historical_fit_not_forecast_or_causation",
+        "kind": "historical_monthly_trend",
+        "method": "ols_monthly_v1",
+        "month_index_origin": "2025-05-01",
+        "observed_end": "2026-10-01",
+        "observed_points": 18,
+        "observed_start": "2025-05-01",
+        "ollama_weights_updated": false,
+        "qualification_established": false,
+        "slope_per_month": "3386.996904024767801858",
+        "unit": "USD",
+        "version": 1
+      },
+      "interpretation": "fictional_history_not_a_forecast_or_bank_performance",
+      "jurisdiction": "US",
+      "metric_id": "gl_operating_expense",
+      "model_training_performed": false,
+      "observations": [
+        {
+          "period": "2025-05-01",
+          "value": "150000.00"
+        },
+        {
+          "period": "2025-06-01",
+          "value": "154000.00"
+        },
+        {
+          "period": "2025-07-01",
+          "value": "157000.00"
+        },
+        {
+          "period": "2025-08-01",
+          "value": "160000.00"
+        },
+        {
+          "period": "2025-09-01",
+          "value": "165000.00"
+        },
+        {
+          "period": "2025-10-01",
+          "value": "170000.00"
+        },
+        {
+          "period": "2025-11-01",
+          "value": "175000.00"
+        },
+        {
+          "period": "2025-12-01",
+          "value": "178000.00"
+        },
+        {
+          "period": "2026-01-01",
+          "value": "180000.00"
+        },
+        {
+          "period": "2026-02-01",
+          "value": "182000.00"
+        },
+        {
+          "period": "2026-03-01",
+          "value": "185000.00"
+        },
+        {
+          "period": "2026-04-01",
+          "value": "189000.00"
+        },
+        {
+          "period": "2026-05-01",
+          "value": "192000.00"
+        },
+        {
+          "period": "2026-06-01",
+          "value": "195000.00"
+        },
+        {
+          "period": "2026-07-01",
+          "value": "199000.00"
+        },
+        {
+          "period": "2026-08-01",
+          "value": "202000.00"
+        },
+        {
+          "period": "2026-09-01",
+          "value": "205000.00"
+        },
+        {
+          "period": "2026-10-01",
+          "value": "208000.00"
+        }
+      ],
+      "ollama_weights_updated": false,
+      "qualification_established": false,
+      "real_bank_data": false,
+      "source_origin": "Aqua-authored fictional fixture",
+      "source_revision": "454bf3046a0c8c7b9b7d41e25738b90eca44523f08c81ecccb70a1bdce4d5e54",
+      "source_version": "aqua-synthetic-bank-v1",
+      "synthetic": true
+    },
+    "gl_operating_income": {
+      "as_of": "2026-11-16",
+      "bank_authentication": false,
+      "bank_name": "Aqua Harbor Demo Bank",
+      "chronological_evaluation": {
+        "approximate": true,
+        "baseline": "last_observation_v1",
+        "binding": {
+          "dataset_sha256": "8c27aa965ae4087fc965f66957ab08dde9b18de1cf6abdd321102afb6f8cdd37",
+          "scope_sha256": "b3e8da1621d63213f1df570a205be11b91c6adea63c9a28e72eab6db73f1a819",
+          "series_sha256": "12af365dc442c316bb5b996bd82c1e6f5e1a3486f9cb11639a7fcd329ced1c8e",
+          "source_sha256": "ff6ece1faf31e561e4ffe8cafa3f1b4919e57f58fc8887568dac1f98285521fe"
+        },
+        "eligible_folds": 6,
+        "evaluated_folds": 6,
+        "first_evaluation_period": "2026-05-01",
+        "interpretation": "observed_holdouts_only_not_future_performance",
+        "kind": "historical_rolling_origin_evaluation",
+        "last_evaluation_period": "2026-10-01",
+        "last_observation": {
+          "mae": "11666.666666666666666667",
+          "rmse": "12223.611032205935939447"
+        },
+        "mae_comparison": "lower_error",
+        "method": "ols_monthly_v1",
+        "minimum_evaluation_folds": 6,
+        "qualification_established": false,
+        "status": "evaluated",
+        "training_minimum_points": 12,
+        "trend": {
+          "mae": "7441.325626987391693274",
+          "rmse": "9428.823633223458504052"
+        },
+        "unit": "USD",
+        "version": 1
+      },
+      "currency": "USD",
+      "definition": "Monthly SUM of fictional interest_income plus fee_income ledger entries; gross specified income, not GAAP net income or deposit flows.",
+      "excluded_partial_periods": [
+        "2026-11"
+      ],
+      "explanation": "This describes 18 complete fictional ledger months. Six later observations were evaluated using only earlier observations, against a last-observation baseline. The partial November period is excluded. These checks do not establish future accuracy, causation or performance on a real bank.",
+      "historical_fit": {
+        "aggregation": "monthly_sum",
+        "approximate": true,
+        "binding": {
+          "dataset_sha256": "8c27aa965ae4087fc965f66957ab08dde9b18de1cf6abdd321102afb6f8cdd37",
+          "scope_sha256": "b3e8da1621d63213f1df570a205be11b91c6adea63c9a28e72eab6db73f1a819",
+          "series_sha256": "12af365dc442c316bb5b996bd82c1e6f5e1a3486f9cb11639a7fcd329ced1c8e",
+          "source_sha256": "ff6ece1faf31e561e4ffe8cafa3f1b4919e57f58fc8887568dac1f98285521fe"
+        },
+        "fitted_direction": "rising",
+        "in_sample_mae": "4183.293200321064098154",
+        "in_sample_r_squared": "0.988233743268619178",
+        "in_sample_rmse": "5064.892507076973235613",
+        "intercept": "193701.754385964912280702",
+        "interpretation": "historical_fit_not_forecast_or_causation",
+        "kind": "historical_monthly_trend",
+        "method": "ols_monthly_v1",
+        "month_index_origin": "2025-05-01",
+        "observed_end": "2026-10-01",
+        "observed_points": 18,
+        "observed_start": "2025-05-01",
+        "ollama_weights_updated": false,
+        "qualification_established": false,
+        "slope_per_month": "8946.852425180598555212",
+        "unit": "USD",
+        "version": 1
+      },
+      "interpretation": "fictional_history_not_a_forecast_or_bank_performance",
+      "jurisdiction": "US",
+      "metric_id": "gl_operating_income",
+      "model_training_performed": false,
+      "observations": [
+        {
+          "period": "2025-05-01",
+          "value": "195000.00"
+        },
+        {
+          "period": "2025-06-01",
+          "value": "205500.00"
+        },
+        {
+          "period": "2025-07-01",
+          "value": "216000.00"
+        },
+        {
+          "period": "2025-08-01",
+          "value": "222000.00"
+        },
+        {
+          "period": "2025-09-01",
+          "value": "233000.00"
+        },
+        {
+          "period": "2025-10-01",
+          "value": "238500.00"
+        },
+        {
+          "period": "2025-11-01",
+          "value": "249000.00"
+        },
+        {
+          "period": "2025-12-01",
+          "value": "254500.00"
+        },
+        {
+          "period": "2026-01-01",
+          "value": "260000.00"
+        },
+        {
+          "period": "2026-02-01",
+          "value": "271000.00"
+        },
+        {
+          "period": "2026-03-01",
+          "value": "275500.00"
+        },
+        {
+          "period": "2026-04-01",
+          "value": "287000.00"
+        },
+        {
+          "period": "2026-05-01",
+          "value": "298000.00"
+        },
+        {
+          "period": "2026-06-01",
+          "value": "304000.00"
+        },
+        {
+          "period": "2026-07-01",
+          "value": "313500.00"
+        },
+        {
+          "period": "2026-08-01",
+          "value": "330000.00"
+        },
+        {
+          "period": "2026-09-01",
+          "value": "346000.00"
+        },
+        {
+          "period": "2026-10-01",
+          "value": "357000.00"
+        }
+      ],
+      "ollama_weights_updated": false,
+      "qualification_established": false,
+      "real_bank_data": false,
+      "source_origin": "Aqua-authored fictional fixture",
+      "source_revision": "ff6ece1faf31e561e4ffe8cafa3f1b4919e57f58fc8887568dac1f98285521fe",
+      "source_version": "aqua-synthetic-bank-v1",
+      "synthetic": true
+    },
+    "gl_operating_surplus": {
+      "as_of": "2026-11-16",
+      "bank_authentication": false,
+      "bank_name": "Aqua Harbor Demo Bank",
+      "chronological_evaluation": {
+        "approximate": true,
+        "baseline": "last_observation_v1",
+        "binding": {
+          "dataset_sha256": "8c27aa965ae4087fc965f66957ab08dde9b18de1cf6abdd321102afb6f8cdd37",
+          "scope_sha256": "b3e8da1621d63213f1df570a205be11b91c6adea63c9a28e72eab6db73f1a819",
+          "series_sha256": "70f210bfb30c26a8f0e47b455f5f3d0af7bb36bb967b1d766f1e584e1e9047ac",
+          "source_sha256": "71bf13cee6a2297dc0f091dcb13ba7a653ca011f72a1eaeb6eebf2e0769c89f7"
+        },
+        "eligible_folds": 6,
+        "evaluated_folds": 6,
+        "first_evaluation_period": "2026-05-01",
+        "interpretation": "observed_holdouts_only_not_future_performance",
+        "kind": "historical_rolling_origin_evaluation",
+        "last_evaluation_period": "2026-10-01",
+        "last_observation": {
+          "mae": "8500",
+          "rmse": "9296.056511589560397592"
+        },
+        "mae_comparison": "higher_error",
+        "method": "ols_monthly_v1",
+        "minimum_evaluation_folds": 6,
+        "qualification_established": false,
+        "status": "evaluated",
+        "training_minimum_points": 12,
+        "trend": {
+          "mae": "8801.646107160813043166",
+          "rmse": "10502.62382043424525156"
+        },
+        "unit": "USD",
+        "version": 1
+      },
+      "currency": "USD",
+      "definition": "Fictional monthly interest_income plus fee_income minus operating_expense; excludes taxes, loss provisions and every unmodeled item, so is not GAAP net income.",
+      "excluded_partial_periods": [
+        "2026-11"
+      ],
+      "explanation": "This describes 18 complete fictional ledger months. Six later observations were evaluated using only earlier observations, against a last-observation baseline. The partial November period is excluded. These checks do not establish future accuracy, causation or performance on a real bank.",
+      "historical_fit": {
+        "aggregation": "monthly_sum",
+        "approximate": true,
+        "binding": {
+          "dataset_sha256": "8c27aa965ae4087fc965f66957ab08dde9b18de1cf6abdd321102afb6f8cdd37",
+          "scope_sha256": "b3e8da1621d63213f1df570a205be11b91c6adea63c9a28e72eab6db73f1a819",
+          "series_sha256": "70f210bfb30c26a8f0e47b455f5f3d0af7bb36bb967b1d766f1e584e1e9047ac",
+          "source_sha256": "71bf13cee6a2297dc0f091dcb13ba7a653ca011f72a1eaeb6eebf2e0769c89f7"
+        },
+        "fitted_direction": "rising",
+        "in_sample_mae": "4862.802430913886022245",
+        "in_sample_r_squared": "0.963816225824396103",
+        "in_sample_rmse": "5588.998071044382479955",
+        "intercept": "42157.894736842105263158",
+        "interpretation": "historical_fit_not_forecast_or_causation",
+        "kind": "historical_monthly_trend",
+        "method": "ols_monthly_v1",
+        "month_index_origin": "2025-05-01",
+        "observed_end": "2026-10-01",
+        "observed_points": 18,
+        "observed_start": "2025-05-01",
+        "ollama_weights_updated": false,
+        "qualification_established": false,
+        "slope_per_month": "5559.855521155830753354",
+        "unit": "USD",
+        "version": 1
+      },
+      "interpretation": "fictional_history_not_a_forecast_or_bank_performance",
+      "jurisdiction": "US",
+      "metric_id": "gl_operating_surplus",
+      "model_training_performed": false,
+      "observations": [
+        {
+          "period": "2025-05-01",
+          "value": "45000.00"
+        },
+        {
+          "period": "2025-06-01",
+          "value": "51500.00"
+        },
+        {
+          "period": "2025-07-01",
+          "value": "59000.00"
+        },
+        {
+          "period": "2025-08-01",
+          "value": "62000.00"
+        },
+        {
+          "period": "2025-09-01",
+          "value": "68000.00"
+        },
+        {
+          "period": "2025-10-01",
+          "value": "68500.00"
+        },
+        {
+          "period": "2025-11-01",
+          "value": "74000.00"
+        },
+        {
+          "period": "2025-12-01",
+          "value": "76500.00"
+        },
+        {
+          "period": "2026-01-01",
+          "value": "80000.00"
+        },
+        {
+          "period": "2026-02-01",
+          "value": "89000.00"
+        },
+        {
+          "period": "2026-03-01",
+          "value": "90500.00"
+        },
+        {
+          "period": "2026-04-01",
+          "value": "98000.00"
+        },
+        {
+          "period": "2026-05-01",
+          "value": "106000.00"
+        },
+        {
+          "period": "2026-06-01",
+          "value": "109000.00"
+        },
+        {
+          "period": "2026-07-01",
+          "value": "114500.00"
+        },
+        {
+          "period": "2026-08-01",
+          "value": "128000.00"
+        },
+        {
+          "period": "2026-09-01",
+          "value": "141000.00"
+        },
+        {
+          "period": "2026-10-01",
+          "value": "149000.00"
+        }
+      ],
+      "ollama_weights_updated": false,
+      "qualification_established": false,
+      "real_bank_data": false,
+      "source_origin": "Aqua-authored fictional fixture",
+      "source_revision": "71bf13cee6a2297dc0f091dcb13ba7a653ca011f72a1eaeb6eebf2e0769c89f7",
+      "source_version": "aqua-synthetic-bank-v1",
+      "synthetic": true
+    },
+    "liquidity_coverage": {
+      "approval_recorded": false,
+      "assumptions": [
+        "Coverage is supplied available liquidity / supplied projected outflows for the same period.",
+        "No eligibility, regulatory weighting, stress assumptions or approved bank liquidity limit is supplied.",
+        "This arithmetic illustration does not calculate a regulatory liquidity coverage ratio."
+      ],
+      "bank_quote": false,
+      "currency": "USD",
+      "execution_enabled": false,
+      "explanation": "Available liquidity covers 1.500000 times the stated outflows for the supplied day period.",
+      "inputs": {
+        "available_liquidity_usd": "150",
+        "currency": "USD",
+        "period": "day",
+        "projected_outflows_usd": "100"
+      },
+      "operation": "liquidity_coverage",
+      "provenance": {
+        "external_data_used": false,
+        "formula_version": "aqua-demo-finance-v1",
+        "input_source": "caller_supplied_illustration",
+        "kind": "deterministic_calculation"
+      },
+      "result": {
+        "coverage_ratio": "1.500000",
+        "covers_stated_outflows": true,
+        "period": "day",
+        "surplus_or_shortfall_usd": "50.00"
+      },
+      "rounding": {
+        "mode": "ROUND_HALF_UP",
+        "money_decimals": 2,
+        "percent_and_ratio_decimals": 6,
+        "working_precision_digits": 60
+      },
+      "schemaVersion": 1,
+      "status": "calculated"
+    },
+    "percent_change": {
+      "approval_recorded": false,
+      "assumptions": [
+        "Percent change is (current \u2212 previous) / previous \u00d7 100.",
+        "The caller supplies comparable observations in chronological order with the same period definition.",
+        "A zero or negative baseline is declined; a negative current amount is allowed."
+      ],
+      "bank_quote": false,
+      "currency": "USD",
+      "execution_enabled": false,
+      "explanation": "The change is -25.00 USD, or -25.000000% of the supplied positive baseline.",
+      "inputs": {
+        "currency": "USD",
+        "current_usd": "75",
+        "period": "month",
+        "previous_usd": "100"
+      },
+      "operation": "percent_change",
+      "provenance": {
+        "external_data_used": false,
+        "formula_version": "aqua-demo-finance-v1",
+        "input_source": "caller_supplied_illustration",
+        "kind": "deterministic_calculation"
+      },
+      "result": {
+        "difference_usd": "-25.00",
+        "percent_change": "-25.000000",
+        "period": "month"
+      },
+      "rounding": {
+        "mode": "ROUND_HALF_UP",
+        "money_decimals": 2,
+        "percent_and_ratio_decimals": 6,
+        "working_precision_digits": 60
+      },
+      "schemaVersion": 1,
+      "status": "calculated"
+    },
+    "reconciliation": {
+      "approval_recorded": false,
+      "assumptions": [
+        "Credits increase and debits decrease the supplied balance under this illustration's sign convention.",
+        "All amounts must describe the same account scope, USD currency and supplied period.",
+        "A zero difference is arithmetic agreement; records, completeness and authorization are not independently verified."
+      ],
+      "bank_quote": false,
+      "currency": "USD",
+      "execution_enabled": false,
+      "explanation": "Opening balance plus credits less debits gives 115.00 USD. Reported less expected is 1.00 USD.",
+      "inputs": {
+        "credits_usd": "20",
+        "currency": "USD",
+        "debits_usd": "5",
+        "opening_balance_usd": "100",
+        "period": "statement",
+        "reported_closing_balance_usd": "116"
+      },
+      "operation": "reconciliation",
+      "provenance": {
+        "external_data_used": false,
+        "formula_version": "aqua-demo-finance-v1",
+        "input_source": "caller_supplied_illustration",
+        "kind": "deterministic_calculation"
+      },
+      "result": {
+        "balanced": false,
+        "expected_closing_balance_usd": "115.00",
+        "period": "statement",
+        "reported_closing_balance_usd": "116.00",
+        "reported_less_expected_usd": "1.00"
+      },
+      "rounding": {
+        "mode": "ROUND_HALF_UP",
+        "money_decimals": 2,
+        "percent_and_ratio_decimals": 6,
+        "working_precision_digits": 60
+      },
+      "schemaVersion": 1,
+      "status": "calculated"
+    },
+    "simple_interest": {
+      "approval_recorded": false,
+      "assumptions": [
+        "Simple interest is principal \u00d7 annual rate (percent) \u00d7 months / 1200.",
+        "A month is one twelfth of a year; there is no compounding or day-count adjustment.",
+        "Interest is rounded once to cents at the end; fees, taxes and bank product terms are excluded."
+      ],
+      "bank_quote": false,
+      "currency": "USD",
+      "execution_enabled": false,
+      "explanation": "Over 6 supplied months, simple interest is 30.00 USD. Principal plus interest is 1030.00 USD.",
+      "inputs": {
+        "annual_rate_percent": "6",
+        "currency": "USD",
+        "principal_usd": "1000",
+        "term_months": "6"
+      },
+      "operation": "simple_interest",
+      "provenance": {
+        "external_data_used": false,
+        "formula_version": "aqua-demo-finance-v1",
+        "input_source": "caller_supplied_illustration",
+        "kind": "deterministic_calculation"
+      },
+      "result": {
+        "interest_usd": "30.00",
+        "principal_plus_interest_usd": "1030.00",
+        "term_months": "6"
+      },
+      "rounding": {
+        "mode": "ROUND_HALF_UP",
+        "money_decimals": 2,
+        "percent_and_ratio_decimals": 6,
+        "working_precision_digits": 60
+      },
+      "schemaVersion": 1,
+      "status": "calculated"
+    }
+  },
+  "schemaVersion": 1,
+  "sdk": "2.3.0",
+  "source_binding": {
+    "eval/banking/__init__.py": "62fb41d6f5abea93bea5d8f6baf9e32d8c01e68af49ca06103cd13bf28e3bbd7",
+    "eval/banking/catalog.py": "bd714e0e74612715fbfdfc96ff1e783bfbc3ba38a936735d96cc2b9f0c012791",
+    "eval/banking/data.py": "910df0344c370bc55c209a8033a62cabd60322751f67d22d6ef6376521250973",
+    "eval/banking/knowledge.py": "b3b5f753a963ab54a8141a06ec239c3fa86dd9ac82c84f00c67522a2fdbea8e6",
+    "eval/banking/proposals.py": "36691853c59240fa86ca955e1d7d4051f056a20f23af8416560ebbb16d635b6c",
+    "eval/banking/reports.py": "89f8595f2ccbdb13d280b92c77ae52448149a1ad173f42aafa9b98ecf3bc1bc1",
+    "eval/banking/scope.py": "d04351dab5a397ffe161ad47e7322f329e1517510a250d71ec3b9b25014d888c",
+    "eval/monthly_trend.py": "e6d51389054962c3189388d7694b95a247c4db94aa573bfdb3259763fd2238d1",
+    "eval/monthly_trend_contract.py": "1f2b4bf6e10edb927a616c4df1af5fcc0c3d1a080377f8716b1da3724b902bea",
+    "eval/monthly_trend_evaluation.py": "ef6c08bd2a1a7fae66d85ce97d6233662098f817260b8c10c3e1ac084dd166f3",
+    "mcp_demo/__init__.py": "10641412ed8d7dda80a2f7713cd9083d62acbd73c9de682b5d40ab1c582c0ce9",
+    "mcp_demo/__main__.py": "33274326865c3b67d166b4aa5dbcccaeed181657ef6600f4e26e60cebd80d6f2",
+    "mcp_demo/data.py": "0213446283991323991cf18019efc8f3d81e243ea79266677b3426a03bcf7150",
+    "mcp_demo/finance.py": "5c6874ee2effcaf6a264bf2961d24734e7ad01fc01c3a215d482f2f5b865cf8c",
+    "mcp_demo/finance_schema.py": "2b26492e92d2bb80ee7fb8762b6c159af71a6ab56a4a15309fe467f54ce75de7",
+    "mcp_demo/fixtures/bank.json": "8c7ee4eb198cf88338c84ba01fd1c21869df8d6aae26b45b366b7802a250417e",
+    "mcp_demo/guidance.py": "48e2054f7772a4dc28f4f39c1ef9f57a6ab94ad7eccf1c90330b211087d6857b",
+    "mcp_demo/protocol.py": "053b5c59dc579ad2b19f8d4a1620165cd1bae20bcfca51767ce3d9ffefa454a0",
+    "mcp_demo/reports.py": "56dc746c746aab0cc9f9c61de1f24dcc47c25a6cf7aa981b333ea4154e8c1626",
+    "mcp_demo/server.py": "3b5bf740b4eded46558b4ba225e3f1a288514afe28af51d774c565ab70118a10",
+    "mcp_demo/trends.py": "f37481a317a449213bb7c3e418fb200ff61c251354f2132cfbefb28dfb7775cc",
+    "private_walkthrough_runner": "45a5ddf981b8150f43626a47a6b995d06e336890c64e3734ea8e1a97b9f3eda2",
+    "tools/bank_demo/requirements-bootstrap.txt": "e313c529ffc2097c8098b6c0cee6f22c1435014e67d5adb276e3f2a2977193c0",
+    "tools/bank_demo/requirements-lock.txt": "fddaff5c76c5242485cf1826a09d3fcdc15fd2c6b282fc3079e2739eb9e065f8",
+    "tools/bank_demo/requirements.txt": "9a76e59da260e1c93c4f6c4f50215cb160e04872c866bfb095e790b749e57c0e"
+  },
+  "startedUtc": "2026-11-17T14:53:11.277813+00:00",
+  "status": "passed",
+  "stdio_personas_started": [
+    "none",
+    "teller",
+    "analyst",
+    "manager"
+  ]
+}

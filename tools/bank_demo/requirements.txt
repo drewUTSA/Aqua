@@ -1,0 +1,2 @@
+# Separate fictional-bank MCP demo only; Python 3.12.
+mcp==2.3.0
