@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "kind": "local_fixture_diagnostics_source_qualification",
+  "previousHead": "163bc1c03623baa15e8dba47469833e4c694caac",
+  "source": {
+    "frontend/checks/runtime-diagnostics.mjs": "ef88c70aec780c10044d6f7fd75ec76a562507c3f250da04edb173789b46b8c9",
+    "frontend/checks/runtime-diagnostics.test.mjs": "4bc6e823f5c8481a88912177320c17b35f6b7aebaa4c361fddbff7870a4c8a8a",
+    "frontend/checks/p08-browser-environment.mjs": "31732090dcfb6d551d7609d5fbeaeb5b3e7a33acc8b0101527a0898f75df66e5",
+    "frontend/checks/p08-browser.mjs": "743f36c651734f6d5b5f8f69e1c2a31a38a849ee1d126b6df01b6395b515a51a"
+  },
+  "frontendTests": {
+    "tests": 687,
+    "passed": 687,
+    "failed": 0,
+    "skipped": 0,
+    "seconds": 4.8808556
+  },
+  "sourceGuard": "passed_no_findings",
+  "focusedTests": 54,
+  "node": "26.13.1",
+  "ciNode": "24.19.0",
+  "npmInstall": "npm ci --ignore-scripts;119packages;0auditvulnerabilities",
+  "priorAttempt": {
+    "testsReported": 618,
+    "passed": 608,
+    "failedTestFiles": 10,
+    "reason": "lockedfrontenddependenciesnotinstalledinnewclone;ERR_MODULE_NOT_FOUND;notcountedascodepass",
+    "fullRawOutputRetained": false,
+    "toolChunk": "71c359"
+  },
+  "npmLogSha256": "7d9782da0daccd223c69a74e4011d864d29150d331e4407578756c7338cd15ae",
+  "browserRunExercised": false,
+  "runtimeOrCspErrorsSuppressed": false,
+  "productionActions": false,
+  "releaseEligible": false
+}

@@ -3,11 +3,13 @@
 from dataclasses import replace
 import json
 
+from authority_budget import checked as check_deadline
 from authority_support import TABLES, archive, require, sha, stream
 
 
-def verify_ram(raw, expected, restore_verify, seconds):
+def verify_ram(raw, expected, restore_verify, seconds, *, deadline=None):
     """A separate trusted head and required actual SQL challenge bind recovery."""
+    check_deadline(deadline)
     expected.checked()
     require(callable(restore_verify), "actual_dump_restore_verifier_required")
     bundle = archive.read(raw, bytes.fromhex(expected.head_hex))
@@ -34,6 +36,10 @@ def verify_ram(raw, expected, restore_verify, seconds):
         sha(chain) == expected.protected_chain_sha256, "authority_full_chain_mismatch"
     )
     dump = bundle.contents["authority.dump"]
+    if deadline is not None:
+        # Archive verification has already spent this same inherited budget.
+        # Pass directly to the exact callback; do not wrap NativeSQLAdapter.
+        seconds = deadline.seconds("sql_restore", requested=seconds)
     # Only dump and public pins reach the restore controller, never the keys.
     try:
         verified = restore_verify(
@@ -41,6 +47,7 @@ def verify_ram(raw, expected, restore_verify, seconds):
         )
     except Exception:
         raise stream.BackupError("authority_restore_verifier_failed") from None
+    check_deadline(deadline)
     required = {
         "dump_sha256": sha(dump),
         "head_sha256": sha(bytes.fromhex(expected.head_hex)),
@@ -69,6 +76,7 @@ def verify_ram(raw, expected, restore_verify, seconds):
             type(restore_verify) is NativeSQLAdapter,
             "actual_source_bound_adapter_required",
         )
+    check_deadline(deadline)
     return {
         "plaintext_bytes": len(raw),
         "plaintext_sha256": sha(raw),

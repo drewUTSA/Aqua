@@ -1,0 +1,130 @@
+{
+  "run": "aqua-release-budget-883aaa573241453a8f09802d",
+  "scope": "source-only Linux models and owned child-process checks; no native SQL",
+  "status": "failed",
+  "image": "sha256:61034825653941c528a17bd66d3d0072c18b1a57d82377053d349d6204c7ef66",
+  "appSourceBinding": "643d0220b7903f393dad23fa2ac3376b37055a179825c805880c2a6e563bbb94",
+  "hostMounts": [],
+  "network": "none",
+  "limits": {
+    "workSeconds": 90,
+    "cleanupSeconds": 30,
+    "memoryBytes": 134217728,
+    "cpus": 1,
+    "pids": 64,
+    "stdinBytes": 2097152,
+    "stdoutBytes": 65536,
+    "stderrBytes": 65536
+  },
+  "groups": [
+    {
+      "group": "closed56",
+      "expectedTests": 56,
+      "status": "not_run"
+    },
+    {
+      "group": "new27",
+      "expectedTests": 27,
+      "status": "not_run"
+    }
+  ],
+  "cleanup": {
+    "status": "removed_and_absence_confirmed",
+    "knownIdAbsent": true,
+    "nameAbsent": true
+  },
+  "productionActions": false,
+  "nativeSQLExecuted": false,
+  "sourceSha256": {
+    "ops/retirement/backup_client/adapter_package.py": "18465272cd0ad3b60477ef31a77f717e4453c6d098e30755279761c5a3a6f4c9",
+    "ops/retirement/backup_client/authority_bridge.py": "b42889980984a1e6896b392b5ec5b2088497f1d281b1026bd3652a60b2456637",
+    "ops/retirement/backup_client/authority_bridge_test.py": "3419a4726cc383ccae2e61ff8d1940cfe0ea94605d489a370089103494e011b2",
+    "ops/retirement/backup_client/authority_budget.py": "a3edacc1815eb5ab8a1228901d2151ad99980b7f1c0c52c31afcd7dffa49dfb2",
+    "ops/retirement/backup_client/authority_budget_integration_test.py": "81b98788545a735358e690716309f99bc64c78958aa6a30e5408ae9ab505b53a",
+    "ops/retirement/backup_client/authority_budget_test.py": "7864c1ca22daacc9a170cd30d4e2eab05403268e9118c9a13726b0a2f650e554",
+    "ops/retirement/backup_client/authority_cleanup_test.py": "1584332237412d82394d7d25c17d585c1c43ebb3b2919db887cccdf3b64dc6bf",
+    "ops/retirement/backup_client/authority_contract.py": "6b517d2cc8bd9299ebf2b48cddfccf9e40e53109e4fa58038d36bca6a3d80768",
+    "ops/retirement/backup_client/authority_decrypt.py": "c42864ea21e68a1fa77cd6fe238406e11ff3bb88fa9108cb744c301cf95e1893",
+    "ops/retirement/backup_client/authority_decrypt_test.py": "63ac1ff518442cf763f8476527077b99f307e601b1a69b696f907ab2d84d4a7c",
+    "ops/retirement/backup_client/authority_route.py": "c2d4eb9c83dfcdc6a3beb4e5416867aa94e81c9f5be0893d6816d339c3a68fa4",
+    "ops/retirement/backup_client/authority_route_test.py": "485cc4d16c2653e816f46539037f50bec3c244e6792e09824e0c56cffb528483",
+    "ops/retirement/backup_client/authority_sql_adapter.py": "809647b980b07f95df82b942110a74e77a95532bb2c4412e3d578d59ffc852fb",
+    "ops/retirement/backup_client/authority_sql_model_test.py": "deab832a788fd5963e9514e14b8360bb1d40cb59586f2f0ddab3d3a2ecbca20b",
+    "ops/retirement/backup_client/authority_support.py": "1c9630f6b529ff87bdf8d767bec4eab0aec78c362670165fee2e85ec7fb24218",
+    "ops/retirement/backup_client/authority_test_fixtures.py": "a734c63877795e9f81c3ddfea1e16d7fc22682d6d3e94e947f07bc99a38ae74a",
+    "ops/retirement/backup_client/authority_verifier_test.py": "b52a8a57b5836373213f30c9ba90b19620cbeb66c857ffe6959530bfcee91f71",
+    "ops/retirement/backup_client/authority_verify.py": "b84ba5769e025f582332b86af4aff59314adf778e1f016a99c2ee1358a971d88",
+    "ops/retirement/backup_client/sql-verifier/retirement/__init__.py": "48b1ae027a0b72d0ca0acd0979faad619bb17cf35ff4e22632ecb35422ba90f2",
+    "ops/retirement/backup_client/sql-verifier/retirement/checkpoint.py": "d4bb5beeae866ab6574ae6180101755da5efb0a202a32080379f5f5625ce63bd",
+    "ops/retirement/backup_client/sql-verifier/retirement/fingerprints.py": "0f5b617dfef7815ed66d08e936c514fb9d7aa09a438b31d4f0784e2bf3dc4904",
+    "ops/retirement/backup_client/sql-verifier/retirement/intents.py": "96939db4c4f826b37a3d60900cd3382a5021cdf39df90e6b065cfaa1499bdbd6",
+    "ops/retirement/backup_client/sql-verifier/retirement/interlock.py": "4aab756ff61ec061bde7824f66b152497dcd4f51efa88b834600997a6f5b9a81",
+    "ops/retirement/backup_client/sql-verifier/retirement/pages.py": "2c34926be2a41f24d85c0788fb58a23f1ac99926a7432ad327a47e9911a602bd",
+    "ops/retirement/backup_client/sql-verifier/retirement/recovery.py": "6eb4477006bd4064d978265f85ed3f4060e9cfabb5e8d67efa720c2667466580",
+    "ops/retirement/backup_client/sql-verifier/sql/backup.psql": "a040d2a6612236626aa88d324b4b23d1d0f8cfd96c87b38fcbf36965c7e5f66a",
+    "ops/retirement/backup_client/sql-verifier/sql/bootstrap.psql": "b4ed0dbd5fe2838689e4881751fb294c40bafc28204e29ddd3bbb1ee93551cfd",
+    "ops/retirement/backup_client/sql-verifier/sql/schema.psql": "e208ed13310cb8f218d37be26558ed0fbb5f0dc84369e0b35feecc3231e26209",
+    "ops/retirement/backup_client/sql-verifier/verifier_checks.py": "a33a3a2760843e7bcfc13d4edea2afc05a8b920b42cd1baaf9765991fe878765",
+    "ops/retirement/backup_client/sql-verifier/verifier_controller.py": "1ac22c581f4e6572cea06e234544a579b2f70f2ce58452fe0a287825ed0b9e94",
+    "ops/retirement/backup_client/sql-verifier/verifier_probe.py": "8e726f2e577bb5a2a1b327824dab09e3716399497c83ceb8359554e1eb32fad0",
+    "ops/retirement/backup_client/sql-verifier/verifier_process.py": "ab82a40af41a63e38ab5f20ca1bd57dcd2670a85d14950900d64a1e64aebc782",
+    "ops/retirement/backup_client/sql-verifier/verifier_resources.py": "3d7554f16b33f8296b4f482464c2367c2d63eb92f31508054f04bed59436f10c",
+    "ops/retirement/backup_client/sql-verifier/verifier_setup.py": "7119ca102e6daf6763299268b25097987227ab02123ba9dcb39cce73c3f98609",
+    "ops/retirement/backup_client/sql-verifier/verifier_validation.py": "be91c91e01f29eed76121e86c16415a931710457af2be321352792c9f37618e0",
+    "ops/retirement/backup_client/vendor-manifest.json": "d08fab22a313b3613885e2694f5f967eb2d34ebb1cdf530ff0f684c7b0290b76",
+    "ops/retirement/backup_client/vendor/authority_archive.py": "127b36b9b45b5a17867a51c3b3ec05ba954eb99713fd7f4671cb25e937f93cc0",
+    "ops/retirement/backup_client/vendor/backup_host.py": "00fb9b99a818132b7c6084c84089618ffbe22903c9fbff75cf6d9f5748cbd156",
+    "ops/retirement/backup_client/vendor/backup_stream.py": "e558cc9729201410ae466e8e8f7ab12ab1395c64e3d3464ac07711d2c56f2452",
+    "ops/retirement/backup_client/vendor/retirement/__init__.py": "75fcfbb51e8cabf8de221abb69cd918dd407314475fce083418d9977ecc33b4a",
+    "ops/retirement/backup_client/vendor/retirement/checkpoint.py": "d4bb5beeae866ab6574ae6180101755da5efb0a202a32080379f5f5625ce63bd",
+    "ops/retirement/backup_client/vendor/retirement/fingerprints.py": "0f5b617dfef7815ed66d08e936c514fb9d7aa09a438b31d4f0784e2bf3dc4904",
+    "ops/retirement/backup_client/verifier-manifest.json": "432382baacd59100b8cacb062bbbeddd72d0465ab3c9e33f2379d2b78260faac",
+    "qualification/bounded_io.py": "eefc82081ec925fb142def934dd8bbab9eadc38b8448a1fd3efc0bb650edaef0",
+    "qualification/new_models.py": "14ede926182a0779695e4143c632618ba84cb55b700e1e8aae74720d7d2f1ef1",
+    "tools/checks/run_retirement_backup_models.py": "fbdda304b5e3677601c70b16e2a3d1790aa4353d3a95eca1e721c986468d8b05"
+  },
+  "frozenAppSha256": {
+    ".github/workflows/checks.yml": "4f5cc24b525cdba77411f436a6f645c6c12106c38b40e46081666ff73ef8e5ee",
+    "ops/retirement/backup_client/OPT_IN.md": "89d0d2edb26266a9e9c2597b6c76e87789c32d4c5860e1a1016956d04a041c35",
+    "ops/retirement/backup_client/authority_bridge.py": "b42889980984a1e6896b392b5ec5b2088497f1d281b1026bd3652a60b2456637",
+    "ops/retirement/backup_client/authority_budget.py": "a3edacc1815eb5ab8a1228901d2151ad99980b7f1c0c52c31afcd7dffa49dfb2",
+    "ops/retirement/backup_client/authority_budget_integration_test.py": "81b98788545a735358e690716309f99bc64c78958aa6a30e5408ae9ab505b53a",
+    "ops/retirement/backup_client/authority_budget_test.py": "7864c1ca22daacc9a170cd30d4e2eab05403268e9118c9a13726b0a2f650e554",
+    "ops/retirement/backup_client/authority_contract.py": "6b517d2cc8bd9299ebf2b48cddfccf9e40e53109e4fa58038d36bca6a3d80768",
+    "ops/retirement/backup_client/authority_route.py": "c2d4eb9c83dfcdc6a3beb4e5416867aa94e81c9f5be0893d6816d339c3a68fa4",
+    "ops/retirement/backup_client/authority_route_test.py": "485cc4d16c2653e816f46539037f50bec3c244e6792e09824e0c56cffb528483",
+    "ops/retirement/backup_client/authority_verify.py": "b84ba5769e025f582332b86af4aff59314adf778e1f016a99c2ee1358a971d88"
+  },
+  "harnessSha256": {
+    "run_qualification.py": "219225a91a0bb97765ab69e9f45803eeb0d66091e327204e775b601676842d7b",
+    "bounded_io.py": "eefc82081ec925fb142def934dd8bbab9eadc38b8448a1fd3efc0bb650edaef0",
+    "container_probe.py": "539e0ba4c948c624ba96e6672b3822302c08505aa8abe453a715ea6bc072b8af",
+    "new_models.py": "14ede926182a0779695e4143c632618ba84cb55b700e1e8aae74720d7d2f1ef1"
+  },
+  "archiveSha256": "f7054db51e2c6db01844de33d846f432b8d99b8c638ee22bbc53b5626d9e6219",
+  "archiveBytes": 358400,
+  "failure": "Denied",
+  "failureCategory": "local_image_missing",
+  "rawBoundedCliResults": [
+    {
+      "operation": "image",
+      "returncode": 64,
+      "stdout": "",
+      "stderr": "template parsing error: template: :1: unexpected right paren\n"
+    },
+    {
+      "operation": "container",
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "operation": "container",
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "sourceUnchanged": true,
+  "elapsedSeconds": 0.422
+}

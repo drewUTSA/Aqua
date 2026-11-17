@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 1,
+  "kind": "synthetic_source_qualification_after_post_read_metadata_hardening",
+  "files": {
+    "linux-models-20261117.json": {
+      "rawSHA256": "1b889b5c69ecb36dbbf216227a62788a5566230f82e91fc539060102f69e652c",
+      "publishedSHA256": "39b87cac7710af019d0d04bcdbeb19cc19b767af7c797062e02983a220e8dfc1",
+      "rawBytes": 14671,
+      "publishedBytes": 14480,
+      "identicalBytes": false,
+      "onlyCRLFtoLFNormalization": true,
+      "parsedJSONUnchanged": true
+    },
+    "pre-stack-linux-models-20261117.json": {
+      "rawSHA256": "2703814e63a6e05c618008930c799ab1c7e2bb17e6a128f6ed00b005e62ac98b",
+      "publishedSHA256": "ec052861c1595b8e1dd7a19d719049c7f8b3dd5d4f418d3797b96cb03bd32e83",
+      "rawBytes": 14667,
+      "publishedBytes": 14476,
+      "identicalBytes": false,
+      "onlyCRLFtoLFNormalization": true,
+      "parsedJSONUnchanged": true
+    },
+    "linux-route-20261117.json": {
+      "rawSHA256": "cf3837caf45068f24ae637a908386f5b31e54b7d5688f622a9f4051ae3967834",
+      "publishedSHA256": "694b875a72bb0e946689c13a3418cc5d09799d227d1517eee76aa86c4b61094f",
+      "rawBytes": 2018,
+      "publishedBytes": 1995,
+      "identicalBytes": false,
+      "onlyCRLFtoLFNormalization": true,
+      "parsedJSONUnchanged": true
+    },
+    "metadata-template-failure-1.json": {
+      "rawSHA256": "bff5ffbd66db8cf09e6b3e2e2d3537d0b8d32aa3e31164fae9ae9c8697bebc6b",
+      "publishedSHA256": "f95dea48986a1aa868c9d7e31a6fdea77955087f7065c3cc5c4a4b73c917e87a",
+      "rawBytes": 9504,
+      "publishedBytes": 9374,
+      "identicalBytes": false,
+      "onlyCRLFtoLFNormalization": true,
+      "parsedJSONUnchanged": true
+    },
+    "metadata-template-failure-2.json": {
+      "rawSHA256": "9de0ad9e2f42ba4ee49faf22b0c99bb450d442d16b81dad9dea412b17d93ccb6",
+      "publishedSHA256": "76a20cca42fde6201f8a863587746c3f69171be7be5f8e9b3b2b004668d21ade",
+      "rawBytes": 9449,
+      "publishedBytes": 9319,
+      "identicalBytes": false,
+      "onlyCRLFtoLFNormalization": true,
+      "parsedJSONUnchanged": true
+    },
+    "pre-hardening-linux-models-20261117.json": {
+      "rawSHA256": "39a24cc89a034f0f626ac6068bc2cd9bf4d8fec3e7ef3ef9ee07c4e8f4e60543",
+      "publishedSHA256": "5b4ceeee2ba3258100a49eac4bdb72ccc43f75a94f661d1fbbf4b932b51b2dfe",
+      "rawBytes": 14667,
+      "publishedBytes": 14476,
+      "identicalBytes": false,
+      "onlyCRLFtoLFNormalization": true,
+      "parsedJSONUnchanged": true
+    },
+    "pre-hardening-linux-route-20261117.json": {
+      "rawSHA256": "145913d4baa8ba69e7603ff0bebd97971c59c59ff926a5f71915c15d1461ee72",
+      "publishedSHA256": "bac3d7835679864add28d8ac0bca99e52b4e494bf39277f2a891ce055095ad5a",
+      "rawBytes": 2018,
+      "publishedBytes": 1995,
+      "identicalBytes": false,
+      "onlyCRLFtoLFNormalization": true,
+      "parsedJSONUnchanged": true
+    }
+  },
+  "scope": "Source-only Linux models/owned child-process tests and synthetic route filesystem tests; no actual SQL, exporter, production or recovery-key access",
+  "sourceBindingIsByteIdentityNotAttestation": true,
+  "earlierFailedReceiptsPreserved": true,
+  "earlierGreenHead": "2e5406a86ee40310805e8dd5e50447c530e9e018",
+  "earlierCI": 44115320075,
+  "earlierCIScope": "pre_hardening_only"
+}

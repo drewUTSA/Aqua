@@ -7,7 +7,13 @@ import re
 import sys
 import time
 
-from authority_contract import Expected as Expected, metadata, remote_command
+from authority_budget import checked as check_deadline
+from authority_contract import (
+    Expected as Expected,
+    ExporterRoute,
+    metadata,
+    remote_command,
+)
 from authority_verify import verify_ram
 from authority_support import (
     TABLES as TABLES,
@@ -25,13 +31,32 @@ from authority_support import (
 class Transport:
     """Concrete pinned primitives, deliberately not wired to an executable CLI."""
 
-    def head(self, stage, expected):
-        raw = stream.bounded_metadata(remote_command(stage, "head", expected))
+    def __init__(self, *, route=None):
+        require(
+            route is None or type(route) is ExporterRoute,
+            "authority_route_pins_required",
+        )
+        if route is not None:
+            route.checked()
+        self.route = route
+
+    def _command(self, stage, action, expected):
+        if self.route is None:
+            return remote_command(stage, action, expected)
+        return remote_command(stage, action, expected, route=self.route)
+
+    def head(self, stage, expected, *, seconds=None):
+        command = self._command(stage, "head", expected)
+        raw = (
+            stream.bounded_metadata(command)
+            if seconds is None
+            else stream.bounded_metadata(command, seconds=seconds)
+        )
         return json.loads(raw)
 
     def encrypt(self, stage, expected, recipients, destination, seconds):
         return stream.encrypt_export(
-            remote_command(stage, "export", expected),
+            self._command(stage, "export", expected),
             recipients,
             destination,
             seconds=seconds,
@@ -45,9 +70,18 @@ class Transport:
 
 
 def _collect(
-    stage, directory, identity, recipients, expected, restore_verify, *, transport
+    stage,
+    directory,
+    identity,
+    recipients,
+    expected,
+    restore_verify,
+    *,
+    transport,
+    deadline=None,
 ):
     """Capture only after caller supplies reviewed real helper and verifier APIs."""
+    check_deadline(deadline)
     expected.checked()
     require(callable(restore_verify), "actual_dump_restore_verifier_required")
     require(
@@ -70,11 +104,21 @@ def _collect(
         host.backup_recipient(identity) in recipients,
         "authority_local_recovery_recipient_missing",
     )
-    before = metadata(transport.head(stage, expected), expected)
-    deadline = time.monotonic() + 300
+    check_deadline(deadline)
 
-    def budget():
-        left = min(120, deadline - time.monotonic())
+    def head():
+        if deadline is None:
+            return transport.head(stage, expected)
+        return transport.head(stage, expected, seconds=deadline.seconds("head"))
+
+    before = metadata(head(), expected)
+    check_deadline(deadline)
+    legacy_end = time.monotonic() + 300 if deadline is None else None
+
+    def budget(operation):
+        if deadline is not None:
+            return deadline.seconds(operation)
+        left = min(120, legacy_end - time.monotonic())
         require(left > 0, "authority_capture_deadline")
         return left
 
@@ -82,11 +126,15 @@ def _collect(
     final = None
     pending_identity = None
     try:
-        encrypted = transport.encrypt(stage, expected, recipients, pending, budget())
+        encrypted = transport.encrypt(
+            stage, expected, recipients, pending, budget("encrypt")
+        )
         info = stream.private_file(pending, maximum=MAX_ARCHIVE + 1024**2)
         pending_identity = (info.st_dev, info.st_ino)
+        check_deadline(deadline)
         cipher_digest = host.cipher_hash(pending)
-        raw = transport.decrypt(pending, identity, budget())
+        raw = transport.decrypt(pending, identity, budget("decrypt"))
+        check_deadline(deadline)
         require(
             type(raw) is bytes and 0 < len(raw) <= MAX_ARCHIVE,
             "authority_decrypted_capacity",
@@ -95,15 +143,18 @@ def _collect(
             encrypted == {"plaintext_bytes": len(raw), "plaintext_sha256": sha(raw)},
             "authority_authenticated_decryption_mismatch",
         )
-        result = verify_ram(raw, expected, restore_verify, budget())
+        if deadline is None:
+            result = verify_ram(raw, expected, restore_verify, budget("sql_restore"))
+        else:
+            result = verify_ram(raw, expected, restore_verify, 120, deadline=deadline)
         del raw
         require(
-            metadata(transport.head(stage, expected), expected) == before,
+            metadata(head(), expected) == before,
             "authority_capture_head_changed",
         )
         require(
             host.private_directory(directory) == directory_pin
-            and time.monotonic() <= deadline,
+            and (deadline is not None or time.monotonic() <= legacy_end),
             "authority_directory_or_deadline_changed",
         )
         info = stream.private_file(pending, maximum=MAX_ARCHIVE + 1024**2)
@@ -112,6 +163,7 @@ def _collect(
             and host.cipher_hash(pending) == cipher_digest,
             "authority_cipher_changed_during_verification",
         )
+        check_deadline(deadline)
         final = directory / (
             "authority-"
             + expected.maintenance_nonce
@@ -132,6 +184,7 @@ def _collect(
             os.fsync(fd)
         finally:
             os.close(fd)
+        check_deadline(deadline)
         return {
             "status": (
                 "verified_capture"
@@ -164,7 +217,15 @@ def _collect(
 
 
 def collect(
-    stage, directory, identity, recipients, expected, restore_verify, *, transport
+    stage,
+    directory,
+    identity,
+    recipients,
+    expected,
+    restore_verify,
+    *,
+    transport,
+    deadline=None,
 ):
     with Operation():
         return _collect(
@@ -175,25 +236,34 @@ def collect(
             expected,
             restore_verify,
             transport=transport,
+            deadline=deadline,
         )
 
 
 def _verify_recovered(
-    ciphertext, identity, expected, capture, restore_verify, *, transport
+    ciphertext, identity, expected, capture, restore_verify, *, transport, deadline=None
 ):
     """Fetched-copy challenge; storage provenance is a separate reviewed gate."""
+    check_deadline(deadline)
     require(
         host.cipher_hash(ciphertext) == capture.get("encrypted_sha256"),
         "authority_recovered_cipher_mismatch",
     )
-    raw = transport.decrypt(ciphertext, identity, 120)
+    raw = transport.decrypt(
+        ciphertext, identity, 120 if deadline is None else deadline.seconds("decrypt")
+    )
+    check_deadline(deadline)
     require(
         type(raw) is bytes
         and 0 < len(raw) <= MAX_ARCHIVE
         and sha(raw) == capture.get("plaintext_sha256"),
         "authority_recovered_plaintext_mismatch",
     )
-    result = verify_ram(raw, expected, restore_verify, 120)
+    result = (
+        verify_ram(raw, expected, restore_verify, 120)
+        if deadline is None
+        else verify_ram(raw, expected, restore_verify, 120, deadline=deadline)
+    )
     require(
         host.cipher_hash(ciphertext) == capture.get("encrypted_sha256"),
         "authority_recovered_cipher_changed",
@@ -205,6 +275,7 @@ def _verify_recovered(
         ),
         "authority_recovered_coverage_mismatch",
     )
+    check_deadline(deadline)
     return {
         "status": (
             "verified_recovery"
@@ -219,11 +290,17 @@ def _verify_recovered(
 
 
 def verify_recovered(
-    ciphertext, identity, expected, capture, restore_verify, *, transport
+    ciphertext, identity, expected, capture, restore_verify, *, transport, deadline=None
 ):
     with Operation():
         return _verify_recovered(
-            ciphertext, identity, expected, capture, restore_verify, transport=transport
+            ciphertext,
+            identity,
+            expected,
+            capture,
+            restore_verify,
+            transport=transport,
+            deadline=deadline,
         )
 
 

@@ -62,7 +62,24 @@ class Expected:
         return head
 
 
-def remote_command(stage, action, expected):
+@dataclass(frozen=True)
+class ExporterRoute:
+    """Independent reviewed pins for an explicitly staged cached-module route."""
+
+    helper_sha256: str
+    manifest_sha256: str
+
+    def checked(self):
+        require(
+            all(
+                type(pin) is str and HEX.fullmatch(pin)
+                for pin in (self.helper_sha256, self.manifest_sha256)
+            ),
+            "authority_route_pin_invalid",
+        )
+
+
+def remote_command(stage, action, expected, *, route=None):
     """Build only a fixed stage helper; SSH preserves its existing verified pins."""
     expected.checked()
     require(
@@ -73,6 +90,25 @@ def remote_command(stage, action, expected):
         "authority_stage_invalid",
     )
     require(action in {"head", "export"}, "authority_action_invalid")
+    if route is not None:
+        from authority_route import remote_argv
+
+        require(type(route) is ExporterRoute, "authority_route_pins_required")
+        route.checked()
+        return host.ssh_command(
+            [
+                shlex.join(
+                    remote_argv(
+                        str(stage),
+                        action,
+                        helper_sha256=route.helper_sha256,
+                        manifest_sha256=route.manifest_sha256,
+                        exporter_sha256=expected.exporter_sha256,
+                        profile_sha256=expected.profile_sha256,
+                    )
+                )
+            ]
+        )
     path = str(stage) + "/ops/retirement/export.py"
     program = """import hashlib,os,pathlib,stat,sys
 p=pathlib.Path(sys.argv[1]);fd=os.open(p,os.O_RDONLY|os.O_NOFOLLOW|os.O_NONBLOCK)

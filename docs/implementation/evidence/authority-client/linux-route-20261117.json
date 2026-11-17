@@ -1,0 +1,23 @@
+{
+  "image": "sha256:61034825653941c528a17bd66d3d0072c18b1a57d82377053d349d6204c7ef66",
+  "sourceSha256": {
+    "route.py": "6f01414d8c2de49720756989cf0e960c87e6bea9aa8f3c6625e179c11be4fd5c",
+    "linux_route_probe.py": "20258c8ff713a4a02be4d2e09522122a760b4ee06708869b972366995016e204",
+    "run_linux_route_probe.py": "bb5f6f335196788b7eba91975566e59dca9831e07dbdb588d87784723295b4be"
+  },
+  "caseScope": "actual Linux synthetic modules and filesystem only",
+  "hostMounts": [],
+  "network": "none",
+  "productionActions": false,
+  "packagedSource": true,
+  "exitCode": 0,
+  "stdout": "{\"actualExporterExecuted\": false, \"cases\": [{\"case\": \"actual_head_eager_lazy_import\", \"exitCode\": 0, \"passed\": true}, {\"case\": \"actual_export_eager_lazy_import\", \"exitCode\": 0, \"passed\": true}, {\"case\": \"independent_helper_pin\", \"exitCode\": 1, \"passed\": true}, {\"case\": \"independent_manifest_pin\", \"exitCode\": 1, \"passed\": true}, {\"case\": \"independent_exporter_pin\", \"exitCode\": 1, \"passed\": true}, {\"case\": \"helper_mode\", \"exitCode\": 1, \"passed\": true}, {\"case\": \"source_mode\", \"exitCode\": 1, \"passed\": true}, {\"case\": \"source_parent_mode\", \"exitCode\": 1, \"passed\": true}, {\"case\": \"source_symlink\", \"exitCode\": 1, \"passed\": true}, {\"case\": \"source_hardlink\", \"exitCode\": 1, \"passed\": true}, {\"case\": \"last_source_tamper_before_any_execution\", \"exitCode\": 1, \"passed\": true}, {\"case\": \"noncanonical_manifest\", \"exitCode\": 1, \"passed\": true}, {\"case\": \"unlisted_sibling_no_disk_fallback\", \"exitCode\": 1, \"passed\": true}, {\"case\": \"helper_tamper\", \"exitCode\": 1, \"passed\": true}], \"passed\": 14, \"productionQualified\": false, \"uid\": 1000}\n",
+  "stderr": "",
+  "cleanup": {
+    "exactIdImageLabelsVerified": true,
+    "resourceId": "f1ed27617f85b8214d798589847b4152fa8bbc56e980c5b5b4313f328faa38bb",
+    "removeExitCode": 0,
+    "absenceConfirmed": true
+  },
+  "sourceUnchanged": true
+}
