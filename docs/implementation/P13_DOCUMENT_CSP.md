@@ -1,5 +1,8 @@
 # P13 document policy source slice — November 16, 2026
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 This is source preparation, not deployment or live Google/TLS acceptance.
 Production remains on its schema8 release. Deletion/recovery, analytical DNS,
 capacity and public-rollout gates remain separate. No HSTS, COOP, COEP, new

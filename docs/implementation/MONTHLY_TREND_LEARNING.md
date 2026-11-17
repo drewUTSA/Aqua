@@ -1,5 +1,8 @@
 # Offline monthly trend learning
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 This first numerical-learning slice fits a historical straight-line baseline
 to an explicitly supplied monthly aggregate. It does not change Ollama's
 weights, infer causes, produce future forecasts, read a database, invoke a

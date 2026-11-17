@@ -1,5 +1,8 @@
 # P02 release — private application storage
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 October 20, 2026, Chicago. P02 PR [#38](https://github.com/drewUTSA/Aqua/pull/38)
 is merged at `5ac90fcca45a6a74bab5d6f792388c05804d87a2`. The server checkout at
 `/srv/bank-ai` was fast-forwarded to that commit and the reviewed images were

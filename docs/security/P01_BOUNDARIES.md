@@ -1,5 +1,8 @@
 # P01 data boundaries and ingress policy
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](../implementation/PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 Base: merged PR #36, `271aa90a3d2a4175be4311f2d9ffcc230fad233d`.
 This records implemented source controls, their isolated verification, and the
 remaining deployment gates. It is not a production penetration-test certificate.

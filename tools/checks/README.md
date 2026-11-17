@@ -1,5 +1,8 @@
 # Reproducible phase security and regression checks
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](../../docs/implementation/PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 Run these from the repository root on a trusted Linux Docker host or Docker
 Desktop using Linux containers. Do not run arbitrary pull-request code on the
 production server. GitHub Actions uses an ephemeral hosted runner and no secrets.

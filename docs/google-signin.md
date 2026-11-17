@@ -1,5 +1,8 @@
 # Google sign-in and durable AQUA sessions
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](implementation/PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 **Current November 13 checkpoint:** production remains the P11a/schema8 release;
 merged deletion source is schema9 and awaits personal-computer backup/recovery.
 The historical P03/P04 deployment notes below are not current activation steps.

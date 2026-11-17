@@ -1,5 +1,8 @@
 # Bounded mixed HTTP capacity qualification
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 November 16, 2026. This adds an explicitly selected measurement mode to the
 existing `run_capacity.py`. Its original deep-history, metadata and pool
 measurement command and fixture remain unchanged. The final combined-source

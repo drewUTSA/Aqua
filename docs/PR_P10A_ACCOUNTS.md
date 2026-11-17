@@ -1,5 +1,8 @@
 # Phase10 Accounts
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](implementation/PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 Account & security now supports revision-checked display-name editing and
 explicit read-only reviews of linked sign-in methods and active sessions.
 Account saves remain independent from presentation preferences; conflicts and

@@ -1,5 +1,8 @@
 # P12 capacity and AI reliability — implementation in progress
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 ## November 16 mixed HTTP local qualification
 
 The explicit [mixed HTTP capacity mode](MIXED_HTTP_CAPACITY.md) adds a fresh,

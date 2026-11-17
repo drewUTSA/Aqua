@@ -1,5 +1,8 @@
 # P04 merged-package release evidence
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](../../PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 This checkpoint covers main `067fb5a0aacc90ce646138fedbb770ecea6f0c92`: source synchronization, image build, isolated release checks and the completed schema 3 cutover with password/mail features disabled.
 
 - `p04-release-sync.json`: source and existing P03 health/schema/disabled-feature observations.

@@ -1,5 +1,8 @@
 # Mobile session reliability — November 13, 2026
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 Ben reports iPhone 16 Safari/Chrome showing a session error during email access.
 The exact mail-delivery failure was not established. No real verification or
 reset messages were sent during this investigation.

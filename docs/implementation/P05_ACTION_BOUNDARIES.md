@@ -1,5 +1,8 @@
 # P05 action boundaries
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 Each user control remains subject to server authorization. A hidden or disabled
 control is feedback, not an access-control boundary. P05 changes browser behavior;
 the existing P04 permission, session, database, mail and admission policies remain

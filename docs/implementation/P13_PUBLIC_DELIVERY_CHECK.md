@@ -1,5 +1,8 @@
 # P13 bounded public delivery inspection
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 This source adds an opt-in diagnostic for the remaining P13 delivery work. It
 is separate from the restricted delivery source fixes described below. It
 does not change a running service. **A successful inspection does not close P13 or

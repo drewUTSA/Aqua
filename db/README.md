@@ -1,5 +1,8 @@
 # Database setup
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](../docs/implementation/PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 How to build the Aqua database on Tiger Cloud from an empty service. A human runs these as `tsdbadmin`; the app and coding agents never do.
 
 ## Before you start

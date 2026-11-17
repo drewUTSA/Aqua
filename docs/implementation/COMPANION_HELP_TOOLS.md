@@ -1,5 +1,8 @@
 # Reviewed Aqua help and bounded tool selection
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 This source adds an authenticated, source-cited product-help capability. It is
 disabled by default through the separate typed `COMPANION_ENABLED=false` app
 policy. It introduces no model call, provider routing, analytical scope, database

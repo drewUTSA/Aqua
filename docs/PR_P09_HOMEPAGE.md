@@ -1,5 +1,8 @@
 # Phase9 Homepage
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](implementation/PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 The homepage now concentrates navigation into Projects and Recents, reveals
 New Chat after a conversation starts, and places Settings/sign-out in one bottom
 account menu. Answers share the canvas and the existing composer compacts after

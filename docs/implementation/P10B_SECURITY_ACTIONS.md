@@ -1,5 +1,8 @@
 # P10b password proof and session actions — isolated candidate
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 This slice is implemented only in `p10b-work`, based on the frozen P10a account
 foundation. It is not a production deployment, applied migration, complete P10
 phase, live provider/mailbox test or a claim of frontend completion. Schema 6

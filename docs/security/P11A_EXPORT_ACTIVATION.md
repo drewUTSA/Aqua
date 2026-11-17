@@ -1,5 +1,8 @@
 # P11a export activation boundary
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](../implementation/PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 Status: implementation under review. No production activation or topology proof
 has been performed for P11a. The historical isolated draft is prior evidence,
 not a canonical check of the materialized Phase 11 source.

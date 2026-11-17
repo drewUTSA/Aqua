@@ -1,5 +1,8 @@
 # P03 evidence ledger
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](../../PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 Final acceptance uses the candidate image identified in `package-verification.json`,
 not only source mounted over a dependency image. `integration/report.json` requires
 all 835 collected cases to pass in at least one dataset and both fixture exits to

@@ -1,5 +1,8 @@
 # P10a account foundation
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 This separate slice adds profile editing and read-only method/session reviews
 after the P09 homepage change. P10 remains incomplete. Candidate verification
 uses disposable private databases, fake providers/mail and bounded browsers;

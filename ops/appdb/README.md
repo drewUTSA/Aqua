@@ -1,5 +1,8 @@
 # Private application storage — current P07 release
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](../../docs/implementation/PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 Production is verified at code `1d08364` (PR #48), private schema **5**.
 P05 activation, P06 workspace and P07 durable analysis are complete. Password
 login, registration, recovery and account mail are enabled; mail runs in its

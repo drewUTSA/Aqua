@@ -1,5 +1,8 @@
 # P07 durable analysis
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 Status: complete and deployed at code `1d08364` (PR #48), private schema 5.
 Authorized October 26, 2026 by the user's request to proceed to P07, following
 the completed activation/P06 run. Production cutover and public verification

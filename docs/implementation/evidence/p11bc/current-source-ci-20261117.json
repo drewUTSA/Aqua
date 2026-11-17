@@ -1,0 +1,229 @@
+{
+  "CI_runs": {
+    "main": {
+      "actual_checkout": "3fd413ccad9e40021ea06ea21b11dbdd930121d6",
+      "head": "3fd413ccad9e40021ea06ea21b11dbdd930121d6",
+      "jobs": {
+        "Account security (legacy)": {
+          "expected_skips": [],
+          "id": 133798936072,
+          "outcome": "success"
+        },
+        "Account security (opal)": {
+          "expected_skips": [],
+          "id": 133798935922,
+          "outcome": "success"
+        },
+        "Browser sessions (chromium, legacy)": {
+          "expected_skips": [],
+          "id": 133798936165,
+          "outcome": "success"
+        },
+        "Browser sessions (chromium, opal)": {
+          "expected_skips": [],
+          "id": 133798936057,
+          "outcome": "success"
+        },
+        "Browser sessions (firefox, legacy)": {
+          "expected_skips": [],
+          "id": 133798936163,
+          "outcome": "success"
+        },
+        "Browser sessions (firefox, opal)": {
+          "expected_skips": [],
+          "id": 133798936137,
+          "outcome": "success"
+        },
+        "Browser sessions (webkit-iphone, legacy)": {
+          "expected_skips": [],
+          "id": 133798936528,
+          "outcome": "success"
+        },
+        "Browser sessions (webkit-iphone, opal)": {
+          "expected_skips": [],
+          "id": 133798936151,
+          "outcome": "success"
+        },
+        "Identity actions (legacy)": {
+          "expected_skips": [],
+          "id": 133798936110,
+          "outcome": "success"
+        },
+        "Identity actions (opal)": {
+          "expected_skips": [],
+          "id": 133798936102,
+          "outcome": "success"
+        },
+        "Personal deletions (legacy)": {
+          "expected_skips": [
+            "All 80 native Linux retirement protocol guards without skips",
+            "All nine archival boundary guards without skips",
+            "Deletion receipt lifecycle and failed optional review chunk",
+            "Signed retirement and restored-history composition"
+          ],
+          "id": 133798936216,
+          "outcome": "success"
+        },
+        "Personal deletions (opal)": {
+          "expected_skips": [],
+          "id": 133798936039,
+          "outcome": "success"
+        },
+        "Personal exports (legacy)": {
+          "expected_skips": [],
+          "id": 133798936218,
+          "outcome": "success"
+        },
+        "Personal exports (opal)": {
+          "expected_skips": [],
+          "id": 133798936123,
+          "outcome": "success"
+        },
+        "checks": {
+          "expected_skips": [],
+          "id": 133798935747,
+          "outcome": "success"
+        }
+      },
+      "run": 44011379683
+    },
+    "pr74": {
+      "actual_checkout": "ffad9b8401559c8fd810f424856304024d6a592d",
+      "head": "1d2e34bac4097a37dbc8f2d245233655f3cde55c",
+      "jobs": {
+        "Account security (legacy)": {
+          "expected_skips": [],
+          "id": 133790024886,
+          "outcome": "success"
+        },
+        "Account security (opal)": {
+          "expected_skips": [],
+          "id": 133790025258,
+          "outcome": "success"
+        },
+        "Browser sessions (chromium, legacy)": {
+          "expected_skips": [],
+          "id": 133790025022,
+          "outcome": "success"
+        },
+        "Browser sessions (chromium, opal)": {
+          "expected_skips": [],
+          "id": 133790024952,
+          "outcome": "success"
+        },
+        "Browser sessions (firefox, legacy)": {
+          "expected_skips": [],
+          "id": 133790025065,
+          "outcome": "success"
+        },
+        "Browser sessions (firefox, opal)": {
+          "expected_skips": [],
+          "id": 133790024936,
+          "outcome": "success"
+        },
+        "Browser sessions (webkit-iphone, legacy)": {
+          "expected_skips": [],
+          "id": 133790024989,
+          "outcome": "success"
+        },
+        "Browser sessions (webkit-iphone, opal)": {
+          "expected_skips": [],
+          "id": 133790025103,
+          "outcome": "success"
+        },
+        "Identity actions (legacy)": {
+          "expected_skips": [],
+          "id": 133790024887,
+          "outcome": "success"
+        },
+        "Identity actions (opal)": {
+          "expected_skips": [],
+          "id": 133790024860,
+          "outcome": "success"
+        },
+        "Personal deletions (legacy)": {
+          "expected_skips": [
+            "All 80 native Linux retirement protocol guards without skips",
+            "All nine archival boundary guards without skips",
+            "Deletion receipt lifecycle and failed optional review chunk",
+            "Signed retirement and restored-history composition"
+          ],
+          "id": 133790025106,
+          "outcome": "success"
+        },
+        "Personal deletions (opal)": {
+          "expected_skips": [],
+          "id": 133790024761,
+          "outcome": "success"
+        },
+        "Personal exports (legacy)": {
+          "expected_skips": [],
+          "id": 133790025039,
+          "outcome": "success"
+        },
+        "Personal exports (opal)": {
+          "expected_skips": [],
+          "id": 133790024854,
+          "outcome": "success"
+        },
+        "checks": {
+          "expected_skips": [],
+          "id": 133790024934,
+          "outcome": "success"
+        }
+      },
+      "run": 44008649139
+    }
+  },
+  "backend": {
+    "CI_dependency_image_equated_to_native_release_image": false,
+    "capacity_identity_per_dataset": 1,
+    "core_cases_per_dataset": 2121,
+    "every_case_passed_both_datasets_claimed": false,
+    "exact_collection_JUnit_enforced_by_original_producer": true,
+    "merged_unique_cases": 2122,
+    "passed_in_at_least_one_dataset": true,
+    "raw_collection_JUnit_revalidated_by_bridge": false,
+    "source_archive_sha256": "560872d6e12d30ca1f8c48c10564101942c33bbfc90f8d4b4196784e738a759b",
+    "source_files": 630
+  },
+  "checkpoint_UTC_date": "2026-11-17",
+  "component_receipts_sha256": {
+    "backend-closure-v1/FINAL_PACKET.json": "0b7a319f3415d357d6700a3a150f32c40bbf955285f66c4442f2b7b46099e6c9",
+    "backend-closure-v1/closure-result.json": "d09b11587aac4da3f1ac10ebe162c48f2dfa807320cd1acf599007901cf53e95",
+    "frontend-browser-closure-v2.ROOT_REVIEW.json": "5b4583c7fcacd02c03ed55dd64f442403dee1001d2e3be2326d1a40e527b356f",
+    "frontend-browser-closure-v2/closure-result.json": "2f3ad285716de7fd31b5dfea006b6984a65c37127ac813f4eebd1b240a7a0628",
+    "frontend-browser-source.ROOT_REVIEW.json": "67713284b51e3e88c0757b1d8a48e1b4cefb257980df2822d272175d75ad0283"
+  },
+  "current_main": "3fd413ccad9e40021ea06ea21b11dbdd930121d6",
+  "deletion_activated": false,
+  "frontend": {
+    "CI_static_image_ID_equality_inferred": false,
+    "Playwright_cases_per_report": 18,
+    "Playwright_cases_per_run": 108,
+    "Playwright_reports_per_run": 6,
+    "actual_browser_source_archive_sha256": "0093c9ccccd2bdbc42192ffcaf906c71cafdd18301508d85b8fa16b645a5294d",
+    "asset_fingerprinted_custom_reports_per_run": 78,
+    "browser_archive_equated_to_source630_archive": false,
+    "browser_fixture_files": 605,
+    "closed_test_build_source_files": 959,
+    "closed_test_build_source_manifest_sha256": "08c4e182bb044eda53b93ca3be7e9002c3b0c12a0f352d712f2f21adad8c6406",
+    "custom_report_checks_per_run": 1456,
+    "custom_reports_per_run": 79,
+    "expected_Legacy_only_Opal_gate_step_skips_per_run": 4,
+    "source_files": 339,
+    "synthetic_source_only_custom_reports_per_run": 1,
+    "unexpected_skips": 0,
+    "unit_ordinal_cases_per_run": 680
+  },
+  "frontend_git_tree": "7dfdcbc4ad9706765bfa23e7b818389ce692ad66",
+  "kind": "current_source_CI_checkpoint",
+  "metadata_only": true,
+  "production_commit": "9aeaf4eb91a4db55d3701e8be872f2b1e178a116",
+  "production_deployed": false,
+  "production_schema_version": 8,
+  "release_eligible": false,
+  "schemaVersion": 1,
+  "status": "passed_scoped_source_and_case_identity_closure_release_pending",
+  "total_host_restore_supported": false
+}

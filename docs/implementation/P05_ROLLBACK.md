@@ -1,5 +1,8 @@
 # P05 handoff follow-up: reversible shell and complete navigation
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 Status: final run 3 passed all local gates: 120 unit cases and, for each shell,
 77 synthetic browser checks plus 20 real-backend browser checks. Both image
 builds and exact-asset rebuild comparisons passed after the last contrast fix.

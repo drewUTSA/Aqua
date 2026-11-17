@@ -1,5 +1,8 @@
 # P05 PR draft — Opal workspace and secure account journeys
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 PR #42 is now open at `0ffb3bd`. Its first CI run failed in fixture startup;
 the [tested infrastructure correction](P05_CI_FIX.md) awaits a human follow-up
 commit/push to this same PR. All checks must pass before merge.

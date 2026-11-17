@@ -1,5 +1,135 @@
 # Personal computer continuation — November 16, 2026
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
+## November 17 UTC current-source qualification
+
+PR74 merged as `3fd413c`; its exact PR run `44008649139` and distinct main
+run `44011379683` each passed all 15 jobs. The current native backend inventory
+matches 207 compiled inputs (198 Python + 9 SQL), 210 app files and 211 including
+the lock: 49 locked distributions plus base pip 25.0.1 make 50 observed packages.
+Both current frontend shells have 339 source inputs, 680 unit cases and 19 exact
+native-image outputs each (18 served files plus `.vite/manifest.json`). The
+959-file browser/source bridge closes 79 custom reports / 1456 checks and six
+Playwright reports / 108 cases per run, with zero unexpected skips. Both exact native
+images pass real default ENTRYPOINT/CMD startup, the exact five-second compose
+wget command, graceful stop and the original 120-request proxy plus 23-request
+export exercises. All ten original QA IDs are independently absent. The V2
+pre-creation failure is preserved. This does not reproduce the full Compose
+host/default capabilities or scheduler, ingress/TLS or a new browser journey.
+
+Current-image isolated migration preserves 35 populated protected tables and
+adds four (39 total); the 149-row catalogue uses the disclosed single-DSN fixture
+seam. Synthetic authority QA passes two real keyless restores of a five-member
+genesis-only archive, with zero events and only the authority control table
+populated. Two encrypted owner-only Mac copies were retained; no Drive upload
+or production-authority/accepted-data/total-host recovery is claimed. Production
+remains the same healthy schema 8 deployment. Continue the current operator/profile
+dossier and remaining release gates before a fresh guarded backup/migration
+ceremony; historical P00–P10 tests and resource limits remain in force.
+
+## Stop requested by Ben — exact restart point
+
+Work stopped before the current operator V2 source freeze and native guard/fallback
+qualification. Production remains the original healthy schema 8 deployment;
+no schema 9 migration or deletion activation was performed. The component gates
+above are completed within their stated scopes; the assembled release is not eligible.
+
+The exact latest-source retained final-gate run executed all 22 cases: 21 passed,
+one failed, zero errors/skips. The failing identity is
+`stop_final_gate.Components.test_original_core_functions_remain_AST_equal`.
+Its final whole-`preflight` byte-equality check (original test lines 445–448)
+conflicts with the current explicit frontend image-environment predicate change.
+Original test-method ASTs remain unchanged, and source stayed stable during this
+run. The older green `final-gate22.log` predates that patch and is superseded;
+it cannot qualify the current source. Preserve the actual stop receipt SHA
+`259270fae628b880c2dba0d9cd827ad9407525bc0142ea9ab77ff85008ee772a` and its
+log SHA `c2e773c1b966e472f8e3433b12f34b28ec27735bc4318878eb779e5678faef19`.
+Classify this source-expectation conflict and review the explicit replacement
+control while preserving all original assertion identities; then complete the
+current pure/source/guard qualification and freeze the actual operator bytes.
+Do not treat earlier aggregate green reports or the proposed fallback DTO as a
+passed current native guard/fallback qualification.
+
+The latest current-model total is 74 run / 73 passed / one unresolved fixture:
+`test_current_profile.CurrentProfile.test_pending_frontend_ids_never_fall_back_to_historical_images`.
+It expects an empty `PINS.frontend_images` map, while the WIP JSON now contains
+actual 49e/6e IDs. It was not fixed after the stop. Context 8, Env 11 and the three
+replacement-AST controls pass within that 74; the frontend 15 controls separately
+pass. Original 162 last passed before the final compatibility patch and were not
+rerun afterward. Full Black-check was not rerun after a path error; the latest
+changed-file Ruff check passed. No native operator packet was created. The exact
+parent summary is retained in ignored `release-refreeze-v2/WIP_STATUS.md`.
+
+
+The ignored source-only restart map is
+`.check-results/resume-20261116/next-release-orchestration/RUNBOOK.md`, with
+`SOURCE_PINS.json` and `STOP_STATUS.json`. No new Mac full-cutover app adapter was
+implemented before the stop. It records the existing 330-second app wait /
+300-second client intersection, the full server's 19-field schema 8 backup DTO,
+and the separate authority callback's tighter 180-second installer alarm inside
+the 300-second keeper. Existing backup-only `root_controller.py` sends `finish`
+and resumes schema 8; never replay it as the full cutover before migration 0009.
+The full-release Mac app restore/receipt adapter and production authority
+capture/readback/retention wrapper still need concrete reviewed wiring.
+
+Next session: review the exact stopped operator/source conflict, finish and
+qualify the current operator/guard/fallback, curate and commit the checkpoint,
+require its exact PR and distinct merged-main all-15-job CI, and freeze the final
+candidate pins/dossier. Then prepare/review the missing Mac handshake scripts;
+perform no production migration until a fresh matching stopped-writer app backup,
+isolated restore and production-authority retention are verified under the full
+cutover writer/keeper sequence. The scope exclusions above stay in force.
+
+The latest evidence anchors are:
+
+- [Current source and CI](evidence/p11bc/current-source-ci-20261117.json).
+- [Current runtime inventory](evidence/p11bc/current-runtime-20261117.json).
+- [Current frontend](evidence/p11bc/current-frontend-20261117.json).
+- [Current migration/catalogue](evidence/p11bc/current-migration-20261117.json).
+- [Synthetic authority QA](evidence/p11bc/current-authority-qa-20261117.json).
+
+The backend bridge preserves 2121 core identities per dataset and 2122 merged
+unique cases including the capacity identity. Its original producer enforced
+exact collection/JUnit identities; the bridge does not claim to re-read raw
+JUnit or that every case passes both datasets. CI dependency and native release
+image IDs remain distinct. The browser bridge retains 680 ordinal unit cases
+(including legitimate repeated titles), 78 complete asset-fingerprinted custom
+reports plus one synthetic source-only report, and all 6 × 18 Playwright cases.
+The four Legacy-only step skips are expected Opal-only gates; no unexpected test
+skip is accepted. Actual PR test checkout `ffad9b8` is distinct from API head
+`1d2e34b`; both and merged main have the same pinned frontend/test source.
+
+The exact current-image normal-runtime stdout is retained as the original
+3,122-byte report SHA `74ccbc26b93634bf036af4c83349d6658eff1d52614cbd44771fee70daa99db4`.
+Its read-only provenance and public image identity/Config/effective-command
+facts are component receipts pinned by the runtime anchor. They disclose no
+raw Env values and do not claim that old and candidate image Config are equal.
+
+The migration's V2 copy-source/CWD failure and earlier frontend build/HTTP red
+receipts remain preserved. Current migration qualification uses the original 16
+tests, seed, snapshot assertions and 300/60/120-second budgets. Its one DSN host
+substitution is disclosed by distinct canonical/executed PROGRAM hashes; no SQL
+or catalogue assertion changed. The separately passed seven-probe 256 MiB gate
+checks structural metadata and six exact predicates. It does not prove a
+populated production payload snapshot at 256 MiB or replace populated migration
+preservation. Independent scans prove current original-ID absence where those
+IDs persist, and current lineage/name/socket/mount-consumer absence elsewhere;
+missing historical IDs are disclosed, not reconstructed.
+
+Next: finish and qualify the source-bound current operator/profile, current
+fallback and committed evidence dossier. The completed isolated native
+HTTP/proxy/export and exact compose-command checks qualify their stated scope;
+full Compose host/default capabilities, scheduler and ingress remain separate.
+Re-establish a fresh stopped-writer application
+backup/retention plus exact isolated restore at actual cutover, and independently
+authenticate/retain the production authority archive under the keeper before
+any schema 9 activation. Accepted-data recovery, globally latest accepted head,
+main publisher CLI/full cutover execution, production payload snapshot 256 MiB,
+physical-device/provider acceptance and total-host restoration retain their
+separate gates. No source/image proof alone authorizes production activation.
+
 This checkpoint supersedes the local November 6 pause for choosing the next
 task. It does not replace historical evidence or authorize an analytical
 connection cutover or production activation.

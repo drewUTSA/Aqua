@@ -1,3 +1,6 @@
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 Title: Enforce analytical data boundaries and test proxy admission
 
 Generated queries could confuse qualified relations with allowed tables, cache

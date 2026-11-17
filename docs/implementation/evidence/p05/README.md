@@ -1,5 +1,8 @@
 # P05 review evidence
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](../../PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 `artifact-hashes.json` binds the sanitized files in this directory. Browser
 screenshots contain synthetic accounts only; no provider credentials, cookies,
 proof values, request bodies or real application data are recorded.

@@ -1,5 +1,8 @@
 # P11a private JSON exports — candidate verification
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 This is the isolated P11a candidate in p11-work. It has not passed the full
 canonical or real-browser release gates and is not deployed. Local modeled tests
 are evidence only for their explicit fake boundaries; authored PostgreSQL,

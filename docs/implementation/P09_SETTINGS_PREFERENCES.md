@@ -1,5 +1,8 @@
 # P09 Settings and safe preferences
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 Status: complete and deployed on October 28 at 21:58:59 UTC. PR #52 merged as `05accec31da7d257ca5f1ffb7bd4897eac70d8b5` after all required PR checks passed; the merged main checks and controlled production verification also passed. Canonical isolated results cover 1,385 backend cases, 399 frontend tests, both production builds and eight browser gates. Eight synthetic screenshots were visually reviewed. See the [isolated verification record](evidence/p09/verification.json) and [release record](evidence/p09/release.json). The separately requested homepage supplement is under verification; P10/P11 remain separate phases.
 
 The October 28 continuation resumes the clean P08 closeout at `14993c2`. The

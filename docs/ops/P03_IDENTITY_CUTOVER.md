@@ -1,5 +1,8 @@
 # P03 identity cutover and recovery
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](../implementation/PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 **Reviewed operator procedure; not yet executed.** P02 is currently deployed at
 `5ac90fcca45a6a74bab5d6f792388c05804d87a2`, with `aqua_app` schema 1 and storage
 enabled. This procedure deliberately replaces its legacy profile-cookie auth.

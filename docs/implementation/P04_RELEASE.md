@@ -1,5 +1,8 @@
 # P04 release
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 **P04 is deployed with schema 3; password and account-mail features remain disabled.**
 The merged package passed its isolated release checks, a fresh encrypted off-server schema 2 backup was collected, and cutover, private verification and the 12-request public smoke check passed on 2026-10-21. Password forms and mail activation remain later gates.
 

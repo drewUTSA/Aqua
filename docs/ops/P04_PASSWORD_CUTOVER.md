@@ -1,5 +1,8 @@
 # P04 password migration and activation procedure
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](../implementation/PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 **Reviewed procedure for a later approved cutover; not executed by writing this file.** P03 is live at `c25a3332e67f644e94c6ab3b6e80155dacf7c56b`, private schema 2. P04 requires schema 3. Password signup/recovery, actual email integration and the worker remain disabled until the prerequisites below pass. The hosted analytical database is outside this procedure.
 
 ## Preconditions and disabled deployment

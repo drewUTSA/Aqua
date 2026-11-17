@@ -1,5 +1,8 @@
 # P01 merged release verification
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 October 20, 2026, Chicago (October 21 UTC). PR [#37](https://github.com/drewUTSA/Aqua/pull/37)
 merged at `07055eb4579f2bfb002d252942805b8d853fbdb8`. GitHub Actions run
 `39528817735` succeeded. Local main and server `/srv/bank-ai` were fast-forwarded

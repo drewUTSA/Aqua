@@ -1,5 +1,8 @@
 # P04 evidence and retained findings
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](../../PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 Final acceptance is `integration/report.json`: 1056 unique backend cases pass in at least one of the two isolated fixtures, zero failed or unverified cases. Dataset-specific skips are paired with the other fixture's passes. `integration/proxy.json` records 98 bounded requests against the actual candidate frontend image, admission/rejection counters, cooldown/recovery and temporary-resource cleanup. Proxy upstreams are synthetic counters; backend authentication behavior is covered by the matrix, not claimed from those proxy responses alone.
 
 `package-verification.json` binds 67 runtime/corpus source hashes and nginx to the tested production images. It also records a 32-sample Argon2 microbenchmark, not service capacity. `deployment-check.json` records synthetic schema-3 bootstrap, SCRAM, repeated migration, runtime DDL denial/recovery and memory-only export. The final matrix records memory-only synthetic restore, ACL preservation and session/challenge/hash/mail fencing. Frontend JUnit has 71 cases, including 17 content/export safety regressions; no P05 password UI journey is claimed. Mail-unit JUnit has 19 offline cases, also represented in the full matrix. Advisory audits report no known vulnerabilities at the recorded check; this is not proof of vulnerability absence.

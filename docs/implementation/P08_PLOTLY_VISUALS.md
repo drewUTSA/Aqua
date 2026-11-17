@@ -1,5 +1,8 @@
 # P08 Plotly and conditional visuals
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 Status: P08 is complete and deployed at code checkpoint `d76be9a` (PR #50),
 schema 5. Required PR/main CI and production verification passed. The final
 release record below supersedes the pre-release preparation status; P09 requires

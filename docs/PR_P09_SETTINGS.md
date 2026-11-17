@@ -1,5 +1,8 @@
 # P09: add safe account and device Settings preferences
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](implementation/PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 Settings previously displayed a placeholder. This change adds nine navigable,
 searchable categories with supported appearance, workspace, chat, chart/table,
 accessibility and regional formatting choices. Account values persist through an

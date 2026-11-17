@@ -1,5 +1,8 @@
 # Phase10 Identity
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](implementation/PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 Add explicit Google identity linking/removal, first-password setup, and primary
 email changes with fresh action-specific verification. Changes revoke sessions,
 preserve account and data-grant separation, and issue mandatory security notices.

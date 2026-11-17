@@ -1,5 +1,8 @@
 # Architecture
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](implementation/PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 How Aqua turns a plain-English question into rows, a summary, a chart and the SQL that produced them, and what keeps that safe. Reasons for each choice are in `decisions.md`; working rules for contributors are in `CLAUDE.md`.
 
 ## The path of one question

@@ -1,5 +1,8 @@
 # Account-mail host operation
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](../../docs/implementation/PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 `launch.py` is the Linux host entrypoint for one account-mail job. The backend
 entrypoint remains `python -m auth.mailworker`; `run_once.py` is its compatibility
 wrapper. None of these files installs a scheduler, creates provider credentials,
