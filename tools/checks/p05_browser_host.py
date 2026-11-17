@@ -13,6 +13,7 @@ from p05_browser_protocol import (
     emit,
     fixture_schema,
     message,
+    origin_value,
     request_limit,
 )
 from p05_browser_docker import ROOT
@@ -49,6 +50,7 @@ def host(
     account_identity_fixture: bool = False,
     personal_export_fixture: bool = False,
     personal_deletion_fixture: bool = False,
+    bank_demo_fixture: bool = False,
 ) -> int:
     """Bound all operations/lifetime; lifecycle mode explicitly allows 400."""
     if (
@@ -56,8 +58,21 @@ def host(
         or type(account_identity_fixture) is not bool
         or type(personal_export_fixture) is not bool
         or type(personal_deletion_fixture) is not bool
+        or type(bank_demo_fixture) is not bool
     ):
         raise ValueError("fixture_security_mode_invalid")
+    if bank_demo_fixture and (
+        workspace_analysis is not False
+        or account_security_fixture
+        or account_identity_fixture
+        or personal_export_fixture
+        or personal_deletion_fixture
+        or type(image) is not str
+        or not re.fullmatch(r"sha256:[a-f0-9]{64}", image)
+    ):
+        raise ValueError("fixture_bank_demo_mode_invalid")
+    if bank_demo_fixture:
+        origin_value(origin)
     schema = fixture_schema(ROOT)
     if type(schema) is not int or schema != 9:
         raise ValueError("fixture_schema9_required")
@@ -109,6 +124,11 @@ def host(
         "real_data_accessed": False,
         "provider_calls": 0,
         "workspace_analysis_fixture": workspace_analysis,
+        **(
+            {"bank_demo_fixture": True, "bank_demo_persona": "teller"}
+            if bank_demo_fixture
+            else {}
+        ),
     }
     signal.signal(signal.SIGALRM, timeout_signal)
     signal.signal(signal.SIGTERM, timeout_signal)
@@ -128,6 +148,11 @@ def host(
                 "-B",
                 "-u",
                 (
+                    "/checks/tools/checks/bank_demo_browser_backend.py"
+                    if bank_demo_fixture
+                    else None
+                )
+                or (
                     "/checks/tools/checks/p11b_browser_backend.py"
                     if personal_deletion_fixture
                     else (
@@ -149,7 +174,7 @@ def host(
                 origin,
                 *(
                     ["--image", image]
-                    if account_security_fixture
+                    if account_security_fixture or bank_demo_fixture
                     else ["--workspace-analysis"] if workspace_analysis else []
                 ),
             ],
@@ -164,6 +189,10 @@ def host(
         )
         assert child.stdout is not None and child.stdin is not None
         ready = json.loads(child.stdout.readline(MAX_LINE + 1))
+        if ready.get("bank_demo_fixture", False) is not bank_demo_fixture or (
+            bank_demo_fixture and ready.get("bank_demo_persona") != "teller"
+        ):
+            raise RuntimeError("fixture_bank_demo_worker_not_ready")
         if (
             ready.get("personal_deletion_fixture", False)
             is not personal_deletion_fixture

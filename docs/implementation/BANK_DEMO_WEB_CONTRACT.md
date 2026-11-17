@@ -100,7 +100,8 @@ compatible bounded presentation fields; the current fictional DemoActor and
 ## Local qualification and activation boundary
 
 The reports increment has passed the full isolated backend matrix, both-shell
-mocked-HTTP browser journeys and actual isolated nginx checks. The current
+mocked-HTTP and real-ASGI/private-PostgreSQL browser journeys, and actual isolated
+nginx checks. The current
 runtime inventory explicitly contains226 Python/SQL files,230 app files and one
 runtime lock. See [qualification](BANK_DEMO_WEB_QUALIFICATION_20261117.md) for
 the source bindings, failed-attempt dispositions and remaining limitations.

@@ -8,6 +8,7 @@ import { BrowserPipe } from "./p05-browser-pipe.mjs";
 import { accountAction } from "./homepage-browser-actions.mjs";
 import { actualPersonalWorkspace, foreignPersonalWorkspace } from "./p06-real-browser-checks.mjs";
 import { actualAnalysisWorkspace } from "./p06-analysis-browser-checks.mjs";
+import { BankDemoResponseGate, bankRealMode, bankRealCleanupConfirmed, runRealBankDemoChecks } from "./bank-demo-real-browser-checks.mjs";
 import { createServer } from "node:http";
 import { readFile, readdir, lstat, realpath, mkdtemp, mkdir, writeFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -33,6 +34,9 @@ async function ensureArtifacts() {
 // the independent backend fixture still caps opt-in operations at 400.
 const MAX_MS = 240000, MAX_BODY = 16384, MAX_REQUESTS = 512;
 const analysisFixture = process.env.AQUA_P06_ANALYSIS_FIXTURE === "true";
+const bankDemoFixture = bankRealMode(new URL(import.meta.url).searchParams.get("journey"), analysisFixture);
+const bankGate = bankDemoFixture ? new BankDemoResponseGate() : null;
+let bankDemoJourney = null;
 const EMAIL = "p05-browser-reader@example.test";
 const PASSWORD = "Synthetic orbital meadow password 27";
 const NEXT_PASSWORD = "Synthetic restored mountain password 48";
@@ -160,6 +164,12 @@ try {
   assert.equal(ready.origin, origin, "exact_loopback_origin_required");
   assert.equal(ready.dataset_grants, 0, "ungranted_fixture_account_required");
   assert.equal(ready.workspace_analysis_fixture === true, analysisFixture, "explicit_analysis_fixture_mode_required");
+  assert.equal(ready.bank_demo_fixture === true, bankDemoFixture, "explicit_bank_demo_fixture_mode_required");
+  if (bankDemoFixture) {
+    assert.equal(ready.bank_demo_persona, "teller", "fixed_teller_fixture_required");
+    assert.equal(ready.max_requests, 256, "unchanged_nonanalysis_operation_cap");
+    assert.equal(ready.body_bytes_max, MAX_BODY, "unchanged_nonanalysis_body_cap");
+  }
   if (analysisFixture) assert.equal(ready.capabilities?.workspace_analysis, true, "analysis_fixture_capability_required");
   assert.equal(ready.network, "none", "isolated_backend_network_required");
   assert.equal(ready.database_transport, "private_unix_socket", "isolated_database_required");
@@ -178,6 +188,11 @@ try {
     if (event.method === "Runtime.consoleAPICalled" && [...sensitiveValues].some((secret) => JSON.stringify(event.params.args).includes(secret))) consoleLeaks++;
     if (event.method !== "Fetch.requestPaused") return;
     const wasNavigating = navigating;
+    const interceptedFailure = (error) => {
+      if (error.shutdownSessionMissing && cdp.stopping) canceled++;
+      else if (error.canceled && (wasNavigating || navigating || abortedNetworkRequests.has(event.params.networkId))) canceled++;
+      else protocolErrors.push(error instanceof assert.AssertionError ? "bridge_contract_assertion" : error.message);
+    };
     void (async () => {
       const { requestId, request } = event.params, url = new URL(request.url);
       if (++requests > MAX_REQUESTS || performance.now() - started > MAX_MS) throw new Error("request_bound");
@@ -189,14 +204,12 @@ try {
         apiOutcomes.push({ method: request.method, path: url.pathname, status: result.status });
         const encoded = result.bodyBase64 || ""; if (Buffer.from(encoded, "base64").length > MAX_BODY) throw new Error("response_body_bound");
         rememberResponseSecrets(result);
-        await cdp.send("Fetch.fulfillRequest", { requestId, responseCode: result.status, responseHeaders: result.headers.map(([name, value]) => ({ name, value })), ...(result.status === 204 ? {} : { body: encoded }) });
+        const fulfill = () => cdp.send("Fetch.fulfillRequest", { requestId, responseCode: result.status, responseHeaders: result.headers.map(([name, value]) => ({ name, value })), ...(result.status === 204 ? {} : { body: encoded }) });
+        if (bankGate?.capture(request, result, () => fulfill().catch(interceptedFailure))) return;
+        await fulfill();
       } else if (url.origin === origin && request.method === "GET") await cdp.send("Fetch.continueRequest", { requestId });
       else { external++; await cdp.send("Fetch.failRequest", { requestId, errorReason: "BlockedByClient" }); }
-    })().catch((error) => {
-      if (error.shutdownSessionMissing && cdp.stopping) canceled++;
-      else if (error.canceled && (wasNavigating || navigating || abortedNetworkRequests.has(event.params.networkId))) canceled++;
-      else protocolErrors.push(error instanceof assert.AssertionError ? "bridge_contract_assertion" : error.message);
-    });
+    })().catch(interceptedFailure);
   };
   await cdp.send("Page.enable"); await cdp.send("Network.enable"); await cdp.send("Runtime.enable");
   await cdp.send("Fetch.enable", { patterns: [{ urlPattern: "*", requestStage: "Request" }] });
@@ -219,6 +232,12 @@ try {
   await check("new password account has personal UI without dataset access", "document.querySelector('.opal-composer textarea').disabled&&document.body.textContent.includes('Access pending')");
   const me = await rawRequest("GET", "/api/auth/me"); assert.equal(me.status, 200, "real_session_cookie_round_trip");
   const session = JSON.parse(me.body); assert.equal(session.can_query, false, "new_account_has_no_dataset_grant");
+  if (bankDemoFixture) {
+    bankDemoJourney = await runRealBankDemoChecks({ check, click, evaluate, waitFor, rawRequest, screenshot, session, logout, gate: bankGate,
+      send: (method, parameters) => cdp.send(method, parameters),
+      companionReads: () => apiOutcomes.filter(call => call.method === "GET" && call.path === "/api/v1/companion/capabilities").map(call => call.status),
+      analyticalCount: () => apiOutcomes.filter(call => call.method === "POST" && (call.path === "/api/query" || /^\/api\/v1\/chats(?:\/[^/]+\/messages(?:\/[^/]+\/retries)?)?$/.test(call.path))).length });
+  } else {
   firstAccountWorkspace = await actualPersonalWorkspace({ check, click, clickText, fill, waitFor, evaluate, navigate, rawRequest, screenshot, csrf: session.csrf_token });
   const query = await rawRequest("POST", "/api/query", { question: "Synthetic dataset-denial check" }, { "X-CSRF-Token": session.csrf_token });
   assert.equal(query.status, 403, "real_dataset_permission_denial"); results.push({ check: "actual API rejects a query from a no-dataset account", passed: true });
@@ -298,6 +317,7 @@ try {
   await foreignPersonalWorkspace({ check, rawRequest, workspace: firstAccountWorkspace, csrf: JSON.parse(googleSession.body).csrf_token });
   results.push({ check: "actual Google handler rejects forged CSRF then accepts a fresh legitimate nonce flow", passed: true });
   await screenshot("actual-google-no-dataset-workspace"); await logout();
+  }
   await assertNoProofPersistence("final browser state contains no captured proof values");
   assert.equal(external, 0, "external_request_blocked"); assert.equal(consoleLeaks, 0, "console_secret_leak");
   assert.deepEqual(browserErrors, [], "uncaught_browser_error"); assert.deepEqual(protocolErrors, [], "browser_bridge_protocol_failure");
@@ -311,6 +331,8 @@ try {
 } finally {
   clearTimeout(deadline);
   if (cdp) await cdp.stop();
+  bankGate?.close();
+  if (!failure && bankGate && !bankRealCleanupConfirmed(bankGate.snapshot())) failure = "real_bank_hold_cleanup_unconfirmed";
   if (!failure && cdp?.cleanupFailure) failure = "browser_cleanup_failed";
   if (bridge?.finished) bridgeCleanup = bridge.finished;
   if (bridge && bridge.process.exitCode === null) {
@@ -336,7 +358,8 @@ const backendReport = Object.fromEntries(["run", "status", "step", "cleanup", "r
 if (!failure && (!backendRemoved || !backendPassed)) failure = "backend_cleanup_unconfirmed";
 // Only explicitly sanitized bridge cleanup fields are persisted. Mail payloads,
 // cookies, credentials, CSRF values and proof links never enter the report.
-const report = { status: failure ? "failed" : "passed", failure, failure_step:failureStep, last_completed_check:results.at(-1)?.check||null, checked_utc: new Date().toISOString(), mode: "real_fastapi_disposable_postgres_browser",
+const report = { status: failure ? "failed" : "passed", failure, failure_step:failureStep, last_completed_check:results.at(-1)?.check||null, checked_utc: new Date().toISOString(), mode: bankDemoFixture ? "real_fastapi_disposable_postgres_bank_demo_browser" : "real_fastapi_disposable_postgres_browser",
+  ...(bankDemoFixture ? { bank_demo_journey: bankDemoJourney, bank_demo_response_gate: bankGate.snapshot() } : {}),
   expected_shell: EXPECTED_SHELL, analysis_fixture: analysisFixture, browser_diagnostic: failureDiagnostic ?? cdp?.diagnostic ?? null, bridge_diagnostic: bridge?.diagnostic ?? null, loadedAssets, results, screenshots, performanceSamples, observations: { requests, apiRequests, external_attempts: external, consoleLeaks, browserErrors, protocolErrors, canceled, explicit_fixture_admission_clock_steps: fixtureClockSteps, explicit_fixture_analysis_clock_steps: analysisClockSteps, apiOutcomes },
   cleanup: { browser_stopped: !browser || cdp?.stopped === true, temporary_profile_removed: Boolean(profile), loopback_closed: !server?.listening, backend_status: bridgeCleanup?.status ?? null, backend_resources_removed: backendRemoved, backend_report: backendReport },
   elapsed_seconds: Math.round((performance.now() - started) / 10) / 100,
