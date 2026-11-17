@@ -1,9 +1,9 @@
 {
-  "run": "aqua-release-budget-fc33c0b233934267b539241e",
+  "run": "aqua-release-budget-c01cdcf8e12340e1a1eff282",
   "scope": "source-only Linux models and owned child-process checks; no native SQL",
   "status": "passed",
   "image": "sha256:61034825653941c528a17bd66d3d0072c18b1a57d82377053d349d6204c7ef66",
-  "appSourceBinding": "2bc632539548d4bc8c583d0cb91bd6fab05ba8afac6c2a1da22ca994a8cf6d88",
+  "appSourceBinding": "35face43e8d55faffca610b9f7cdc18d34d1f6fd113565bfb7edf05f35d04b1b",
   "hostMounts": [],
   "network": "none",
   "limits": {
@@ -23,7 +23,7 @@
       "passed": true,
       "returncode": 0,
       "stderr": "",
-      "stdout": "..............................................\n----------------------------------------------------------------------\nRan 46 tests in 1.494s\n\nOK\n{\"status\": \"passed\", \"tests\": 46, \"failures\": 0, \"errors\": 0, \"skipped\": 0}\n..........\n----------------------------------------------------------------------\nRan 10 tests in 0.033s\n\nOK\n{\"status\": \"passed\", \"tests\": 10, \"failures\": 0, \"errors\": 0, \"skipped\": 0}\n{\"status\": \"passed\", \"tests\": 56, \"failures\": 0, \"errors\": 0, \"skipped\": 0}\n",
+      "stdout": "..............................................\n----------------------------------------------------------------------\nRan 46 tests in 1.504s\n\nOK\n{\"status\": \"passed\", \"tests\": 46, \"failures\": 0, \"errors\": 0, \"skipped\": 0}\n..........\n----------------------------------------------------------------------\nRan 10 tests in 0.030s\n\nOK\n{\"status\": \"passed\", \"tests\": 10, \"failures\": 0, \"errors\": 0, \"skipped\": 0}\n{\"status\": \"passed\", \"tests\": 56, \"failures\": 0, \"errors\": 0, \"skipped\": 0}\n",
       "summary": {
         "errors": 0,
         "failures": 0,
@@ -33,18 +33,18 @@
       }
     },
     {
-      "expectedTests": 27,
-      "group": "new27",
+      "expectedTests": 29,
+      "group": "new29",
       "passed": true,
       "returncode": 0,
       "stderr": "",
-      "stdout": "...........................\n----------------------------------------------------------------------\nRan 27 tests in 0.031s\n\nOK\n{\"status\": \"passed\", \"tests\": 27, \"failures\": 0, \"errors\": 0, \"skipped\": 0}\n",
+      "stdout": ".............................\n----------------------------------------------------------------------\nRan 29 tests in 0.047s\n\nOK\n{\"status\": \"passed\", \"tests\": 29, \"failures\": 0, \"errors\": 0, \"skipped\": 0}\n",
       "summary": {
         "errors": 0,
         "failures": 0,
         "skipped": 0,
         "status": "passed",
-        "tests": 27
+        "tests": 29
       }
     }
   ],
@@ -66,8 +66,8 @@
     "ops/retirement/backup_client/authority_contract.py": "6b517d2cc8bd9299ebf2b48cddfccf9e40e53109e4fa58038d36bca6a3d80768",
     "ops/retirement/backup_client/authority_decrypt.py": "c42864ea21e68a1fa77cd6fe238406e11ff3bb88fa9108cb744c301cf95e1893",
     "ops/retirement/backup_client/authority_decrypt_test.py": "63ac1ff518442cf763f8476527077b99f307e601b1a69b696f907ab2d84d4a7c",
-    "ops/retirement/backup_client/authority_route.py": "c2d4eb9c83dfcdc6a3beb4e5416867aa94e81c9f5be0893d6816d339c3a68fa4",
-    "ops/retirement/backup_client/authority_route_test.py": "485cc4d16c2653e816f46539037f50bec3c244e6792e09824e0c56cffb528483",
+    "ops/retirement/backup_client/authority_route.py": "6f01414d8c2de49720756989cf0e960c87e6bea9aa8f3c6625e179c11be4fd5c",
+    "ops/retirement/backup_client/authority_route_test.py": "a4242446c5c16ab27a3948e3c2f6a015fae93574848fbb917268fe3672ac1a55",
     "ops/retirement/backup_client/authority_sql_adapter.py": "809647b980b07f95df82b942110a74e77a95532bb2c4412e3d578d59ffc852fb",
     "ops/retirement/backup_client/authority_sql_model_test.py": "deab832a788fd5963e9514e14b8360bb1d40cb59586f2f0ddab3d3a2ecbca20b",
     "ops/retirement/backup_client/authority_support.py": "1c9630f6b529ff87bdf8d767bec4eab0aec78c362670165fee2e85ec7fb24218",
@@ -100,7 +100,7 @@
     "ops/retirement/backup_client/vendor/retirement/fingerprints.py": "0f5b617dfef7815ed66d08e936c514fb9d7aa09a438b31d4f0784e2bf3dc4904",
     "ops/retirement/backup_client/verifier-manifest.json": "432382baacd59100b8cacb062bbbeddd72d0465ab3c9e33f2379d2b78260faac",
     "qualification/bounded_io.py": "eefc82081ec925fb142def934dd8bbab9eadc38b8448a1fd3efc0bb650edaef0",
-    "qualification/new_models.py": "14ede926182a0779695e4143c632618ba84cb55b700e1e8aae74720d7d2f1ef1",
+    "qualification/new_models.py": "2c3cff75a69bcc63e5739c45f5ac1e9dffb0054f1f98b27a07769e5b0489bf01",
     "tools/checks/run_retirement_backup_models.py": "fbdda304b5e3677601c70b16e2a3d1790aa4353d3a95eca1e721c986468d8b05"
   },
   "frozenAppSha256": {
@@ -111,18 +111,18 @@
     "ops/retirement/backup_client/authority_budget_integration_test.py": "81b98788545a735358e690716309f99bc64c78958aa6a30e5408ae9ab505b53a",
     "ops/retirement/backup_client/authority_budget_test.py": "7864c1ca22daacc9a170cd30d4e2eab05403268e9118c9a13726b0a2f650e554",
     "ops/retirement/backup_client/authority_contract.py": "6b517d2cc8bd9299ebf2b48cddfccf9e40e53109e4fa58038d36bca6a3d80768",
-    "ops/retirement/backup_client/authority_route.py": "c2d4eb9c83dfcdc6a3beb4e5416867aa94e81c9f5be0893d6816d339c3a68fa4",
-    "ops/retirement/backup_client/authority_route_test.py": "485cc4d16c2653e816f46539037f50bec3c244e6792e09824e0c56cffb528483",
+    "ops/retirement/backup_client/authority_route.py": "6f01414d8c2de49720756989cf0e960c87e6bea9aa8f3c6625e179c11be4fd5c",
+    "ops/retirement/backup_client/authority_route_test.py": "a4242446c5c16ab27a3948e3c2f6a015fae93574848fbb917268fe3672ac1a55",
     "ops/retirement/backup_client/authority_verify.py": "b84ba5769e025f582332b86af4aff59314adf778e1f016a99c2ee1358a971d88"
   },
   "harnessSha256": {
-    "run_qualification.py": "9d7e39dc0d60119d8b19765883e580875aa4b39688e6b0dbf0326c9827118468",
+    "run_qualification.py": "36a085b735edf2ee2c575af9b5be1ff6ad0b53f3a9f4c8426cb84629f0d8443d",
     "bounded_io.py": "eefc82081ec925fb142def934dd8bbab9eadc38b8448a1fd3efc0bb650edaef0",
-    "container_probe.py": "539e0ba4c948c624ba96e6672b3822302c08505aa8abe453a715ea6bc072b8af",
-    "new_models.py": "14ede926182a0779695e4143c632618ba84cb55b700e1e8aae74720d7d2f1ef1"
+    "container_probe.py": "4fac6a1377f8cb27916ab5ee51feec42addf2b7c45f531e229768665f78329bc",
+    "new_models.py": "2c3cff75a69bcc63e5739c45f5ac1e9dffb0054f1f98b27a07769e5b0489bf01"
   },
-  "archiveSha256": "f7054db51e2c6db01844de33d846f432b8d99b8c638ee22bbc53b5626d9e6219",
-  "archiveBytes": 358400,
+  "archiveSha256": "e8593bbc6bd41bbc2a1302b4bc132cdf3b4ef6669e7bc5a3b073d7503e95392a",
+  "archiveBytes": 368640,
   "testExitCode": 0,
   "rawBoundedCliResults": [
     {
@@ -134,43 +134,43 @@
     {
       "operation": "create",
       "returncode": 0,
-      "stdout": "29285d0d5011217e0c9c6db800a875f7ec1f5002b0204e028a96f4f5ba89069b\n",
+      "stdout": "80805f6bf0cb6980905c457acec7ea3994f3c77a0918d9c59b2267a7dfe00f32\n",
       "stderr": ""
     },
     {
       "operation": "container",
       "returncode": 0,
-      "stdout": "{\"Id\":\"29285d0d5011217e0c9c6db800a875f7ec1f5002b0204e028a96f4f5ba89069b\",\"Name\":\"/aqua-release-budget-fc33c0b233934267b539241e\",\"Image\":\"sha256:61034825653941c528a17bd66d3d0072c18b1a57d82377053d349d6204c7ef66\",\"Config\":{\"User\":\"1000:1000\",\"Labels\":{\"aqua.verification.purpose\":\"release-budget-closed-models\",\"aqua.verification.nonce\":\"fc33c0b233934267b539241e1c26c5d5\"}},\"HostConfig\":{\"NetworkMode\":\"none\",\"ReadonlyRootfs\":true,\"Memory\":134217728,\"NanoCpus\":1000000000,\"PidsLimit\":64,\"CapDrop\":[\"ALL\"],\"SecurityOpt\":[\"no-new-privileges\"],\"PortBindings\":{},\"Binds\":null,\"Tmpfs\":{\"/checks\":\"rw,nosuid,nodev,noexec,size=32m,mode=0700,uid=1000,gid=1000\",\"/tmp\":\"rw,nosuid,nodev,noexec,size=64m,mode=1777\"}},\"Mounts\":[]}\n",
+      "stdout": "{\"Id\":\"80805f6bf0cb6980905c457acec7ea3994f3c77a0918d9c59b2267a7dfe00f32\",\"Name\":\"/aqua-release-budget-c01cdcf8e12340e1a1eff282\",\"Image\":\"sha256:61034825653941c528a17bd66d3d0072c18b1a57d82377053d349d6204c7ef66\",\"Config\":{\"User\":\"1000:1000\",\"Labels\":{\"aqua.verification.purpose\":\"release-budget-closed-models\",\"aqua.verification.nonce\":\"c01cdcf8e12340e1a1eff282601eafcf\"}},\"HostConfig\":{\"NetworkMode\":\"none\",\"ReadonlyRootfs\":true,\"Memory\":134217728,\"NanoCpus\":1000000000,\"PidsLimit\":64,\"CapDrop\":[\"ALL\"],\"SecurityOpt\":[\"no-new-privileges\"],\"PortBindings\":{},\"Binds\":null,\"Tmpfs\":{\"/checks\":\"rw,nosuid,nodev,noexec,size=32m,mode=0700,uid=1000,gid=1000\",\"/tmp\":\"rw,nosuid,nodev,noexec,size=64m,mode=1777\"}},\"Mounts\":[]}\n",
       "stderr": ""
     },
     {
       "operation": "start",
       "returncode": 0,
-      "stdout": "{\"groups\": [{\"expectedTests\": 56, \"group\": \"closed56\", \"passed\": true, \"returncode\": 0, \"stderr\": \"\", \"stdout\": \"..............................................\\n----------------------------------------------------------------------\\nRan 46 tests in 1.494s\\n\\nOK\\n{\\\"status\\\": \\\"passed\\\", \\\"tests\\\": 46, \\\"failures\\\": 0, \\\"errors\\\": 0, \\\"skipped\\\": 0}\\n..........\\n----------------------------------------------------------------------\\nRan 10 tests in 0.033s\\n\\nOK\\n{\\\"status\\\": \\\"passed\\\", \\\"tests\\\": 10, \\\"failures\\\": 0, \\\"errors\\\": 0, \\\"skipped\\\": 0}\\n{\\\"status\\\": \\\"passed\\\", \\\"tests\\\": 56, \\\"failures\\\": 0, \\\"errors\\\": 0, \\\"skipped\\\": 0}\\n\", \"summary\": {\"errors\": 0, \"failures\": 0, \"skipped\": 0, \"status\": \"passed\", \"tests\": 56}}, {\"expectedTests\": 27, \"group\": \"new27\", \"passed\": true, \"returncode\": 0, \"stderr\": \"\", \"stdout\": \"...........................\\n----------------------------------------------------------------------\\nRan 27 tests in 0.031s\\n\\nOK\\n{\\\"status\\\": \\\"passed\\\", \\\"tests\\\": 27, \\\"failures\\\": 0, \\\"errors\\\": 0, \\\"skipped\\\": 0}\\n\", \"summary\": {\"errors\": 0, \"failures\": 0, \"skipped\": 0, \"status\": \"passed\", \"tests\": 27}}], \"modelTests\": true, \"nativeSQLExecuted\": false, \"sourceUnchanged\": true, \"status\": \"passed\", \"uid\": 1000}\n",
+      "stdout": "{\"groups\": [{\"expectedTests\": 56, \"group\": \"closed56\", \"passed\": true, \"returncode\": 0, \"stderr\": \"\", \"stdout\": \"..............................................\\n----------------------------------------------------------------------\\nRan 46 tests in 1.504s\\n\\nOK\\n{\\\"status\\\": \\\"passed\\\", \\\"tests\\\": 46, \\\"failures\\\": 0, \\\"errors\\\": 0, \\\"skipped\\\": 0}\\n..........\\n----------------------------------------------------------------------\\nRan 10 tests in 0.030s\\n\\nOK\\n{\\\"status\\\": \\\"passed\\\", \\\"tests\\\": 10, \\\"failures\\\": 0, \\\"errors\\\": 0, \\\"skipped\\\": 0}\\n{\\\"status\\\": \\\"passed\\\", \\\"tests\\\": 56, \\\"failures\\\": 0, \\\"errors\\\": 0, \\\"skipped\\\": 0}\\n\", \"summary\": {\"errors\": 0, \"failures\": 0, \"skipped\": 0, \"status\": \"passed\", \"tests\": 56}}, {\"expectedTests\": 29, \"group\": \"new29\", \"passed\": true, \"returncode\": 0, \"stderr\": \"\", \"stdout\": \".............................\\n----------------------------------------------------------------------\\nRan 29 tests in 0.047s\\n\\nOK\\n{\\\"status\\\": \\\"passed\\\", \\\"tests\\\": 29, \\\"failures\\\": 0, \\\"errors\\\": 0, \\\"skipped\\\": 0}\\n\", \"summary\": {\"errors\": 0, \"failures\": 0, \"skipped\": 0, \"status\": \"passed\", \"tests\": 29}}], \"modelTests\": true, \"nativeSQLExecuted\": false, \"sourceUnchanged\": true, \"status\": \"passed\", \"uid\": 1000}\n",
       "stderr": ""
     },
     {
       "operation": "container",
       "returncode": 0,
-      "stdout": "29285d0d5011217e0c9c6db800a875f7ec1f5002b0204e028a96f4f5ba89069b\n",
+      "stdout": "80805f6bf0cb6980905c457acec7ea3994f3c77a0918d9c59b2267a7dfe00f32\n",
       "stderr": ""
     },
     {
       "operation": "container",
       "returncode": 0,
-      "stdout": "29285d0d5011217e0c9c6db800a875f7ec1f5002b0204e028a96f4f5ba89069b\n",
+      "stdout": "80805f6bf0cb6980905c457acec7ea3994f3c77a0918d9c59b2267a7dfe00f32\n",
       "stderr": ""
     },
     {
       "operation": "container",
       "returncode": 0,
-      "stdout": "{\"Id\":\"29285d0d5011217e0c9c6db800a875f7ec1f5002b0204e028a96f4f5ba89069b\",\"Name\":\"/aqua-release-budget-fc33c0b233934267b539241e\",\"Image\":\"sha256:61034825653941c528a17bd66d3d0072c18b1a57d82377053d349d6204c7ef66\",\"Config\":{\"User\":\"1000:1000\",\"Labels\":{\"aqua.verification.purpose\":\"release-budget-closed-models\",\"aqua.verification.nonce\":\"fc33c0b233934267b539241e1c26c5d5\"}},\"HostConfig\":{\"NetworkMode\":\"none\",\"ReadonlyRootfs\":true,\"Memory\":134217728,\"NanoCpus\":1000000000,\"PidsLimit\":64,\"CapDrop\":[\"ALL\"],\"SecurityOpt\":[\"no-new-privileges\"],\"PortBindings\":{},\"Binds\":null,\"Tmpfs\":{\"/checks\":\"rw,nosuid,nodev,noexec,size=32m,mode=0700,uid=1000,gid=1000\",\"/tmp\":\"rw,nosuid,nodev,noexec,size=64m,mode=1777\"}},\"Mounts\":[]}\n",
+      "stdout": "{\"Id\":\"80805f6bf0cb6980905c457acec7ea3994f3c77a0918d9c59b2267a7dfe00f32\",\"Name\":\"/aqua-release-budget-c01cdcf8e12340e1a1eff282\",\"Image\":\"sha256:61034825653941c528a17bd66d3d0072c18b1a57d82377053d349d6204c7ef66\",\"Config\":{\"User\":\"1000:1000\",\"Labels\":{\"aqua.verification.purpose\":\"release-budget-closed-models\",\"aqua.verification.nonce\":\"c01cdcf8e12340e1a1eff282601eafcf\"}},\"HostConfig\":{\"NetworkMode\":\"none\",\"ReadonlyRootfs\":true,\"Memory\":134217728,\"NanoCpus\":1000000000,\"PidsLimit\":64,\"CapDrop\":[\"ALL\"],\"SecurityOpt\":[\"no-new-privileges\"],\"PortBindings\":{},\"Binds\":null,\"Tmpfs\":{\"/checks\":\"rw,nosuid,nodev,noexec,size=32m,mode=0700,uid=1000,gid=1000\",\"/tmp\":\"rw,nosuid,nodev,noexec,size=64m,mode=1777\"}},\"Mounts\":[]}\n",
       "stderr": ""
     },
     {
       "operation": "rm",
       "returncode": 0,
-      "stdout": "29285d0d5011217e0c9c6db800a875f7ec1f5002b0204e028a96f4f5ba89069b\n",
+      "stdout": "80805f6bf0cb6980905c457acec7ea3994f3c77a0918d9c59b2267a7dfe00f32\n",
       "stderr": ""
     },
     {
@@ -187,5 +187,5 @@
     }
   ],
   "sourceUnchanged": true,
-  "elapsedSeconds": 4.094
+  "elapsedSeconds": 6.047
 }

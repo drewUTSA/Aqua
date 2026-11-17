@@ -18,13 +18,14 @@ hash authenticates a producer or authorizes activation.
 
 ## Actual qualification
 
-- Original closed56 model/process tests and27 new tests passed as separate exact
+- Original closed56 model/process tests and29 new tests passed as separate exact
   inventories in a network-none, read-only Linux UID1000 container:128MiB,1CPU,
-  64PIDs, no host mounts or ports. Work completed in4.094seconds after stacking
+  64PIDs, no host mounts or ports. Work completed in6.047seconds after metadata
+  hardening, with confirmed source stability. This source is stacked
   onto the synthetic MCP source; exact known container ID and name absence were
   confirmed. Original vendor/verifier manifests and the56-test runner remain
   byte-identical. [Raw final receipt](evidence/authority-client/linux-models-20261117.json).
-- The same new API/helper bytes passed the pre-stack run in4.282seconds. That
+- The earlier pre-hardening API/helper version passed a pre-stack run in4.282seconds. That
   receipt retains the earlier workflow binding, distinct from the final combined
   workflow. [Pre-stack receipt](evidence/authority-client/pre-stack-linux-models-20261117.json).
 - Fourteen actual Linux filesystem/bootstrap cases passed for the packaged route:
@@ -36,10 +37,22 @@ hash authenticates a producer or authorizes activation.
   Docker's optional image `Config.Volumes` key was absent. The harness now uses an
   optional-key projection and still requires null volumes. Both failed receipts
   are retained as `metadata-template-failure-{1,2}.json`; neither ran the suites.
-- Root separately reran27 new pure/model methods on Windows and reviewed the source.
+- Root separately ran the earlier27 new pure/model methods on Windows and reviewed
+  the final metadata fix; the focused final29 cases passed in existing environments.
   Black/Ruff, source/secret and whitespace checks passed. CI runs pure budget/route
   tests without runtime dependencies and integration tests in a separate environment
   installed from the existing hashlocked runtime lock.
+
+The final review found a file-metadata race: initial owner/mode/one-link checks
+could pass, then post-read descriptor/named observations compared only inode,
+size and mtime. A link/permission change could therefore violate that metadata
+contract while the independent content hash still passed. Both the normal reader
+and bootstrap now bind owner, full mode, link count and ctime before/after reading.
+Directory identity is unchanged, allowing unrelated directory timestamp changes.
+Reader mutation cases and two new bootstrap methods verify rejection before helper
+compilation with no input echo, plus the permitted directory-timestamp case.
+The old27-case/Linux-route receipts and all15 CI jobs at2e5406a are retained as
+pre-hardening evidence only. Fresh exact-head and distinct main CI are required.
 
 The [publication provenance](evidence/authority-client/publication-provenance.json)
 records original raw and newline-normalized publication hashes separately. Only

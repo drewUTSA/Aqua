@@ -5,6 +5,7 @@ import io
 import stat
 import sys
 import unittest
+from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
 from types import ModuleType, SimpleNamespace
 from unittest.mock import patch
@@ -209,6 +210,7 @@ class RouteTests(unittest.TestCase):
                         "st_dev": 7,
                         "st_ino": 8,
                         "st_mtime_ns": 9,
+                        "st_ctime_ns": 10,
                     }
                     | changes
                 )
@@ -216,13 +218,44 @@ class RouteTests(unittest.TestCase):
 
         parent = info(st_mode=stat.S_IFDIR | 0o700, st_ino=3)
         variants = (
-            (info(), info(), info(), parent),
-            (info(st_uid=999), info(), info(), parent),
-            (info(st_nlink=2), info(), info(), parent),
-            (info(st_mode=stat.S_IFREG | 0o644), info(), info(), parent),
-            (info(), info(st_ino=88), info(), parent),
-            (info(), info(), info(st_ino=88), parent),
-            (info(), info(), info(), info(st_mode=stat.S_IFDIR | 0o700, st_ino=33)),
+            (
+                (info(), info(), info(), parent),
+                (
+                    info(),
+                    info(),
+                    info(),
+                    info(
+                        st_mode=stat.S_IFDIR | 0o700,
+                        st_ino=3,
+                        st_mtime_ns=90,
+                        st_ctime_ns=100,
+                    ),
+                ),
+                (info(st_uid=999), info(), info(), parent),
+                (info(st_nlink=2), info(), info(), parent),
+                (info(st_mode=stat.S_IFREG | 0o644), info(), info(), parent),
+                (info(), info(st_ino=88), info(), parent),
+                (info(), info(), info(st_ino=88), parent),
+                (info(), info(), info(), info(st_mode=stat.S_IFDIR | 0o700, st_ino=33)),
+            )
+            + tuple(
+                (info(), info(**{field: value}), info(), parent)
+                for field, value in (
+                    ("st_uid", 999),
+                    ("st_mode", stat.S_IFREG | 0o644),
+                    ("st_nlink", 2),
+                    ("st_ctime_ns", 11),
+                )
+            )
+            + tuple(
+                (info(), info(), info(**{field: value}), parent)
+                for field, value in (
+                    ("st_uid", 999),
+                    ("st_mode", stat.S_IFREG | 0o644),
+                    ("st_nlink", 2),
+                    ("st_ctime_ns", 11),
+                )
+            )
         )
         for index, (before, after, named, parent_after) in enumerate(variants):
             fake = SimpleNamespace()
@@ -246,11 +279,152 @@ class RouteTests(unittest.TestCase):
                 patch.object(route.os, "fdopen", return_value=io.BytesIO(raw)),
                 patch.object(route.os, "close"),
             ):
-                if index == 0:
+                if index <= 1:
                     self.assertEqual(route.read_owned("synthetic", 128), raw)
                 else:
                     with self.assertRaises(route.RouteDenied):
                         route.read_owned("synthetic", 128)
+
+    def bootstrap_model(
+        self, *, after_change=None, named_change=None, parent_time_change=False
+    ):
+        """Execute the actual launcher over pinned synthetic bytes and stat models."""
+        canary = "SYNTHETIC_PRIVATE_BOOTSTRAP_CANARY@example.invalid"
+        raw = (
+            "# " + canary + "\n"
+            "def remote_main(*arguments):\n"
+            " import builtins\n"
+            " builtins._aqua_bootstrap_events.append(arguments)\n"
+        ).encode()
+
+        def info(**changes):
+            return SimpleNamespace(
+                **(
+                    {
+                        "st_dev": 7,
+                        "st_ino": 8,
+                        "st_size": len(raw),
+                        "st_mtime_ns": 9,
+                        "st_ctime_ns": 10,
+                        "st_uid": 1000,
+                        "st_mode": stat.S_IFREG | 0o600,
+                        "st_nlink": 1,
+                    }
+                    | changes
+                )
+            )
+
+        parent = info(st_ino=3, st_mode=stat.S_IFDIR | 0o700)
+        parent_after = info(
+            st_ino=3,
+            st_mode=stat.S_IFDIR | 0o700,
+            st_mtime_ns=90 if parent_time_change else 9,
+            st_ctime_ns=100 if parent_time_change else 10,
+        )
+        parent_stats = iter((parent, parent_after))
+
+        class ModeledPath:
+            def __init__(self, name):
+                self.name = name
+
+            def __truediv__(self, name):
+                if self.name != "root" or name != "authority-route.py":
+                    raise AssertionError("unexpected_bootstrap_path")
+                return file_path
+
+            def __str__(self):
+                return STAGE if self.name == "root" else STAGE + "/authority-route.py"
+
+            def resolve(self, **_kwargs):
+                return self
+
+            def lstat(self):
+                return (
+                    next(parent_stats)
+                    if self.name == "root"
+                    else info(**(named_change or {}))
+                )
+
+        root_path, file_path = ModeledPath("root"), ModeledPath("file")
+        events, stdout, stderr = [], io.StringIO(), io.StringIO()
+        # Compile the launcher before installing the compile spy: only the
+        # verified helper's later compilation is relevant to the trust boundary.
+        program = compile(route.BOOTSTRAP, "<bootstrap-under-test>", "exec")
+        actual_compile = builtins.compile
+        exit_code = 0
+        with (
+            patch("pathlib.Path", return_value=root_path),
+            patch.object(route.os, "O_NOFOLLOW", 0, create=True),
+            patch.object(route.os, "O_NONBLOCK", 0, create=True),
+            patch.object(route.os, "O_CLOEXEC", 0, create=True),
+            patch.object(route.os, "open", return_value=17),
+            patch.object(
+                route.os, "fstat", side_effect=[info(), info(**(after_change or {}))]
+            ),
+            patch.object(route.os, "fdopen", return_value=io.BytesIO(raw)),
+            patch.object(route.os, "close"),
+            patch.object(
+                sys,
+                "argv",
+                [
+                    "bootstrap",
+                    STAGE,
+                    route.digest(raw),
+                    "a" * 64,
+                    "b" * 64,
+                    "head",
+                    "c" * 64,
+                ],
+            ),
+            patch.dict(sys.modules),
+            patch.object(builtins, "_aqua_bootstrap_events", events, create=True),
+            patch.object(builtins, "compile", side_effect=actual_compile) as compiled,
+            redirect_stdout(stdout),
+            redirect_stderr(stderr),
+        ):
+            try:
+                exec(program, {})  # noqa: S102 -- exact actual launcher, modeled I/O
+            except SystemExit as error:
+                exit_code = error.code
+        return (
+            exit_code,
+            stdout.getvalue(),
+            stderr.getvalue(),
+            compiled.call_count,
+            events,
+            canary,
+        )
+
+    def test_bootstrap_post_read_file_metadata_drift_denies_before_compile_without_echo(
+        self,
+    ):
+        for field, value in (
+            ("st_uid", 999),
+            ("st_mode", stat.S_IFREG | 0o644),
+            ("st_nlink", 2),
+            ("st_ctime_ns", 11),
+        ):
+            for location in ("after_change", "named_change"):
+                with self.subTest(field=field, location=location):
+                    code, stdout, stderr, compiles, events, canary = (
+                        self.bootstrap_model(**{location: {field: value}})
+                    )
+                    self.assertEqual(code, 1)
+                    self.assertEqual(stdout, "")
+                    self.assertEqual(stderr, "authority_route_rejected\n")
+                    self.assertEqual(compiles, 0)
+                    self.assertEqual(events, [])
+                    self.assertNotIn(canary, stdout + stderr)
+
+    def test_bootstrap_unchanged_file_allows_parent_timestamp_changes_and_verified_compile(
+        self,
+    ):
+        code, stdout, stderr, compiles, events, canary = self.bootstrap_model(
+            parent_time_change=True
+        )
+        self.assertEqual((code, stdout, stderr, compiles), (0, "", "", 1))
+        self.assertEqual(events, [(STAGE, "a" * 64, "b" * 64, "head", "c" * 64)])
+        self.assertNotIn(canary, stdout + stderr)
 
 
 if __name__ == "__main__":

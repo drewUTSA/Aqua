@@ -245,7 +245,16 @@ def read_owned(path, limit):
         )
 
         def identity(info):
-            return info.st_dev, info.st_ino, info.st_size, info.st_mtime_ns
+            return (
+                info.st_dev,
+                info.st_ino,
+                info.st_size,
+                info.st_mtime_ns,
+                info.st_uid,
+                info.st_mode,
+                info.st_nlink,
+                info.st_ctime_ns,
+            )
 
         def parent_identity(info):
             return info.st_dev, info.st_ino, info.st_mode, info.st_uid
@@ -289,7 +298,7 @@ try:
   a=os.fstat(fd)
   if not stat.S_ISREG(a.st_mode) or a.st_uid!=1000 or a.st_nlink!=1 or stat.S_IMODE(a.st_mode)!=0o600 or not 0<a.st_size<=131072:raise ValueError()
   with os.fdopen(fd,'rb',closefd=False) as f:raw=f.read(131073)
-  b,n,after_root=os.fstat(fd),p.lstat(),root.lstat();identity=lambda v:(v.st_dev,v.st_ino,v.st_size,v.st_mtime_ns)
+  b,n,after_root=os.fstat(fd),p.lstat(),root.lstat();identity=lambda v:(v.st_dev,v.st_ino,v.st_size,v.st_mtime_ns,v.st_uid,v.st_mode,v.st_nlink,v.st_ctime_ns)
   if len(raw)!=a.st_size or identity(a)!=identity(b) or identity(a)!=identity(n) or (d.st_dev,d.st_ino,d.st_mode,d.st_uid)!=(after_root.st_dev,after_root.st_ino,after_root.st_mode,after_root.st_uid) or p.resolve(strict=True)!=p or hashlib.sha256(raw).hexdigest()!=helper_pin:raise ValueError()
  finally:os.close(fd)
  name='_aqua_p11_route_bootstrap'
