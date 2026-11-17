@@ -253,7 +253,9 @@ def pool_for(settings):
     )
 
 
-def tick_loop(publisher, *, deadline, clock=time.monotonic, sleep=time.sleep):
+def tick_loop(
+    publisher, *, deadline, clock=time.monotonic, sleep=time.sleep, cleanup_reserve=0
+):
     """No source flag bypasses this55-step/1s cadence bound."""
     if (
         type(deadline) not in (int, float)
@@ -262,12 +264,17 @@ def tick_loop(publisher, *, deadline, clock=time.monotonic, sleep=time.sleep):
         or deadline <= clock()
     ):
         raise HostUnavailable()
+    if type(cleanup_reserve) not in (int, float) or not 0 <= cleanup_reserve <= 2:
+        raise HostUnavailable()
+    work_deadline = deadline - cleanup_reserve
+    if work_deadline <= clock():
+        raise HostUnavailable()
     steps, last = 0, None
-    while steps < MAX_STEPS and clock() < deadline:
+    while steps < MAX_STEPS and clock() < work_deadline:
         began = clock()
         last = publisher.once()
         steps += 1
-        remaining = deadline - clock()
+        remaining = work_deadline - clock()
         if remaining <= 0:
             break
         delay = min(max(0, CADENCE - (clock() - began)), remaining)
@@ -308,7 +315,7 @@ def execute(*, deadline=None):
         pool.open(wait=False)
         publisher = HostPublisher(pool, protected, key)
         publisher.startup()
-        return tick_loop(publisher, deadline=deadline)
+        return tick_loop(publisher, deadline=deadline, cleanup_reserve=2)
     finally:
         try:
             if pool is not None:

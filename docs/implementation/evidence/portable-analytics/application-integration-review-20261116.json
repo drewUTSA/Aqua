@@ -1,0 +1,92 @@
+{
+  "bindings": {
+    "installed_locked_distributions": 49,
+    "installed_versions_sha256": "e3ba460355f1405efedabfb1776bf21164c40b31f0044045a22df5855ca8fb96",
+    "postgres_architecture": "amd64",
+    "postgres_execution": "emulated_amd64_on_arm64_docker_host",
+    "postgres_image": "sha256:4bdc16048580b56345bca441bffe8d9b45dd2f5d76963808c853df1661df6e00",
+    "probe_sha256": "a1acfae8484ac5d8b00f1fb90dc2014ee036e906300ece28c98debbba11ee28c",
+    "public_assets_sha256": {
+      "LICENSE.txt": "516e7dac679ac1eeb62d5614b01c4e7318154e9a147377d6264954215997ff38",
+      "pagila-data.sql": "fb81bec377687c83e11d2a24916ae28656d85550bf0ada798305bf7e2af9823b",
+      "pagila-schema.sql": "8ce358e4c8014087b85296694a0893887bd7a4190e3ce407f2721b86b98e5707"
+    },
+    "python_version": "3.12.14",
+    "runner_sha256": "1ea958dd986278dc2d1f9f0b71440948ee0c7879d5f4e0466bab6c0cb8993327",
+    "runtime_architecture": "arm64",
+    "runtime_image": "sha256:f87ce84befc77ffa0428d281e8ac3e84a77d67ce7c9688a25752f29048595e53",
+    "runtime_inputs": {
+      "canonical_sorted_json_sha256": "53c6df0e1a6da2ca7d40c3cefe4c11f823ada7472f98e6a75576e62534776d3d",
+      "python": 198,
+      "sql_migrations": 9,
+      "total": 207
+    },
+    "runtime_lock_sha256": "cad37d805664670589892c601592623d3a2b73e7c80147e3b7695e2a113339a7",
+    "source_sql_sha256": {
+      "db/03_users.sql": "7f65eca66c5d39e8a304220a0a3a934d680bf026f55be6495967b41876dd616d",
+      "db/04_retrieval.sql": "3fc8d309d9335218c6faa376d0fde2ea7fe88519f61238d931e42c335d6b224b",
+      "db/hidden_staff_grants.sql": "7f351ece8686bfd0a9da0265577dc921c8a4ade92d370d974093b0abbd1e5a95",
+      "db/portable/bootstrap_pagila.psql": "681089ef47b60e15649a4516d8470a60366bb07b744870cf03d6a74ecce144da",
+      "db/portable/preflight.sql": "c3a6d8b27caa2d99de2e204b4811e1bf112bbec14c7bba4babdb84562301dc57",
+      "db/portable/verify.sql": "ac5a7258af956bc109e2716e29f2b853df0afd517458abfccae3a54f809edd4e"
+    },
+    "staged_archive_sha256": "2f5c141ad4a1f0a67d0ec418e8b871c9c432c571c78364c8dfc3e5f1a6b56408"
+  },
+  "checks": {
+    "all207_source_hashes_current": true,
+    "all3_asset_hashes_match_reviewed_public_source": true,
+    "all40_original_case_call_asts_identical": true,
+    "all40_original_case_identities_once": true,
+    "all49_installed_version_receipt_digest_matches_current_lock": true,
+    "all6_sql_hashes_match_prior52_case_source": true,
+    "all_three_exact_owned_cleanup_confirmed": true,
+    "first_two_red_receipts_unchanged": true,
+    "frozen_v1_v2_v3_proposal_files_match_reviewed_pins": true,
+    "raw_exception_credential_sql_rows_absent_from_receipt_schema": true,
+    "runtime_inventory_198_python_9_sql": true,
+    "same_resource_and_deadline_caps_all_three_attempts": true,
+    "same_staged_archive_all_three_attempts": true
+  },
+  "deferred": [
+    "encrypted_portable_dump_decrypt_restore",
+    "production_capacity_or_cutover",
+    "old_Tiger_or_Berka_recovery",
+    "historical_DiskANN_restore",
+    "wrong_PostgreSQL_major_actual_execution",
+    "concurrent_role_creation_race_actual_execution",
+    "bank_connectors_or_acceptance",
+    "production_schema9_deletion_recovery_release",
+    "public_launch_or_feature_enablement"
+  ],
+  "limits": {
+    "archive_bytes": 4194304,
+    "cleanup_seconds": 60,
+    "cpus_per_container": 2,
+    "memory_bytes_per_container": 1073741824,
+    "operation_seconds": 30,
+    "pids_per_container": 128,
+    "receipt_bytes": 131072,
+    "stderr_bytes": 16384,
+    "stdout_bytes": 65536,
+    "work_seconds": 180
+  },
+  "production_deployment": false,
+  "production_mutations": 0,
+  "provider_calls": 0,
+  "receipt": {
+    "cleanup": "removed_and_absence_confirmed",
+    "counts": {
+      "failed": 0,
+      "not_run": 0,
+      "passed": 40
+    },
+    "elapsed_seconds": 4.319,
+    "name": "qualification-003.json",
+    "sha256": "9061f1ff4814434d147c5300aaac8d3698eec48e8c291fefff33d0eb51d61df1"
+  },
+  "review_did_not_rerun_docker": true,
+  "schema": "aqua_portable_app_integration_final_review_v1",
+  "scope": "disposable_public_Pagila_actual_schema_loader_validator_readonly_executor",
+  "source_commit": "cd250ef4ab423ae58e2c79715e4f1ca3c3b3c5b0",
+  "status": "reviewed_passed"
+}

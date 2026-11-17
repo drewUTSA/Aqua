@@ -1,0 +1,221 @@
+{
+  "cleanup": "removed_and_absence_confirmed",
+  "elapsed_seconds": 4.319,
+  "image_platforms": {
+    "sha256:4bdc16048580b56345bca441bffe8d9b45dd2f5d76963808c853df1661df6e00": "amd64",
+    "sha256:f87ce84befc77ffa0428d281e8ac3e84a77d67ce7c9688a25752f29048595e53": "arm64"
+  },
+  "limits": {
+    "archive_bytes": 4194304,
+    "cleanup_seconds": 60,
+    "cpus_per_container": 2,
+    "memory_bytes_per_container": 1073741824,
+    "operation_seconds": 30,
+    "pids_per_container": 128,
+    "receipt_bytes": 131072,
+    "stderr_bytes": 16384,
+    "stdout_bytes": 65536,
+    "work_seconds": 180
+  },
+  "postgres_image": "sha256:4bdc16048580b56345bca441bffe8d9b45dd2f5d76963808c853df1661df6e00",
+  "probe": {
+    "cases": [
+      {
+        "id": "real_reader_readonly_pg18",
+        "status": "passed"
+      },
+      {
+        "id": "real_loader_exact_pagila_manifest",
+        "status": "passed"
+      },
+      {
+        "id": "real_loader_hidden_columns_absent",
+        "status": "passed"
+      },
+      {
+        "id": "real_loader_no_partition_view_or_retrieval",
+        "status": "passed"
+      },
+      {
+        "id": "real_prompt_no_hidden_fields_or_password",
+        "status": "passed"
+      },
+      {
+        "id": "real_validate_execute_count_actor",
+        "status": "passed"
+      },
+      {
+        "id": "real_validate_execute_count_film",
+        "status": "passed"
+      },
+      {
+        "id": "real_validate_execute_count_customer",
+        "status": "passed"
+      },
+      {
+        "id": "real_validate_execute_count_store",
+        "status": "passed"
+      },
+      {
+        "id": "real_validate_execute_count_rental",
+        "status": "passed"
+      },
+      {
+        "id": "real_validate_execute_count_payment",
+        "status": "passed"
+      },
+      {
+        "id": "real_validate_execute_join",
+        "status": "passed"
+      },
+      {
+        "id": "real_executor_row_cap_and_truncation",
+        "status": "passed"
+      },
+      {
+        "id": "real_executor_approved_staff_fields",
+        "status": "passed"
+      },
+      {
+        "id": "real_validator_denies_password",
+        "status": "passed"
+      },
+      {
+        "id": "real_validator_denies_picture",
+        "status": "passed"
+      },
+      {
+        "id": "real_validator_denies_staff_star",
+        "status": "passed"
+      },
+      {
+        "id": "real_validator_denies_staff_whole_row",
+        "status": "passed"
+      },
+      {
+        "id": "real_validator_denies_retrieval",
+        "status": "passed"
+      },
+      {
+        "id": "real_validator_denies_catalog",
+        "status": "passed"
+      },
+      {
+        "id": "real_validator_denies_view",
+        "status": "passed"
+      },
+      {
+        "id": "real_validator_denies_other_dataset",
+        "status": "passed"
+      },
+      {
+        "id": "real_validator_denies_partition",
+        "status": "passed"
+      },
+      {
+        "id": "real_validator_denies_write",
+        "status": "passed"
+      },
+      {
+        "id": "real_validator_denies_multiple",
+        "status": "passed"
+      },
+      {
+        "id": "real_validator_denies_sleep",
+        "status": "passed"
+      },
+      {
+        "id": "real_validator_denies_configuration",
+        "status": "passed"
+      },
+      {
+        "id": "real_executor_sanitized_column_error",
+        "status": "passed"
+      },
+      {
+        "id": "real_executor_refuses_unparsed_sql",
+        "status": "passed"
+      },
+      {
+        "id": "database_denies_with_readonly_off_insert",
+        "status": "passed"
+      },
+      {
+        "id": "database_denies_with_readonly_off_update",
+        "status": "passed"
+      },
+      {
+        "id": "database_denies_with_readonly_off_delete",
+        "status": "passed"
+      },
+      {
+        "id": "database_denies_with_readonly_off_ddl",
+        "status": "passed"
+      },
+      {
+        "id": "database_denies_with_readonly_off_password",
+        "status": "passed"
+      },
+      {
+        "id": "database_denies_with_readonly_off_picture",
+        "status": "passed"
+      },
+      {
+        "id": "database_denies_with_readonly_off_whole_row",
+        "status": "passed"
+      },
+      {
+        "id": "database_denies_with_readonly_off_retrieval_write",
+        "status": "passed"
+      },
+      {
+        "id": "real_loader_denies_indexer_business_scope",
+        "status": "passed"
+      },
+      {
+        "id": "source_unchanged_after_queries",
+        "status": "passed"
+      },
+      {
+        "id": "provider_modules_not_imported",
+        "status": "passed"
+      }
+    ],
+    "counts": {
+      "failed": 0,
+      "not_run": 0,
+      "passed": 40
+    },
+    "dependency_count": 49,
+    "dependency_versions_sha256": "e3ba460355f1405efedabfb1776bf21164c40b31f0044045a22df5855ca8fb96",
+    "diagnostic_phase": "complete",
+    "expected_cases": 40,
+    "production_mutations": 0,
+    "prompt_sha256": "48787a45d0ae9bf732dd3f749898589e02fc806b53535a4ac5e9df1bd7ae1b2a",
+    "provider_calls": 0,
+    "schema": "aqua_portable_app_integration_v1",
+    "status": "passed"
+  },
+  "probe_sha256": "a1acfae8484ac5d8b00f1fb90dc2014ee036e906300ece28c98debbba11ee28c",
+  "production_deployment": false,
+  "provider_calls": 0,
+  "public_assets_sha256": {
+    "LICENSE.txt": "516e7dac679ac1eeb62d5614b01c4e7318154e9a147377d6264954215997ff38",
+    "pagila-data.sql": "fb81bec377687c83e11d2a24916ae28656d85550bf0ada798305bf7e2af9823b",
+    "pagila-schema.sql": "8ce358e4c8014087b85296694a0893887bd7a4190e3ce407f2721b86b98e5707"
+  },
+  "remaining_owned_names": [],
+  "run_id": "aqua-portable-app-9f20d2d9603da98c134c7d64",
+  "runtime_image": "sha256:f87ce84befc77ffa0428d281e8ac3e84a77d67ce7c9688a25752f29048595e53",
+  "schema": "aqua_portable_app_integration_host_v1",
+  "source_sql_sha256": {
+    "db/03_users.sql": "7f65eca66c5d39e8a304220a0a3a934d680bf026f55be6495967b41876dd616d",
+    "db/04_retrieval.sql": "3fc8d309d9335218c6faa376d0fde2ea7fe88519f61238d931e42c335d6b224b",
+    "db/hidden_staff_grants.sql": "7f351ece8686bfd0a9da0265577dc921c8a4ade92d370d974093b0abbd1e5a95",
+    "db/portable/bootstrap_pagila.psql": "681089ef47b60e15649a4516d8470a60366bb07b744870cf03d6a74ecce144da",
+    "db/portable/preflight.sql": "c3a6d8b27caa2d99de2e204b4811e1bf112bbec14c7bba4babdb84562301dc57",
+    "db/portable/verify.sql": "ac5a7258af956bc109e2716e29f2b853df0afd517458abfccae3a54f809edd4e"
+  },
+  "staged_archive_sha256": "2f5c141ad4a1f0a67d0ec418e8b871c9c432c571c78364c8dfc3e5f1a6b56408",
+  "status": "passed"
+}

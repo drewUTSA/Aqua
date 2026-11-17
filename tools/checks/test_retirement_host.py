@@ -12,6 +12,11 @@ import signal
 import unittest
 from unittest.mock import patch
 
+from publisher_timer_regression import (  # noqa: F401
+    PublisherTimerModelTests,
+    PublisherTimerRealAlarmTests,
+)
+
 import retirement_host_protocol as protocol
 import retirement_host_resources as resources
 import run_retirement_host as runner
