@@ -8,7 +8,7 @@ import ModelSelector from "../navigation/ModelSelector.jsx";
 import { leaveMenuWithTab, useMenuSurface } from "../navigation/useMenuSurface.js";
 import { useReducedMotion } from "../../hooks/useReducedMotion.js";
 
-export default function OpalChat({ chat, auth, inputRef, focusRequest, onOpenPrompts, preferences, shell = "opal", visible = true, scrollPositions, onShowVisual, visualsHidden = false }) {
+export default function OpalChat({ chat, auth, inputRef, focusRequest, onOpenPrompts, preferences, shell = "opal", visible = true, scrollPositions, onShowVisual, onUnderstandResult, visualsHidden = false }) {
   const active = chat.messages.length > 0 || (chat.durable && chat.active.messageCount > 0);
   const legacy = shell === "legacy";
   return <main className={`opal-chat${active ? " opal-chat--active" : ""}${visualsHidden ? " opal-chat--visual-hidden" : ""}`}>
@@ -18,7 +18,7 @@ export default function OpalChat({ chat, auth, inputRef, focusRequest, onOpenPro
       {chat.durable && <div className="workspace-history-controls"><ConversationActions chat={chat} />
         {chat.active.olderCursor && <button type="button" disabled={chat.pending || chat.active.historyLoading} onClick={chat.loadOlder}>Load older messages</button>}
         {chat.active.historyLoading && <span role="status">Loading messages…</span>}</div>}
-      <Conversation key={chat.active?.viewId || chat.activeConversationId} messages={chat.messages} preferences={preferences} pending={chat.durable ? chat.submitting : chat.pending} waiting={chat.waiting} onRetry={chat.retry} onShowVisual={onShowVisual} suspended={!visible}
+      <Conversation key={chat.active?.viewId || chat.activeConversationId} messages={chat.messages} preferences={preferences} pending={chat.durable ? chat.submitting : chat.pending} waiting={chat.waiting} onRetry={chat.retry} onShowVisual={onShowVisual} onUnderstandResult={onUnderstandResult} suspended={!visible}
         position={scrollPositions?.get(chat.activeConversationId)} onPositionChange={(position) => scrollPositions?.set(chat.activeConversationId, position)} /></>}
     {chat.durable && !active && chat.active.historyLoading && <p role="status">Loading saved conversation…</p>}
     {chat.durable && chat.uncertain && <div className="workspace-request-notice" role="status"><p>This request may still be processing. Stopping this browser request does not cancel work on the server.</p>

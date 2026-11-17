@@ -23,6 +23,7 @@ def test_current_http_surface_is_explicit():
         ("/api/v1/analysis-requests/{request_id}/events", "GET"),
         ("/api/v1/companion/capabilities", "GET"),
         ("/api/v1/companion/help", "POST"),
+        ("/api/v1/companion/result-brief", "POST"),
         ("/api/v1/bank-demo/context", "GET"),
         ("/api/v1/bank-demo/reports", "POST"),
         ("/api/auth/config", "GET"),

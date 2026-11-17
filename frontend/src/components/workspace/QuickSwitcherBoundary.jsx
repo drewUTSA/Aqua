@@ -21,6 +21,6 @@ export default class QuickSwitcherBoundary extends React.Component {
 }
 
 export function OptionalDialogLoading({ title, onClose, closeLabel }) {
-  return <PreferenceDialog title={title} onClose={onClose}><p role="status">Opening optional toolsâ€¦</p>
+  return <PreferenceDialog title={title} onClose={onClose}><p role="status">Opening optional tools…</p>
     <button type="button" onClick={onClose}>{closeLabel}</button></PreferenceDialog>;
 }

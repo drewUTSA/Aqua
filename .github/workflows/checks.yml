@@ -107,6 +107,7 @@ jobs:
           python tools/checks/test_csp_headers.py
           python tools/checks/test_companion_packaging.py
           python tools/checks/test_bank_demo_web_packaging.py
+          python tools/checks/test_result_companion_packaging.py
           python -m pytest -q tools/checks/test_bank_demo_browser_fixture.py
           python tools/checks/test_normal_runtime_argv.py
           python tools/checks/test_mixed_capacity.py
@@ -249,7 +250,7 @@ jobs:
         run: |
           export AQUA_CHROME_EXECUTABLE="$(command -v google-chrome)"
           test -x "$AQUA_CHROME_EXECUTABLE"
-          for journey in optional-settings optional-prompts projects-initial-failure prompts-initial-failure settings-search composer-layout public-routes companion-tools bank-demo; do
+          for journey in optional-settings optional-prompts projects-initial-failure prompts-initial-failure settings-search composer-layout public-routes companion-tools bank-demo result-companion; do
             export AQUA_P05_ARTIFACT_DIR="${{ runner.temp }}/aqua-p05/opal/reliability/$journey"
             JOURNEY="$journey" node --input-type=module -e "await import('./checks/p05-browser.mjs?journey=' + process.env.JOURNEY)"
           done
@@ -354,7 +355,7 @@ jobs:
           test -x "$AQUA_CHROME_EXECUTABLE"
           export AQUA_P05_ARTIFACT_DIR="${{ runner.temp }}/aqua-p05/legacy/synthetic"
           node frontend/checks/p05-browser.mjs
-          for journey in optional-settings optional-prompts projects-initial-failure prompts-initial-failure settings-search composer-layout public-routes companion-tools bank-demo; do
+          for journey in optional-settings optional-prompts projects-initial-failure prompts-initial-failure settings-search composer-layout public-routes companion-tools bank-demo result-companion; do
             export AQUA_P05_ARTIFACT_DIR="${{ runner.temp }}/aqua-p05/legacy/reliability/$journey"
             JOURNEY="$journey" node --input-type=module -e "await import('./frontend/checks/p05-browser.mjs?journey=' + process.env.JOURNEY)"
           done

@@ -39,6 +39,7 @@ CONTEXT_ALLOWLIST = {
     "!backend/retirement/*.py",
     "!backend/companion/*.py",
     "!backend/bank_demo/*.py",
+    "!backend/result_companion/*.py",
     "!mcp_demo/__init__.py",
     "!mcp_demo/data.py",
     "!mcp_demo/protocol.py",

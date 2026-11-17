@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import SafeMarkdown from "./SafeMarkdown.js";
 import FinancialTable from "../data/FinancialTable.jsx";
 import ResultMetadata from "../data/ResultMetadata.jsx";
+import { isSavedResultCandidate } from "../../features/resultCompanion/reference.js";
 
 // Every answer shows the exact SQL behind it; a refused query shows the SQL
 // that was blocked, so the user can see why.
@@ -31,7 +32,7 @@ function SqlBlock({ sql, label = "SQL" }) {
   );
 }
 
-export default function AquaMessage({ message, hidden = false, onRetry, onShowVisual, preferences }) {
+export default function AquaMessage({ message, hidden = false, onRetry, onShowVisual, onUnderstandResult, preferences }) {
   const [copyStatus, setCopyStatus] = useState("");
   const copyTimer = useRef(null);
   useEffect(() => () => window.clearTimeout(copyTimer.current), []);
@@ -94,6 +95,7 @@ export default function AquaMessage({ message, hidden = false, onRetry, onShowVi
           </div>
         )}
         {(response.status !== "stopped" || response.message) && <div className="response-actions">
+          {onUnderstandResult && isSavedResultCandidate(message) && <button type="button" className="text-action" data-understand-result onClick={() => onUnderstandResult(message.id)}>Understand this result</button>}
           <button type="button" className="text-action" onClick={copyResponse}>
             {copyStatus === "Response copied" ? "Copied" : "Copy response"}
           </button>

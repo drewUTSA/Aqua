@@ -12,6 +12,7 @@ function questionText(question) {
   if (!text(question, 8000) || question.length > 2000) throw new WorkspaceError("invalid_input");
   return question;
 }
+export { questionText as boundedCompanionQuestion };
 
 export function companionCapabilities(value) {
   requireContract(keys(value, ["schemaVersion", "advisory", "selection", "pack_revision", "capabilities"])
