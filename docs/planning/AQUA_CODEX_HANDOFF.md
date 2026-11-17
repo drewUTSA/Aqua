@@ -1,5 +1,8 @@
 # AQUA — complete Codex implementation handoff
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](../implementation/PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 **November 13 resumption:** Ben directed recovery-key discovery and the final
 backup/recovery work to his personal computer. Read
 [the personal-computer release handoff](../implementation/PERSONAL_COMPUTER_RELEASE_HANDOFF.md)

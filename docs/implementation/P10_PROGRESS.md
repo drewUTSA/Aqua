@@ -1,5 +1,8 @@
 # P10 progress
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 P10b security is deployed from PR55/main `7477e28` on private schema 6.
 The release passed 1,519 backend cases, 492 frontend units, all 22 browser gates,
 root review of 62 screenshots, and all three jobs on both PR and merged-main CI.

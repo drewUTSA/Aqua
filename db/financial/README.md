@@ -1,5 +1,8 @@
 # Bank database (Berka)
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](../../docs/implementation/PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 The Czech bank data lives on its own Tiger Cloud service, separate from the Pagila one. A human runs these steps as that service's `tsdbadmin`; the app and coding agents never do.
 
 ## Source

@@ -1,5 +1,8 @@
 # P03 release — durable identity and sessions
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 October 20, 2026, Chicago. PR [#39](https://github.com/drewUTSA/Aqua/pull/39) is merged at `c25a3332e67f644e94c6ab3b6e80155dacf7c56b`. The `/srv/bank-ai` checkout and running services were synchronized to that release. This supersedes the deployment-pending status in the historical [P03 implementation checkpoint](P03.md).
 
 | Component | Verified release state |

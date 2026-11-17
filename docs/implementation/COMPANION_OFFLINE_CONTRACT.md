@@ -1,5 +1,8 @@
 # Offline companion qualification contract
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 `eval/companion.py` is an offline, pure-data qualification foundation. It has no
 route, model, database, filesystem, environment, memory store or tool executor.
 It does not enable companion features or train weights.

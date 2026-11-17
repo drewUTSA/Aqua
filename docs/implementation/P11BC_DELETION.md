@@ -1,5 +1,8 @@
 # P11b/c private deletion integration
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 This change prepares history deletion and account closure on schema 9. It is a
 separate change from P11a exports. `PRIVATE_DATA_DELETE_ENABLED` defaults to
 `false`. Source integration and isolated tests do not activate production.

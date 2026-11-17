@@ -1,5 +1,8 @@
 # P05 release readiness — October 26, 2026
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 Final checkpoint: P05 repair PR #43 is merged at code checkpoint `8a5c71d`;
 required PR/main CI passed and the tested patched backend is deployed and
 healthy. P06 is ready to start and has not started. See

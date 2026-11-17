@@ -1,5 +1,8 @@
 # P04 PR — password authentication and bounded account mail
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 AQUA now has backend email/password registration, verification, login and recovery alongside Google. Registration first proves mailbox ownership and establishes a fresh password, preventing attacker pre-registration; reset requires an existing password credential and never links a Google-only identity by matching email. Password sessions use P03's canonical accounts, durable revocation and dataset authorization, with transactional reset/epoch invalidation.
 
 Argon2id work has shared admission and two global hash slots, and the shipped common-password corpus is pinned, licensed and integrity checked. A transactional AEAD-encrypted outbox uses bounded retries, stable provider idempotency, fenced leases and separate registration/recovery/security queue and delivery capacity. New nginx zones limit password and mailbox flows before backend work. All password/signup/recovery/mail flags remain disabled by default; no real mail, worker schedule, public signup or production migration is activated.

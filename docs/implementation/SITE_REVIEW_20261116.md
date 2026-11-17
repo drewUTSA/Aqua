@@ -1,5 +1,8 @@
 # Site reliability and document policy review
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 November 16, 2026. This source slice starts at combined main `b6d8fd9`.
 It is not a production release or completion of P11–P13. Production remains on
 `9aeaf4e` and private schema8; the analytical endpoint returns authoritative

@@ -1,5 +1,8 @@
 # Decisions
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](implementation/PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 ## November 16, 2026: Separate companion context, numerical learning and weight training
 
 Qualify the installed local model on fixed synthetic SQL before adapting it.

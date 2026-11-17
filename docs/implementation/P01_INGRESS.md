@@ -1,5 +1,8 @@
 # P01 live ingress correction — October 20, 2026
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 **Resolved and independently verified.** The user requested fixing the direct
 API tunnel bypass before commit. Both `aqua-ai.us` and `api.aqua-ai.us` now route
 to `http://127.0.0.1:5173`, where nginx applies the corrected peer budgets and

@@ -1,5 +1,8 @@
 # Optional portable public analytics bootstrap
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 November 16, 2026. Source preparation only. This adds a separate opt-in pgvector
 path for a fresh public Pagila analytical database. It does not provision a
 service, migrate/restore Tiger, change production configuration or grants, enable

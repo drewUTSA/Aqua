@@ -1,5 +1,8 @@
 # Add private application storage with bounded connections and transactional migrations
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 AQUA needs durable account/session storage separate from the hosted analytical
 dataset. Add the private PostgreSQL schema, separate owner/migrator/runtime/backup
 roles, explicit checksum-ledger migrations, bounded pooled transactions and safe

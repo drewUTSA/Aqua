@@ -1,5 +1,8 @@
 # Prepared analysis and hybrid retrieval â€” opt-in source
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 Ben requested a review of the GH Logistics repositories' local-AI patterns and
 bookkeeping-style preparation, with better speed/quality and preserved security.
 The November 13 review inventoried all local Git checkouts under `Desktop/GH_Repo`

@@ -1,5 +1,8 @@
 # P09 homepage simplification
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 Status: implementation and current-source verification are in progress. P09
 Settings is separately complete and deployed as `05accec` (PR #52). This
 supplement is not released by that Settings result. Required browser, PR/main

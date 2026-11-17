@@ -1,5 +1,8 @@
 # Reviewed SQL SFT export foundation
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 This prepares bounded artifacts for a possible future supervised fine-tuning
 experiment. It does not train a model, generate a corpus, fetch a tokenizer,
 download weights, install training packages, call a provider/database or certify

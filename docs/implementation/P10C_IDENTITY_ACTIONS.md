@@ -1,5 +1,8 @@
 # P10c identity actions — isolated implementation
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 This candidate exists only in `p10c-work`. P10a is deployed on schema 6; the
 P10b base was copied while its canonical checks were pending. P10c is not
 deployed or complete. No real Google verifier, mail recipient, analytical

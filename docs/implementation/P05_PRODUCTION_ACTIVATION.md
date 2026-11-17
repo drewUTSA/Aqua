@@ -1,5 +1,8 @@
 # P05 production activation — October 26, 2026
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 The user requested production email/password activation, AQUA-branded account
 emails, and completion of P06 in one supervised run. P07–P13 are excluded.
 Use separate reviewed PRs and passing required checks for activation and P06;

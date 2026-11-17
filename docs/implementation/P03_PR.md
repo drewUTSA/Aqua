@@ -1,5 +1,8 @@
 # Add canonical accounts and durable, revocable Google sessions
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 Replace signed profile cookies with opaque sessions backed by the private app
 database. Resolve verified Google identities to internal UUIDs, make login
 challenges single-use, and check current account state, epoch and dataset grants

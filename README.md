@@ -1,4 +1,8 @@
 # Aqua
+
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](docs/implementation/PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 Ask a database a question in plain English. Get back data, a readable summary and the exact SQL that produced it.
 
 Current checkpoint: P00 through P10 are complete and live at

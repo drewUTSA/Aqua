@@ -1,5 +1,8 @@
 # Establish isolated AQUA checks and fix dependency advisories
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 Backend tests previously inherited DATABASE_URL and `.env`, which could direct
 permission/DDL probes at a shared database. This change confines integration
 tests to disposable synthetic bank/Pagila databases, blocks accidental service

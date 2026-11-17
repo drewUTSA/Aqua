@@ -1,5 +1,8 @@
 # Banking companion and MCP foundation
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 This is a pure offline contract slice for a possible U.S. bank companion. It adds no runtime route, MCP server, SDK, connector, model call, database schema, training run or application dependency. No bank has been onboarded. It does not establish authentication, approval durability, banking expertise, regulatory compliance or deployment readiness. Aqua's existing sample dataset named `bank` is not a bank tenant.
 
 The source is under `eval/banking/`; synthetic contract tests are under `tools/checks/test_banking*.py`. The existing Aqua executor, SQL validator, restricted workers, hybrid/compiler and retriever remain the integration points to evaluate later. This slice does not duplicate them or expand their authority.

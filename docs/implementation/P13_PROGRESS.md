@@ -1,5 +1,8 @@
 # P13 launch preparation — November 13, 2026
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 **Decision: NO-GO for production cutover or public expansion.** Ben moved the
 recovery-key discovery, backup/recovery and release execution to his personal
 computer. The application remains on its healthy P11a/schema8 release. Code,

@@ -1,5 +1,8 @@
 # Prepared local-model qualification — November 16, 2026
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 This is an opt-in synthetic generation experiment, not a deployed provider,
 training job, retrieval-quality result or completed P12/P13 gate. No real
 inference result is claimed by this source. Root review and isolated checks

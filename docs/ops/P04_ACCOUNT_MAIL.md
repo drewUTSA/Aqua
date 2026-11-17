@@ -1,5 +1,8 @@
 # P04 account mail: encrypted outbox and explicit worker
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](../implementation/PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 This is source for review. P04 does not enable password registration, install a scheduler, read an email secret or send a real message. The existing verified sender/key remains unchanged. P05 supplies the `/verify-email` and `/reset-password` browser forms; mail links carry the bearer value in `#token=`, never a query string. Never open registration until that complete journey and release gates pass.
 
 ## Transaction and secret boundaries

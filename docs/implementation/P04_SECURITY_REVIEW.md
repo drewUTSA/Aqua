@@ -1,5 +1,8 @@
 # P04 follow-up: unwanted mail and executable content
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 This review responds to the request to prevent mass email abuse, incorrect account messages and executable user/model content. It strengthens the uncommitted P04 candidate before its human PR checkpoint. P03 remains live at schema 2. No real email, hosted business-database access, schema-3 production migration or feature activation is performed by this review.
 
 ## Account mail is a fixed security workflow

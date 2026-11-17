@@ -1,5 +1,8 @@
 # AI qualification tooling — November 16, 2026
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 This slice improves measurement of the existing retrieval implementation. It
 does not change the production pipeline, deploy schema9, enable hybrid search,
 train a model, or import company content.

@@ -1,5 +1,8 @@
 # P04 CI dependency-order correction
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 PR #40's first GitHub Actions run (39543915989, head ea71192) passed source/format, dependency, backend, installer and proxy gates, then failed the network-isolated frontend step with `ERR_MODULE_NOT_FOUND: react`. The later install/audit/build step was skipped. The new SSR safety test correctly imports the real React/ReactMarkdown renderer; a fresh checkout has no installed frontend dependencies at that point.
 
 The workflow now runs the existing locked `npm ci --ignore-scripts --no-fund` in `frontend` before the offline tests, and removes the duplicate later install. The audit/build gate remains afterward. No runtime, dependency lock, test, network isolation, Docker privilege/resource flag or workflow permission is weakened or changed.

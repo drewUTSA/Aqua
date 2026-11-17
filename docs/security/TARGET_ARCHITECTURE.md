@@ -1,5 +1,8 @@
 # Approved target architecture and session-abuse boundary
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](../implementation/PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 October 20, 2026. The user's architecture sketch is the target direction.
 This records the necessary trust boundaries; it does not mark future phases done.
 

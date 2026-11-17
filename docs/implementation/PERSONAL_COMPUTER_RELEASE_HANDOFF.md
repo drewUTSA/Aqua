@@ -1,5 +1,16 @@
 # Personal-computer release handoff â€” November 13, 2026
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
+## November 17 UTC stop and continuation
+
+Work stopped at Ben's request after PR74/main `3fd413c` (all 15 jobs each).
+[Read the continuation](PERSONAL_COMPUTER_RESUME_20261116.md) for qualified current components,
+the current operator red and tomorrow's step map. Production remains on schema 8;
+operator V2, guard/fallback dossier and the fresh guarded release remain open.
+Historical facts and resource caps below remain in force.
+
 ## Personal-computer continuation, November 16
 
 Read [the fresh personal-computer checkpoint](PERSONAL_COMPUTER_RESUME_20261116.md)

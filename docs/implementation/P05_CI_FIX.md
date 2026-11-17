@@ -1,5 +1,8 @@
 # P05 browser-fixture startup correction
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 PR #42 is open on `codex/p05-opal-shell` at
 `0ffb3bde154bc2e55b8fe253a25d6c3ef44d0853`. GitHub Actions run
 [39694996814](https://github.com/drewUTSA/Aqua/actions/runs/39694996814)

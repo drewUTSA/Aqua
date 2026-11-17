@@ -1,5 +1,8 @@
 # Phase10 Security
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](implementation/PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 Require fresh current-password verification and a separate confirmation before
 changing a password or ending the current, another, or all sessions. Proofs are
 single-use and bound to the account, session, action, target and credential;

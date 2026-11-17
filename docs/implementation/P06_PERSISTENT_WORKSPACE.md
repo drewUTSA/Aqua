@@ -1,5 +1,8 @@
 # P06 persistent workspace — deployed October 26, 2026
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 **Status: P06 implementation, required PR/main checks, private migration,
 deployment and controlled production verification passed.** The live site uses
 the tested schema-4 release at `6872e41` (PR #46). P05 email/password activation

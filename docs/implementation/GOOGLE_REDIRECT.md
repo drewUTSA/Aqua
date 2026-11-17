@@ -1,5 +1,8 @@
 # Prepared Google redirect transport — disabled by default
 
+> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](PERSONAL_COMPUTER_RESUME_20261117.md).
+> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+
 This source prepares Google's documented redirect mode for iOS and other
 supported browsers. It is not a deployed callback or a successful live Google
 acceptance claim. `GOOGLE_REDIRECT_ENABLED` defaults to `false`. The independent
