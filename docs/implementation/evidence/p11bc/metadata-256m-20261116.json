@@ -1,0 +1,70 @@
+{
+  "earlier_never_started_probe_IDs_independently_removed": true,
+  "earlier_unknown_creation_inode_sockets_retained": true,
+  "full_production_reference_equal": true,
+  "historical_exact_ID_list_persisted": false,
+  "historical_failed_attempts_preserved": true,
+  "independent_cleanup_sha256": "60deca01e4b34782425de2dd82015ed723266d268710bbe8ea08d3d9fb1e45eb",
+  "independent_current_labels_names_all_mount_consumers_and_socket_absent": true,
+  "probe_count": 7,
+  "production_actions": 0,
+  "provider_calls": 0,
+  "pure_controls_passed": 32,
+  "qualification": {
+    "backend_image": "sha256:61034825653941c528a17bd66d3d0072c18b1a57d82377053d349d6204c7ef66",
+    "checks": {
+      "ACL_drift_denied": true,
+      "catalog_drift_denied": true,
+      "clean_full_snapshot_matches_metadata": true,
+      "metadata_with_pending_work_matches_baseline": true,
+      "pending_32MiB_manifest_full_snapshot_denied": true,
+      "recovery_required_full_snapshot_denied": true
+    },
+    "cleanup": "removed_and_absence_confirmed",
+    "completion_sha256": "bd2bdf7db0a14cc8f0364039d7e1b88077cd3b6b868de228303c804bcf5522a8",
+    "original_container_metadata_unchanged": true,
+    "owned_label_inventory_absent": true,
+    "production_actions": 0,
+    "profile": {
+      "cap_drop": [
+        "ALL"
+      ],
+      "deadline_seconds": 110,
+      "memory_bytes": 268435456,
+      "nano_cpus": 1000000000,
+      "network": "none",
+      "output_limit_bytes": 131072,
+      "pids_limit": 32,
+      "read_only_rootfs": true
+    },
+    "provider_calls": 0,
+    "qa_archive_sha256": "18fe447ec424ca3a8efdadfa6381e5e8c7a64eb02f053d657c1af78c38071a89",
+    "remaining_ids": [],
+    "request_sha256": "f36c7341fb45f706b6cc1359f58607749eee4dd36c216bcb271d4739040b0c79",
+    "schemaVersion": 1,
+    "scope": "actual_disposable_metadata_inspection_256MiB",
+    "snapshot_module_sha256": "3340fb391523253106945e9af6aad5240db81b72fa3fe5d2e2435596c78d3edb",
+    "source_archive_sha256": "560872d6e12d30ca1f8c48c10564101942c33bbfc90f8d4b4196784e738a759b",
+    "status": "passed",
+    "structural_fields": [
+      "ledger",
+      "new_catalog_sha256",
+      "new_table_privileges_valid",
+      "old_acl",
+      "old_catalog",
+      "roles",
+      "schema_version"
+    ],
+    "structural_program_sha256": "d5f360925115d52cca3bbbd72cee6d0342cc0584d3fcddc3d9ed60546da171ad"
+  },
+  "qualification_sha256": "282538d1dcf1e17eb9fe80fc8ae71d2fa2f1f602f673b8933e0065ba1fbbc07f",
+  "scope": "actual_disposable_metadata_inspection_256MiB",
+  "scope_exclusions": [
+    "production payload snapshot at256MiB",
+    "production cutover",
+    "main publisher CLI",
+    "encrypted authority retention",
+    "total-host restore"
+  ],
+  "status": "passed_ROOT_reviewed_metadata256"
+}

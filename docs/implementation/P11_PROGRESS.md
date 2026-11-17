@@ -1,5 +1,25 @@
 # P11 progress
 
+## November16 personal-computer recovery checkpoint
+
+PR73 merged the publisher cleanup-reserve fix as `57be797`; exact PR and distinct
+main CI each passed all15 current jobs. The current-image installed publisher's
+original normal/cancel cases passed, with exact cleanup and independent production
+checks. A fresh stopped-writer schema8 backup authenticated and passed owner-only
+retention; that exact dump restored all36 tables/eight migration checksums and
+retained ACLs in an isolated local PG17 container. Recovered-only fencing and its
+repeat passed within the original120/60-second limits, with exact container absence.
+The original backend resumed healthy on schema8; migration/deletion remain inactive.
+
+See [the current checkpoint](PERSONAL_COMPUTER_RESUME_20261116.md) and its linked
+metadata receipts. The combined five-section disposable activation/CAS and all
+seven actual 256 MiB metadata probes also passed with their original assertions
+and limits. Final production-operator/profile refreeze, independent authority
+retention and the guarded forward-migration ceremony remain
+required. Recollect a sufficiently fresh backup at cutover; the completed recovery
+drill does not waive that gate. Empty source work/session/mail/export paths are
+disclosed rather than claimed exercised. Historical checkpoints below are retained.
+
 Run `43484917543` on the P12 descendant exposed a retained P10 Google-proof
 test race: its `int(time.time())+31` input can move inside the production
 30-second skew while the HTTP fixture runs. The original ten invalid-assertion

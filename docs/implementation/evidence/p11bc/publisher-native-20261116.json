@@ -1,0 +1,89 @@
+{
+  "ROOT_independent_cleanup_and_healthy_production_baseline_verified": true,
+  "V2_diagnostic": "Docker outer Mounts order varied;12 read-only observations reproduced4 variants with identical complete4-member multiset",
+  "V2_overall_red_preserved": true,
+  "all_running_container_baseline_unchanged": true,
+  "app_role_authority_denied": true,
+  "authority_retention_or_total_host_restore": false,
+  "cleanup": {
+    "complete": true,
+    "containers_absent": true,
+    "private_root_absent": true,
+    "production_touched": false,
+    "publisher_distinct_IDs": 2,
+    "publisher_ids_absent": true,
+    "socket_absent": true
+  },
+  "controllers_exited": true,
+  "full_controller_CAS_qualified": false,
+  "genesis_recovery_CLI": {
+    "cron_resumed": false,
+    "events_verified": 0,
+    "mode": "retained_authority_app_only",
+    "pending_manifest": false,
+    "physical_mail_validation": "child_owner_mode_readonly_named_inode",
+    "protected_sha256": "d6e45eb18cf97ed3fd342d2c093867ad113c35bde74e632c68085b452f3089b6",
+    "purge_batches": 0,
+    "ready": true,
+    "total_host_authority_restore_supported": false,
+    "total_host_restore_supported": false,
+    "writers_resumed": false
+  },
+  "host_source_sha256": "f22a0f955b50a52c2b00997804a62fc7ea218ba294ffbbca72ad0edaf47e21ce",
+  "installer_keeper_held": true,
+  "keeper_released_after_checks": true,
+  "main_CLI_qualified": false,
+  "new_normalization_pure_controls_passed": 7,
+  "normalization_only_ignores_outer_mount_list_order": true,
+  "original_V5_assertions_unchanged": true,
+  "production_mutations": 0,
+  "production_schema": 8,
+  "publisher": {
+    "cases": {
+      "cancel": {
+        "active_guard_released": true,
+        "actual_singleton_EX_observed": true,
+        "exact_ID_and_name_absent": true,
+        "handlers_restored": true,
+        "peer_exit_code": 1,
+        "running_owned_container_observed": true,
+        "same_append_only_genesis_checkpoint": true,
+        "same_singleton_inode_reacquired_EX": true,
+        "signal_deliveries": 2,
+        "status": "unavailable"
+      },
+      "normal": {
+        "active_guard_released": true,
+        "actual_singleton_EX_observed": true,
+        "exact_ID_and_name_absent": true,
+        "handlers_restored": true,
+        "peer_exit_code": 0,
+        "running_owned_container_observed": true,
+        "same_append_only_genesis_checkpoint": true,
+        "same_singleton_inode_reacquired_EX": true,
+        "signal_deliveries": 0,
+        "status": "checked"
+      }
+    },
+    "factory_substitutions": false,
+    "genesis_only": true,
+    "main_CLI_qualified": false,
+    "mode": "actual_scoped_execute_real_SQL_crypto_APPENDING_and_container_lifecycle",
+    "profile_sha256": "c03fb9d10a2814cb7606f38ddd5451af5e6aaa2c7cfb07e301d91df735fb076c",
+    "source_pins": {
+      "installed_publisher.py": "38888b5a820808a0fa2811e7fa1be004c9721a9e07bf6542caa0fee6422465b1",
+      "maintenance.py": "4676bfec9b86766a0fa210cefcce63f1806e2726f19389ee76b461ed7a135aae",
+      "operator_files.py": "610c3149bb3fabd6569222cd4c949328603645bf3f39a38930fb17ff4cc82fd5",
+      "operator_scope.py": "f6064b65a190dd87769b2878b4b43bed598d3c99dd0bfa8f4b799e13ad6d5d2d",
+      "publisher_launcher.py": "37452a4aee1a63ec1f2cce9fcae8be3de2b6d015ef2d0e824e4dfe4ab6b8fe66"
+    }
+  },
+  "run": "aqua-retirement-host-620193f072b57ea2265af5da",
+  "runtime_image": "sha256:61034825653941c528a17bd66d3d0072c18b1a57d82377053d349d6204c7ef66",
+  "schema": "aqua_current_image_scoped_publisher_native",
+  "schema9_release_gate_closed": false,
+  "shared_cleanup_deadline_met": true,
+  "source_archive_sha256": "10290bdb1db13eb3cc4aef4e4e72c199cbc46898cc9a62f6865b2b00c009b62c",
+  "status": "passed_scoped_execute_only",
+  "wrong_password_rejected": true
+}
