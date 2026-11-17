@@ -128,6 +128,13 @@ jobs:
           python tools/checks/test_retirement_runtime_pins.py
           python tools/checks/test_retirement_host.py
           python tools/checks/test_retirement_host_cleanup.py
+          python -m unittest discover -s ops/retirement/backup_client -p 'authority_budget_test.py'
+          python -m unittest discover -s ops/retirement/backup_client -p 'authority_route_test.py'
+      - name: Opt-in authority models with isolated pinned runtime dependencies
+        run: |
+          python -m venv "${{ runner.temp }}/aqua-authority-opt-in"
+          "${{ runner.temp }}/aqua-authority-opt-in/bin/python" -m pip install --no-deps --require-hashes -r tools/checks/requirements-runtime.lock
+          "${{ runner.temp }}/aqua-authority-opt-in/bin/python" -m unittest discover -s ops/retirement/backup_client -p 'authority_budget_integration_test.py'
       - name: Audit pinned runtime dependencies
         run: python -m pip_audit --no-deps --disable-pip -r tools/checks/requirements-runtime.lock
       - name: Prepare isolated test images
