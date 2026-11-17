@@ -1,5 +1,15 @@
 # Personal-computer release handoff â€” November 13, 2026
 
+## Personal-computer continuation, November 16
+
+Read [the fresh personal-computer checkpoint](PERSONAL_COMPUTER_RESUME_20261116.md)
+before replaying historical commands below. Current PR 72 and distinct merged-main
+CI each passed all 15 jobs. The existing recovery key and private independent Drive
+copy were found and verified through a fresh challenge and an isolated 32-table
+historical schema 7 restore. The portable candidate passed 40 real application
+checks. Fresh current production backup/restore, authority retention and schema 9
+activation remain separate gates.
+
 ## Resume instruction from Ben
 
 **November16 companion source profile:** the default-off reviewed help slice

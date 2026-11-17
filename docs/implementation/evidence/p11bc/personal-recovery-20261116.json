@@ -1,0 +1,78 @@
+{
+  "empty_restore_fence_paths": [
+    "sessions",
+    "account_mail",
+    "account_action_proofs",
+    "password_hash_slots"
+  ],
+  "historical_restore": {
+    "cleanup": "removed_and_independently_absent",
+    "dump_bytes": 125456,
+    "elapsed_cleanup_seconds": 0.106,
+    "elapsed_work_seconds": 0.977,
+    "finished_utc": "2026-11-17T00:43:13.692721+00:00",
+    "fresh_production_backup": false,
+    "historical_schema": 7,
+    "plaintext_disk_files": 0,
+    "plan_sha256": "a1741b171929efcf63738b56672a4d9ad26807f131bfc3c6c1cdaf1b43944580",
+    "production_mutations": 0,
+    "recovery_fence_repeatability": true,
+    "recovery_fence_verified": true,
+    "restored_table_count": 32,
+    "role_acl_checks": true,
+    "schema7_migration_checksums_verified": true,
+    "stage": "completed",
+    "started_utc": "2026-11-17T00:43:12.609663+00:00",
+    "status": "passed"
+  },
+  "historical_restore_raw_sha256": "d0809becba57e5a4edfec2083023d5b3b60c49888391691b82bcbfe1f77b26d5",
+  "independent_review_sha256": "d4af50edc2e07a7d4b690f9fd4fccce62bd65074a2551ad227421e302370a0bb",
+  "key_verification": {
+    "authority_retention_proven": false,
+    "damaged_ciphertext_rejected": [
+      "tampered",
+      "truncated"
+    ],
+    "database_restore_tested": false,
+    "downloaded_bytes_match_retained_identity": true,
+    "drive_permissions": [
+      {
+        "role": "owner",
+        "type": "user"
+      }
+    ],
+    "drive_shared": false,
+    "fresh_challenge_verified_with_independently_fetched_copy": true,
+    "fresh_production_backup": false,
+    "fresh_proof_sha256": "b83cd1d3085e468e96510be4cdae80f2c1ac0fceefd0e0ac63b2f4a278ced303",
+    "historical_backup_ciphertext_unchanged": true,
+    "historical_backup_decryption_bytes": 125456,
+    "historical_schema": 7,
+    "plaintext_written": false,
+    "private_key_printed": false,
+    "production_current_schema": 8,
+    "status": "passed",
+    "stream_source_sha256": "e558cc9729201410ae466e8e8f7ab12ab1395c64e3d3464ac07711d2c56f2452",
+    "total_host_recovery_proven": false,
+    "verified_utc": "2026-11-17T00:33:42.114083+00:00"
+  },
+  "limits": [
+    "Historical schema7 backup only; current production is schema8",
+    "SET ROLE and ACL checks do not establish production credential authentication or ordinary app startup",
+    "Empty restored tables do not prove populated transition behavior",
+    "Catalogue comparison proves pre/post fence preservation, not independent complete pristine schema equivalence",
+    "Fresh stopped-writer production backup, current-image restore, independent authority retention and schema9 activation remain open"
+  ],
+  "populated_restore_fence_paths": [
+    "users",
+    "auth_challenges",
+    "analysis_jobs",
+    "analysis_events"
+  ],
+  "postgres_image": "sha256:3645570cccdfa447589da9f57dd740faa29b30938e861289a5574b6ca6b03826",
+  "restore_operator_sha256": "240c8f86f64b101e209f3c3671e045511149a6fd2076fc136efd9c69ae7f0bb7",
+  "restore_snapshot_sha256": "5893419311ac8a2da30c4d78858281dd659eab55df5e8a015836672fbb424492",
+  "schema": "aqua_personal_recovery_20261116_v1",
+  "source_head": "cd250ef4ab423ae58e2c79715e4f1ca3c3b3c5b0",
+  "status": "passed_for_named_historical_scope"
+}

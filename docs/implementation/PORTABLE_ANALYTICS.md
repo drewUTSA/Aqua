@@ -144,7 +144,8 @@ shared grant/transaction reuse, closed includes/profiles and metadata-manifest
 alignment without PostgreSQL, Docker, a model or network. It does not establish
 that PostgreSQL parsed/executed the new scripts. The separate actual local
 qualification below establishes the tested bootstrap and role/query cases;
-encrypted backup/restore, app integration and capacity remain open.
+encrypted backup/restore and capacity remain open. The separate personal-computer
+follow-up below qualifies the real application integration on its named source.
 
 PostgreSQL's `IF NOT EXISTS` does not verify an existing extension's contents;
 the separate preflight therefore checks namespace/version and rejects incompatible
@@ -187,9 +188,59 @@ harness received independent review, eleven source guards and ten pure harness
 guards. The public CI runs the source guards and retained full application suite;
 it does not run this private operator qualification or download dataset assets.
 
-The receipt explicitly defers actual wrong-PostgreSQL-major execution, historical
+That bootstrap-only receipt explicitly defers actual wrong-PostgreSQL-major execution, historical
 DiskANN, a real concurrent role-creation race, encrypted dump/restore, application
 schema-loader/validator/executor integration, production capacity/cutover and bank
 acceptance. There was no Tiger connection, data migration, production change,
 model call, training, source data download or cloud-account creation. This
 Pagila-only evidence does not rebuild Berka or unknown original Tiger contents.
+
+## Personal-computer application integration, November 16
+
+The [separate application receipt](evidence/portable-analytics/application-integration-20261116.json)
+passes all 40 fixed cases, zero failed/unrun, in 4.319 seconds including cleanup.
+The real production schema loader exposes exactly the 15 reviewed Pagila tables
+and excludes hidden columns, partitions, views and retrieval internals. Actual
+validation/execution returns all six pinned counts and the rental/inventory/film
+join count, enforces result truncation, and preserves closed error handling.
+Validator denials and independent SQLSTATE 42501 database denials with read-only
+mode explicitly off cover hidden fields/whole rows, writes, DDL and retrieval
+writes. The indexer cannot establish a business-data context.
+
+The unchanged current-source backend was built locally on native ARM64 as
+`sha256:f87ce84befc77ffa0428d281e8ac3e84a77d67ce7c9688a25752f29048595e53`.
+Before importing application modules, the probe verified all 207 runtime source
+inputs (198 Python files and nine SQL migrations), the reviewed lock,
+Python 3.12.14 and all 49 locked distribution versions. PostgreSQL used the same
+pinned AMD64 image under local emulation. This is component integration QA,
+not a native AMD64 runtime or production-capacity qualification. The six SQL
+sources and three public assets match the original 52-case bootstrap evidence.
+
+Both disposable containers used bounded tmpfs, read-only roots, no capabilities,
+logging disabled and no host mounts or published ports. The application shared
+only the networkless PostgreSQL container's loopback namespace. The180second
+work/60-second cleanup and all original per-operation/resource bounds remained
+unchanged. Exact owned name/ID absence was checked after removal. No provider,
+production configuration, production data, grant or feature flag was used.
+
+The [first setup red](evidence/portable-analytics/application-integration-initial-20261116.json)
+and [diagnostic red](evidence/portable-analytics/application-integration-diagnostic-20261116.json)
+are retained unchanged. Both stopped with 40 cases unrun and successful cleanup.
+The new harness incorrectly treated the 207-entry runtime manifest as Python-only;
+it also contains nine SQL migrations. A fixed diagnostic identified that stage.
+Two offline controls reproduced the mismatch and verified exact missing/extra-SQL
+denial. The correction retains all 207 byte checks, every original 40 case body,
+dependency check, deadline and resource cap. No application source was changed.
+
+ROOT reviewed each proposal before execution. [Independent review](evidence/portable-analytics/application-integration-review-20261116.json) rehashed the
+frozen inputs and all three receipts and confirmed the exact 40 passing case
+identities. Raw receipts and source/proposal/patch/review files are retained in
+the personal checkout's `.check-results/resume-20261116/portable-integration/`.
+The three public JSON receipts are byte-identical copies of their raw counterparts.
+
+Only application integration is closed by this follow-up. Portable encrypted
+export/decrypt/restore, measured capacity, actual wrong-major and concurrent-role
+race execution, historical DiskANN, Tiger/Berka recovery, bank acceptance and a
+separately authorized production connection cutover remain open. The successful
+historical application-backup restore in the personal-computer checkpoint is a
+different database/PG17 scope and does not satisfy portable PG18 recovery.

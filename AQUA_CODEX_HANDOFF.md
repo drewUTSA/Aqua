@@ -1,3 +1,16 @@
+## November 16 personal-computer continuation
+
+[The personal-computer checkpoint](docs/implementation/PERSONAL_COMPUTER_RESUME_20261116.md)
+records the current source after PR 72, passing exact PR and distinct main CI
+(all 15 current jobs each), and read-only confirmation of healthy schema 8 production.
+The existing recovery identity and its private independent Drive copy were found;
+a fresh challenge and an isolated 32-table restore of the unchanged historical
+schema 7 backup passed without exposing plaintext. The portable Pagila candidate
+also passed 40 real application-integration checks on the current source. Fresh
+schema 8 production backup/restore, authority retention and schema 9 activation
+remain open. Continue from that checkpoint; older local November 6 pause notes
+are historical.
+
 ## November16 portable analytical preparation
 
 [Optional PostgreSQL/pgvector setup](docs/implementation/PORTABLE_ANALYTICS.md)

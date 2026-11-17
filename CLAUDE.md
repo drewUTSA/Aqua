@@ -2,6 +2,13 @@
 
 Instructions for coding agents working in this repository. Read this file before making changes.
 
+November 16 personal-computer continuation: see
+`docs/implementation/PERSONAL_COMPUTER_RESUME_20261116.md` for the current
+PR 72/main CI checks (all 15 jobs each), verified existing recovery identity,
+historical encrypted 32-table restore and 40 portable application-integration
+checks. These do not close fresh production backup, authority retention or
+schema 9 release gates. The older local November 6 pause is historical.
+
 Latest verified checkpoint: P00 through P10 are complete. P11a personal exports
 are deployed on private schema8 from PR57/main
 `9aeaf4eb91a4db55d3701e8be872f2b1e178a116`. The guarded release passed at
