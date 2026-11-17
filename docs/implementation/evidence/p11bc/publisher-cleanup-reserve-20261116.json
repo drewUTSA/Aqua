@@ -1,0 +1,48 @@
+{
+  "CAS_full_activation_controller": "not_qualified",
+  "actual_installed_publisher_normal_cancel": "pending",
+  "app_image_inputs_changed": false,
+  "canonical_host_suite": {
+    "failed": 0,
+    "passed": 16,
+    "skipped": 0
+  },
+  "cleanup_reserve_seconds": 2,
+  "close_timeout_seconds": 1,
+  "hard_deadline_cadence_step_ceiling_unchanged": true,
+  "linux_uid1000_component": {
+    "exact_cleanup": true,
+    "failed": 0,
+    "new_boundary_tests": 5,
+    "original_tests": 13,
+    "private_IO_SQL_Docker_in_child": false,
+    "real_alarm_controls": 3,
+    "skipped": 0
+  },
+  "original_alarm_counterexample_preserved": true,
+  "original_cleanup_report_failure_preserved": true,
+  "original_cleanup_report_separate_absence_attestation": true,
+  "original_host_sha256": "4025e065b471514dd80432dcf5c67fb6df82a667fddce7a642d8e5b5820e9003",
+  "original_host_tests_unchanged": 8,
+  "other_checks": {
+    "black": "passed",
+    "companion_packaging": 3,
+    "git_diff_check": "passed",
+    "host_cleanup": 3,
+    "ruff": "passed",
+    "runtime_pins": 3,
+    "source_check": "passed"
+  },
+  "permanent_boundary_tests": 5,
+  "permanent_real_alarm_tests": 3,
+  "production_operations": 0,
+  "publisher_main_CLI": "not_qualified",
+  "release_gate_closed": false,
+  "schema": "aqua_publisher_cleanup_reserve_component_review",
+  "source_sha256": {
+    "ops/retirement/retirement_host.py": "f22a0f955b50a52c2b00997804a62fc7ea218ba294ffbbca72ad0edaf47e21ce",
+    "tools/checks/publisher_timer_regression.py": "92c110317caf6c1adc7e3df33a55995270c8c82ecfa04d857e72e56a59d07b74",
+    "tools/checks/test_retirement_host.py": "d797f724e3c426ca25213ec226318ebb8bf134b4dff537e53d75eeec3e429a70"
+  },
+  "status": "passed_component_scope_only"
+}

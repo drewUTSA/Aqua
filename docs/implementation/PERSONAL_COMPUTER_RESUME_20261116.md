@@ -79,6 +79,20 @@ new harness preserved every application assertion and resource limit. See
 
 ## Next release work
 
+The publisher host's normal loop could consume its inherited hard deadline,
+allowing the real alarm to interrupt return or pool cleanup. The reviewed source
+now stops loop work two seconds earlier while preserving the original hard
+deadline, cadence and step ceiling. Its pool close still runs under that alarm.
+Eight permanent regressions exercise the actual source AST with modeled private
+dependencies, including real POSIX alarms in separate children. All eight
+original host checks remain unchanged; the combined 16 checks pass locally.
+An isolated Linux UID1000 component run also passed all 13 original focused
+adapter/launcher checks, five new boundary checks and three alarm controls.
+The initial cleanup-report failure and its separate exact-resource absence
+attestation remain retained. These component results do not qualify the actual
+installed SQL publisher, its main CLI, CAS or the full activation controller;
+the fresh native normal/cancel rehearsal remains pending.
+
 Before production schema 9/deletion activation, the personal-computer release
 handoff still requires a fresh stopped-writer encrypted application backup,
 matching isolated restore, current exact-image/operator qualification,
