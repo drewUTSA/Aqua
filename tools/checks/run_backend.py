@@ -21,6 +21,7 @@ from matrix import coverage
 from app_fixture import initialize
 from app_restore import verify as verify_restore
 from backend_execution import run_core
+from bank_demo_sources import add_sources as add_bank_demo_sources
 
 ROOT = Path(__file__).resolve().parents[2]
 POSTGRES = (
@@ -76,6 +77,7 @@ def source_archive() -> bytes:
                     1000,
                 )
                 archive.addfile(info, io.BytesIO(content))
+        add_bank_demo_sources(archive, ROOT)
     return stream.getvalue()
 
 

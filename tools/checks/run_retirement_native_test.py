@@ -159,6 +159,51 @@ class NativeTests(unittest.TestCase):
             native.prepared(b"x" * (native.MAX_SOURCE + 1))
         self.assertEqual(native.prepared(archive())["expected_tests"], 80)
 
+    def test_shared_report_inputs_do_not_admit_the_mcp_server_or_other_json(self):
+        def bootstrap(raw):
+            with (
+                patch.object(sys, "stdin", SimpleNamespace(buffer=io.BytesIO(raw))),
+                patch.object(sys, "argv", ["probe", native.SUITES["protocol80"][1]]),
+                patch.object(tarfile.TarFile, "extractall") as extract,
+                patch.object(native.os, "chdir"),
+                patch.object(native.os, "execv"),
+            ):
+                exec(compile(native.BOOTSTRAP, "<native-bootstrap>", "exec"), {})
+                extract.assert_called_once_with("/checks", filter="data")
+
+        for name in native.MCP_SOURCE_NAMES:
+            with self.subTest(name=name):
+                self.assertEqual(native.prepared(archive(name))["expected_tests"], 80)
+                bootstrap(archive(name))
+        for name in (
+            "mcp_demo/server.py",
+            "mcp_demo/__main__.py",
+            "mcp_demo/finance.py",
+            "mcp_demo/fixtures/other.json",
+            "mcp_demo/fixtures/bank.json/extra.py",
+            "mcp_demo/fixtures/../data.py",
+            "mcp_demo/fixtures/bank.json.private",
+            "mcp_demo//data.py",
+            "mcp_demo/./data.py",
+            "eval/banking/other.json",
+        ):
+            with self.subTest(name=name):
+                with self.assertRaises(ValueError):
+                    native.prepared(archive(name))
+                with self.assertRaisesRegex(
+                    RuntimeError, "native_source_member_denied"
+                ):
+                    bootstrap(archive(name))
+        packed = io.BytesIO()
+        with tarfile.open(fileobj=packed, mode="w") as output:
+            item = tarfile.TarInfo("mcp_demo/fixtures/bank.json")
+            item.size = 131073
+            output.addfile(item, io.BytesIO(b"x" * item.size))
+        with self.assertRaises(ValueError):
+            native.prepared(packed.getvalue())
+        with self.assertRaisesRegex(RuntimeError, "native_source_member_denied"):
+            bootstrap(packed.getvalue())
+
     def test_only_exact80_no_skips_errors_or_truthy_counts_can_pass(self):
         good = json.dumps(native.COUNTS).encode()
         self.assertEqual(

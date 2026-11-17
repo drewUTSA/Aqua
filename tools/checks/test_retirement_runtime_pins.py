@@ -10,6 +10,23 @@ import run_retirement_installer_rehearsal as installer
 from retirement_fixture import installer_rehearsal_resources as resources
 
 ROOT = Path(__file__).resolve().parents[2]
+SHARED_PYTHON = {
+    "eval/__init__.py",
+    "eval/banking/__init__.py",
+    "eval/banking/catalog.py",
+    "eval/banking/data.py",
+    "eval/banking/knowledge.py",
+    "eval/banking/proposals.py",
+    "eval/banking/reports.py",
+    "eval/banking/scope.py",
+    "mcp_demo/__init__.py",
+    "mcp_demo/data.py",
+    "mcp_demo/guidance.py",
+    "mcp_demo/protocol.py",
+    "mcp_demo/reports.py",
+    "mcp_demo/web.py",
+}
+SHARED_ASSETS = {"mcp_demo/fixtures/bank.json"}
 
 
 class RuntimePins(unittest.TestCase):
@@ -24,11 +41,12 @@ class RuntimePins(unittest.TestCase):
         self.assertEqual(normal.MANIFEST_SHA256, resources.RUNTIME_MANIFEST_SHA256)
 
     def test_compiled_catalog_exactly_matches_reviewed_public_source(self):
-        names = {"main.py"}
+        names = {"main.py"} | SHARED_PYTHON
         for directory in (
             "account",
             "analysis",
             "companion",
+            "bank_demo",
             "auth",
             "nl2sql",
             "storage",
@@ -44,12 +62,18 @@ class RuntimePins(unittest.TestCase):
         self.assertEqual(names, set(normal.RUNTIME_FILES))
         manifest = {}
         for name in sorted(names | resources.ASSETS):
-            raw = (ROOT / "backend" / name).read_bytes()
+            path = (
+                ROOT / name
+                if name in SHARED_PYTHON | SHARED_ASSETS
+                else ROOT / "backend" / name
+            )
+            raw = path.read_bytes()
             digest = hashlib.sha256(raw).hexdigest()
             manifest[name] = {"sha256": digest, "bytes": len(raw)}
             if name in normal.RUNTIME_FILES:
                 self.assertEqual(digest, normal.RUNTIME_FILES[name], name)
-        self.assertEqual(len(manifest), 210)
+        self.assertEqual(len(names), 226)
+        self.assertEqual(len(manifest), 230)
         digest = hashlib.sha256(
             json.dumps(manifest, sort_keys=True, separators=(",", ":")).encode()
         ).hexdigest()

@@ -1,0 +1,421 @@
+{
+  "kind": "original_fictional_http_projection_fixture",
+  "projectionExamplesSha256": "224c36fe600f2645043153151c3f75bc9c9cf12cdb236aca464ea504cece5a29",
+  "fixtureSourceSha256": "8c7ee4eb198cf88338c84ba01fd1c21869df8d6aae26b45b366b7802a250417e",
+  "contexts": {
+    "none": {
+      "schemaVersion": 1,
+      "owner_id": "33333333-3333-4333-8333-333333333333",
+      "context": {
+        "asOf": "2026-11-16",
+        "sourceRevision": "8c27aa965ae4087fc965f66957ab08dde9b18de1cf6abdd321102afb6f8cdd37",
+        "guidanceRevision": "debe014b2830fbbb43b7cbee2254842795732f5b42d28c3ba5462a3f43aea42e",
+        "synthetic": true,
+        "demoOnly": true,
+        "jurisdiction": "US",
+        "currency": "USD",
+        "executionEnabled": false,
+        "approvalRecorded": false,
+        "bankName": "Aqua fictional bank demo",
+        "persona": "none",
+        "scopeSource": "fixed_fictional_demo_registry_not_bank_identity",
+        "notice": "All bank figures and procedures are fictional. No bank account is connected; this demo cannot approve or execute actions."
+      },
+      "reports": []
+    },
+    "teller": {
+      "schemaVersion": 1,
+      "owner_id": "33333333-3333-4333-8333-333333333333",
+      "context": {
+        "asOf": "2026-11-16",
+        "sourceRevision": "8c27aa965ae4087fc965f66957ab08dde9b18de1cf6abdd321102afb6f8cdd37",
+        "guidanceRevision": "debe014b2830fbbb43b7cbee2254842795732f5b42d28c3ba5462a3f43aea42e",
+        "synthetic": true,
+        "demoOnly": true,
+        "jurisdiction": "US",
+        "currency": "USD",
+        "executionEnabled": false,
+        "approvalRecorded": false,
+        "bankName": "Aqua fictional bank demo",
+        "persona": "teller",
+        "scopeSource": "fixed_fictional_demo_registry_not_bank_identity",
+        "notice": "All bank figures and procedures are fictional. No bank account is connected; this demo cannot approve or execute actions."
+      },
+      "reports": [
+        {
+          "id": "deposit_portfolio_summary",
+          "label": "Branch and deposits",
+          "department": "retail_deposits"
+        },
+        {
+          "id": "service_case_summary",
+          "label": "Customer service",
+          "department": "customer_service"
+        }
+      ]
+    },
+    "analyst": {
+      "schemaVersion": 1,
+      "owner_id": "33333333-3333-4333-8333-333333333333",
+      "context": {
+        "asOf": "2026-11-16",
+        "sourceRevision": "8c27aa965ae4087fc965f66957ab08dde9b18de1cf6abdd321102afb6f8cdd37",
+        "guidanceRevision": "debe014b2830fbbb43b7cbee2254842795732f5b42d28c3ba5462a3f43aea42e",
+        "synthetic": true,
+        "demoOnly": true,
+        "jurisdiction": "US",
+        "currency": "USD",
+        "executionEnabled": false,
+        "approvalRecorded": false,
+        "bankName": "Aqua fictional bank demo",
+        "persona": "analyst",
+        "scopeSource": "fixed_fictional_demo_registry_not_bank_identity",
+        "notice": "All bank figures and procedures are fictional. No bank account is connected; this demo cannot approve or execute actions."
+      },
+      "reports": [
+        {
+          "id": "commercial_exposure_summary",
+          "label": "Commercial lending",
+          "department": "commercial_lending"
+        },
+        {
+          "id": "credit_review_summary",
+          "label": "Credit and underwriting",
+          "department": "credit_underwriting"
+        },
+        {
+          "id": "liquidity_assumption_summary",
+          "label": "Treasury and asset/liability management",
+          "department": "treasury_alm"
+        },
+        {
+          "id": "reconciliation_summary",
+          "label": "Finance and accounting",
+          "department": "finance_accounting"
+        }
+      ]
+    },
+    "manager": {
+      "schemaVersion": 1,
+      "owner_id": "33333333-3333-4333-8333-333333333333",
+      "context": {
+        "asOf": "2026-11-16",
+        "sourceRevision": "8c27aa965ae4087fc965f66957ab08dde9b18de1cf6abdd321102afb6f8cdd37",
+        "guidanceRevision": "debe014b2830fbbb43b7cbee2254842795732f5b42d28c3ba5462a3f43aea42e",
+        "synthetic": true,
+        "demoOnly": true,
+        "jurisdiction": "US",
+        "currency": "USD",
+        "executionEnabled": false,
+        "approvalRecorded": false,
+        "bankName": "Aqua fictional bank demo",
+        "persona": "manager",
+        "scopeSource": "fixed_fictional_demo_registry_not_bank_identity",
+        "notice": "All bank figures and procedures are fictional. No bank account is connected; this demo cannot approve or execute actions."
+      },
+      "reports": [
+        {
+          "id": "deposit_portfolio_summary",
+          "label": "Branch and deposits",
+          "department": "retail_deposits"
+        },
+        {
+          "id": "service_case_summary",
+          "label": "Customer service",
+          "department": "customer_service"
+        },
+        {
+          "id": "consumer_pipeline_summary",
+          "label": "Consumer lending",
+          "department": "consumer_lending"
+        },
+        {
+          "id": "commercial_exposure_summary",
+          "label": "Commercial lending",
+          "department": "commercial_lending"
+        },
+        {
+          "id": "credit_review_summary",
+          "label": "Credit and underwriting",
+          "department": "credit_underwriting"
+        },
+        {
+          "id": "servicing_exception_summary",
+          "label": "Loan servicing",
+          "department": "loan_servicing"
+        },
+        {
+          "id": "payment_exception_summary",
+          "label": "Payments operations",
+          "department": "payments_operations"
+        },
+        {
+          "id": "liquidity_assumption_summary",
+          "label": "Treasury and asset/liability management",
+          "department": "treasury_alm"
+        },
+        {
+          "id": "reconciliation_summary",
+          "label": "Finance and accounting",
+          "department": "finance_accounting"
+        },
+        {
+          "id": "fraud_workload_summary",
+          "label": "Fraud and security",
+          "department": "fraud_security"
+        },
+        {
+          "id": "program_control_inventory",
+          "label": "BSA, AML and sanctions",
+          "department": "bsa_aml_sanctions"
+        },
+        {
+          "id": "policy_obligation_inventory",
+          "label": "Compliance and legal",
+          "department": "compliance_legal"
+        },
+        {
+          "id": "fiduciary_workload_summary",
+          "label": "Wealth and trust",
+          "department": "wealth_trust"
+        },
+        {
+          "id": "service_health_summary",
+          "label": "Operations, IT and data",
+          "department": "operations_it_data"
+        },
+        {
+          "id": "training_completion_summary",
+          "label": "People operations",
+          "department": "human_resources"
+        },
+        {
+          "id": "vendor_review_summary",
+          "label": "Third-party risk",
+          "department": "third_party_risk"
+        },
+        {
+          "id": "audit_issue_summary",
+          "label": "Internal audit",
+          "department": "internal_audit"
+        }
+      ]
+    }
+  },
+  "reports": [
+    {
+      "schemaVersion": 1,
+      "owner_id": "33333333-3333-4333-8333-333333333333",
+      "result": {
+        "asOf": "2026-11-16",
+        "sourceRevision": "8c27aa965ae4087fc965f66957ab08dde9b18de1cf6abdd321102afb6f8cdd37",
+        "guidanceRevision": "debe014b2830fbbb43b7cbee2254842795732f5b42d28c3ba5462a3f43aea42e",
+        "synthetic": true,
+        "demoOnly": true,
+        "jurisdiction": "US",
+        "currency": "USD",
+        "executionEnabled": false,
+        "approvalRecorded": false,
+        "reportId": "deposit_portfolio_summary",
+        "title": "Branch and deposits",
+        "department": "retail_deposits",
+        "period": "2026-11",
+        "periodStart": "2026-11-01",
+        "periodEnd": "2026-11-16",
+        "periodComplete": false,
+        "truncated": false,
+        "readOnly": true,
+        "definition": "Opening November1 deposit buckets plus posted deposits minus posted withdrawals; exception amounts are excluded. Accounts are fictional bucket counts.",
+        "columns": [
+          {
+            "key": "branch",
+            "label": "Branch",
+            "unit": "text"
+          },
+          {
+            "key": "product",
+            "label": "Product",
+            "unit": "text"
+          },
+          {
+            "key": "accounts",
+            "label": "Accounts",
+            "unit": "count"
+          },
+          {
+            "key": "closing_balance_usd",
+            "label": "Closing balance",
+            "unit": "USD"
+          }
+        ],
+        "rows": [
+          [
+            "north",
+            "checking",
+            "1200",
+            "1461250.00"
+          ],
+          [
+            "north",
+            "savings",
+            "650",
+            "1155500.00"
+          ],
+          [
+            "central",
+            "checking",
+            "1800",
+            "2223000.00"
+          ],
+          [
+            "central",
+            "savings",
+            "900",
+            "1604000.00"
+          ],
+          [
+            "central",
+            "business_checking",
+            "200",
+            "1382500.00"
+          ],
+          [
+            "south",
+            "checking",
+            "800",
+            "947750.00"
+          ],
+          [
+            "south",
+            "savings",
+            "500",
+            "854750.00"
+          ]
+        ],
+        "rowCount": 7,
+        "caveats": [
+          "All figures and procedures are original fictional demo material, not a real bank's records or approved policy.",
+          "November1\u201316,2026 is a partial snapshot; these operational figures do not describe a complete month.",
+          "Read the exact metric definition and cited procedure before interpreting a count, amount or review status."
+        ],
+        "procedure": {
+          "title": "Fictional deposit review",
+          "text": "Fictional demo procedure: open deposit_portfolio_summary to compare branch/product balances. Posted deposits increase and posted withdrawals reduce the November opening buckets; exceptions are excluded. This fixture has no customer accounts or approved fee schedule. For a fee quote, ask for the bank's effective authorized schedule.",
+          "sourceId": "deposit_help",
+          "version": "fictional-demo-v1",
+          "contentSha256": "e221e7a1f66b8247edf8f1fb458c9ba6918bbe035b80947afa81602934ebbacb",
+          "fictional": true
+        },
+        "nextSteps": [
+          {
+            "id": "inspect_definition_and_period",
+            "text": "Review the definition, partial period and source facts before interpreting these figures."
+          },
+          {
+            "id": "discuss_with_responsible_reviewer",
+            "text": "If the fictional facts need follow-up, discuss the cited procedure and relevant figures with the responsible human reviewer."
+          },
+          {
+            "id": "consider_separate_review_draft",
+            "text": "If you explicitly request it, separate draft preparation can produce an unapproved review proposal; this brief cannot approve or execute it."
+          }
+        ]
+      }
+    },
+    {
+      "schemaVersion": 1,
+      "owner_id": "33333333-3333-4333-8333-333333333333",
+      "result": {
+        "asOf": "2026-11-16",
+        "sourceRevision": "8c27aa965ae4087fc965f66957ab08dde9b18de1cf6abdd321102afb6f8cdd37",
+        "guidanceRevision": "debe014b2830fbbb43b7cbee2254842795732f5b42d28c3ba5462a3f43aea42e",
+        "synthetic": true,
+        "demoOnly": true,
+        "jurisdiction": "US",
+        "currency": "USD",
+        "executionEnabled": false,
+        "approvalRecorded": false,
+        "reportId": "service_case_summary",
+        "title": "Customer service",
+        "department": "customer_service",
+        "period": "2026-11",
+        "periodStart": "2026-11-01",
+        "periodEnd": "2026-11-16",
+        "periodComplete": false,
+        "truncated": false,
+        "readOnly": true,
+        "definition": "Fictional service cases grouped by status/priority; overdue means open and due before November16, not a legal deadline.",
+        "columns": [
+          {
+            "key": "status",
+            "label": "Status",
+            "unit": "text"
+          },
+          {
+            "key": "priority",
+            "label": "Priority",
+            "unit": "text"
+          },
+          {
+            "key": "case_count",
+            "label": "Cases",
+            "unit": "count"
+          },
+          {
+            "key": "overdue_open_count",
+            "label": "Overdue open",
+            "unit": "count"
+          }
+        ],
+        "rows": [
+          [
+            "closed",
+            "normal",
+            "1",
+            "0"
+          ],
+          [
+            "in_review",
+            "normal",
+            "1",
+            "0"
+          ],
+          [
+            "open",
+            "normal",
+            "1",
+            "0"
+          ]
+        ],
+        "rowCount": 3,
+        "caveats": [
+          "All figures and procedures are original fictional demo material, not a real bank's records or approved policy.",
+          "November1\u201316,2026 is a partial snapshot; these operational figures do not describe a complete month.",
+          "Read the exact metric definition and cited procedure before interpreting a count, amount or review status."
+        ],
+        "procedure": {
+          "title": "Fictional service follow-up",
+          "text": "Fictional demo procedure: open service_case_summary, distinguish closed from open or in-review work, and inspect overdue-open counts. Prepare a review request or follow-up draft for the responsible team. Do not promise a refund, resolve a real complaint or interpret a demo due date as a legal deadline.",
+          "sourceId": "service_help",
+          "version": "fictional-demo-v1",
+          "contentSha256": "bff30d6cfd375e1966f42c46a43acaa1c7e8747dbeab865167a87e37158b978c",
+          "fictional": true
+        },
+        "nextSteps": [
+          {
+            "id": "inspect_definition_and_period",
+            "text": "Review the definition, partial period and source facts before interpreting these figures."
+          },
+          {
+            "id": "discuss_with_responsible_reviewer",
+            "text": "If the fictional facts need follow-up, discuss the cited procedure and relevant figures with the responsible human reviewer."
+          },
+          {
+            "id": "consider_separate_review_draft",
+            "text": "If you explicitly request it, separate draft preparation can produce an unapproved review proposal; this brief cannot approve or execute it."
+          }
+        ]
+      }
+    }
+  ]
+}

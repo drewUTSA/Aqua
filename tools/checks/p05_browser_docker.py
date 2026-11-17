@@ -93,6 +93,8 @@ def owned_resource(kind: str, name: str, run: str) -> str | None:
 
 def source_archive() -> bytes:
     """Allowlisted source and corpus only; no dotenv, Git data or symlinks."""
+    from bank_demo_sources import add_sources as add_bank_demo_sources
+
     stream = io.BytesIO()
     with tarfile.open(fileobj=stream, mode="w") as archive:
         for folder in ("backend", "tools/checks", "ops"):
@@ -120,6 +122,7 @@ def source_archive() -> bytes:
                     1000,
                 )
                 archive.addfile(item, io.BytesIO(content))
+        add_bank_demo_sources(archive, ROOT)
     if stream.tell() > 16 * 1024 * 1024:
         raise RuntimeError("fixture_source_limit")
     return stream.getvalue()
