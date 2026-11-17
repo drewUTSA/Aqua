@@ -1,0 +1,139 @@
+{
+  "observedUtc": "2026-11-17T15:19:12.698664+00:00",
+  "command": [
+    "python",
+    "-B",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "tools/bank_demo",
+    "-p",
+    "test_*.py"
+  ],
+  "exitCode": 0,
+  "sourceBefore": {
+    "mcp_demo/__init__.py": "10641412ed8d7dda80a2f7713cd9083d62acbd73c9de682b5d40ab1c582c0ce9",
+    "mcp_demo/__main__.py": "33274326865c3b67d166b4aa5dbcccaeed181657ef6600f4e26e60cebd80d6f2",
+    "mcp_demo/data.py": "0213446283991323991cf18019efc8f3d81e243ea79266677b3426a03bcf7150",
+    "mcp_demo/finance.py": "5c6874ee2effcaf6a264bf2961d24734e7ad01fc01c3a215d482f2f5b865cf8c",
+    "mcp_demo/finance_schema.py": "2b26492e92d2bb80ee7fb8762b6c159af71a6ab56a4a15309fe467f54ce75de7",
+    "mcp_demo/guidance.py": "9869fe6ad2ea1bdaaab091d7f73c77a7d3a3cd04b0e3556c138f939ab1a0f906",
+    "mcp_demo/protocol.py": "053b5c59dc579ad2b19f8d4a1620165cd1bae20bcfca51767ce3d9ffefa454a0",
+    "mcp_demo/reports.py": "8b5e3729d7a0f2afdb4227fa4def4d330ca52777e3f8e4b591e316fcbc72c81d",
+    "mcp_demo/server.py": "3b5bf740b4eded46558b4ba225e3f1a288514afe28af51d774c565ab70118a10",
+    "mcp_demo/trends.py": "f37481a317a449213bb7c3e418fb200ff61c251354f2132cfbefb28dfb7775cc",
+    "tools/bank_demo/test_demo_cancellation.py": "3f25847a63b6354794d32d4ed28e8725b5b41108095a6e50bf0d6189d8b16253",
+    "tools/bank_demo/test_demo_contracts.py": "5098447e444a7cf38dcccf44869e081e61e4adc8f15a0edfd31bf4df74706214",
+    "tools/bank_demo/test_demo_sdk.py": "56df34b57ade8e8bf7da6e6bdfce4ce3bb90e0a602b15df0c7401445dd3cba20",
+    "tools/bank_demo/test_finance.py": "7754c34ad4ca219ccb8eb628f7b2e509214cbf843f9a2f4dc5501a0aac925636",
+    "tools/bank_demo/test_finance_schema.py": "d97ae8089738f0bbda7451690a9b65c9e0caa9889b9ea5fb3b96a5dd510aa610",
+    "tools/bank_demo/test_guidance_ranking.py": "9bf798230417bd5caccfc3b86b618bcb27f682fcf5dd153e1b8b2ef75b071105",
+    "tools/bank_demo/test_report_briefs.py": "f565c469b82599bc3d272376cb8464a7d06b8004c70c2ee014e2b52ef3555f31",
+    "tools/bank_demo/test_trends.py": "eec1a8cae3c06a251809a55c18b0711c66627127f50b8833b8a3f399e69c2360",
+    "eval/banking/__init__.py": "62fb41d6f5abea93bea5d8f6baf9e32d8c01e68af49ca06103cd13bf28e3bbd7",
+    "eval/banking/catalog.py": "bd714e0e74612715fbfdfc96ff1e783bfbc3ba38a936735d96cc2b9f0c012791",
+    "eval/banking/data.py": "910df0344c370bc55c209a8033a62cabd60322751f67d22d6ef6376521250973",
+    "eval/banking/knowledge.py": "b3b5f753a963ab54a8141a06ec239c3fa86dd9ac82c84f00c67522a2fdbea8e6",
+    "eval/banking/proposals.py": "36691853c59240fa86ca955e1d7d4051f056a20f23af8416560ebbb16d635b6c",
+    "eval/banking/reports.py": "89f8595f2ccbdb13d280b92c77ae52448149a1ad173f42aafa9b98ecf3bc1bc1",
+    "eval/banking/scope.py": "d04351dab5a397ffe161ad47e7322f329e1517510a250d71ec3b9b25014d888c",
+    "eval/monthly_trend.py": "e6d51389054962c3189388d7694b95a247c4db94aa573bfdb3259763fd2238d1",
+    "eval/monthly_trend_contract.py": "1f2b4bf6e10edb927a616c4df1af5fcc0c3d1a080377f8716b1da3724b902bea",
+    "eval/monthly_trend_evaluation.py": "ef6c08bd2a1a7fae66d85ce97d6233662098f817260b8c10c3e1ac084dd166f3"
+  },
+  "stdout": "",
+  "stderr": ".........................................................\r\n----------------------------------------------------------------------\r\nRan 57 tests in 16.727s\r\n\r\nOK\r\n",
+  "preBriefGitBlobSHA256": "56dc746c746aab0cc9f9c61de1f24dcc47c25a6cf7aa981b333ea4154e8c1626",
+  "rowComparisons": {
+    "audit_issue_summary": {
+      "sameExactRows": true,
+      "oldSHA256": "9ccad8a49eceaef87e7494b318935b0869cbbed53dd57d3ff6d348f9ff898701",
+      "newSHA256": "9ccad8a49eceaef87e7494b318935b0869cbbed53dd57d3ff6d348f9ff898701"
+    },
+    "commercial_exposure_summary": {
+      "sameExactRows": true,
+      "oldSHA256": "b8aa39aaf6268c81bbb4025b8b4fbc3f2cb24b61637f20301cf9d1115cc9078d",
+      "newSHA256": "b8aa39aaf6268c81bbb4025b8b4fbc3f2cb24b61637f20301cf9d1115cc9078d"
+    },
+    "consumer_pipeline_summary": {
+      "sameExactRows": true,
+      "oldSHA256": "e71cc406f4f9082e1553c719a7090c91bfd373958710de1f52a038f3eb73680b",
+      "newSHA256": "e71cc406f4f9082e1553c719a7090c91bfd373958710de1f52a038f3eb73680b"
+    },
+    "credit_review_summary": {
+      "sameExactRows": true,
+      "oldSHA256": "6728703309d01c6120a295912dbafb2bfeb4039258026626b0e6db25119e5301",
+      "newSHA256": "6728703309d01c6120a295912dbafb2bfeb4039258026626b0e6db25119e5301"
+    },
+    "deposit_portfolio_summary": {
+      "sameExactRows": true,
+      "oldSHA256": "fee120dabdd0e96982968826e315f4abbf6ab30a3552c51713b01187d4b58fc9",
+      "newSHA256": "fee120dabdd0e96982968826e315f4abbf6ab30a3552c51713b01187d4b58fc9"
+    },
+    "fiduciary_workload_summary": {
+      "sameExactRows": true,
+      "oldSHA256": "7ce4c4036038e10de850b82a6cedcda30630b1963708a78cbe0ade1d4029ecb2",
+      "newSHA256": "7ce4c4036038e10de850b82a6cedcda30630b1963708a78cbe0ade1d4029ecb2"
+    },
+    "fraud_workload_summary": {
+      "sameExactRows": true,
+      "oldSHA256": "6a643362627ddb898c5c9b7b3e53746e079be876d3eb81c8aab47b1648726461",
+      "newSHA256": "6a643362627ddb898c5c9b7b3e53746e079be876d3eb81c8aab47b1648726461"
+    },
+    "liquidity_assumption_summary": {
+      "sameExactRows": true,
+      "oldSHA256": "86879f0767a21e452eda10eaee9b87250b7aaae5134d0f209934f7d4ee4e1312",
+      "newSHA256": "86879f0767a21e452eda10eaee9b87250b7aaae5134d0f209934f7d4ee4e1312"
+    },
+    "payment_exception_summary": {
+      "sameExactRows": true,
+      "oldSHA256": "730c1aefd1b7f0f16a4a2ad8d9c698067b4480ccf9fd928e2dd9ec8d49abbef9",
+      "newSHA256": "730c1aefd1b7f0f16a4a2ad8d9c698067b4480ccf9fd928e2dd9ec8d49abbef9"
+    },
+    "policy_obligation_inventory": {
+      "sameExactRows": true,
+      "oldSHA256": "66a96a313b083b202a20449a8ff6468f6a7cebffcff9f849ffb37907a609c9b2",
+      "newSHA256": "66a96a313b083b202a20449a8ff6468f6a7cebffcff9f849ffb37907a609c9b2"
+    },
+    "program_control_inventory": {
+      "sameExactRows": true,
+      "oldSHA256": "be0ed120e271acb6263625a2da61bf1cd331b2d597386285aa5d3e5b45da5377",
+      "newSHA256": "be0ed120e271acb6263625a2da61bf1cd331b2d597386285aa5d3e5b45da5377"
+    },
+    "reconciliation_summary": {
+      "sameExactRows": true,
+      "oldSHA256": "5c92a0af5a37179e0b6a68942de50d9b0bc0c21e304e4daf840b6a7555f97eff",
+      "newSHA256": "5c92a0af5a37179e0b6a68942de50d9b0bc0c21e304e4daf840b6a7555f97eff"
+    },
+    "service_case_summary": {
+      "sameExactRows": true,
+      "oldSHA256": "54050fa9063e742e623188c6abf1c0c450c076e5621bf293c2423abcad365f0a",
+      "newSHA256": "54050fa9063e742e623188c6abf1c0c450c076e5621bf293c2423abcad365f0a"
+    },
+    "service_health_summary": {
+      "sameExactRows": true,
+      "oldSHA256": "06cf406e912eda031a00b3f61fa2f3cbe711d2764fa4cc55fd2e5e6b7ed17975",
+      "newSHA256": "06cf406e912eda031a00b3f61fa2f3cbe711d2764fa4cc55fd2e5e6b7ed17975"
+    },
+    "servicing_exception_summary": {
+      "sameExactRows": true,
+      "oldSHA256": "68afa07c193c3251ce427f848f94070add445c35dcef33066fb56c7eb6eae52b",
+      "newSHA256": "68afa07c193c3251ce427f848f94070add445c35dcef33066fb56c7eb6eae52b"
+    },
+    "training_completion_summary": {
+      "sameExactRows": true,
+      "oldSHA256": "dcb9101e4ca9058d776c5d314555fea600e6bc8c667adc753c6f86b515ac1237",
+      "newSHA256": "dcb9101e4ca9058d776c5d314555fea600e6bc8c667adc753c6f86b515ac1237"
+    },
+    "vendor_review_summary": {
+      "sameExactRows": true,
+      "oldSHA256": "38825301263bf0547b0e46b78deb592bf6d5d36d0ec7eab6363cace8d7e27ec4",
+      "newSHA256": "38825301263bf0547b0e46b78deb592bf6d5d36d0ec7eab6363cace8d7e27ec4"
+    }
+  },
+  "sourceUnchanged": true,
+  "modelCalls": 0,
+  "productionChanges": false,
+  "redaction": "Only the command executable's absolute workstation path was replaced with python; test output and source/row hashes are unchanged."
+}

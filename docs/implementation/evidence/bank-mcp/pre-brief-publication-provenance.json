@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "kind": "synthetic_stdio_walkthrough_publication_after_finance_discovery",
+  "rawReceiptSHA256": "48c11fa98d20bd4b8545e883dd4ef07f0a47e79f95f18fd524e1be5e139ee05d",
+  "publicationSHA256": "48c11fa98d20bd4b8545e883dd4ef07f0a47e79f95f18fd524e1be5e139ee05d",
+  "rawReceiptBytes": 45915,
+  "identicalBytes": true,
+  "scope": "Original synthetic fixture; officialSDKstdio; no bank/provider/production actions",
+  "sourceBindingIsByteIdentityNotAttestation": true,
+  "earlierNov16AndPreDiscoveryReceiptsRetainedUnchanged": true
+}

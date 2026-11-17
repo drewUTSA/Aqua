@@ -31,6 +31,14 @@ months/currencies are rejected rather than reconstructing historical loan or
 control statuses that were never recorded. Every report labels the source,
 as-of date, partial period, synthetic origin and lack of actual bank authentication.
 
+The report's `companion_brief` attaches its one canonical department procedure
+through the same independently checked report/object/tool scope. Fixture and
+guidance revisions plus the fixed as-of date are checked before projection.
+It repeats the exact definition and partial-period limits and offers three
+bounded human suggestions without tool arguments, approval or execution.
+These suggestions are contextual data, not new authority or current bank policy.
+The original aggregate rows and their numeric definitions remain unchanged.
+
 Historical GL facts are separately synthetic by construction:18 complete months
 from May2025 through October2026 plus explicitly partial November2026. These
 historical ledger records do not backfill the operational statuses. They are

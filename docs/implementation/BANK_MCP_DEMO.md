@@ -117,6 +117,14 @@ The finance tool's discovered schema couples each operation to its required
 closed parameter object, plain numeric-string bounds, USD/period constraints
 and a valid example; runtime validation remains independent.
 
+Each authorized report also includes a bounded `companion_brief`: its exact
+definition, partial-period caveats, one canonical cited fictional procedure and
+three inert human next-step suggestions. Report, department, fixture revision,
+guidance revision and fixed as-of date stay bound together. A missing grant or
+stale source cannot substitute another department's procedure. Suggestions carry
+no executable tool arguments; preparing an unapproved review draft remains a
+separate explicit request. No model, memory or additional MCP tool is involved.
+
 The18 complete fictional monthly GL points cover May2025–October2026. Partial
 November is excluded from fitting. The three metric IDs are
 `gl_operating_income`, `gl_operating_expense` and `gl_operating_surplus`; callers
@@ -175,13 +183,16 @@ recovery after denial, late-result denial and ready-confirmed child termination.
 A test-only awaitable gate exercises actual modern and legacy stdio cancellation,
 busy denial and admission recovery before the unchanged two-second deadline.
 The gate and its fixed admission notification are absent from production launch.
+Report-brief tests cover all17 source mappings and unchanged aggregate golds,
+scope/source denial, per-response isolation and actual modern/legacy frame caps.
 Tests use fictional values and no bank/model network calls. Dependency
 checks, formatting and the focused suite also run in an isolated CI environment.
-The complete local suite passed44 methods. A fresh official-SDK walkthrough
+The complete local suite passed57 methods. A fresh official-SDK walkthrough
 passed75 calls across all four personas, including17 reports,17 proposals,
 20 guidance entries, three trends, five calculators and six denials. The
 [synthetic receipt](evidence/bank-mcp/stdio-walkthrough-20261117.json),
-[byte-identical publication provenance](evidence/bank-mcp/publication-provenance.json)
+[byte-identical publication provenance](evidence/bank-mcp/publication-provenance.json),
+[retained suite output](evidence/bank-mcp/suite-20261117.json)
 and [local observation](evidence/bank-mcp/local-qualification-observation.json)
 state their exact scope. These are synthetic source checks, not production or
 bank qualification; current exact-head and separate main CI remain required.

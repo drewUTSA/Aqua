@@ -7,9 +7,10 @@ import re
 import unicodedata
 
 from eval.banking.data import encode, text
+from eval.banking.catalog import REPORTS
 from eval.banking.knowledge import SourceAuthority, project_knowledge
-from mcp_demo.data import AS_OF, AS_OF_EPOCH, DEMO_TENANT
-from mcp_demo.protocol import canonical, require, require_actor
+from mcp_demo.data import AS_OF, AS_OF_EPOCH, DEMO_TENANT, SOURCE_REVISION
+from mcp_demo.protocol import canonical, require, require_actor, require_tool
 
 
 @dataclass(frozen=True)
@@ -206,6 +207,28 @@ GUIDANCE_REVISION = hashlib.sha256(
     )
 ).hexdigest()
 
+# Workflow words support a known topic; they do not identify a department.
+WORKFLOW_WORDS = frozenset({"review", "due"})
+
+
+def _terms(value):
+    return tuple(
+        re.findall(r"[a-z0-9]+", unicodedata.normalize("NFKC", value).casefold())
+    )
+
+
+def _explicit_departments(terms):
+    result = set()
+    for report, department in REPORTS.items():
+        for identifier in (report, department):
+            phrase = _terms(identifier)
+            if any(
+                terms[index : index + len(phrase)] == phrase
+                for index in range(len(terms) - len(phrase) + 1)
+            ):
+                result.add(department)
+    return result
+
 
 def _project(entry, actor):
     raw = encode({"schemaVersion": 1, "text": entry.body})
@@ -254,6 +277,38 @@ def _project(entry, actor):
     }
 
 
+def procedure_for_report(
+    actor, report_id, *, source_revision, guidance_revision, as_of
+):
+    """One canonical cited procedure; caller prose cannot select source or scope."""
+    require_actor(actor)
+    require_tool(actor, "read_report")
+    require_tool(actor, "bank_policy")
+    require(
+        type(report_id) is str
+        and report_id in REPORTS
+        and report_id in actor.scope.report_ids
+        and REPORTS[report_id] in actor.scope.object_ids,
+        "demo_guidance_report_denied",
+    )
+    require(
+        type(source_revision) is str
+        and type(guidance_revision) is str
+        and type(as_of) is str
+        and source_revision == SOURCE_REVISION
+        and guidance_revision == GUIDANCE_REVISION
+        and as_of == AS_OF,
+        "demo_guidance_source_changed",
+    )
+    entries = [
+        entry
+        for entry in ENTRIES
+        if entry.kind == "bank_policy" and entry.department == REPORTS[report_id]
+    ]
+    require(len(entries) == 1, "demo_guidance_report_mapping")
+    return _project(entries[0], actor)
+
+
 def search(actor, query, limit=3):
     require_actor(actor)
     require(text(query, 8000) and len(query) <= 2000, "demo_guidance_query")
@@ -262,9 +317,8 @@ def search(actor, query, limit=3):
         bool(actor.scope.tool_ids & {"bank_policy", "public_education"}),
         "demo_guidance_denied",
     )
-    tokens = frozenset(
-        re.findall(r"[a-z0-9]+", unicodedata.normalize("NFKC", query).casefold())
-    )
+    terms = _terms(query)
+    tokens = frozenset(terms)
     require(len(tokens) <= 128, "demo_guidance_query_budget")
     years = {token for token in tokens if re.fullmatch(r"20[0-9]{2}", token)}
     if years - {"2025", "2026"}:
@@ -280,6 +334,9 @@ def search(actor, query, limit=3):
         return _abstain(
             "This demo has no real customer records or live bank policy. Would fictional workflow guidance or a general finance explanation help?"
         )
+    departments = _explicit_departments(terms)
+    if len(departments) > 1:
+        return _abstain("Which one demo department or report should I focus on first?")
     ranked = []
     for entry in ENTRIES:
         object_id = (
@@ -288,17 +345,20 @@ def search(actor, query, limit=3):
         if (
             entry.kind not in actor.scope.tool_ids
             or object_id not in actor.scope.object_ids
+            or departments
+            and entry.department not in departments
         ):
             continue
-        score = len(tokens & frozenset(entry.keywords))
-        if score:
-            ranked.append((score, entry.id, entry))
-    ranked.sort(key=lambda item: (-item[0], item[1]))
+        hits = tokens & frozenset(entry.keywords)
+        specific = len(hits - WORKFLOW_WORDS)
+        if specific:
+            ranked.append((specific, len(hits), entry.id, entry))
+    ranked.sort(key=lambda item: (-item[0], -item[1], item[2]))
     if not ranked:
         return _abstain(
             "Which authorized demo department or report are you working with? You can also ask about APR, ACH or Fedwire."
         )
-    if ranked[0][0] == 1 and sum(score == 1 for score, _, _ in ranked) > limit:
+    if sum(item[:2] == ranked[0][:2] for item in ranked) > limit:
         return _abstain(
             "Which department or report do you mean? A more specific subject will avoid choosing an unrelated fictional procedure."
         )
@@ -306,7 +366,7 @@ def search(actor, query, limit=3):
         "status": "matched",
         "method": "bounded_literal_keyword_lookup",
         "guidance_revision": GUIDANCE_REVISION,
-        "results": [_project(entry, actor) for _, _, entry in ranked[:limit]],
+        "results": [_project(entry, actor) for _, _, _, entry in ranked[:limit]],
         "data_only": True,
         "untrusted_context": True,
         "instruction_authority": False,

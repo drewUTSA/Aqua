@@ -8,6 +8,7 @@ import time
 from eval.banking.catalog import DEPARTMENTS, REPORTS
 from eval.banking.data import encode
 from eval.banking.reports import ReportArtifact, validate_artifact
+from mcp_demo import guidance
 from mcp_demo.data import (
     AS_OF,
     CURRENCY,
@@ -334,6 +335,67 @@ READERS = {
 }
 
 
+def _companion_brief(actor, report_id, period, currency):
+    _parameters(period, currency)
+    procedure = guidance.procedure_for_report(
+        actor,
+        report_id,
+        source_revision=SOURCE_REVISION,
+        guidance_revision=guidance.GUIDANCE_REVISION,
+        as_of=AS_OF,
+    )
+    result = {
+        "schemaVersion": 1,
+        "status": "context_only",
+        "report_id": report_id,
+        "department": REPORTS[report_id],
+        "source_revision": SOURCE_REVISION,
+        "source_version": SOURCE_VERSION,
+        "guidance_revision": guidance.GUIDANCE_REVISION,
+        "as_of": AS_OF,
+        "period": period,
+        "period_start": "2026-11-01",
+        "period_end": AS_OF,
+        "period_complete": False,
+        "currency": currency,
+        "freshness_basis": "fixed_demo_snapshot_not_live_bank_data_or_policy",
+        "metric_definition": DEFINITIONS[report_id],
+        "caveats": [
+            "All figures and procedures are original fictional demo material, not a real bank's records or approved policy.",
+            "November1–16,2026 is a partial snapshot; these operational figures do not describe a complete month.",
+            "Read the exact metric definition and cited procedure before interpreting a count, amount or review status.",
+        ],
+        "procedure": procedure,
+        "next_steps": [
+            {
+                "id": "inspect_definition_and_period",
+                "text": "Review the definition, partial period and source facts before interpreting these figures.",
+                "execution_enabled": False,
+            },
+            {
+                "id": "discuss_with_responsible_reviewer",
+                "text": "If the fictional facts need follow-up, discuss the cited procedure and relevant figures with the responsible human reviewer.",
+                "execution_enabled": False,
+            },
+            {
+                "id": "consider_separate_review_draft",
+                "text": "If you explicitly request it, separate draft preparation can produce an unapproved review proposal; this brief cannot approve or execute it.",
+                "requires_explicit_user_request": True,
+                "execution_enabled": False,
+            },
+        ],
+        "synthetic": True,
+        "data_only": True,
+        "instruction_authority": False,
+        "bank_authentication": False,
+        "approval_recorded": False,
+        "execution_enabled": False,
+        "model_calls": 0,
+    }
+    require(len(canonical(result)) <= 8192, "demo_brief_budget")
+    return result
+
+
 def run_report(actor, report_id, period=PERIOD, currency=CURRENCY):
     artifact = artifact_for(actor, report_id, int(time.time()), period, currency)
     rows = READERS[report_id]()
@@ -355,6 +417,7 @@ def run_report(actor, report_id, period=PERIOD, currency=CURRENCY):
         "row_count": len(rows),
         "data_only": True,
         "authorization_basis": "fixed_demo_persona_not_bank_authentication",
+        "companion_brief": _companion_brief(actor, report_id, period, currency),
     }
     if report_id == "reconciliation_summary":
         result["monthly_series"] = get_monthly_series(actor, "gl_operating_surplus")
