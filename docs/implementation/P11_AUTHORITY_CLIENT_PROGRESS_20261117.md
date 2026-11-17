@@ -64,6 +64,31 @@ tests execute models and synthetic modules, not the actual exporter, age pipelin
 native SQL restore, production authority or a full cutover. Required exact-head
 and distinct merged-main CI remain outstanding for this source increment.
 
+## Preserved browser failure and diagnostic follow-up
+
+Exact-head CI44122121498 at163bc1c failed one of15 jobs. Its Opal Plotly
+report passed all39 assertions, including all document CSP canaries and cleanup,
+but counted one runtime exception. The prior catch displayed the last successful
+CSP stage and discarded the real browser boundary category. No CSP failure or
+application bug cause has been established from that count-only evidence.
+
+The fixture now retains at most eight sanitized runtime records: fixed error
+class/source category/phase, approved asset hash and bounded line/column. It
+never records exception text, descriptions, stacks, URLs, tokens or remote IDs.
+Revocations can be correlated privately but never subtract from runtimeErrors.
+The report/stdout separate the actual whitelisted failure category from the
+legacy stage. All original CSP assertions, thresholds, timing and browser error
+failure rules remain unchanged; no application behavior or policy is relaxed.
+
+Root reviewed the integration and ran54 focused tests plus all687 frontend tests
+(0 failed/skipped,4.881seconds) after installing locked dependencies. An initial
+local full test invocation without those dependencies failed10 render test files
+with module-not-found and is not a passing result. Source/secret and whitespace
+checks passed. [Local source-bound summary](evidence/authority-client/runtime-diagnostics-local-20261117.json).
+A fresh exact-head CI run is required; earlier14/15 and pre-hardening all15 runs
+remain historical evidence. Local Windows Chrome transport research is separate
+from this committed fixture and cannot substitute for the actual CI browser run.
+
 ## Remaining release gates
 
 The unavailable Mac ignored operator/raw component proofs were not recovered.

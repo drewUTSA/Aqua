@@ -10,6 +10,7 @@ import { BrowserPipe } from "./p05-browser-pipe.mjs";
 import { browserFixtureMode, requireFixtureSchema, SECURE_ACCOUNT_ORIGIN, staticFixtureResponse } from "./p10b-browser-mode.mjs";
 import { documentPolicyHeaders, loadDocumentPolicies } from "./csp-policy.mjs";
 import { CSP_BINDING, CSP_OBSERVER_SOURCE, CSP_PROBE_PATH, CSP_PROBE_SOURCE, createCspDiagnostics, observeCspBinding } from "./csp-browser-probes.mjs";
+import { RuntimeDiagnostics } from "./runtime-diagnostics.mjs";
 
 export const LIMITS = Object.freeze({ milliseconds: 150000, requests: 250, api: 160, paused: 16, perSecond: 5, bodyBytes: 16384, fakeJobs: 12 });
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -34,7 +35,7 @@ export function setupDiagnostic(error, ctx) {
 
 export async function openP08Browser(options) {
   const { secureAccountFixture, personalDeletionFixture = false, cspEnforcedFixture = false } = browserFixtureMode(options);
-  const ctx = { started: performance.now(), stage: "configuration", results: [], screenshots: [], assets: [], external: 0, requests: 0, api: 0,
+  const ctx = { started: performance.now(), stage: "configuration", runtimePhase: "setup", results: [], screenshots: [], assets: [], external: 0, requests: 0, api: 0,
     errors: [], protocolDiagnostics: [], runtimeErrors: 0, consoleLeaks: 0, navigating: false, pending: 0, maximumPending: 0, secrets: new Set() };
   const policies = loadDocumentPolicies(), cspMode = cspEnforcedFixture ? "enforced-fixture" : "source";
   ctx.csp = createCspDiagnostics(cspMode, policies.sha256);
@@ -73,6 +74,7 @@ export async function openP08Browser(options) {
     if (!/^[a-z0-9-]{1,80}$/.test(name) || data.length > 8 * 1024 * 1024) throw Error("screenshot_bound");
     await writeFile(path.join(artifacts, name + ".png"), Buffer.from(data, "base64")); ctx.screenshots.push(name + ".png"); };
   ctx.close = async () => {
+    ctx.runtimePhase = "cleanup";
     clearTimeout(ctx.deadline);
     // Finish already-forwarded fixture responses before Browser.close. A close
     // racing Fetch.fulfillRequest is a protocol failure, not clean shutdown.
@@ -115,6 +117,7 @@ export async function openP08Browser(options) {
         ...(path.extname(key) === ".html" ? Object.fromEntries(documentPolicyHeaders(cspMode, policies).map(({ name, value }) => [name, value])) : {}) }); response.end(files.get(key)); });
     await new Promise((resolve) => ctx.server.listen(0, "127.0.0.1", resolve)); ctx.origin = `http://127.0.0.1:${ctx.server.address().port}`;
     }
+    ctx.runtimeDiagnostics = new RuntimeDiagnostics({ origin: ctx.origin, assets: ctx.assets, canarySha256: createHash("sha256").update(CSP_PROBE_SOURCE).digest("hex") });
     ctx.bridge = new FixtureBridge(executable, argv, ctx.origin); const ready = await ctx.bridge.ready;
     ctx.schemaVersion = requireFixtureSchema(ready.schema_version);
     if (ready.origin !== ctx.origin || ready.dataset_grants !== 0 || ready.network !== "none" || ready.workspace_analysis_fixture !== true || (ready.personal_deletion_fixture === true) !== personalDeletionFixture) throw Error("fixture_boundary_invalid");
@@ -152,7 +155,8 @@ export async function openP08Browser(options) {
       if (event.method === "Runtime.bindingCalled" && event.params.name === CSP_BINDING) {
         observeCspBinding(ctx.csp, event.params.payload); return;
       }
-      if (event.method === "Runtime.exceptionThrown") ctx.runtimeErrors++;
+      if (event.method === "Runtime.exceptionThrown") { ctx.runtimeErrors++; ctx.runtimeDiagnostics.observeThrown(event.params, ctx.runtimePhase); }
+      if (event.method === "Runtime.exceptionRevoked") ctx.runtimeDiagnostics.observeRevoked(event.params);
       if (event.method === "Runtime.consoleAPICalled" && [...ctx.secrets].some((secret) => JSON.stringify(event.params.args).includes(secret))) ctx.consoleLeaks++;
       if (event.method === "Network.loadingFailed" && event.params.canceled && aborted.size < LIMITS.requests) aborted.add(event.params.requestId);
       if (event.method !== "Fetch.requestPaused") return;
