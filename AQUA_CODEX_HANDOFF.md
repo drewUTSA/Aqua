@@ -1,3 +1,19 @@
+## November17 standalone synthetic MCP source
+
+The [local bank MCP demonstration](docs/implementation/BANK_MCP_DEMO.md) adds
+seven closed stdio tools over original fictional data, scoped operator-selected
+personas, cited guidance, deterministic calculations, historical trends and
+unapproved review proposals. The official pinned SDK owns protocol dispatch;
+the input boundary rejects ambiguous JSON and unsafe negotiation metadata.
+No real bank, identity provider, model provider or production database is
+connected. No tool can approve or execute an action.
+
+This separate source slice does not close the production P11 operator,
+recovery/authority retention, schema9 activation, device/provider or P12/P13
+gates. The previously rejected SQL adapter and automatic model selector stay
+disabled. See source-specific tests and current exact-head/main CI before
+presenting or integrating the demonstration into a release candidate.
+
 > **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](docs/implementation/PERSONAL_COMPUTER_RESUME_20261117.md).
 > Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
 

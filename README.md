@@ -5,9 +5,21 @@
 
 Ask a database a question in plain English. Get back data, a readable summary and the exact SQL that produced it.
 
-Current checkpoint: P00 through P10 are complete and live at
-`d242d2e` (PR #56, `Phase10 Identity`), private schema 7.
-P11 exports and deletion are under implementation and verification. The home page uses
+Current checkpoint, November17,2026: P00 through P10 are recorded complete;
+P11a exports are deployed on the separately verified production release
+`9aeaf4e`, private schema8. Original recovery and native component qualification
+advanced on the personal computer, while the final production operator,
+authority retention and schema9 activation remain open. P12 acceptance is
+partial and P13 remains NO-GO. Newer source is not a production deployment.
+
+The [synthetic bank MCP demonstration](docs/implementation/BANK_MCP_DEMO.md)
+provides local stdio tools for fictional reports, cited guidance, deterministic
+financial calculations, descriptive trends and inert review drafts. It connects
+to no actual bank; host-selected personas are demonstration scopes. No tool
+approves or executes an action. See the
+[original data definitions](docs/implementation/BANK_DEMO_DATA.md).
+
+The home page uses
 Projects/Recents, conditional New Chat, one bottom account menu and one composer
 model chooser. Answers share the page canvas and the composer compacts after
 the first question. Durable requests, cancellation, exact values, optional
@@ -34,8 +46,8 @@ gates, with 104 screenshots reviewed. Both PR/main CI passed all five jobs and
 authenticated encrypted backup and protected 30-day retention. Protected rows,
 environment, volumes and scheduler were preserved; live sign-in smoke passed.
 See [identity release evidence](docs/implementation/evidence/p10c/release.json).
-P11a exports are isolated preparation;
-P11 deletion and P12–P13 remain incomplete.
+The historical phase counts above apply to their recorded releases.
+P11 deletion activation and P12–P13 acceptance remain incomplete.
 The [approved phased specification](AQUA_CODEX_HANDOFF.md) governs the order.
 Verification: [check runner guide](tools/checks/README.md).
 

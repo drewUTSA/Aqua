@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "kind": "root_local_qualification_observation",
+  "observedUtc": "2026-11-17T14:38:22.432328+00:00",
+  "testCommand": "python -B -m unittest discover -s tools/bank_demo -p test_*.py",
+  "methods": 42,
+  "outcome": "passed",
+  "secondsReportedByUnittest": 15.133,
+  "suiteRawStdoutRetained": "tool history; not represented as an independently retained raw file",
+  "formatting": "Black14Pythonfiles passed",
+  "lint": "Ruff passed",
+  "pipCheck": "passed",
+  "dependencyAudit": "No known vulnerabilities in hashlockedMCP dependencies",
+  "stdioWalkthroughCalls": 75,
+  "stdioDeniedCalls": 6,
+  "stdioWalkthroughSeconds": 2.755198,
+  "stdioRawSHA256": "ce707aa4f33fe7daed41b99aa3eff5f26593c5de1bf8028b4b99a67d481d0cf6",
+  "sdk": "mcp2.3.0",
+  "modelOrProviderCalls": 0,
+  "productionChanged": false,
+  "bankAuthenticationQualified": false,
+  "humanApprovalOrExecutionImplemented": false
+}

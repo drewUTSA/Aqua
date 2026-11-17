@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "kind": "synthetic_stdio_walkthrough_and_suite_after_report_briefs",
+  "rawReceiptSHA256": "760d9984e5365462f82164f0e67431f1504e3f34063b964a85ecfc54890ad4bc",
+  "publicationSHA256": "760d9984e5365462f82164f0e67431f1504e3f34063b964a85ecfc54890ad4bc",
+  "rawReceiptBytes": 45924,
+  "identicalBytes": true,
+  "rawSuiteSHA256": "08682fac2c6ce7970ba5703ffebda40885aaf944f9067e9a6754d6952936d5f8",
+  "publishedSuiteSHA256": "370c58022cef3bdff2f4eb9cdce29bb833f2508bfdc9ced86e6e1b13d95be7fd",
+  "suiteRedaction": "Only the command executable's absolute workstation path was replaced with python; test output and source/row hashes are unchanged.",
+  "sourceBindingIsByteIdentityNotAttestation": true,
+  "earlierNov16PreDiscoveryAndPreBriefReceiptsRetainedUnchanged": true,
+  "scope": "Original fictional fixture, officialSDKstdio; no model/bank/production actions"
+}

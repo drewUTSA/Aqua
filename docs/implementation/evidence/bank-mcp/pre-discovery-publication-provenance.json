@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "kind": "synthetic_stdio_walkthrough_publication",
+  "rawReceiptSHA256": "ce707aa4f33fe7daed41b99aa3eff5f26593c5de1bf8028b4b99a67d481d0cf6",
+  "publicationSHA256": "ce707aa4f33fe7daed41b99aa3eff5f26593c5de1bf8028b4b99a67d481d0cf6",
+  "rawReceiptBytes": 45815,
+  "identicalBytes": true,
+  "scope": "Original synthetic fixture; officialSDKstdio; no bank/provider/production actions",
+  "sourceBindingIsByteIdentityNotAttestation": true,
+  "priorNov16ReceiptRetainedUnchanged": true
+}
