@@ -5,6 +5,17 @@ It authorizes no installation, production DDL, secret generation or upload.
 The source-integrated deletion feature remains off. Actual source-bound kernel,
 mount, backup and recovery evidence must replace every pending gate below.
 
+November16 continuation: [the personal-computer checkpoint](PERSONAL_COMPUTER_RESUME_20261116.md)
+records PR73's cleanup-reserve fix, passing15-job PR/main CI, actual installed
+normal/cancel qualification, and fresh schema8 backup/retention plus its exact
+36-table/eight-migration isolated restore. The same original backend resumed on
+schema8. Combined five-section disposable activation/CAS and all seven actual
+256 MiB metadata probes also passed. These close their stated scopes; final
+production-operator/profile refreeze, authority retention and guarded migration
+remain required. Historical PENDING
+profiles and earlier image/count bindings below must not be replayed as a release.
+Backup freshness must be re-established at the actual forward-migration ceremony.
+
 Read-only host metadata on 2026-11-05 found ext4 at the disposable QA directory,
 SSH UID/GID1000, no effective capabilities, Docker socket root:108 mode0660,
 and no host writes or Docker actions during that inspection. This shows a

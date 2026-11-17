@@ -4,10 +4,15 @@ Instructions for coding agents working in this repository. Read this file before
 
 November 16 personal-computer continuation: see
 `docs/implementation/PERSONAL_COMPUTER_RESUME_20261116.md` for the current
-PR 72/main CI checks (all 15 jobs each), verified existing recovery identity,
-historical encrypted 32-table restore and 40 portable application-integration
-checks. These do not close fresh production backup, authority retention or
-schema 9 release gates. The older local November 6 pause is historical.
+PR 73/main CI checks (all 15 jobs each), verified existing recovery identity,
+publisher cleanup-reserve fix and actual normal/cancel qualification. Fresh
+schema8 backup/authentication/retention and its isolated 36-table/eight-migration
+restore passed; the same original backend resumed healthy on schema8. The combined
+five-section disposable activation/CAS and seven-probe metadata gates also passed.
+Production-operator/profile refreeze, authority retention and guarded schema9
+activation remain required, including fresh backup at migration time. Historical
+32-table recovery and 40 portable app checks retain their separate scopes.
+The older local November6 pause is historical.
 
 Latest verified checkpoint: P00 through P10 are complete. P11a personal exports
 are deployed on private schema8 from PR57/main

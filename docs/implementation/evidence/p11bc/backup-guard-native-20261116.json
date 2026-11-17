@@ -1,0 +1,44 @@
+{
+  "all3_production_services_healthy": true,
+  "cleanup_seconds": 0.419,
+  "fresh_baseline_and_gate_required_before_backup": true,
+  "full_canonical_production_baseline_exactly_unchanged": true,
+  "independent_absence": {
+    "known_created_ids_absent": [
+      "4e0a37978c1f8777158a8e722192988fcae560f2fc4184e05bfe13d2d99562dc",
+      "4364d110eb3a20cf5be8379bb5c8baa9333e652fc1f1657def88d0c2b8db1eb5",
+      "ee7bc7d9367d301424273abb94889c2929f3b00bf5cec78ef7bbec17bbec58d1"
+    ],
+    "production_mutations": 0,
+    "run": "schema8-backup-qa-17ec40e044a96cda871647ae",
+    "run_labels_names_and_mount_consumers_absent": true,
+    "scanned_container_count": 16,
+    "socket_volume_absent": true,
+    "status": "passed",
+    "synthetic_QA_metadata_root_retained_owner_only": true
+  },
+  "native001_red_preserved": true,
+  "operator_sources": {
+    "guard_contract.py": "4770fa9e0699c5c4ae743ba0195fd05b461f0046c520b537d45699ccb7e55a2e",
+    "server_guard.py": "5018c1b8f0806712b791a4f54247e4788b08bbd0e38d2a11f8e4b101a9f789fe",
+    "server_ops.py": "b9178b5bf6ca9d9b137ce9ad80307f57f5d9918ab0fcbdcf53ce14cd9667ebcc"
+  },
+  "packet_sha256": "aae2c5693be82e12321f3a45044c71446fc9464b56913c137e6a8c6ffae2d492",
+  "production_guard_CLI_export_crypto_backup_retention_restore_qualified": false,
+  "production_mutations": 0,
+  "production_schema": 8,
+  "real_cases_passed": [
+    "actual_linux_flock_owner_and_contender",
+    "actual_pg_advisory_contender_denied",
+    "actual_pg_advisory_release_verified",
+    "actual_recovery_flock_serialization",
+    "actual_same_id_static_configuration_recovery",
+    "actual_shared_exclusive_both_orders_and_pg_reader",
+    "actual_watchdog_guard_process_loss_same_id_restore",
+    "actual_watchdog_monotonic_timeout_same_id_restore"
+  ],
+  "run": "schema8-backup-qa-17ec40e044a96cda871647ae",
+  "status": "passed_disposable_guard_body_scope",
+  "three_exact_created_ids_independently_absent": true,
+  "work_seconds": 30.841
+}

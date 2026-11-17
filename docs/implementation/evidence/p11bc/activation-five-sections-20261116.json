@@ -1,0 +1,159 @@
+{
+  "forced_deadline_for_each_filesystem_instruction_claimed": false,
+  "independent_absence_sha256": "b56b0a556ccde33e040c7cb27775bf2ced93254fc985d0160f992d0d7bc70d56",
+  "operational_cleanup_budget_seconds": 90,
+  "production_mutations": 0,
+  "production_reference_equal_after": true,
+  "pure_controls": 43,
+  "qualification": {
+    "accepted_data_recovery_qualified": false,
+    "app_role_authority_denied": true,
+    "cleanup": true,
+    "cleanup_evidence": {
+      "complete": true,
+      "containers_absent": true,
+      "private_root_absent": true,
+      "production_touched": false,
+      "publisher_distinct_IDs": 2,
+      "publisher_ids_absent": true,
+      "retired_backend_absent": true,
+      "socket_absent": true
+    },
+    "cleanup_shared_deadline_met": true,
+    "completed_sections": [
+      "shared_prepare_under_actual_keeper",
+      "initial_actual_recover_CLI",
+      "actual_four_lock_public_CAS",
+      "fresh_head_export_actual_recover_CLI",
+      "installed_publisher_normal_cancel"
+    ],
+    "controllers_exited": true,
+    "encrypted_retention_proven": false,
+    "existing_running_containers_unchanged": true,
+    "full_cutover_execute_qualified": false,
+    "genesis_only": true,
+    "image_id": "sha256:61034825653941c528a17bd66d3d0072c18b1a57d82377053d349d6204c7ef66",
+    "initial_archive": {
+      "bytes": 51200,
+      "dump_bytes": 39644,
+      "dump_sha256": "ee05d47666ac844cf22cf0048c30e896b894f4f55ec5f7e0cbcf0ab3f0257ee4",
+      "members": 5,
+      "sha256": "828703f5c8bdd8e8707f19a1c9cd8084decc4d78e5ddcfb02473c18fecb2062e"
+    },
+    "initial_profile_sha256": "17b345332d4a24bec3b432e8d92aee7a27ecdfb0d1f1142ab5c6453a7aac9df6",
+    "initial_recovery": {
+      "cron_resumed": false,
+      "events_verified": 0,
+      "mode": "retained_authority_app_only",
+      "pending_manifest": false,
+      "physical_mail_validation": "child_owner_mode_readonly_named_inode",
+      "protected_sha256": "ed772a9f1f2b70d5469b64bdd584fd7cae64592539d618a48662824e7f8e9f67",
+      "purge_batches": 0,
+      "ready": true,
+      "total_host_authority_restore_supported": false,
+      "total_host_restore_supported": false,
+      "writers_resumed": false
+    },
+    "installer_keeper_held": true,
+    "keeper_released_after_checks": true,
+    "phase": "installed_publisher_normal_cancel",
+    "production_mutations": 0,
+    "production_snapshot_256MiB_qualified": false,
+    "public_plan_lineage": {
+      "after_sha256": {
+        "export": "448d1eec01832b134a5fa347099deccdce2c8bfb4abd213207328f6738ae0c80",
+        "install": "d00394431943d7642f6d6e4a5b743d76342a5a409a2469e8dabc24543a17d955",
+        "plan": "709ee811bbf7fa2dc95f218be9392223e388c1a18212ded7f0d1d51ab5814cd6",
+        "recovery": "128a9c0502b9b15dc5f4dcefce18c9a71ec54034aa4619c8ffeb5432db8beee6"
+      },
+      "before_sha256": {
+        "export": "42462f6f96e76e1708acf06fc37aa992ee0b2c9a7ddf9e40350d8081ec05ffb5",
+        "install": "92ca52de9171e6504667b8cabfe100d738b4e04850569e2f49a8c7396727eae7",
+        "plan": "c0ae2eefadae291da562fad495e24d5d0ab87ac94f873cb5df37d484f96af36a",
+        "recovery": "17b345332d4a24bec3b432e8d92aee7a27ecdfb0d1f1142ab5c6453a7aac9df6"
+      },
+      "invariant_files": 36,
+      "invariant_map_sha256": "1b17fe0b3cef5127dc99cd1ebe8ce1f921d332f727c09633886878873eed1e8c",
+      "protected_checkpoint_unchanged": true,
+      "stopped_backend_replaced": true
+    },
+    "publisher": {
+      "cases": {
+        "cancel": {
+          "active_guard_released": true,
+          "actual_singleton_EX_observed": true,
+          "exact_ID_and_name_absent": true,
+          "handlers_restored": true,
+          "peer_exit_code": 1,
+          "running_owned_container_observed": true,
+          "same_append_only_genesis_checkpoint": true,
+          "same_singleton_inode_reacquired_EX": true,
+          "signal_deliveries": 2,
+          "status": "unavailable"
+        },
+        "normal": {
+          "active_guard_released": true,
+          "actual_singleton_EX_observed": true,
+          "exact_ID_and_name_absent": true,
+          "handlers_restored": true,
+          "peer_exit_code": 0,
+          "running_owned_container_observed": true,
+          "same_append_only_genesis_checkpoint": true,
+          "same_singleton_inode_reacquired_EX": true,
+          "signal_deliveries": 0,
+          "status": "checked"
+        }
+      },
+      "factory_substitutions": false,
+      "genesis_only": true,
+      "main_CLI_qualified": false,
+      "mode": "actual_scoped_execute_real_SQL_crypto_APPENDING_and_container_lifecycle",
+      "profile_sha256": "47174dda254836095656e3dc4344ebc18df8801ba13d6c49d1d7fbaeafda1f1a",
+      "source_pins": {
+        "installed_publisher.py": "38888b5a820808a0fa2811e7fa1be004c9721a9e07bf6542caa0fee6422465b1",
+        "maintenance.py": "4676bfec9b86766a0fa210cefcce63f1806e2726f19389ee76b461ed7a135aae",
+        "operator_files.py": "610c3149bb3fabd6569222cd4c949328603645bf3f39a38930fb17ff4cc82fd5",
+        "operator_scope.py": "f6064b65a190dd87769b2878b4b43bed598d3c99dd0bfa8f4b799e13ad6d5d2d",
+        "publisher_launcher.py": "37452a4aee1a63ec1f2cce9fcae8be3de2b6d015ef2d0e824e4dfe4ab6b8fe66"
+      }
+    },
+    "recurrence_archive": {
+      "bytes": 51200,
+      "dump_bytes": 39644,
+      "dump_sha256": "ced871f002d2cf540413638052ec6f4f7ccc163de1a4ce347acecf5a75d1c795",
+      "members": 5,
+      "sha256": "8437164729df5e816b2343e2c6787b2054defdd92d08a734de592c5bf52c669b"
+    },
+    "recurrence_recovery": {
+      "cron_resumed": false,
+      "events_verified": 0,
+      "mode": "retained_authority_app_only",
+      "pending_manifest": false,
+      "physical_mail_validation": "child_owner_mode_readonly_named_inode",
+      "protected_sha256": "ed772a9f1f2b70d5469b64bdd584fd7cae64592539d618a48662824e7f8e9f67",
+      "purge_batches": 0,
+      "ready": true,
+      "total_host_authority_restore_supported": false,
+      "total_host_restore_supported": false,
+      "writers_resumed": false
+    },
+    "run": "aqua-retirement-host-1a957ffa91b271ce5ec3c690",
+    "source_sha256": "b33e4fa7fed9a1cea5cc08eadfa870b6fca89bd14c55272b22cfa369d86f98df",
+    "status": "passed",
+    "total_host_restore_proven": false,
+    "wrong_password_rejected": true
+  },
+  "run": "aqua-retirement-host-1a957ffa91b271ce5ec3c690",
+  "scope_exclusions": [
+    "production cutover",
+    "main publisher CLI",
+    "accepted-data recovery",
+    "encrypted authority retention",
+    "total-host restore",
+    "256MiB production payload snapshot"
+  ],
+  "source_sha256": "b33e4fa7fed9a1cea5cc08eadfa870b6fca89bd14c55272b22cfa369d86f98df",
+  "status": "passed_ROOT_reviewed_scoped_full_five",
+  "transport_controls": 17,
+  "transport_receipt_sha256": "64f1d971bb605a161bf4ff6e61b093e1b378f0433584473756b241dd61424ba7"
+}

@@ -3,12 +3,17 @@
 ## Personal-computer continuation, November 16
 
 Read [the fresh personal-computer checkpoint](PERSONAL_COMPUTER_RESUME_20261116.md)
-before replaying historical commands below. Current PR 72 and distinct merged-main
+before replaying historical commands below. PR 73 and distinct merged-main
 CI each passed all 15 jobs. The existing recovery key and private independent Drive
 copy were found and verified through a fresh challenge and an isolated 32-table
 historical schema 7 restore. The portable candidate passed 40 real application
-checks. Fresh current production backup/restore, authority retention and schema 9
-activation remain separate gates.
+checks. The publisher cleanup-reserve fix and actual installed normal/cancel
+qualification passed. Fresh schema8 backup/authentication/retention and its exact
+36-table/eight-migration isolated restore also passed; the original backend resumed
+healthy. Combined five-section disposable activation/CAS and all seven 256 MiB
+metadata probes also passed. Final production-operator/profile refreeze, authority
+retention and guarded schema9 activation remain open. Recheck backup freshness
+at forward migration; this completed drill is not production activation.
 
 ## Resume instruction from Ben
 
@@ -150,7 +155,7 @@ reviewed age/authority recovery workflow.
 
 ## Required before the schema9 production cutover
 
-1. Refresh the exact PR head and its complete nine-job CI result, merge only
+1. Refresh the exact PR head and its complete current 15-job CI result, merge only
    after required checks pass, and require a distinct passing merged-main run.
    Preserve reviewable phase boundaries and current work in other checkouts.
 2. Freeze the exact backend/frontend images, complete source and dependency

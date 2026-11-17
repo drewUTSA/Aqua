@@ -1,0 +1,50 @@
+{
+  "CI": {
+    "merged_main": {
+      "event": "push",
+      "head_sha": "57be797b658294b11e2a8b40472c9c6b1e786fbd",
+      "jobs": {
+        "Account security (legacy)": "success",
+        "Account security (opal)": "success",
+        "Browser sessions (chromium, legacy)": "success",
+        "Browser sessions (chromium, opal)": "success",
+        "Browser sessions (firefox, legacy)": "success",
+        "Browser sessions (firefox, opal)": "success",
+        "Browser sessions (webkit-iphone, legacy)": "success",
+        "Browser sessions (webkit-iphone, opal)": "success",
+        "Identity actions (legacy)": "success",
+        "Identity actions (opal)": "success",
+        "Personal deletions (legacy)": "success",
+        "Personal deletions (opal)": "success",
+        "Personal exports (legacy)": "success",
+        "Personal exports (opal)": "success",
+        "checks": "success"
+      },
+      "url": "https://github.com/drewUTSA/Aqua/actions/runs/43997237424"
+    },
+    "pull_request": {
+      "event": "pull_request",
+      "head_sha": "3853439d71d1a63d316c565378273f3ba3921cf1",
+      "jobs": {
+        "Account security (legacy)": "success",
+        "Account security (opal)": "success",
+        "Browser sessions (chromium, legacy)": "success",
+        "Browser sessions (chromium, opal)": "success",
+        "Browser sessions (firefox, legacy)": "success",
+        "Browser sessions (firefox, opal)": "success",
+        "Browser sessions (webkit-iphone, legacy)": "success",
+        "Browser sessions (webkit-iphone, opal)": "success",
+        "Identity actions (legacy)": "success",
+        "Identity actions (opal)": "success",
+        "Personal deletions (legacy)": "success",
+        "Personal deletions (opal)": "success",
+        "Personal exports (legacy)": "success",
+        "Personal exports (opal)": "success",
+        "checks": "success"
+      },
+      "url": "https://github.com/drewUTSA/Aqua/actions/runs/43994504506"
+    }
+  },
+  "PR": 73,
+  "status": "passed"
+}
