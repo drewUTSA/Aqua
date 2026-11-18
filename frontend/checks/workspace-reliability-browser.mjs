@@ -149,6 +149,12 @@ export async function publicRouteWalkthrough(ctx, selectFixtureAccount) {
       await ctx.evaluate("document.fonts.ready.then(()=>true)");
       await ctx.check("The route renders its expected visible main heading and content", `Boolean(${heading})&&document.body.innerText.includes(${JSON.stringify(route.content)})`);
       await ctx.check("The route has no horizontal page overflow", "document.documentElement.scrollWidth<=innerWidth+1");
+      if (route.path === "/privacy") {
+        const disclosures = ["Saving a note does not send it to a model", "Copies you already sent remain in chat history",
+          "only its identifier, revision number and unavailable status", "keeping your account, projects, saved prompts, saved notes",
+          "including notes you can no longer read"];
+        await ctx.check("The privacy policy explains saved-note storage, export and deletion", `${JSON.stringify(disclosures)}.every(text=>document.querySelector('.legal-page__content').innerText.includes(text))`);
+      }
       const navigation = route.path === "/" ? "button[aria-label=\"Open navigation\"],.desktop-sidebar [aria-label=\"Account menu\"]"
         : route.path === "/settings" || route.path.startsWith("/account-action/") ? "button"
           : route.path === "/privacy" || route.path === "/terms" ? ".legal-page__nav a" : ".auth-card a[href]";

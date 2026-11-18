@@ -68,6 +68,8 @@ test('export dialog starts with a scope review and cannot silently verify, queue
   assert.match(html, /data-export-dialog-phase="review"/);
   assert.match(html, /Continue to verification/);
   assert.match(html, /temporary export expires one hour/);
+  assert.match(html, /label and text of notes your current dataset access lets you read/);
+  assert.match(html, /For an unavailable note, you get only its identifier, revision number and unavailable status/);
   assert.doesNotMatch(html, /<input|data-create-private-export|data-account-start-google|data-save-private-export|proof_token|synthetic-csrf/);
   assert.equal(fetch.mock.calls.length, 0);
 });
