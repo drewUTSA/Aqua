@@ -1,7 +1,7 @@
 """Current243 image profile; original historical receipts remain unchanged."""
 
-IMAGE = "sha256:328b2691bc749306db1af748d220d471804f937fb2ac4da2ce456782795fddef"
-MANIFEST_SHA256 = "0a6ffc543224a3c08e3058038423dc6539d3fe87dbeb7d7c2aa98b4715ba516b"
+IMAGE = "sha256:76ef9f85d9fd5c51a0c176aa8ad382c9ed7074cd713a1e2f8c95aa1c8bc124c6"
+MANIFEST_SHA256 = "8d11a02e8db16c112e237b2a51f9463b7957c3ab21a299ff4171d3be5525e3b9"
 RUNTIME_FILES = {
     "account/__init__.py": "4d300929fcb6d0c0e3a6b92377bfd4648fc336a8ad2bfb3e962d810b3b6f55e0",
     "account/action_contracts.py": "be3becba0a54378a847efdaa76cc833e3b780df3658c90d30f86a7852232a397",
@@ -130,7 +130,7 @@ RUNTIME_FILES = {
     "migrations/0009_retirement_deletion.sql": "ea1163a4370b4ff473c2f2e5189267aedf987f4d8c3e5d65c0f24723735d8e13",
     "migrations/0010_context_notes.sql": "205341c472e10a90b48c3d643d5e7d3e88f02243413a1b374e91942a3638ae2d",
     "nl2sql/__init__.py": "4f781130931c9ed80e1958ed3c364b463d80f339de2cb74da5f41d6e896f18c4",
-    "nl2sql/answer_size.py": "24f4f081d501c1f5949d44d0fc9a11376618b08ccaa17312c589d89c079e5370",
+    "nl2sql/answer_size.py": "b40764c269efe38bbfa5b29055a44dfe8256b69857668326e318b30382530962",
     "nl2sql/auth_config.py": "e1fa79d22e8686363b7680ca744ec8462877ee51d10b6a2958f9366a88ef22c2",
     "nl2sql/cache.py": "f84d18202ec49c74cf5b369d16930aad6a333025624e7d0910eda8273d3c9dc3",
     "nl2sql/cache_scope.py": "611faa3737bb641379b93079760b452d2f9b7165b992494d8b6a7107e72db2a3",
