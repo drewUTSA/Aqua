@@ -57,7 +57,7 @@ _NUMBER = r"(\d{1,4}|" + "|".join(sorted(_NUMBER_WORDS, key=len, reverse=True)) 
 _RANKING = (
     r"most|least|top|best|worst|highest|lowest|largest|smallest|biggest|"
     r"cheapest|priciest|longest|shortest|newest|oldest|latest|earliest|"
-    r"fewest|greatest|bottom|\w+iest"
+    r"fewest|greatest|fastest|slowest|bottom|\w+iest"
 )
 _RANKING_WORD = re.compile(rf"\b({_RANKING})\b")
 
@@ -67,6 +67,7 @@ _EXTREME_PAIRS = (
     ("lowest", "highest"),
     ("smallest", "largest"),
     ("shortest", "longest"),
+    ("slowest", "fastest"),
     ("earliest", "latest"),
     ("oldest", "newest"),
     ("cheapest", "priciest"),
@@ -105,6 +106,7 @@ _COUNT_PATTERNS = [
     ),
 ]
 _ALL = re.compile(r"\b(?:all|every)\b")
+_TIED_PEERS = re.compile(r"\b(?:all|every)\s+(?:of\s+the\s+|the\s+)?(?:ties?\b|tied\b)")
 # "list customers by total spend", "show films ranked by rentals": a ranked
 # list without a ranking word. The measure must follow "by", so a grouping
 # like "rentals by store" is not mistaken for a ranking.
@@ -175,6 +177,20 @@ _NOT_PLURAL = {
     "as",
 }
 
+_OUTPUT_FIELDS = (
+    "When the question specifies output fields, return only those fields in the "
+    "requested order. Keep any unrequested sorting or rank helper fields internal."
+)
+
+
+def _global_cutoff(rows: int | None) -> str:
+    return (
+        f"For a hard limit, apply requested tie-breaks before LIMIT {rows}. "
+        "If including all ties at the cutoff is requested, use RANK() on the ranking "
+        f"value alone and keep ranks up to {rows}. When keeping ties, apply "
+        "secondary display order after selection."
+    )
+
 
 @dataclass(frozen=True)
 class AnswerSize:
@@ -194,18 +210,18 @@ class AnswerSize:
         """The line added to the prompt, or None for "open"."""
         if self.kind == "count":
             return (
-                f"Answer size: return exactly {self.rows} rows. If the question "
-                "ranks by a value, order by it and include it as a column, then "
-                f"add LIMIT {self.rows}."
+                f"Answer size: normally return exactly {self.rows} rows. If ranked, order by "
+                "the requested value and include the ranking value by default. "
+                f"{_global_cutoff(self.rows)} {_OUTPUT_FIELDS}"
             )
         if self.kind == "list":
             return (
                 "Answer size: the question asks for several results without a "
                 f"number. Return the top {self.rows}: order by the value the "
-                "question ranks by, from highest to lowest (lowest first only "
-                "when it asks for the least, fewest, cheapest or lowest), "
-                f"include that value as a column, and add LIMIT {self.rows}. "
-                "Never answer with a single row."
+                "question ranks by, from highest to lowest when larger values "
+                "rank higher (lowest first only when smaller values rank higher), "
+                f"and include the ranking value by default. {_global_cutoff(self.rows)} "
+                f"{_OUTPUT_FIELDS}"
             )
         if self.kind == "single":
             return (
@@ -213,9 +229,11 @@ class AnswerSize:
                 "asks for the value itself (the highest price, the smallest "
                 "amount), return that value with MAX or MIN. If it asks which "
                 "rows reach it (which film, who), several may tie for first "
-                "place, so return every tied row: rank with RANK() OVER (ORDER BY "
-                "the value) in a WITH clause or subquery, keep rank 1, and "
-                "include the value as a column. Do not use LIMIT 1."
+                "place. By default return every tied row: rank with RANK() OVER "
+                "(ORDER BY the value) and keep rank 1. Do not use LIMIT 1 to discard "
+                "a requested tie. If the question chooses one winner by a tie-break, "
+                "apply that ordering when selecting the winner. Include the ranking "
+                f"value by default. {_OUTPUT_FIELDS}"
             )
         if self.kind == "per_group":
             keep = (
@@ -224,10 +242,14 @@ class AnswerSize:
                 else f"ranks 1 to {self.rows}"
             )
             return (
-                "Answer size: the question ranks within each group. Use RANK() "
-                "OVER (PARTITION BY the group ORDER BY the value the question "
-                f"ranks by) in a WITH clause or subquery, keep {keep} in every "
-                "group, and include the group and the value as columns."
+                "Answer size: rank within each group. Use RANK() OVER (PARTITION BY "
+                f"the group ORDER BY the ranking value) and keep {keep}. For all ties "
+                "at the cutoff, keep peers tied on the ranking value and apply any "
+                "secondary display order after selection. When the question instead sets "
+                "a strict row cap or a tie-break choosing winners, use ROW_NUMBER(), ordering by the "
+                "ranking value then any specified tie-break fields and directions. Keep "
+                f"row numbers up to {self.rows} per group. Include the group and ranking "
+                f"value by default. {_OUTPUT_FIELDS}"
             )
         if self.kind == "all":
             return "Answer size: the question asks for all matching rows; do not add a LIMIT."
@@ -354,7 +376,7 @@ def answer_size(question: str) -> AnswerSize:
         return AnswerSize("count", count)
     if extremes and ranking is None:
         return AnswerSize("extremes")
-    if _ALL.search(text):
+    if _ALL.search(_TIED_PEERS.sub(" ", text)):
         return AnswerSize("all")
     if ranking is None:
         if ordered:
@@ -363,7 +385,7 @@ def answer_size(question: str) -> AnswerSize:
             return AnswerSize("all")
         if _RANKED_BY.search(text):
             return AnswerSize("list", DEFAULT_LIST_ROWS)
-        return AnswerSize("open")
+        return AnswerSize("all" if _ALL.search(text) else "open")
     if _wants_one(text, ranking):
         return AnswerSize("single")
     return AnswerSize("list", DEFAULT_LIST_ROWS)

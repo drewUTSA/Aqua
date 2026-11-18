@@ -266,3 +266,90 @@ def test_terminal_each_in_selection_and_projection(
     question: str, expected: AnswerSize
 ) -> None:
     assert answer_size(question) == expected
+
+
+@pytest.mark.parametrize(
+    "question",
+    [
+        "Show only the nicknames of the five largest fictional warehouses by volume.",
+        "List the busiest depots, names only.",
+        "Which courier has the highest score? Return only the courier ID.",
+        "For each route show the two fastest couriers. Output surname, then ID.",
+    ],
+)
+def test_rank_uses_sort_fields_without_forcing_them_into_explicit_output(question):
+    instruction = answer_size(question).instruction
+    assert instruction and "only those fields in the requested order" in instruction
+    assert "by default" in instruction and "ranking value" in instruction
+
+
+def test_strict_count_per_group_uses_ordered_row_numbers():
+    question = (
+        "For each service tier show exactly the top three counters by activity. "
+        "Break ties by counter ID in ascending order."
+    )
+    instruction = answer_size(question).instruction
+    assert instruction and "ROW_NUMBER()" in instruction
+    assert "specified tie-break fields and directions" in instruction
+    assert "row numbers up to 3" in instruction
+    assert "helper" in instruction
+
+
+def test_secondary_display_order_does_not_break_explicit_ties_at_cutoff():
+    question = (
+        "Give the top three couriers per route, including all ties by speed. "
+        "Within each tie display courier IDs in ascending order."
+    )
+    instruction = answer_size(question).instruction
+    assert instruction and "RANK()" in instruction
+    assert "all ties" in instruction and "after selection" in instruction
+
+
+def test_global_count_preserves_explicit_cutoff_ties():
+    question = "Show the top four research stations by snowfall, including all ties at the cutoff."
+    instruction = answer_size(question).instruction
+    assert instruction and "including all ties" in instruction
+    assert "RANK()" in instruction and "LIMIT 4" in instruction
+
+
+@pytest.mark.parametrize(
+    ("question", "kind", "rows"),
+    [
+        ("List the busiest depots, including all ties at the cutoff.", "list", 10),
+        ("Show the top four depots, including all ties.", "count", 4),
+        ("Rank depots by total shipments. Include every tied entry.", "list", 10),
+        ("Give the five busiest depots. Break ties by depot ID.", "count", 5),
+    ],
+)
+def test_global_limit_and_tie_inclusive_ordering_are_separate(question, kind, rows):
+    size = answer_size(question)
+    assert size == AnswerSize(kind, rows)
+    assert f"tie-breaks before LIMIT {rows}" in size.instruction
+    assert (
+        "When keeping ties, apply secondary display order after selection"
+        in size.instruction
+    )
+    assert (
+        f"RANK() on the ranking value alone and keep ranks up to {rows}"
+        in size.instruction
+    )
+
+
+def test_all_records_is_distinct_from_all_peers_at_a_cutoff():
+    assert answer_size(
+        "Show all depots ranked by volume, including all ties."
+    ) == AnswerSize("all")
+    assert answer_size("Show every tied entry.") == AnswerSize("all")
+
+
+@pytest.mark.parametrize(
+    ("question", "expected"),
+    [
+        ("Show the two slowest riders in each race.", AnswerSize("per_group", 2)),
+        ("Sort all entries fastest to slowest.", AnswerSize("all")),
+        ("List couriers by travel time, fastest first.", AnswerSize("all")),
+        ("Give the fastest and slowest travel times.", AnswerSize("extremes")),
+    ],
+)
+def test_speed_ranking_and_display_order(question, expected):
+    assert answer_size(question) == expected
