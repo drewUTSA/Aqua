@@ -2,6 +2,8 @@
 // live URL, provider, grant or budget is created/changed by importing this file.
 // Run chunk cases in fresh contexts, before opening that lazy view. A failed
 // React.lazy import stays failed for that page; recovery returns to working UI.
+import { pageDescription } from "../src/services/routes.js";
+
 export const RELIABILITY_JOURNEYS = Object.freeze(["optional-settings", "optional-prompts", "projects-initial-failure", "prompts-initial-failure", "settings-search", "composer-layout", "public-routes"]);
 export const PUBLIC_ROUTE_CASES = Object.freeze([
   { path: "/", name: "workspace", heading: "What would you like to explore?", content: "Ask about your data.", account: true },
@@ -148,7 +150,17 @@ export async function publicRouteWalkthrough(ctx, selectFixtureAccount) {
       await ctx.waitFor("!document.querySelector('.auth-google[aria-busy=true]')&&!document.querySelector('[data-testid=password-auth-submit]:disabled')", "public_route_initial_reads_settled");
       await ctx.evaluate("document.fonts.ready.then(()=>true)");
       await ctx.check("The route renders its expected visible main heading and content", `Boolean(${heading})&&document.body.innerText.includes(${JSON.stringify(route.content)})`);
+      const title = route.path === "/" ? "AQUA | Your data, clearly" : route.path === "/settings" ? "Appearance settings | AQUA"
+        : route.path.startsWith("/account-action/") ? "Review your account change | AQUA" : `${route.heading} | AQUA`;
+      await ctx.check("The public route or private screen has its expected neutral metadata",
+        `document.title===${JSON.stringify(title)}&&document.querySelector('meta[name="description"]').content===${JSON.stringify(pageDescription(route.path))}`);
       await ctx.check("The route has no horizontal page overflow", "document.documentElement.scrollWidth<=innerWidth+1");
+      if (route.path === "/privacy") {
+        const disclosures = ["Saving a note does not send it to a model", "Copies you already sent remain in chat history",
+          "only its identifier, revision number and unavailable status", "keeping your account, projects, saved prompts, saved notes",
+          "including notes you can no longer read"];
+        await ctx.check("The privacy policy explains saved-note storage, export and deletion", `${JSON.stringify(disclosures)}.every(text=>document.querySelector('.legal-page__content').innerText.includes(text))`);
+      }
       const navigation = route.path === "/" ? "button[aria-label=\"Open navigation\"],.desktop-sidebar [aria-label=\"Account menu\"]"
         : route.path === "/settings" || route.path.startsWith("/account-action/") ? "button"
           : route.path === "/privacy" || route.path === "/terms" ? ".legal-page__nav a" : ".auth-card a[href]";
@@ -166,8 +178,26 @@ export async function publicRouteWalkthrough(ctx, selectFixtureAccount) {
         await ctx.evaluate("(()=>{const el=document.querySelector('.legal-page__content>p a[href=\"/privacy\"]');if(!el)throw Error();el.scrollIntoView({block:'center'});el.click();return true})()");
         await ctx.waitFor("location.pathname==='/privacy'&&document.querySelector('#legal-heading')?.textContent==='Privacy Policy'", "policy_switch_completed");
         await ctx.check("Switching policy pages makes the new heading visible", "(()=>{const r=document.querySelector('#legal-heading').getBoundingClientRect();return r.top>=0&&r.bottom<=innerHeight+1})()");
+        await ctx.check("In-page navigation replaces the policy description", `document.querySelector('meta[name="description"]').content===${JSON.stringify(pageDescription("/privacy"))}`);
+        selectFixtureAccount(true);
+        await ctx.click('.legal-page__nav a[href="/"]');
+        await ctx.waitFor("location.pathname==='/'&&Boolean(document.querySelector('.opal-workspace:not([hidden])'))", "policy_workspace_return");
+        await ctx.check("Returning to the workspace replaces the public title and description",
+          `document.title==='AQUA | Your data, clearly'&&document.querySelector('meta[name="description"]').content===${JSON.stringify(pageDescription("/"))}`);
+        await ctx.evaluate("window.dispatchEvent(new Event('offline'));true");
+        await ctx.waitFor("document.title==='Account access unavailable | AQUA'", "metadata_workspace_locked");
+        await ctx.check("Locking the session on the same workspace route keeps its description neutral",
+          `location.pathname==='/'&&document.querySelector('meta[name="description"]').content===${JSON.stringify(pageDescription("/"))}`);
       }
     }
   }
+  selectFixtureAccount(false);
+  await ctx.navigate("/unknown-fixture-route?example=synthetic#synthetic");
+  await ctx.check("An unknown client route clears address data and shows generic metadata",
+    `!location.search&&!location.hash&&document.title==='Page not found | AQUA'&&document.querySelector('meta[name="description"]').content===${JSON.stringify(pageDescription("/not-found"))}`);
+  await ctx.evaluate("document.querySelector('meta[name=description]').remove();true");
+  await ctx.clickText("Back to AQUA");
+  await ctx.waitFor("location.pathname==='/signin'&&document.title==='Welcome back | AQUA'", "metadata_missing_head_return");
+  await ctx.check("A missing description tag does not interrupt sign-in navigation", "Boolean(document.querySelector('#auth-email'))");
   return inventory;
 }
