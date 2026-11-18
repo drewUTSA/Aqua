@@ -5,6 +5,7 @@ this CLI only writes beneath an already validated fresh QA fixture root.
 """
 
 import argparse
+import ast
 import hashlib
 import io
 import json
@@ -151,12 +152,100 @@ def full_source(root: Path) -> bytes:
     return output.getvalue()
 
 
+def check_schema_transition(
+    raw: bytes, source_sha256: str, image: str, before: int, after: int
+) -> dict:
+    """Compare a proposed schema-8 upgrade to the qualified image's source pins."""
+    from retirement_normal_image import IMAGE, RUNTIME_FILES
+
+    if image != IMAGE:
+        raise ValueError("retirement_schema_image_profile_mismatch")
+    cache = checked_archive(raw, source_sha256)
+    sql_files = {
+        name.removeprefix("backend/")
+        for name in cache
+        if PurePosixPath(name).parent == PurePosixPath("backend/migrations")
+        and name.endswith(".sql")
+    }
+    expected = {name for name in RUNTIME_FILES if name.startswith("migrations/")}
+    if sql_files != expected:
+        raise ValueError("retirement_schema_migration_inventory_mismatch")
+    for name in expected | {"storage/migrate.py", "storage/pool.py"}:
+        content = cache.get("backend/" + name)
+        if (
+            content is None
+            or hashlib.sha256(content).hexdigest() != RUNTIME_FILES[name]
+        ):
+            raise ValueError("retirement_schema_image_source_mismatch")
+
+    # Read the checked runtime declaration without importing staged code.
+    assignments = [
+        node.value.value
+        for node in ast.parse(cache["backend/storage/pool.py"]).body
+        if isinstance(node, ast.Assign)
+        and any(
+            isinstance(t, ast.Name) and t.id == "SCHEMA_VERSION" for t in node.targets
+        )
+        and isinstance(node.value, ast.Constant)
+    ]
+    files = sorted(sql_files)
+    if assignments != [10] or [
+        PurePosixPath(name).name.split("_", 1)[0] for name in files
+    ] != [f"{v:04d}" for v in range(1, 11)]:
+        raise ValueError("retirement_schema_runtime_lineage_mismatch")
+    if (
+        type(before) is not int
+        or type(after) is not int
+        or before != 8
+        or after != assignments[0]
+    ):
+        raise ValueError("retirement_schema_plan_requires_8_to_10")
+    return {
+        "status": "source_schema_compatible",
+        "declared_schema_before": before,
+        "runtime_schema_required": after,
+        "profiled_backend_image": image,
+        "source_sha256": source_sha256,
+        "migrations_to_apply": {name: RUNTIME_FILES[name] for name in files[before:]},
+        "release_eligible": False,
+    }
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--prepare-stage", action="store_true")
+    modes = parser.add_mutually_exclusive_group()
+    modes.add_argument("--prepare-stage", action="store_true")
+    modes.add_argument(
+        "--check-schema-transition",
+        nargs=2,
+        type=int,
+        metavar=("FROM", "TO"),
+        help="compare the plan's declared schemas with the pinned public runtime source",
+    )
+    parser.add_argument(
+        "--backend-image", help="planned image digest for the offline schema check"
+    )
     parser.add_argument("--qa-run")
     parser.add_argument("--source-sha256")
     args = parser.parse_args()
+    if args.check_schema_transition:
+        if not args.source_sha256 or not args.backend_image or args.qa_run:
+            parser.error(
+                "schema check requires --source-sha256 and --backend-image without --qa-run"
+            )
+        try:
+            plan = check_schema_transition(
+                full_source(ROOT),
+                args.source_sha256,
+                args.backend_image,
+                *args.check_schema_transition,
+            )
+        except (ValueError, RuntimeError) as error:
+            parser.error(str(error))
+        print(json.dumps(plan, sort_keys=True))
+        return
+    if args.backend_image:
+        parser.error("--backend-image applies only to --check-schema-transition")
     if not args.prepare_stage:
         print(
             json.dumps(

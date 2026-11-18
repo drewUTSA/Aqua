@@ -1,10 +1,14 @@
 """Source/lock coherence for the separately qualified native runtime profile."""
 
 import hashlib
+import io
 import json
 from pathlib import Path
+import tarfile
 import unittest
+from unittest.mock import patch
 
+import prepare_retirement_stage as stage
 import retirement_normal_image as normal
 import run_retirement_installer_rehearsal as installer
 from retirement_fixture import installer_rehearsal_resources as resources
@@ -80,6 +84,113 @@ class RuntimePins(unittest.TestCase):
             json.dumps(manifest, sort_keys=True, separators=(",", ":")).encode()
         ).hexdigest()
         self.assertEqual(digest, resources.APP_MANIFEST_SHA256)
+
+
+class SchemaTransition(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.archive = stage.full_source(ROOT)
+        cls.pin = hashlib.sha256(cls.archive).hexdigest()
+
+    def test_planned_transition_matches_exact_migrations_and_stays_pending(self):
+        result = stage.check_schema_transition(
+            self.archive, self.pin, normal.IMAGE, 8, 10
+        )
+        self.assertEqual(result["status"], "source_schema_compatible")
+        self.assertIs(result["release_eligible"], False)
+        self.assertEqual(result["source_sha256"], self.pin)
+        self.assertEqual(result["profiled_backend_image"], normal.IMAGE)
+        self.assertEqual(
+            result["migrations_to_apply"],
+            {
+                name: normal.RUNTIME_FILES[name]
+                for name in (
+                    "migrations/0009_retirement_deletion.sql",
+                    "migrations/0010_context_notes.sql",
+                )
+            },
+        )
+
+    def test_schema9_plan_wrong_image_and_unbound_archive_all_deny(self):
+        for before, after, image, pin, reason in [
+            (8, 9, normal.IMAGE, self.pin, "plan_requires_8_to_10"),
+            (9, 10, normal.IMAGE, self.pin, "plan_requires_8_to_10"),
+            (8, 10, "sha256:" + "0" * 64, self.pin, "image_profile_mismatch"),
+            (8, 10, normal.IMAGE, "0" * 64, "source_pin_changed"),
+        ]:
+            with (
+                self.subTest(reason=reason),
+                self.assertRaisesRegex((ValueError, RuntimeError), reason),
+            ):
+                stage.check_schema_transition(self.archive, pin, image, before, after)
+
+    def test_changed_source_cannot_be_substituted_by_rehashing_the_archive(self):
+        names = [
+            "backend/" + name
+            for name in normal.RUNTIME_FILES
+            if name.startswith("migrations/")
+        ]
+        names.extend(["backend/storage/pool.py", "backend/storage/migrate.py"])
+        cached = stage.checked_archive(self.archive, self.pin)
+        for changed in [
+            "backend/migrations/0008_exports.sql",
+            "backend/migrations/0010_context_notes.sql",
+            "backend/storage/pool.py",
+            "backend/storage/migrate.py",
+            "backend/migrations/0011_other.sql",
+        ]:
+            stream = io.BytesIO()
+            with tarfile.open(fileobj=stream, mode="w") as archive:
+                for name in sorted(set(names) | {changed}):
+                    raw = cached.get(name, b"") + (b"\n" if name == changed else b"")
+                    member = tarfile.TarInfo(name)
+                    member.size = len(raw)
+                    archive.addfile(member, io.BytesIO(raw))
+            raw = stream.getvalue()
+            with (
+                self.subTest(changed=changed),
+                self.assertRaisesRegex(
+                    ValueError, "inventory_mismatch|image_source_mismatch"
+                ),
+            ):
+                stage.check_schema_transition(
+                    raw, hashlib.sha256(raw).hexdigest(), normal.IMAGE, 8, 10
+                )
+
+    def test_default_plan_remains_io_free_and_check_cannot_select_stage_writes(self):
+        with (
+            patch.object(stage, "full_source", side_effect=AssertionError),
+            patch.object(stage, "stage", side_effect=AssertionError),
+        ):
+            with (
+                patch("sys.argv", ["prepare_retirement_stage.py"]),
+                patch("sys.stdout", new_callable=io.StringIO) as output,
+            ):
+                stage.main()
+                self.assertEqual(
+                    json.loads(output.getvalue()),
+                    {
+                        "status": "prepared_only",
+                        "private_reads": 0,
+                        "writes": 0,
+                        "Docker_actions": 0,
+                    },
+                )
+            with (
+                patch(
+                    "sys.argv",
+                    [
+                        "stage",
+                        "--prepare-stage",
+                        "--check-schema-transition",
+                        "8",
+                        "10",
+                    ],
+                ),
+                patch("sys.stderr", new_callable=io.StringIO),
+                self.assertRaises(SystemExit),
+            ):
+                stage.main()
 
 
 if __name__ == "__main__":

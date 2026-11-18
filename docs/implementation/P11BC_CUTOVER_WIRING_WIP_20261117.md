@@ -3,6 +3,20 @@
 > **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](PERSONAL_COMPUTER_RESUME_20261117.md).
 > This is a saved source-only wiring proposal. It is not a qualified production driver.
 
+## Check a schema 10 candidate
+
+The historical plan below stops at schema 9. The current backend requires schema 10 and its default migrator applies both `0009_retirement_deletion.sql` and `0010_context_notes.sql` when upgrading schema 8.
+
+Before using a proposed release plan, enter **its declared starting and target versions** in the public stage tool. Supply the intended backend image digest and the independently reviewed SHA-256 of the same public source archive used by stage preparation. For a plan targeting schema 10 from schema 8, run this command from the checkout.
+
+```sh
+python -B tools/checks/prepare_retirement_stage.py \
+  --check-schema-transition 8 10 \
+  --backend-image "$CANDIDATE_IMAGE" --source-sha256 "$SOURCE_SHA256"
+```
+
+The check compares the archive's migration, migrator and readiness source bytes with the named runtime image profile. An 8-to-9 plan against the schema 10 runtime exits with an error. A compatible plan prints the two pending migration checksums and `release_eligible: false`. The check reads public checkout source only. The running database version, actual image contents, fallback rehearsal, independent recovery receipts, stopped-writer attestation and final release approval each require their own evidence.
+
 Stopped at the user’s request. Source review only; no Mac adapter was implemented.
 No command below has run. The production writer owns the
 entire `cutover.py` process; the Mac supplies only the awaited receipts. This is
