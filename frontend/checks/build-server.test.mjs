@@ -1,11 +1,25 @@
 import assert from "node:assert/strict";
 import { createServer, request } from "node:http";
-import { mkdtemp, rm, writeFile } from "node:fs/promises";
+import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
 import { allowedHost, apiProxy, assetServer } from "../scripts/serve.mjs";
-import { publicBuildEnv } from "../scripts/build.mjs";
+import { compile, deliveryManifest, publicBuildEnv } from "../scripts/build.mjs";
+
+test("production navigation inlines small icons and keeps the large logo external", async () => {
+  const directory = await mkdtemp(path.join(tmpdir(), "aqua-navigation-assets-"));
+  try {
+    const stats = await compile({ directory });
+    const images = stats.compilation.getAssets().filter(asset => asset.name.endsWith(".svg"));
+    assert.ok(images.some(asset => /^assets\/AQUA_V2_Final_static-[a-f\d]+\.svg$/.test(asset.name)));
+    for (const asset of images) {
+      assert.ok((await readFile(path.join(directory, asset.name))).length >= 4096, asset.name);
+    }
+    const entry = Object.values(deliveryManifest(stats)).find(chunk => chunk.isEntry);
+    assert.ok((await readFile(path.join(directory, entry.file), "utf8")).includes("data:image/svg+xml"));
+  } finally { await rm(directory, { recursive: true, force: true }); }
+});
 
 test("development hosts match loopback, IP and the two configured Aqua names", () => {
   for (const host of ["localhost:5173", "dev.localhost", "[::1]:5173", "192.168.1.12", "aqua-ai.us", "www.aqua-ai.us"]) {

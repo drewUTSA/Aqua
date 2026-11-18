@@ -43,7 +43,10 @@ export function makeCompiler({ directory = dist, deletionFixture = false, dev = 
         parser: { syntax: "ecmascript", jsx: true }, transform: { react: { runtime: "classic" } },
       } } } },
       { test: /\.css$/, type: "css" },
-      { test: /\.(?:glb|svg)$/, type: "asset/resource" },
+      // Small UI icons used repeatedly across full-page auth navigations were
+      // inlined by the previous build. Keep those network requests off the path.
+      { test: /\.svg$/, type: "asset", parser: { dataUrlCondition: { maxSize: 4095 } } },
+      { test: /\.glb$/, type: "asset/resource" },
     ] },
     plugins: [
       new rspack.DefinePlugin({ "import.meta.env": JSON.stringify(buildEnv) }),
