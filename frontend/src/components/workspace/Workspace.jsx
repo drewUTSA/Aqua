@@ -26,7 +26,7 @@ const ResultCompanionHost = lazy(() => import(/* webpackChunkName: "ResultCompan
 const DemoWorkspace = lazy(() => import("./DemoWorkspace.jsx"));
 
 export default function Workspace({ auth, hidden, path, onNavigate }) {
-  return auth.demoMode ? <Suspense fallback={<p role="status">Opening the demo workspace…</p>}><DemoWorkspace auth={auth}>
+  return auth.demoMode ? <Suspense fallback={hidden ? null : <p role="status">Opening the demo workspace…</p>}><DemoWorkspace auth={auth}>
     {(chat) => <WorkspaceView auth={auth} hidden={hidden} path={path} onNavigate={onNavigate} chat={chat} />}
   </DemoWorkspace></Suspense>
     : <LiveWorkspace auth={auth} hidden={hidden} path={path} onNavigate={onNavigate} />;

@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from
 import { useGoogleAuth } from "./hooks/useGoogleAuth.js";
 import AuthPage from "./pages/AuthPage.jsx";
 import LegalPage from "./pages/LegalPage.jsx";
-import Workspace from "./components/workspace/Workspace.jsx";
+import Workspace from "./components/workspace/WorkspaceEntry.jsx";
 import { AUTH_PATHS, ACCOUNT_ACTION_PATHS, LOCAL_PATHS, consumeLocation, navigateLocal, pageDescription } from "./services/routes.js";
 import AccountActionLanding from "./pages/AccountActionLanding.jsx";
 import NotificationProvider from "./settings/NotificationProvider.jsx";
