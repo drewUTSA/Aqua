@@ -5,7 +5,11 @@ if (!["opal", "legacy"].includes(EXPECTED_SHELL)) throw new Error("expected_shel
 
 export async function assertShell(check, quote = JSON.stringify) {
   await check(`operator-selected ${EXPECTED_SHELL} shell is rendered`,
-    `document.querySelector('.opal-workspace')?.dataset.uiShell===${quote(EXPECTED_SHELL)}`);
+    `document.querySelector('.opal-workspace')?.dataset.uiShell===${quote(EXPECTED_SHELL)}
+      && performance.getEntriesByType('resource').some(entry=>{
+        const url=new URL(entry.name);
+        return url.origin===location.origin && /^Workspace-[a-f0-9]+[.]js$/.test(url.pathname.split('/').pop());
+      })`);
 }
 
 export async function capturePerformance(evaluate, label) {
@@ -31,7 +35,7 @@ export async function assertLoginDelivery(check) {
     const scriptBytes=scripts.reduce((sum,entry)=>sum+entry.decodedBodySize,0);
     return scripts.length>0&&scripts.length<=3&&scriptBytes>0&&scriptBytes<=600000
       &&styles.reduce((sum,entry)=>sum+entry.decodedBodySize,0)<=80000
-      &&!resources.some(entry=>/DashboardPreview|PlotlyChart|plotly-basic/i.test(new URL(entry.name).pathname));
+      &&!resources.some(entry=>/^(?:Workspace-|SettingsShell-|DashboardPreview|PlotlyChart|plotly-basic)/i.test(new URL(entry.name).pathname.split('/').pop()));
   })()`);
 }
 
