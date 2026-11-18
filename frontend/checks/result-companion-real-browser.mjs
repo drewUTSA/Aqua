@@ -79,5 +79,12 @@ export async function savedResultBrief(ctx, submit) {
   assert.equal(denied.status, 403); assert.equal(Object.hasOwn(JSON.parse(denied.body), "brief"), false);
   await ctx.check("A revoked grant prevents opening the saved field", "!document.querySelector('[data-understand-result],[data-result-facts]')");
   samples.push(await durableCounts(ctx, "Revocation preserves saved work", 2));
+  // Unmount the reopened workspace and its canvas before the separately timed
+  // process-close assertion. BrowserPipe still requires Chrome to exit normally.
+  ctx.navigating = true;
+  try {
+    await ctx.cdp.send("Page.navigate", { url: "about:blank" });
+    await ctx.waitFor("location.href==='about:blank'&&document.readyState==='complete'", "saved_result_workspace_unloaded");
+  } finally { ctx.navigating = false; }
   return { samples, csrf_denial: csrf.status, revoked_grant: denied.status, answers_inspected: RESULT_CASES.length };
 }

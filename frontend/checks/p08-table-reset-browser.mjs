@@ -3,7 +3,7 @@
 // WORKSPACE_RELIABILITY_BROWSER.md. No provider, production or test-cap change.
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { openP08Browser, LIMITS } from "./p08-browser-environment.mjs";
+import { openP08Browser, setupDiagnostic, LIMITS } from "./p08-browser-environment.mjs";
 import { selectedResultTableReset } from "./workspace-reliability-browser.mjs";
 import { savedResultBrief, RESULT_CASES } from "./result-companion-real-browser.mjs";
 import { assertLoginDelivery } from "./p05-shell-browser-checks.mjs";
@@ -49,7 +49,7 @@ if (ctx && Object.entries(ctx.cleanup || {}).some(([key, value]) => key !== "bac
 if (ctx && (ctx.external || ctx.runtimeErrors || ctx.consoleLeaks || ctx.errors.length)) failure ||= "browser_boundary_failure";
 const report = { status: failure ? "failed" : "passed", failure, checked_utc: new Date().toISOString(),
   mode: resultMode ? "saved_result_brief_real_private_fixture" : "fresh_two_fixed_table_results_real_private_fixture", expected_shell: process.env.AQUA_P05_EXPECTED_SHELL || "opal",
-  ...(resultMode ? { saved_results: resultJourney || null } : {}),
+  ...(resultMode ? { saved_results: resultJourney || null, failure_diagnostics: failure ? setupDiagnostic(null, ctx) : null } : {}),
   limits: LIMITS, fake_jobs_requested: jobs, fixture: stats, browser: ctx?.browserVersion || null,
   boundary: { backend_image: ctx?.backendImage || null, schema_version: ctx?.schemaVersion ?? null, network: "none", live_provider_or_production: false },
   content_security_policy: ctx?.csp || null, assets: ctx?.assets || [], checks: ctx?.results || [], screenshots: ctx?.screenshots || [], cleanup: ctx?.cleanup || null,
