@@ -147,6 +147,32 @@ test("session cookies survive reload and removing them locks the restored page",
   expect(env.fixture.queryCount()).toBe(0);
 });
 
+test("reloading the first visible workspace preserves its confirmed session", async ({ page, context }) => {
+  await page.goto(`${env.origin}/signin`);
+  await page.getByLabel("Email address").fill(EMAIL_A);
+  await page.getByLabel("Password", { exact: true }).fill(PASSWORD);
+  // Reload as soon as the newly mounted workspace is visible, before another browser action can give its effects time to run.
+  await page.evaluate(() => {
+    const observer = new MutationObserver(() => {
+      if (!document.querySelector("button.workspace-quick-switch")?.getClientRects().length) return;
+      observer.disconnect();
+      window.location.reload();
+    });
+    observer.observe(document, { childList: true, subtree: true });
+  });
+  await Promise.all([page.waitForEvent("domcontentloaded"), page.getByTestId("password-auth-submit").click()]);
+  await expect(page.getByRole("button", { name: "Quick switch", exact: true })).toBeVisible();
+  expect(await page.evaluate(() => performance.getEntriesByType("navigation")[0]?.type)).toBe("reload");
+  const calls = env.attempts("/api/auth/me", "GET");
+  await context.clearCookies();
+  await page.evaluate(() => window.dispatchEvent(new PageTransitionEvent("pageshow", { persisted: true })));
+  await expect(page.getByLabel("Email address")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Quick switch", exact: true })).toBeHidden();
+  expect(env.attempts("/api/auth/me", "GET")).toBeGreaterThan(calls);
+  expect(env.fixture.count("/api/v1/auth/password-login")).toBe(1);
+  expect(env.fixture.queryCount()).toBe(0);
+});
+
 test("a different owner in cookie confirmation cannot adopt the login response", async ({ page }) => {
   const route = env.fixture.route.bind(env.fixture);
   env.fixture.route = (request, reply) => {
