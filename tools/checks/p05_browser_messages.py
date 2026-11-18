@@ -94,6 +94,11 @@ def dispatch(
             )
             or workspace_route(path, method)
             or (
+                getattr(analysis, "result_brief_enabled", False) is True
+                and method == "POST"
+                and path == "/api/v1/companion/result-brief"
+            )
+            or (
                 bank_demo_fixture
                 and (method, path)
                 in {

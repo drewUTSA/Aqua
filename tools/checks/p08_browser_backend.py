@@ -5,12 +5,13 @@ import re
 
 import p05_browser_worker
 from p05_browser_protocol import emit, origin_value
-from p08_browser_fixture import VisualFixture
+from p08_browser_fixture import ResultBriefFixture, VisualFixture
 from p08_browser_host import host
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--worker", action="store_true")
+    parser.add_argument("--result-brief", action="store_true")
     parser.add_argument("--origin", required=True, type=origin_value)
     parser.add_argument("--image", required=True)
     args = parser.parse_args()
@@ -18,9 +19,15 @@ if __name__ == "__main__":
         if not re.fullmatch(r"sha256:[a-f0-9]{64}", args.image):
             raise ValueError("fixture_image_must_be_immutable")
         raise SystemExit(
-            p05_browser_worker.worker(args.origin, True, analysis_factory=VisualFixture)
+            p05_browser_worker.worker(
+                args.origin,
+                True,
+                analysis_factory=(
+                    ResultBriefFixture if args.result_brief else VisualFixture
+                ),
+            )
             if args.worker
-            else host(args.origin, args.image)
+            else host(args.origin, args.image, result_brief=args.result_brief)
         )
     except Exception as error:
         emit(

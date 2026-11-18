@@ -308,6 +308,20 @@ jobs:
           export AQUA_P08_BACKEND_IMAGE="$(docker image inspect aqua-runtime:check --format '{{.Id}}')"
           export AQUA_P08_BRIDGE_ARGS_JSON="$(python -c 'import json,os; print(json.dumps(["-u","../tools/checks/p08_browser_backend.py","--image",os.environ["AQUA_P08_BACKEND_IMAGE"]]))')"
           node checks/p08-table-reset-browser.mjs
+      - name: Opal saved-result companion in real private API fixture
+        timeout-minutes: 4
+        working-directory: frontend
+        env:
+          AQUA_P05_EXPECTED_SHELL: opal
+          AQUA_P08_DIST: ${{ github.workspace }}/frontend/dist
+          AQUA_P08_ARTIFACT_DIR: ${{ runner.temp }}/aqua-saved-result/opal
+        run: |
+          export AQUA_CHROME_EXECUTABLE="$(command -v google-chrome)"
+          test -x "$AQUA_CHROME_EXECUTABLE"
+          export AQUA_P08_BRIDGE_EXECUTABLE="$(command -v python)"
+          export AQUA_P08_BACKEND_IMAGE="$(docker image inspect aqua-runtime:check --format '{{.Id}}')"
+          export AQUA_P08_BRIDGE_ARGS_JSON="$(python -c 'import json,os; print(json.dumps(["-u","../tools/checks/p08_browser_backend.py","--result-brief","--image",os.environ["AQUA_P08_BACKEND_IMAGE"]]))')"
+          node checks/p08-table-reset-browser.mjs --saved-result
       - name: Opal Settings preferences and isolated database save/import journeys
         timeout-minutes: 4
         working-directory: frontend
@@ -405,6 +419,20 @@ jobs:
           export AQUA_P08_BACKEND_IMAGE="$(docker image inspect aqua-runtime:check --format '{{.Id}}')"
           export AQUA_P08_BRIDGE_ARGS_JSON="$(python -c 'import json,os; print(json.dumps(["-u","../tools/checks/p08_browser_backend.py","--image",os.environ["AQUA_P08_BACKEND_IMAGE"]]))')"
           node checks/p08-table-reset-browser.mjs
+      - name: Classic saved-result companion in real private API fixture
+        timeout-minutes: 4
+        working-directory: frontend
+        env:
+          AQUA_P05_EXPECTED_SHELL: legacy
+          AQUA_P08_DIST: ${{ github.workspace }}/frontend/dist
+          AQUA_P08_ARTIFACT_DIR: ${{ runner.temp }}/aqua-saved-result/legacy
+        run: |
+          export AQUA_CHROME_EXECUTABLE="$(command -v google-chrome)"
+          test -x "$AQUA_CHROME_EXECUTABLE"
+          export AQUA_P08_BRIDGE_EXECUTABLE="$(command -v python)"
+          export AQUA_P08_BACKEND_IMAGE="$(docker image inspect aqua-runtime:check --format '{{.Id}}')"
+          export AQUA_P08_BRIDGE_ARGS_JSON="$(python -c 'import json,os; print(json.dumps(["-u","../tools/checks/p08_browser_backend.py","--result-brief","--image",os.environ["AQUA_P08_BACKEND_IMAGE"]]))')"
+          node checks/p08-table-reset-browser.mjs --saved-result
       - name: Classic Settings preferences and isolated database save/import journeys
         timeout-minutes: 4
         working-directory: frontend
@@ -461,6 +489,8 @@ jobs:
             ${{ runner.temp }}/aqua-p05/legacy/reliability/**/*.png
             ${{ runner.temp }}/aqua-p08-table/**/*.json
             ${{ runner.temp }}/aqua-p08-table/**/*.png
+            ${{ runner.temp }}/aqua-saved-result/**/*.json
+            ${{ runner.temp }}/aqua-saved-result/**/*.png
             ${{ runner.temp }}/aqua-p08/opal/*.json
             ${{ runner.temp }}/aqua-p08/opal/*.png
             ${{ runner.temp }}/aqua-p08/legacy/*.json
