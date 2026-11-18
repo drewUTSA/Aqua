@@ -57,3 +57,8 @@ NEW downloaded export documents use **schemaVersion2**, retain authority scope `
 Available active notes export `{id,revision,availability:"available",kind,label,body,created_at,updated_at}` ONLY for the exact currently allowed dataset/grant. Other owned active notes export only `{id,revision,availability:"unavailable"}`. No old labels, bodies, timestamps or scope keys. At most20 entries; overflow fails, never truncates.
 
 Any available note marks the existing internal scoped-sensitive predicate (`contains_results`) true, even with no result messages. Snapshot/publication/download must recheck its exact grant as they do protected result content. Correction/forget privacy_epoch changes invalidate staged output. New2/old1 immutable download, notes-only revoke/regrant, section equivalence, bounded purge and actual isolated restore require explicit tests. No production migration or activation is authorized by this document.
+
+The privacy page and the export and deletion reviews explain these rules to users.
+Before rollout, the operator still needs to verify the published support contact,
+enabled services and backup retention wording against the installation's actual
+practices as part of the [P13 release review](P13_PROGRESS.md#remaining-release-gates).

@@ -22,6 +22,7 @@ async function jsxModule(url) {
   const result = 'data:text/javascript;base64,' + Buffer.from(code).toString('base64'); compiled.set(url.href, result); return result;
 }
 const { default: PrivacyDeletions } = await import(await jsxModule(new URL('../src/settings/PrivacyDeletions.jsx', import.meta.url)));
+const { default: DataDeletionContent } = await import(await jsxModule(new URL('../src/settings/DataDeletionContent.jsx', import.meta.url)));
 const { default: DataDeletionProvider, TestDeletionContext } = await import(await jsxModule(new URL('../src/settings/DataDeletionProvider.jsx', import.meta.url)));
 const { TestPreferencesContext } = await import(await jsxModule(new URL('../src/settings/PreferencesProvider.jsx', import.meta.url)));
 const { default: SettingsInformation } = await import(await jsxModule(new URL('../src/settings/SettingsInformation.jsx', import.meta.url)));
@@ -52,6 +53,15 @@ test('coordinator starts empty above the private subtree with no eager verificat
   const fetch = t.mock.method(globalThis, 'fetch', () => { throw Error('Unexpected network'); });
   const html = renderToStaticMarkup(React.createElement(DataDeletionProvider, { auth }, ({ privateEpoch, privateBlocked }) => React.createElement('p', null, `${privateEpoch}:${privateBlocked}`)));
   assert.equal(html, '<p>0:false</p>'); assert.equal(fetch.mock.calls.length, 0);
+});
+test('history and account reviews distinguish chat copies from the saved-note library', () => {
+  const review = scope => render(DataDeletionContent, { auth, entry: { scope }, state: { phase: 'review' }, allowed: true, cancel: { current: null } });
+  const history = review('chat_history_v1');
+  assert.match(history, /including any note text you sent in those chats/);
+  assert.match(history, /You keep your account, projects, saved prompts and saved notes/);
+  const account = review('account_v1');
+  assert.match(account, /remove its saved personal data, including all saved notes, even those you can no longer read/);
+  assert.doesNotMatch(account, /You keep your account/);
 });
 test('only Privacy settings places the deletion entry point beside the existing private export panel', () => {
   const html = render(SettingsInformation, { category: 'privacy', auth });

@@ -3,6 +3,7 @@
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import replace
 from threading import Barrier
+from unittest.mock import patch
 
 import pytest
 
@@ -17,7 +18,7 @@ from auth.sessions import token_digest
 from storage.pool import Storage
 from storage.migrate import apply, migrations
 from workspace.errors import WorkspaceError
-from security_action_fixtures import NEW, OLD
+from security_action_fixtures import DetachedHasher, NEW, OLD
 from test_security_action_failures import seed_reset
 
 
@@ -30,9 +31,36 @@ def second_store(account_security):
         account_security.passwords.auth_policy,
         account_security.passwords.policy,
         account_security.passwords.mail_policy,
-        hasher=account_security.hasher,
+        hasher=DetachedHasher(storage),
     )
     return storage, store
+
+
+def test_each_detached_hasher_checks_its_own_one_slot_pool(account_security):
+    first = account_security.passwords
+    storage, second = second_store(account_security)
+    try:
+        assert (
+            first.storage.settings.max_connections
+            == storage.settings.max_connections
+            == 1
+        )
+        with (
+            patch.object(
+                first.storage, "transaction", wraps=first.storage.transaction
+            ) as first_lease,
+            patch.object(
+                storage, "transaction", wraps=storage.transaction
+            ) as second_lease,
+        ):
+            first.hasher.hash(NEW)
+            first_lease.assert_called_once_with()
+            second_lease.assert_not_called()
+            second.hasher.hash(NEW)
+            first_lease.assert_called_once_with()
+            second_lease.assert_called_once_with()
+    finally:
+        storage.close()
 
 
 def test_parallel_claim_has_one_verifier_and_one_issued_proof(account_security):
@@ -71,7 +99,7 @@ def test_parallel_claim_has_one_verifier_and_one_issued_proof(account_security):
                 "denied",
                 "issued",
             ]
-        assert account_security.hasher.calls == ["verify"]
+        assert account_security.hasher.calls + other.hasher.calls == ["verify"]
         with account_security.world.storage.transaction() as conn:
             assert conn.execute(
                 "SELECT count(*) FROM app.account_action_proofs WHERE user_id=%s",
@@ -90,7 +118,9 @@ def test_parallel_password_change_has_one_commit_one_notice_no_foreign_changes(
     principal = account_security.principal(client)
     storage, other = second_store(account_security)
     hashes = Barrier(2)
-    account_security.hasher.on_hash = lambda: hashes.wait(timeout=3)
+    account_security.hasher.on_hash = other.hasher.on_hash = lambda: hashes.wait(
+        timeout=3
+    )
 
     def attempt(store):
         try:
@@ -133,7 +163,9 @@ def test_reset_and_authenticated_change_share_mail_before_user_lock_order(
     principal = account_security.principal(client)
     storage, other = second_store(account_security)
     hashes = Barrier(2)
-    account_security.hasher.on_hash = lambda: hashes.wait(timeout=3)
+    account_security.hasher.on_hash = other.hasher.on_hash = lambda: hashes.wait(
+        timeout=3
+    )
 
     def change():
         try:
