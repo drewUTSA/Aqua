@@ -41,7 +41,7 @@ export default function PreferenceDialog({ title, children, onClose, busy = fals
     if (event.key !== "Tab" || event.ctrlKey || event.metaKey || event.altKey) return;
     const node = ref.current;
     if (!node) return;
-    const focusable = [...node.querySelectorAll("button,input,select,textarea,a[href],[tabindex],[contenteditable=true]")]
+    const focusable = [...node.querySelectorAll("button,input,select,textarea,summary,a[href],[tabindex],[contenteditable=true]")]
       .filter((element) => element.tabIndex >= 0 && !element.matches(":disabled") && !element.closest("[hidden],[inert]")
         && element.getClientRects().length > 0 && !["hidden", "collapse"].includes(getComputedStyle(element).visibility));
     if (!focusable.length) { event.preventDefault(); node.focus({ preventScroll: true }); return; }

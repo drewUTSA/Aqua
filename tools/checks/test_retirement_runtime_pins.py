@@ -47,6 +47,7 @@ class RuntimePins(unittest.TestCase):
             "analysis",
             "companion",
             "bank_demo",
+            "result_companion",
             "auth",
             "nl2sql",
             "storage",
@@ -72,8 +73,8 @@ class RuntimePins(unittest.TestCase):
             manifest[name] = {"sha256": digest, "bytes": len(raw)}
             if name in normal.RUNTIME_FILES:
                 self.assertEqual(digest, normal.RUNTIME_FILES[name], name)
-        self.assertEqual(len(names), 226)
-        self.assertEqual(len(manifest), 230)
+        self.assertEqual(len(names), 230)
+        self.assertEqual(len(manifest), 234)
         digest = hashlib.sha256(
             json.dumps(manifest, sort_keys=True, separators=(",", ":")).encode()
         ).hexdigest()

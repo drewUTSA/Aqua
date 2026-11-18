@@ -10,6 +10,7 @@ import { UI_SHELL } from "../../services/runtimeConfig.js";
 import { usePreferences } from "../../settings/PreferencesProvider.jsx";
 import { useNotifications } from "../../settings/NotificationProvider.jsx";
 import { workspaceShortcut } from "./workspaceShortcuts.js";
+import { resultReference } from "../../features/resultCompanion/reference.js";
 import "../../styles/workspace-shortcuts.css";
 import "../../styles/workspace.css";
 import "../../styles/legacy-workspace.css";
@@ -21,6 +22,7 @@ const SettingsShell = lazy(() => import(/* webpackChunkName: "SettingsShell" */ 
 const PromptLibraryDialog = lazy(() => import(/* webpackChunkName: "PromptLibraryDialog" */ "./PromptLibraryDialog.jsx"));
 const QuickSwitcher = lazy(() => import("./QuickSwitcher.jsx"));
 const CompanionToolsDialog = lazy(() => import(/* webpackChunkName: "CompanionToolsDialog" */ "./CompanionToolsDialog.jsx"));
+const ResultCompanionHost = lazy(() => import(/* webpackChunkName: "ResultCompanionHost" */ "../../features/resultCompanion/ResultCompanionHost.jsx"));
 const DemoWorkspace = lazy(() => import("./DemoWorkspace.jsx"));
 
 export default function Workspace({ auth, hidden, path, onNavigate }) {
@@ -51,10 +53,15 @@ function WorkspaceView({ auth, hidden, path, onNavigate, chat }) {
   const [notice, setNotice] = useState(""), [promptsOpen, setPromptsOpen] = useState(false);
   const [quickOpen, setQuickOpen] = useState(false), [searchOpen, setSearchOpen] = useState(false);
   const [companionOpen, setCompanionOpen] = useState(false);
+  const [resultSelection, setResultSelection] = useState(null);
   const companionScope = useRef(null);
+  const resultScope = useRef(null);
   const inputRef = useRef(null), dialogRef = useRef(null), navigationRef = useRef(null);
   const scrollPositions = useRef(new Map());
   const settings = path === "/settings";
+  const resultAllowed = !hidden && !settings && !auth.demoMode && auth.session?.can_query === true;
+  const resultCandidate = resultSelection && resultReference(chat, auth.user?.id, resultSelection.messageId, resultAllowed);
+  const selectedResult = resultCandidate?.token === resultSelection?.token ? resultCandidate : null;
   const caption = settings ? "Settings" : chat.durable && chat.active?.revision ? chat.active.title : "New chat";
   const focusComposer = useCallback(() => setFocus((value) => value + 1), []);
   const closeDrawer = () => { dialogRef.current?.close(); setDrawer(false); navigationRef.current?.focus(); };
@@ -69,9 +76,19 @@ function WorkspaceView({ auth, hidden, path, onNavigate, chat }) {
   const openPrompts = () => { chat.openPrompts?.(); setPromptsOpen(true); };
   useEffect(() => { if (hidden || settings) setPromptsOpen(false); }, [hidden, settings]);
   useEffect(() => { setQuickOpen(false); setSearchOpen(false); }, [hidden, path]);
-  useEffect(() => { setCompanionOpen(false); companionScope.current = null; }, [hidden, path, auth.user?.id, auth.csrfToken, chat.activeConversationId]);
+  useEffect(() => { setCompanionOpen(false); companionScope.current = null; setResultSelection(null); resultScope.current = null; }, [hidden, path, auth.user?.id, auth.csrfToken, chat.activeConversationId]);
+  useEffect(() => { if (resultSelection && !selectedResult) { setResultSelection(null); resultScope.current = null; } }, [resultSelection, selectedResult?.token]);
+  const closeResult = () => { setResultSelection(null); resultScope.current = null; };
+  const openResult = messageId => {
+    const binding = resultReference(chat, auth.user?.id, messageId, resultAllowed);
+    if (!binding) return;
+    try {
+      resultScope.current = { history: captureHistory(auth.csrfToken), ownerId: auth.user.id, csrfToken: auth.csrfToken, token: binding.token, draft: chat.draft };
+      setCompanionOpen(false); setResultSelection({ messageId, token: binding.token });
+    } catch { closeResult(); }
+  };
   const openCompanion = () => {
-    try { companionScope.current = captureHistory(auth.csrfToken); setCompanionOpen(true); } catch { setCompanionOpen(false); }
+    try { companionScope.current = captureHistory(auth.csrfToken); closeResult(); setCompanionOpen(true); } catch { setCompanionOpen(false); }
   };
   const applyCompanionDraft = (value, expected) => {
     try { assertHistory(companionScope.current); } catch { return false; }
@@ -135,9 +152,14 @@ function WorkspaceView({ auth, hidden, path, onNavigate, chat }) {
     {chat.notice && <p className="workspace-notice" role="alert">{chat.notice}</p>}
     {!settings && preferences.error && <p className="workspace-notice" role="alert">{preferences.error} Open Settings to review or retry.</p>}
     <div className="chat-route" hidden={settings} inert={settings || undefined} style={settings ? { display: "none" } : undefined}>
-      <VisualWorkspace chat={chat} auth={auth} preferences={{ account, device }} onDeviceChange={preferences.persistDeviceValue} chartTheme={theme} inputRef={inputRef} focusRequest={focus} onOpenPrompts={openPrompts} shell={UI_SHELL} visible={!hidden && !settings} scrollPositions={scrollPositions.current} />
+      <VisualWorkspace chat={chat} auth={auth} preferences={{ account, device }} onDeviceChange={preferences.persistDeviceValue} chartTheme={theme} inputRef={inputRef} focusRequest={focus} onOpenPrompts={openPrompts} onUnderstandResult={resultAllowed && chat.durable ? openResult : undefined} shell={UI_SHELL} visible={!hidden && !settings} scrollPositions={scrollPositions.current} />
     </div>
     {settings && <QuickSwitcherBoundary kind="settings" onClose={() => go("/")}><Suspense fallback={<p role="status">Opening Settings…</p>}><SettingsShell auth={auth} onBack={() => go("/")} onNavigate={go} /></Suspense></QuickSwitcherBoundary>}
+    {selectedResult && <QuickSwitcherBoundary key={selectedResult.token} title="Result companion unavailable"
+      message="The optional result panel could not open. Your original table and composer remain available."
+      closeLabel="Close result companion" onClose={closeResult}><Suspense fallback={<OptionalDialogLoading title="Understand this result" closeLabel="Close result companion" onClose={closeResult} />}>
+      <ResultCompanionHost reference={selectedResult} scope={resultScope.current} chat={chat} auth={auth} onClose={closeResult} onApplied={focusComposer} />
+      </Suspense></QuickSwitcherBoundary>}
     {quickOpen && !hidden && <QuickSwitcherBoundary onClose={() => setQuickOpen(false)}><Suspense fallback={<p role="status">Opening workspace shortcuts…</p>}><QuickSwitcher chat={chat} onClose={() => setQuickOpen(false)} onSelect={select} onAction={quickAction} /></Suspense></QuickSwitcherBoundary>}
     {companionOpen && !hidden && !settings && !auth.demoMode && <QuickSwitcherBoundary title="Aqua tools unavailable"
       message="The optional help window could not open. Your conversation and composer are still available."

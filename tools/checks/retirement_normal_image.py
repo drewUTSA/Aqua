@@ -1,7 +1,7 @@
-"""Current231 image profile; original historical receipts remain unchanged."""
+"""Current235 image profile; original historical receipts remain unchanged."""
 
-IMAGE = "sha256:daa0612c8dbe6784c580835d1bcfbfde8839e8e6fffb6e8bf2d5bde5d074e3d3"
-MANIFEST_SHA256 = "622a2be9549a3bf3987cf40bd98b4705391537ce750f3b6243267c048bcddaf8"
+IMAGE = "sha256:4e72d0102fae6ebe2dc3b9897b06656b60ddb92ef888845b5503cc03963e943d"
+MANIFEST_SHA256 = "7f621b7c0ca2490fd5d84dc2142f9a22d26a140cc2812bf6e82936cb07e80653"
 RUNTIME_FILES = {
     "account/__init__.py": "4d300929fcb6d0c0e3a6b92377bfd4648fc336a8ad2bfb3e962d810b3b6f55e0",
     "account/action_contracts.py": "be3becba0a54378a847efdaa76cc833e3b780df3658c90d30f86a7852232a397",
@@ -105,7 +105,7 @@ RUNTIME_FILES = {
     "eval/banking/proposals.py": "36691853c59240fa86ca955e1d7d4051f056a20f23af8416560ebbb16d635b6c",
     "eval/banking/reports.py": "89f8595f2ccbdb13d280b92c77ae52448149a1ad173f42aafa9b98ecf3bc1bc1",
     "eval/banking/scope.py": "d04351dab5a397ffe161ad47e7322f329e1517510a250d71ec3b9b25014d888c",
-    "main.py": "ec6741ac7aea8d232ebe8f8e89fad135c337ba75b1a428c8d614c3898541a387",
+    "main.py": "135adcd2693f92ed2f6de0373d56ce4e8c005e0acc5098132cbd40b4befc2fc3",
     "mcp_demo/__init__.py": "10641412ed8d7dda80a2f7713cd9083d62acbd73c9de682b5d40ab1c582c0ce9",
     "mcp_demo/data.py": "0213446283991323991cf18019efc8f3d81e243ea79266677b3426a03bcf7150",
     "mcp_demo/guidance.py": "9869fe6ad2ea1bdaaab091d7f73c77a7d3a3cd04b0e3556c138f939ab1a0f906",
@@ -190,6 +190,10 @@ RUNTIME_FILES = {
     "privacy/service.py": "a7dedfb8b7c909cd07733273b249e6d67c8cc33bd6e62a27dd3c79a59476ecab",
     "privacy/snapshot.py": "af5cc22aa3f3449776f84dd7c94d2bf2dd12e330f74143d8decf182d366164b3",
     "privacy/worker.py": "7aaa1abf4fbbdef6fd6a9a07e18b4ad63dce0a430215bdbd9ed3fa852633cba2",
+    "result_companion/__init__.py": "9079d75f5325ffaaf3c6422828361965cb1c3efeb84186023f27204153cc12bf",
+    "result_companion/facts.py": "5560e6b34a3da26b20103db00b61140d859e4d9e987022e39a090bc7f799b5a3",
+    "result_companion/router.py": "2c2d0622365f113125974fa0318e2dd95e7770a7a268fc10d53372244ed7f352",
+    "result_companion/service.py": "d34e5d5c97b6e6ef7085d5c3fb6aba2077a683933e3e23c15bd784cf5907035a",
     "retirement/__init__.py": "2499b81ec27573e759b3d3db280bacc386acc22a6b972c336b336f866dfed678",
     "retirement/admission.py": "9dd1422f31292e5abff603eca647c07b1463f218234df22810c2e177a07fb320",
     "retirement/checkpoint.py": "d4bb5beeae866ab6574ae6180101755da5efb0a202a32080379f5f5625ce63bd",
@@ -215,7 +219,7 @@ RUNTIME_FILES = {
     "storage/readiness.py": "b40daec38bd44701faff4890eb90f797c6b924afda942f4274d7d5c45f914df5",
     "workspace/__init__.py": "5345f48f0def68707134328341da1f65967ec693868e28a4fb59faf9d7652bc1",
     "workspace/access_logging.py": "da3fa37f93b02c925dc3d2a29f47d660bfd804a668fed7d9aa59597753ffdbb5",
-    "workspace/boundary.py": "59507148eb7c59049c14c18b2bcb948e16830d70e45b59b7e56367cc744307fb",
+    "workspace/boundary.py": "533cfe5aeaff6228b65c7d51572fbcad8154d7b343ac7647846777a9de1bdf5b",
     "workspace/catalog.py": "fd5332b6c2dce52c04aa5c430f0b97d5334ff75f24b2a00c94aaf9dede3b7523",
     "workspace/catalog_router.py": "60c380071eb414dfbe58549d71db7d4846acb4127f3cb0d038224031d9217bee",
     "workspace/chat_router.py": "1992630c5730119e331c8915dd0debe369be0894951867d9603c0d9b79431937",

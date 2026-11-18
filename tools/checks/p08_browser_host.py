@@ -14,7 +14,7 @@ MAX_OPERATIONS = 200
 MAX_SECONDS = 180
 
 
-def host(origin: str, image: str) -> int:
+def host(origin: str, image: str, *, result_brief: bool = False) -> int:
     """One network-none fixture, fixed worker path, no production configuration."""
     name = "aqua-p05-browser-" + secrets.token_hex(12)
     schema = fixture_schema(ROOT)
@@ -49,6 +49,7 @@ def host(origin: str, image: str) -> int:
                 "-u",
                 "/checks/tools/checks/p08_browser_backend.py",
                 "--worker",
+                *(["--result-brief"] if result_brief else []),
                 "--origin",
                 origin,
                 "--image",
