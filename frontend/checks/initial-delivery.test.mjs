@@ -10,10 +10,10 @@ const checker = fileURLToPath(new URL("./plotly-bundle.mjs", import.meta.url));
 async function checkBudget(scriptBytes, styleBytes) {
   const root = await mkdtemp(path.join(tmpdir(), "aqua-initial-delivery-"));
   try {
-    await mkdir(path.join(root, "assets")); await mkdir(path.join(root, ".vite"));
+    await mkdir(path.join(root, "assets")); await mkdir(path.join(root, ".aqua"));
     const manifest = { "src/main.jsx": { file: "assets/main.js", isEntry: true, css: ["assets/main.css"], dynamicImports: ["engine"] },
       engine: { file: "assets/plotly-basic.js" } };
-    await writeFile(path.join(root, ".vite/manifest.json"), JSON.stringify(manifest));
+    await writeFile(path.join(root, ".aqua/manifest.json"), JSON.stringify(manifest));
     await writeFile(path.join(root, "assets/main.js"), Buffer.alloc(scriptBytes, 32));
     await writeFile(path.join(root, "assets/main.css"), Buffer.alloc(styleBytes, 32));
     await writeFile(path.join(root, "assets/plotly-basic.js"), "/* fixture engine version 4.1.2 */");

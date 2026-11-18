@@ -2,7 +2,7 @@
 // Plotly's dependency-free basic bundle: bar, pie and SVG scatter only.
 let pending;
 export function loadPlotlyEngine() {
-  if (!pending) pending = import("plotly.js-basic-dist-min").then((module) => {
+  if (!pending) pending = import(/* webpackChunkName: "plotly-basic" */ "plotly.js-basic-dist-min").then((module) => {
     const engine = module.default || module;
     if (typeof engine.react !== "function" || typeof engine.purge !== "function" || typeof engine.relayout !== "function") {
       throw new Error("chart_engine_unavailable");

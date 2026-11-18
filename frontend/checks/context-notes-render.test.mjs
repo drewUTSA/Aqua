@@ -3,13 +3,13 @@ import test from "node:test";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { readFile } from "node:fs/promises";
-import { transformWithEsbuild } from "vite";
+import { transform } from "esbuild";
 import { initialContextNotesState } from "../src/features/contextNotes/state.js";
 import { createCompanionToolsController } from "../src/hooks/companionToolsState.js";
 import { library, readReply, prepared, item, fields } from "./context-notes-fixture.mjs";
 
 async function jsxModule(url) {
-  const transformed = await transformWithEsbuild(await readFile(url, "utf8"), url.pathname, { loader: "jsx", format: "esm" });
+  const transformed = await transform(await readFile(url, "utf8"), { sourcefile: url.pathname, loader: "jsx", format: "esm" });
   let code = transformed.code.replace(/import\s+["'][^"']+\.css["'];?/g, ""); const imports = new Map();
   for (const match of code.matchAll(/from\s+["']([^"']+)["']/g)) {
     const name = match[1]; imports.set(name, name === "react" ? import.meta.resolve(name) : name.endsWith(".jsx") ? await jsxModule(new URL(name, url)) : new URL(name, url).href);

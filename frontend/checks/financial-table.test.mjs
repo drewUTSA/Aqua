@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { readFile } from "node:fs/promises";
-import { transformWithEsbuild } from "vite";
+import { transform } from "esbuild";
 import { displayTable } from "../src/components/data/displayTable.js";
 import { workspaceResultMetadata } from "../src/services/workspaceResultMetadata.js";
 import { createCsv, createTsv } from "../src/components/data/financialValues.js";
@@ -13,7 +13,7 @@ import { plotlyFixture } from "./plotly-fixture.mjs";
 // Compile the actual component with the existing locked build tool. No DOM,
 // chart engine, network, provider or extra testing dependency is introduced.
 const componentUrl = new URL("../src/components/data/FinancialTable.jsx", import.meta.url);
-const transformed = await transformWithEsbuild(await readFile(componentUrl, "utf8"), componentUrl.pathname, { loader: "jsx", format: "esm" });
+const transformed = await transform(await readFile(componentUrl, "utf8"), { sourcefile: componentUrl.pathname, loader: "jsx", format: "esm" });
 const code = transformed.code.replace(/from\s+["']([^"']+)["']/g, (_, specifier) =>
   `from ${JSON.stringify(specifier === "react" ? import.meta.resolve("react") : new URL(specifier, componentUrl).href)}`);
 const { default: FinancialTable } = await import("data:text/javascript;base64," + Buffer.from(code).toString("base64"));

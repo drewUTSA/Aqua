@@ -5,7 +5,7 @@ import { createDeletionReceipt, deletionReducer, initialDeletion } from "./dataD
 import { assertHistory, captureHistory } from "../services/historyAuthority.js";
 
 const Context = createContext(null);
-const DataDeletionContent = lazy(() => import("./DataDeletionContent.jsx"));
+const DataDeletionContent = lazy(() => import(/* webpackChunkName: "DataDeletionContent" */ "./DataDeletionContent.jsx"));
 class DeletionViewBoundary extends React.Component {
   state = { failed: false };
   static getDerivedStateFromError() { return { failed: true }; }
