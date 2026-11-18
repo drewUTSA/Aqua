@@ -3,6 +3,24 @@ export const AUTH_PATHS = new Set(["/signin", "/register", "/forgot-password", "
 export const ACCOUNT_ACTION_PATHS = new Set(["/account-action/password_add", "/account-action/email_change_new", "/account-action/email_change_old"]);
 export const LOCAL_PATHS = new Set(["/", "/settings", "/privacy", "/terms", ...AUTH_PATHS, ...ACCOUNT_ACTION_PATHS]);
 const PROOF_PATHS = new Set(["/verify-email", "/reset-password"]);
+// These fixed descriptions never receive account, chat, query or email-link contents.
+const DESCRIPTIONS = new Map([
+  ["/", "Ask questions in your AQUA workspace using data you have permission to access."],
+  ["/settings", "Manage your AQUA account and workspace preferences."],
+  ["/privacy", "Learn how AQUA handles account information, saved content and data requests."],
+  ["/terms", "Read the terms for using AQUA and accessing connected data."],
+  ["/signin", "Sign in to your AQUA workspace."],
+  ["/register", "Start setting up an AQUA account with your email address."],
+  ["/forgot-password", "Request password recovery instructions for an eligible AQUA account."],
+  ["/check-email", "Check your inbox for the next step in AQUA password recovery."],
+  ["/registration-sent", "Check your inbox for the next step in AQUA account registration."],
+  ["/verify-email", "Finish email verification for your AQUA account."],
+  ["/reset-password", "Choose a new password using an AQUA recovery link."],
+]);
+export function pageDescription(path) {
+  if (ACCOUNT_ACTION_PATHS.has(path)) return "Return to the original AQUA tab to review and confirm your account change.";
+  return DESCRIPTIONS.get(path) ?? "This AQUA page is unavailable.";
+}
 export function consumeLocation(location, history) {
   // A pathname beginning // or containing a backslash can be interpreted as a
   // network-path reference by History. Normalize it to our own 404 route.
