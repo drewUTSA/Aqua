@@ -4,6 +4,7 @@ import re
 from sqlglot import exp, parse_one
 from sqlglot.errors import SqlglotError
 from nl2sql.pipeline import Answer
+from nl2sql.relations import identifier_name, source_column
 from nl2sql.schema import Schema
 
 _CURRENCY = re.compile(r"\(([A-Z]{3})\)")
@@ -32,10 +33,11 @@ def units_for(answer: Answer, schema: Schema | None) -> list[str | None]:
         return unknown
     if len(query.expressions) != len(answer.columns):
         return unknown
-    tables = {
-        table.alias_or_name: schema.tables.get(table.name.lower())
-        for table in query.find_all(exp.Table)
-    }
+    tables = {}
+    for table in query.find_all(exp.Table):
+        alias = table.args.get("alias")
+        key = identifier_name(alias.this if alias else table.this, "postgres")
+        tables[key] = schema.tables.get(identifier_name(table.this, "postgres"))
 
     def unit(expression: exp.Expression) -> str | None:
         if isinstance(
@@ -46,21 +48,10 @@ def units_for(answer: Answer, schema: Schema | None) -> list[str | None]:
             return "count"
         if not isinstance(expression, exp.Column):
             return None
-        candidates = (
-            [tables.get(expression.table)]
-            if expression.table
-            else list(tables.values())
-        )
-        found = [
-            (table, column)
-            for table in candidates
-            if table is not None
-            for column in table.columns
-            if column.name.lower() == expression.name.lower()
-        ]
-        if len(found) != 1:
+        found = source_column(expression, tables)
+        if found is None:
             return None
-        table, column = found[0]
+        table, column = found
         currencies = set(_CURRENCY.findall(column.comment))
         if not currencies and _MONEY.search(column.comment):
             currencies = set(_CURRENCY.findall(table.comment))

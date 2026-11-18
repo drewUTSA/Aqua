@@ -165,7 +165,12 @@ def to_response(answer: Answer, display: Display | None = None) -> dict[str, Any
         }
 
     display = display or Display()
-    answer = replace(answer, rows=display.rows(answer.columns, answer.rows))
+    answer = replace(
+        answer,
+        rows=display.rows(
+            answer.columns, answer.rows, sql=answer.sql, question=answer.question
+        ),
+    )
     keys = _unique_keys(answer.columns)
     columns = []
     for i, key in enumerate(keys):
