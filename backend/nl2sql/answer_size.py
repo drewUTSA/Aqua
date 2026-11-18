@@ -9,6 +9,8 @@ instead of the model, turns that into one explicit line in the prompt:
     "least popular movies"           -> the top 10 (DEFAULT_LIST_ROWS)
     "the least popular movie", "who" -> first place plus every tie
     "top 3 films in each category"   -> the same rule within each group
+    "lowest to highest"              -> ordering alone does not limit rows
+    "shortest and longest lengths"   -> both endpoints of the measure
     "all", "every"                   -> no limit (execute.py still caps)
 
 Questions with no ranking word ("films longer than 3 hours") get no
@@ -59,6 +61,40 @@ _RANKING = (
 )
 _RANKING_WORD = re.compile(rf"\b({_RANKING})\b")
 
+# Opposite ends of the same measure can describe a sort direction or two
+# requested values. Neither phrase by itself asks for the first ten rows.
+_EXTREME_PAIRS = (
+    ("lowest", "highest"),
+    ("smallest", "largest"),
+    ("shortest", "longest"),
+    ("earliest", "latest"),
+    ("oldest", "newest"),
+    ("cheapest", "priciest"),
+    ("minimum", "maximum"),
+    ("least", "most"),
+    ("worst", "best"),
+)
+
+
+def _opposites(joiner: str) -> str:
+    return "|".join(
+        first + joiner + second
+        for low, high in _EXTREME_PAIRS
+        for first, second in ((low, high), (high, low))
+    )
+
+
+_BOTH_EXTREMES = re.compile(r"\b(?:" + _opposites(r"\s+and\s+(?:the\s+)?") + r")\b")
+_EXTREME_WORD = "|".join(word for pair in _EXTREME_PAIRS for word in pair)
+# Match a short local phrase such as "lowest average speed first". Keep
+# punctuation, conjunctions and independent selection clauses as boundaries.
+_ORDER_DIRECTION = re.compile(
+    r"\b(?:"
+    + _opposites(r"\s+to\s+(?:the\s+)?")
+    + rf"|(?:{_EXTREME_WORD})(?:\s+(?!(?:and|or|then|for|per|each|every|top|bottom|first)\b)[a-z]+){{0,3}}\s+first"
+    + r"|(?:ascending|descending)\s+order)\b"
+)
+
 _COUNT_PATTERNS = [
     re.compile(rf"\b(?:top|first|last|bottom)\s+{_NUMBER}\b"),
     re.compile(rf"\b{_NUMBER}\s+(?:{_RANKING})\b"),
@@ -79,7 +115,16 @@ _RANKED_BY = re.compile(
     r"sales|payments?|rentals?|balance|salary|value)\b"
 )
 # "for each store", "per category", "in every country": rank within groups.
-_PER_GROUP = re.compile(r"\b(?:each|per)\b|\b(?:for|in)\s+every\b")
+_PER_GROUP = re.compile(r"\b(?:each|per|(?:for|in)\s+every)\s+\w")
+# A second clause may ask for a field for every displayed row. Match only
+# that projection; "for each of the regions" still names a partition.
+_ROW_DETAIL = re.compile(
+    r"(?:\band\s+|[.,;]\s*)(?:also\s+)?"
+    r"(?:show|display|include|give|provide|report|return|list)\s+"
+    rf"(?:(?!(?:{_RANKING}|first|last|{_NUMBER})\b)[\w'-]+\s+){{1,6}}"
+    r"for\s+each\s+of\s+them\b"
+)
+_RANK_COMMAND = re.compile(r"^(?:please\s+)?rank\b")
 _PLURAL_VERB = re.compile(
     r"\b(?:what|which|who)\b(?:\s+\w+){0,4}?\s+(?:are|were|have)\b"
 )
@@ -132,7 +177,7 @@ class AnswerSize:
     kind is "count" (a number was given), "list" (plural, no number: the
     default applies), "single" (first place and its ties), "per_group"
     (the same within each group; rows is 1 for first place and ties), "all",
-    or "open" (no ranking; leave the query alone).
+    "extremes" (both ends of a measure), or "open" (leave the query alone).
     """
 
     kind: str
@@ -180,6 +225,12 @@ class AnswerSize:
             )
         if self.kind == "all":
             return "Answer size: the question asks for all matching rows; do not add a LIMIT."
+        if self.kind == "extremes":
+            return (
+                "Answer size: return both ends of the requested measure using MIN and MAX. "
+                "Compute them for each requested group if the question groups the data. "
+                "If it asks which records attain either end, include all records tied there."
+            )
         return None
 
 
@@ -195,10 +246,10 @@ def _is_plural(word: str) -> bool:
     return not word.endswith(("ss", "us", "is", "ous"))
 
 
-def _noun_after_ranking(words: list[str], index: int) -> str | None:
+def _noun_after_ranking(words: list[str]) -> str | None:
     """The first noun-like word within three words after the ranking word,
     skipping the adjectives in "least popular", "most rented"."""
-    for word in words[index + 1 : index + 4]:
+    for word in words[:3]:
         if word in {"the", "a", "an", "of", "in", "by", "for"}:
             break
         if _is_plural(word):
@@ -230,37 +281,47 @@ def _wants_one(text: str, ranking: re.Match[str]) -> bool:
     if _SINGULAR_VERB.search(text):
         return True
     subject = _SUBJECT.search(text)
-    if subject and subject.group(1) not in {
-        "of",
-        "the",
-        "a",
-        "an",
-        "do",
-        "does",
-        "did",
-    }:
+    if (
+        subject
+        and subject.start(1) != ranking.start()
+        and subject.group(1)
+        not in {
+            "of",
+            "the",
+            "a",
+            "an",
+            "do",
+            "does",
+            "did",
+        }
+    ):
         return not _is_plural(subject.group(1))
     # Then the noun the ranking word describes: "most rented films".
-    words = text.split()
-    noun = _noun_after_ranking(words, words.index(ranking.group(1)))
+    noun = _noun_after_ranking(re.findall(r"\w+", text[ranking.end() :]))
     if noun is not None:
         return not _is_plural(noun)
     # "Who spent the most?" asks for one person; "which customers spent
     # the most?" names a plural noun elsewhere in the question.
     if _WHO.search(text):
         return True
-    return not any(_is_plural(word) for word in words)
+    return not any(_is_plural(word) for word in re.findall(r"\w+", text))
 
 
 def answer_size(question: str) -> AnswerSize:
     """Read the question's wording; see the module docstring for the rules."""
-    text = " ".join(re.sub(r"[^\w\s'-]", " ", question.lower()).split())
+    original = question.lower()
+    # Work before stripping punctuation so "for each. Show..." cannot acquire
+    # a group from the next sentence. Read explicit counts independently.
+    per_group = _PER_GROUP.search(_ROW_DETAIL.sub(" ", original))
+    count = _requested_count(" ".join(re.sub(r"[^\w\s'-]", " ", original).split()))
+    text, extremes = _BOTH_EXTREMES.subn(" ", original)
+    text, ordered = _ORDER_DIRECTION.subn(" ", text)
+    text = " ".join(re.sub(r"[^\w\s'-]", " ", text).split())
     # "at least once", "at most 3 days" are filters, not rankings.
     text = re.sub(r"\bat (?:least|most)\b", "at", text)
-    count = _requested_count(text)
     ranking = _RANKING_WORD.search(text)
 
-    if _PER_GROUP.search(text) and (count or ranking):
+    if per_group and (count or ranking):
         if count:
             return AnswerSize("per_group", count)
         return AnswerSize(
@@ -268,9 +329,15 @@ def answer_size(question: str) -> AnswerSize:
         )
     if count:
         return AnswerSize("count", count)
+    if extremes and ranking is None:
+        return AnswerSize("extremes")
     if _ALL.search(text):
         return AnswerSize("all")
     if ranking is None:
+        if ordered:
+            if _RANK_COMMAND.search(text):
+                return AnswerSize("list", DEFAULT_LIST_ROWS)
+            return AnswerSize("all")
         if _RANKED_BY.search(text):
             return AnswerSize("list", DEFAULT_LIST_ROWS)
         return AnswerSize("open")

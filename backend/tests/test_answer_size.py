@@ -130,3 +130,79 @@ def test_groupings_and_filters_by_something_are_not_rankings(question: str) -> N
 def test_lists_are_ordered_from_highest_unless_asking_for_the_lowest() -> None:
     text = AnswerSize("list", 10).instruction
     assert "from highest to lowest" in text and "lowest first only" in text
+
+
+@pytest.mark.parametrize(
+    ("question", "expected"),
+    [
+        (
+            "List the top 4 observatories and show the altitude for each.",
+            AnswerSize("count", 4),
+        ),
+        (
+            "List the top four observatories and display the elevation for each of them.",
+            AnswerSize("count", 4),
+        ),
+        (
+            "Show the top 4 turbines with their locations for each. Include units.",
+            AnswerSize("count", 4),
+        ),
+        ("Show the top 4 turbines for each wind farm.", AnswerSize("per_group", 4)),
+        (
+            "Show the top four turbines for each of the regions.",
+            AnswerSize("per_group", 4),
+        ),
+        ("For each of them, show the top four turbines.", AnswerSize("per_group", 4)),
+        ("In every wind farm, show the highest turbine first.", AnswerSize("all")),
+        (
+            "Which turbine has the highest output in each wind farm?",
+            AnswerSize("per_group", 1),
+        ),
+        ("List labs by average humidity, lowest to highest.", AnswerSize("all")),
+        (
+            "Show average speed per vehicle, highest average speed first.",
+            AnswerSize("all"),
+        ),
+        ("Show building totals in descending order.", AnswerSize("all")),
+        (
+            "Rank labs by average temperature from highest to lowest.",
+            AnswerSize("list", DEFAULT_LIST_ROWS),
+        ),
+        (
+            "Show rates lowest to highest, then return the top 4 districts.",
+            AnswerSize("count", 4),
+        ),
+        (
+            "Use lowest bid first and return the bottom 3 per region.",
+            AnswerSize("per_group", 3),
+        ),
+        ("Show top-rated telescopes.", AnswerSize("list", DEFAULT_LIST_ROWS)),
+        (
+            "Which top-rated telescopes fit in a backpack?",
+            AnswerSize("list", DEFAULT_LIST_ROWS),
+        ),
+        ("Show the top-rated telescope.", AnswerSize("single")),
+    ],
+)
+def test_ranked_selection_and_display_order(
+    question: str, expected: AnswerSize
+) -> None:
+    assert answer_size(question) == expected
+
+
+@pytest.mark.parametrize(
+    "question",
+    [
+        "Show the shortest and longest delivery times.",
+        "For each service lane, give the maximum and the minimum waiting time.",
+        "List the earliest and latest observation dates, earliest first.",
+    ],
+)
+def test_both_extremes_share_one_instruction(question: str) -> None:
+    instruction = answer_size(question).instruction
+    assert instruction and "MIN" in instruction and "MAX" in instruction
+    assert (
+        "both" in instruction
+        and "LIMIT" not in instruction
+        and "RANK()" not in instruction
+    )
