@@ -6,6 +6,7 @@ from contextlib import redirect_stderr
 from dataclasses import dataclass
 import io
 import json
+from pathlib import Path
 from types import SimpleNamespace
 import sys
 from unittest.mock import MagicMock, Mock, patch
@@ -372,7 +373,10 @@ def test_fixed_control_state_machine_has_no_replay_and_normal_grant_trigger_upda
     assert "history_generation=1" in changes[3][0]
 
 
-def test_install_keeps_actual_analysis_lifecycle_but_supplies_fail_closed_engine():
+def test_install_keeps_actual_analysis_lifecycle_but_supplies_fail_closed_engine(
+    monkeypatch,
+):
+    monkeypatch.syspath_prepend(str(Path(__file__).resolve().parents[2] / "backend"))
     notes, _ = setup()
     main = SimpleNamespace(app=SimpleNamespace(state=SimpleNamespace()))
     constructor = Mock(return_value=SimpleNamespace())
