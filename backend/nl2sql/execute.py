@@ -49,8 +49,10 @@ class QueryError(RuntimeError):
 class QueryResult:
     """What a query returned.
 
-    `sql` is the statement with the row limit applied, as a user should
-    see it. `truncated` is True when there were more rows than max_rows.
+    `sql` is the analytical statement shown to the user. For FETCH WITH TIES
+    it preserves the native cutoff and ordering. Aqua additionally limits
+    rows fetched from the cursor. An external SQL client sets its own cap.
+    `truncated` is True when there were more rows than max_rows.
     """
 
     sql: str
@@ -59,29 +61,40 @@ class QueryResult:
     truncated: bool
 
 
-def limit_rows(query: exp.Query, max_rows: int = DEFAULT_MAX_ROWS) -> exp.Query:
-    """Return a copy of a validated query that returns at most max_rows.
-
-    A query with no limit gets one, a limit above max_rows is lowered,
-    and a smaller limit is left alone. Only the outer query is changed,
-    so ORDER BY, OFFSET and limits inside subqueries keep working.
-    """
+def _requested_limit(query: exp.Query) -> tuple[int | None, bool]:
+    """Return the outer row count and whether PostgreSQL must include its peers."""
     current = query.args.get("limit")
     if current is None:
-        requested = None
-    elif isinstance(current, exp.Fetch):
-        # Postgres FETCH FIRST n ROWS ONLY, another way to write LIMIT n.
+        return None, False
+    ties = False
+    if isinstance(current, exp.Fetch):
+        options = current.args.get("limit_options")
+        if options and options.args.get("percent"):
+            raise UnsafeQueryError("FETCH must specify a row count.")
+        ties = bool(options and options.args.get("with_ties"))
         requested = current.args.get("count")
+        if requested is None:
+            return 1, ties  # FETCH FIRST ROW defaults to one under PostgreSQL.
     else:
         requested = current.expression  # None for LIMIT ALL
-
     if requested is None:
-        return query.limit(max_rows)
+        return None, False
     if not (isinstance(requested, exp.Literal) and requested.is_int):
-        # An expression like LIMIT 1+1. Rare, and guessing its value
-        # could raise the limit the model asked for, so refuse it.
         raise UnsafeQueryError("LIMIT must be a whole number.")
-    return query.limit(min(int(requested.this), max_rows))
+    return int(requested.this), ties
+
+
+def limit_rows(query: exp.Query, max_rows: int = DEFAULT_MAX_ROWS) -> exp.Query:
+    """Cap the outer row limit of a query whose result allows a literal LIMIT."""
+    requested, ties = _requested_limit(query)
+    if ties:
+        raise UnsafeQueryError("FETCH WITH TIES requires bounded cursor execution.")
+    return query.limit(max_rows if requested is None else min(requested, max_rows))
+
+
+def _set_remaining_timeout(conn: psycopg.Connection) -> None:
+    milliseconds = max(1, int(remaining(10) * 1000))
+    conn.execute("SELECT set_config('statement_timeout',%s,true)", (str(milliseconds),))
 
 
 def execute(
@@ -100,6 +113,8 @@ def execute(
         raise TypeError(
             "execute() takes the parsed query from validate_sql(), not a string."
         )
+    if type(max_rows) is not int or max_rows < 0:
+        raise ValueError("max_rows must be a non-negative integer.")
 
     query = query.copy()
     if dialect == "postgres":
@@ -108,28 +123,48 @@ def execute(
         for table in physical_tables(query):
             if isinstance(table.this, exp.Identifier) and not table.db:
                 table.set("db", exp.to_identifier("public"))
-    probe_sql = limit_rows(query, max_rows + 1).sql(dialect=dialect)
+    _, ties = _requested_limit(query)
+    if ties:
+        if dialect != "postgres":
+            raise UnsafeQueryError("FETCH WITH TIES requires PostgreSQL.")
+        probe_sql = shown_sql = query.sql(dialect=dialect)
+    else:
+        probe_sql = limit_rows(query, max_rows + 1).sql(dialect=dialect)
+        shown_sql = limit_rows(query, max_rows).sql(dialect=dialect)
     with connect(settings) as conn:
         try:
             # Only resolve built-ins; public functions can overload safe names.
             # The validator already qualifies approved tables with public.
             # This is transaction-local, never a change to roles or hosted storage.
             conn.execute("SET LOCAL search_path = pg_catalog")
-            if CURRENT.get():
-                milliseconds = max(1, int(remaining(10) * 1000))
-                conn.execute(
-                    "SELECT set_config('statement_timeout',%s,true)",
-                    (str(milliseconds),),
-                )
+            budget = CURRENT.get()
+            if budget:
+                _set_remaining_timeout(conn)
                 conn.execute("SET LOCAL lock_timeout = '1s'")
-            cursor = conn.execute(probe_sql)
-            rows = cursor.fetchall()
+            if ties:
+                # The peer group at the cutoff can be arbitrarily large. A
+                # server cursor keeps the original ORDER BY and OFFSET while
+                # transferring only the bounded prefix, even when tied fields
+                # are absent from the employee's requested output columns.
+                with conn.cursor(
+                    name="aqua_tied_rows", scrollable=False, withhold=False
+                ) as cursor:
+                    cursor.execute(probe_sql)
+                    if budget:
+                        _set_remaining_timeout(conn)
+                    rows = cursor.fetchmany(max_rows + 1)
+                    columns = [column.name for column in cursor.description or []]
+                    if budget:
+                        budget.remaining()
+            else:
+                cursor = conn.execute(probe_sql)
+                rows = cursor.fetchall()
+                columns = [column.name for column in cursor.description or []]
         except psycopg.Error as exc:
             raise QueryError(query_code(exc.sqlstate)) from None
-        columns = [column.name for column in cursor.description or []]
 
     return QueryResult(
-        sql=limit_rows(query, max_rows).sql(dialect=dialect),
+        sql=shown_sql,
         columns=columns,
         rows=rows[:max_rows],
         truncated=len(rows) > max_rows,

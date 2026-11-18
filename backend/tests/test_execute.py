@@ -4,11 +4,14 @@ The row-limit and unit tests need no database. The test_real_* tests run
 against disposable fixtures as nl2sql_reader; ordinary DATABASE_URL is ignored.
 """
 
+import time
+
 import psycopg
 import pytest
 
 from nl2sql import execute as execute_module
 from nl2sql.config import Settings, load_settings
+from nl2sql.control import Budget, CURRENT, ExecutionStopped
 from nl2sql.db import DatabaseError
 from nl2sql.execute import DEFAULT_MAX_ROWS, QueryError, execute, limit_rows
 from nl2sql.validate import UnsafeQueryError, validate_sql
@@ -103,6 +106,28 @@ def test_original_query_is_not_changed() -> None:
     assert tree.sql() == "SELECT title FROM film LIMIT 5000"
 
 
+@pytest.mark.parametrize("direction", ["FIRST", "NEXT"])
+def test_omitted_fetch_only_count_defaults_to_one(direction):
+    assert limited(f"SELECT title FROM film FETCH {direction} ROW ONLY") == (
+        "SELECT title FROM film LIMIT 1"
+    )
+
+
+def test_ties_cannot_be_hard_capped_by_replacing_the_fetch_clause():
+    with pytest.raises(UnsafeQueryError, match="bounded cursor"):
+        limited("SELECT title FROM film ORDER BY length FETCH FIRST 2 ROWS WITH TIES")
+
+
+@pytest.mark.parametrize(
+    "suffix", ["FETCH FIRST (1 + 1) ROWS WITH TIES", "FETCH FIRST 2 PERCENT ROWS ONLY"]
+)
+def test_unsupported_fetch_counts_are_rejected_before_contacting_the_database(suffix):
+    with pytest.raises(UnsafeQueryError):
+        execute(
+            validate_sql(f"SELECT title FROM film ORDER BY length {suffix}"), Settings()
+        )
+
+
 # ---- execute, with a stand-in connection ----
 
 
@@ -141,6 +166,89 @@ def use_fake(monkeypatch: pytest.MonkeyPatch, conn: FakeConnection) -> None:
 
 
 SETTINGS = Settings(database_url="postgresql://u:p@db.example.test/tsdb")
+
+
+@pytest.mark.parametrize("failure", [None, "expired", "fetch_error"])
+def test_ties_use_one_bounded_forward_fetch_and_close_the_cursor(monkeypatch, failure):
+    class Portal(FakeCursor):
+        def __enter__(self):
+            self.closed = False
+            return self
+
+        def __exit__(self, *exc):
+            self.closed = True
+
+        def execute(self, sql):
+            self.statement = sql
+            if failure == "expired":
+                budget.deadline = time.monotonic() - 1
+
+        def fetchmany(self, n):
+            self.requested = n
+            if failure == "fetch_error":
+                raise psycopg.errors.QueryCanceled("private text from the fixture")
+            return self._rows[:n]
+
+        def fetchall(self):
+            pytest.fail("the driver must never request the full tie group")
+
+    class Connection(FakeConnection):
+        def execute(self, sql, *params):
+            return super().execute(sql)
+
+        def cursor(self, name, *, scrollable, withhold):
+            assert name and not scrollable and not withhold
+            return portal
+
+    portal = Portal(["title"], [(str(i),) for i in range(6)])
+    conn = Connection()
+    use_fake(monkeypatch, conn)
+    query = validate_sql(
+        "SELECT title FROM film ORDER BY length FETCH FIRST ROW WITH TIES"
+    )
+    budget = Budget(time.monotonic() + 30, lambda _: None)
+    token = CURRENT.set(budget)
+    try:
+        if failure == "expired":
+            with pytest.raises(ExecutionStopped, match="analysis_expired"):
+                execute(query, SETTINGS, max_rows=3)
+            assert not hasattr(portal, "requested")
+        elif failure == "fetch_error":
+            with pytest.raises(QueryError) as caught:
+                execute(query, SETTINGS, max_rows=3)
+            assert caught.value.code == "timeout" and "private text" not in str(
+                caught.value
+            )
+        else:
+            result = execute(query, SETTINGS, max_rows=3)
+            assert portal.requested == 4
+            assert "WITH TIES" in result.sql and result.sql == portal.statement
+            assert result.columns == ["title"] and result.rows == [
+                ("0",),
+                ("1",),
+                ("2",),
+            ]
+            assert result.truncated
+    finally:
+        CURRENT.reset(token)
+    assert portal.closed
+
+
+@pytest.mark.parametrize("cap", [-1, False, 1.5])
+def test_invalid_cursor_cap_is_rejected_before_connecting(cap):
+    query = validate_sql(
+        "SELECT title FROM film ORDER BY length FETCH FIRST ROW WITH TIES"
+    )
+    with pytest.raises(ValueError, match="non-negative integer"):
+        execute(query, Settings(), max_rows=cap)
+
+
+def test_ties_are_never_rendered_using_an_unqualified_dialect():
+    query = validate_sql(
+        "SELECT title FROM film ORDER BY length FETCH FIRST ROW WITH TIES"
+    )
+    with pytest.raises(UnsafeQueryError, match="requires PostgreSQL"):
+        execute(query, Settings(), dialect="sqlite")
 
 
 def test_asks_for_one_extra_row_and_reports_columns(
@@ -207,6 +315,35 @@ REAL = load_settings()
 
 # A table and its key on each database, for the tests below.
 TABLE = {"bank": ("trans", "trans_id"), "pagila": ("film", "film_id")}
+
+
+@pytest.mark.parametrize(
+    ("ending", "cap", "expected", "truncated"),
+    [
+        ("FETCH FIRST ROW ONLY", 5, [1], False),
+        ("FETCH FIRST ROW WITH TIES", 5, [1, 1], False),
+        ("OFFSET 1 ROW FETCH NEXT 2 ROWS WITH TIES", 5, [1, 2, 2], False),
+        ("FETCH FIRST 3 ROWS WITH TIES", 4, [1, 1, 2, 2], False),
+        ("FETCH FIRST 3 ROWS WITH TIES", 3, [1, 1, 2], True),
+        ("FETCH FIRST 100 ROWS WITH TIES", 2, [1, 1], True),
+        ("FETCH FIRST 0 ROWS WITH TIES", 3, [], False),
+        ("FETCH FIRST ROW WITH TIES", 0, [], True),
+    ],
+)
+def test_real_fetch_membership_order_projection_and_truncation(
+    live_database, ending, cap, expected, truncated
+):
+    # Repeated output values make order within ties immaterial, while the
+    # distinct sort key remains absent from the projection the employee sees.
+    sql = (
+        "SELECT label FROM (VALUES (2, 10), (1, 20), (3, 5), (2, 10), (1, 20)) "
+        f"AS sample(label, score) ORDER BY score DESC {ending}"
+    )
+    result = execute(validate_sql(sql, allowed_tables=set()), REAL, max_rows=cap)
+    assert result.columns == ["label"] and result.rows == [(n,) for n in expected]
+    assert result.truncated is truncated
+    replay = execute(validate_sql(result.sql, allowed_tables=set()), REAL, max_rows=cap)
+    assert replay == result
 
 
 def test_real_query_returns_rows(live_database: str) -> None:

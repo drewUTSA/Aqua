@@ -1,7 +1,7 @@
 """Current243 image profile; original historical receipts remain unchanged."""
 
-IMAGE = "sha256:f383a44b5c3bd5a71e2dc4f707411e6a2f4286fbce86f35d4fda4d00685fe5d7"
-MANIFEST_SHA256 = "02104ff9331d9f2f3eecb4c7971817ac294412d5e0831bd6c38ad4eb44beac90"
+IMAGE = "sha256:90d66cc37cb8ae3cce6552f4b06987e3271d03196c583647ca1c7be2feec401b"
+MANIFEST_SHA256 = "b7cf5c0bb3d706a9f1ec7213fc781e8842e2d6606951d21982ff343de41143e9"
 RUNTIME_FILES = {
     "account/__init__.py": "4d300929fcb6d0c0e3a6b92377bfd4648fc336a8ad2bfb3e962d810b3b6f55e0",
     "account/action_contracts.py": "be3becba0a54378a847efdaa76cc833e3b780df3658c90d30f86a7852232a397",
@@ -139,7 +139,7 @@ RUNTIME_FILES = {
     "nl2sql/db.py": "b2364c06d9ecfa093f8ddbd8eb2fe6efc591e1fce5f1694b2f718ca94cbde56d",
     "nl2sql/display.py": "c9a1f3bf2bbd1aa069460288a2a204cd4eb30e1fde1b61f864e194322256a02f",
     "nl2sql/errors.py": "f89f0ade89097788337a1c8a7d73263f070a319276aaf655f01ca21cd4b2a58d",
-    "nl2sql/execute.py": "c5b8ca14dbe15fd999e61b2237b1be4b839a6fcdf483852f8b9c0139e0bf913f",
+    "nl2sql/execute.py": "25e2e6ccd6fd3a5950f16bc6e322b75f57c55a78f064e0e5f408ce315553b2db",
     "nl2sql/function_policy.py": "089e81255fa66be290e6a7f9cd6fde6fbad8beb6b5b74c135d48fdd1ca55de00",
     "nl2sql/generate.py": "bad94ef9a2e0bd43973ca83196ed4d6513146b0ebeb7fd5a8a4208cfb893e9b9",
     "nl2sql/llm.py": "340adaa1468242e93aea95833519d4c9778c4f93529cbc9814e144753822c9ae",
