@@ -571,7 +571,7 @@ try {
     await evaluate("window.__reliabilityWorkspace=document.querySelector('.opal-workspace');true");
     if(JOURNEY.startsWith("optional-")){
       await optionalViewFailure(ctx,JOURNEY==="optional-settings"?"settings":"prompts");
-      // Vite can request the same module through preload and import. The fault
+      // A browser can request the same module through preload and import. The fault
       // stays on one fixed module and two bounded GETs, never another resource.
       assert.equal(deniedOptionalModules.size,1,"one_fixed_optional_module_failed");
       assert.ok(reliabilityFaults.chunk_denials>=1&&reliabilityFaults.chunk_denials<=2,"bounded_optional_module_get_denials");

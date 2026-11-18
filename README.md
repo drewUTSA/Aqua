@@ -61,7 +61,7 @@ The application PostgreSQL is separate from the hosted analytical database. It h
 P04 introduced email-first registration, fresh-password verification, password login, reset/session fencing, bounded Argon2id work, an offline common-password corpus and encrypted account mail with reserved recovery/security capacity. Activation flags remain off by default for new installations; this production installation completed the reviewed P05 activation. P06 required schema 4; the deployed P10c release now uses schema 7. New installations must apply the reviewed migrations explicitly before starting the matching backend.
 
 Frontend presentation is selected at build time: `AQUA_UI_SHELL=opal` (default) or
-`legacy` for Docker/Compose, and `VITE_AQUA_UI_SHELL` for direct Vite builds.
+`legacy` for Docker/Compose, and `VITE_AQUA_UI_SHELL` for direct frontend builds.
 Legacy restores classic blue/glass presentation using the same current auth,
 account ownership and semantic composer. It is not a security-policy or user
 preference switch. Invalid values fail; rebuild only the frontend to change it.

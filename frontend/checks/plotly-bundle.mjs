@@ -1,4 +1,4 @@
-// Usage: node checks/plotly-bundle.mjs <Vite dist with --manifest> [P07 dist]
+// Usage: node checks/plotly-bundle.mjs <Aqua dist with --manifest> [P07 dist]
 // Reports actual byte counts. It never imports/evaluates the browser engine.
 import assert from "node:assert/strict";
 import { readFile, lstat,realpath } from "node:fs/promises";
@@ -21,7 +21,7 @@ async function counts(directory, names) {
   for (const name of [...names].sort()) { const data = await asset(directory, name); items.push({ file: name, bytes: data.length, gzip_bytes: gzipSync(data).length }); }
   return { files: items, bytes: items.reduce((sum, item) => sum + item.bytes, 0), gzip_bytes: items.reduce((sum, item) => sum + item.gzip_bytes, 0) };
 }
-const raw = await asset(root, ".vite/manifest.json"); assert.ok(raw.length < 100000);
+const raw = await asset(root, ".aqua/manifest.json"); assert.ok(raw.length < 100000);
 const manifest = JSON.parse(raw), entries = Object.keys(manifest).filter((key) => manifest[key].isEntry);
 assert.equal(entries.length, 1, "single_app_entry_required"); assert.ok(Object.keys(manifest).length <= 100);
 function walk(keys, dynamic = false, seen = new Set()) {

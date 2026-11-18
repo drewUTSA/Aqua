@@ -3,7 +3,7 @@ import test from "node:test";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { readFile } from "node:fs/promises";
-import { transformWithEsbuild } from "vite";
+import { transform } from "esbuild";
 import { advertisedModels, matchMenuText, moveMenuIndex, placeMenu } from "../src/components/navigation/menuPolicy.js";
 
 test("roving keys wrap enabled actions and skip the unavailable demo sign-out", () => {
@@ -58,7 +58,7 @@ test("floating menus stay within desktop, mobile, zoomed and keyboard viewport b
 const compiled = new Map();
 async function jsxModule(url) {
   if (compiled.has(url.href)) return compiled.get(url.href);
-  const transformed = await transformWithEsbuild(await readFile(url, "utf8"), url.pathname, { loader: "jsx", format: "esm" });
+  const transformed = await transform(await readFile(url, "utf8"), { sourcefile: url.pathname, loader: "jsx", format: "esm" });
   let code = transformed.code.replace(/import\s+["'][^"']+\.css["'];?/g, "");
   const replacements = new Map();
   for (const match of code.matchAll(/from\s+["']([^"']+)["']/g)) {
