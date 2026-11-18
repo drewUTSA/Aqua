@@ -3,14 +3,14 @@ import test from "node:test";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { readFile } from "node:fs/promises";
-import { transformWithEsbuild } from "vite";
+import { transform } from "esbuild";
 import { resultFixture } from "./result-companion-fixture.mjs";
 import { decodeResultBrief } from "../src/features/resultCompanion/contract.js";
 import { resultFollowupFields } from "../src/features/resultCompanion/followup.js";
 import { prepareGuidedQuestion } from "../src/services/guidedQuestion.js";
 
 async function jsxModule(url) {
-  const transformed = await transformWithEsbuild(await readFile(url, "utf8"), url.pathname, { loader: "jsx", format: "esm" });
+  const transformed = await transform(await readFile(url, "utf8"), { sourcefile: url.pathname, loader: "jsx", format: "esm" });
   let code = transformed.code.replace(/import\s+["'][^"']+\.css["'];?/g, "");
   const imports = new Map();
   for (const match of code.matchAll(/from\s+["']([^"']+)["']/g)) {

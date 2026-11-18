@@ -18,11 +18,11 @@ import "../../styles/workspace-library.css";
 import "../../styles/preferences.css";
 import "../../styles/homepage.css";
 
-const SettingsShell = lazy(() => import("../../pages/SettingsShell.jsx"));
-const PromptLibraryDialog = lazy(() => import("./PromptLibraryDialog.jsx"));
+const SettingsShell = lazy(() => import(/* webpackChunkName: "SettingsShell" */ "../../pages/SettingsShell.jsx"));
+const PromptLibraryDialog = lazy(() => import(/* webpackChunkName: "PromptLibraryDialog" */ "./PromptLibraryDialog.jsx"));
 const QuickSwitcher = lazy(() => import("./QuickSwitcher.jsx"));
-const CompanionToolsDialog = lazy(() => import("./CompanionToolsDialog.jsx"));
-const ResultCompanionHost = lazy(() => import("../../features/resultCompanion/ResultCompanionHost.jsx"));
+const CompanionToolsDialog = lazy(() => import(/* webpackChunkName: "CompanionToolsDialog" */ "./CompanionToolsDialog.jsx"));
+const ResultCompanionHost = lazy(() => import(/* webpackChunkName: "ResultCompanionHost" */ "../../features/resultCompanion/ResultCompanionHost.jsx"));
 const DemoWorkspace = lazy(() => import("./DemoWorkspace.jsx"));
 
 export default function Workspace({ auth, hidden, path, onNavigate }) {

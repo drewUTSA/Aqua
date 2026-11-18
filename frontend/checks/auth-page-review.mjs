@@ -1,4 +1,4 @@
-// Native Chrome/CDP review against an existing local Vite preview. No real auth/API calls.
+// Native Chrome/CDP review against an existing local Aqua preview. No real auth/API calls.
 import { spawn } from "node:child_process";
 import { mkdtemp, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
