@@ -1,7 +1,7 @@
 # Aqua
 
-> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](docs/implementation/PERSONAL_COMPUTER_RESUME_20261117.md).
-> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+> **November 18 restart point.** Read the [current Aqua handoff](AQUA_CODEX_HANDOFF.md) for the merged companion features, their configuration and the outstanding release gates.
+> Production remains on schema 8. The [November 17 operator handoff](docs/implementation/PERSONAL_COMPUTER_RESUME_20261117.md) records the earlier recovery work.
 
 Ask a database a question in plain English. Get back data, a readable summary and the exact SQL that produced it.
 

@@ -43,6 +43,7 @@ export function ResultCompanionFacts({ brief }) {
 export function ResultCompanionContent({ binding, state, onColumn, onRetry, onIntent, guide, onField, onPrepare, onDraft, onApply, fieldRefs, canApply = true }) {
   const selectId = useId(), questionId = useId(), draftId = useId();
   const brief = state.reply?.brief, guiding = brief && guide?.ticket === state.ticket;
+  const draftError = guide?.error?.field === "draft";
   return <div className="result-companion" data-result-companion>
     <p>These checks use your saved answer. They do not rerun its query, explain business causes or perform actions.</p>
     <section aria-labelledby={questionId}><h3 id={questionId}>Original question</h3><p className="result-companion__question">{brief?.question || binding.question || "Read the saved-field check to see its original question."}</p></section>
@@ -61,9 +62,10 @@ export function ResultCompanionContent({ binding, state, onColumn, onRetry, onIn
           <GuidedQuestionFields fields={guide.fields} error={guide.error} onField={onField} onPrepare={onPrepare} fieldRefs={fieldRefs} />
           {!guide.fields.measure && <p>Add the measure you want Aqua to return. No suggested value was truncated to fit.</p>}
           <label htmlFor={draftId}>Follow-up draft for review</label>
-          <textarea id={draftId} data-result-draft value={guide.draft} maxLength={2000} rows={5} onChange={event => onDraft(event.target.value)} />
-          {guide.error?.field === "draft" && <p role="alert">{guide.error.message}</p>}
-          <p>{guide.dirty ? "Prepare the draft to review the current guide fields." : guide.edited ? "Your edited draft is what will be applied. Prepare again to replace it with the guide fields." : "Review the draft before applying. Unspecified details remain explicit."} Your composer will be replaced only after Apply. Nothing is sent.</p>
+          <textarea id={draftId} data-result-draft value={guide.draft} maxLength={2000} rows={5} onChange={event => onDraft(event.target.value)}
+            aria-invalid={draftError || undefined} aria-describedby={draftError ? `${draftId}-help ${draftId}-error` : `${draftId}-help`} />
+          {draftError && <p id={`${draftId}-error`} role="alert">{guide.error.message}</p>}
+          <p id={`${draftId}-help`}>{guide.dirty ? "Prepare the draft to review the current guide fields." : guide.edited ? "Your edited draft is what will be applied. Prepare again to replace it with the guide fields." : "Review the draft before applying. Unspecified details remain explicit."} Your composer will be replaced only after Apply. Nothing is sent.</p>
           {guide.conflict && <p role="alert">Your composer or selected result changed. Its text was preserved. Close this panel and review the current draft.</p>}
           {!canApply && <p>Applying a follow-up requires current data access and an active, unarchived chat.</p>}
           <button type="button" data-result-apply disabled={!canApply || guide.dirty || !!guide.error || !guide.draft.trim()} onClick={onApply}>Apply to composer draft</button>
@@ -103,7 +105,7 @@ export default function ResultCompanionDialog({ binding, csrfToken, historyConte
       guide={guide} onField={onField} onPrepare={onPrepare} fieldRefs={fieldRefs} onApply={apply}
       canApply={canApply} onDraft={value => { if (!currentGuide()) return;
         let error = null;
-        try { boundedCompanionQuestion(value); } catch { if (value) error = { field: "draft", message: "Use plain text with no more than 2,000 characters and 8,000 UTF-8 bytes." }; }
+        try { boundedCompanionQuestion(value); } catch { if (value) error = { field: "draft", message: "Use nonblank plain text with no more than 2,000 characters and 8,000 UTF-8 bytes." }; }
         setGuide(current => ({ ...current, draft: value, dirty: false, edited: true, error, conflict: false })); }} />
     <div className="settings-dialog-actions"><button type="button" ref={closeRef} data-close-result-companion onClick={onClose}>Close result companion</button></div>
   </PreferenceDialog>;

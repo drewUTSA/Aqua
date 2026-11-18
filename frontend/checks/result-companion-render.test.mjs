@@ -67,6 +67,20 @@ test("follow-up reuses editable guide fields and explicit prepare/apply without 
   const readonly = render({}, { guide: { ...guide, dirty: false }, canApply: false }); assert.match(readonly, /active, unarchived chat/);
 });
 
+test("only a draft-specific error marks the follow-up invalid and describes its correction", () => {
+  const fields = resultFollowupFields("missing_values", "Sample value");
+  for (const error of [null, { field: "measure", message: "Choose a measure." }, { field: "draft", message: "Enter nonblank text." }]) {
+    const guide = { fields, draft: " ", ticket: 1, error, conflict: true };
+    const html = render({}, { guide });
+    const control = html.match(/<textarea[^>]*data-result-draft[^>]*>/)[0];
+    const id = control.match(/ id="([^"]+)"/)[1], invalid = error?.field === "draft";
+    assert.equal(control.includes('aria-invalid="true"'), invalid);
+    assert.ok(control.includes(`aria-describedby="${id}-help${invalid ? ` ${id}-error` : ""}"`));
+    assert.ok(html.includes(`<p id="${id}-help">`));
+    assert.equal(html.includes(`<p id="${id}-error" role="alert">Enter nonblank text.</p>`), invalid);
+  }
+});
+
 test("hostile question and field labels are literal text, never markup or links", () => {
   const f = resultFixture(), hostile = '<img src=x onerror="bad()">';
   f.binding.question = hostile; f.reply.brief.question = hostile;

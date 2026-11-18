@@ -51,6 +51,9 @@ export function makeCompiler({ directory = dist, deletionFixture = false, dev = 
     plugins: [
       new rspack.DefinePlugin({ "import.meta.env": JSON.stringify(buildEnv) }),
       new rspack.HtmlRspackPlugin({ ...html, scriptLoading: "defer" }),
+      ...(deletionFixture ? [] : [new rspack.CopyRspackPlugin({ patterns: [
+        { from: "src/assets/brand/*.png", to: "assets/[name][ext]" },
+      ] })]),
     ],
     // Preserve the logical name of each separately fallible view and chart.
     optimization: { splitChunks: false, minimizer: [

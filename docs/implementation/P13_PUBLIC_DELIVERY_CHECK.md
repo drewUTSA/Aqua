@@ -107,6 +107,22 @@ secure-cookie/CSRF behavior, restricted discovery policy and truthful contact/
 retention statements, exact release/recovery evidence and operator review.
 Keep production policy changes in their own reviewed change.
 
+## Restricted page metadata and brand artwork
+
+The initial HTML uses a shared AQUA title and description. After the app loads,
+each supported route sets a description from fixed copy. Public screens use
+their own titles. The workspace and Settings use neutral titles. Chat text,
+search terms, identifiers and email-link proofs stay out of page metadata.
+The site continues to request `noindex, nofollow`.
+
+The static Open Graph card always points to the Aqua homepage and a 1200×630
+brand image. The 16px and 32px tab icons, 180px touch icon and share image use
+the Opal sign-in droplet on its charcoal background. Their filenames contain
+the first 12 hexadecimal characters of the PNG's SHA-256 for immutable asset
+caching. When replacing artwork, update its filename and the matching reference
+in `frontend/index.html`. Metadata and asset delivery can be checked locally
+without submitting a link to a social service.
+
 ## Offline verification
 
 ```text

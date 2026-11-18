@@ -1,9 +1,9 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useGoogleAuth } from "./hooks/useGoogleAuth.js";
 import AuthPage from "./pages/AuthPage.jsx";
 import LegalPage from "./pages/LegalPage.jsx";
 import Workspace from "./components/workspace/Workspace.jsx";
-import { AUTH_PATHS, ACCOUNT_ACTION_PATHS, consumeLocation, navigateLocal } from "./services/routes.js";
+import { AUTH_PATHS, ACCOUNT_ACTION_PATHS, LOCAL_PATHS, consumeLocation, navigateLocal, pageDescription } from "./services/routes.js";
 import AccountActionLanding from "./pages/AccountActionLanding.jsx";
 import NotificationProvider from "./settings/NotificationProvider.jsx";
 import { PreferencesProvider } from "./settings/PreferencesProvider.jsx";
@@ -15,6 +15,11 @@ const initialRoute = typeof window === "undefined" ? { path: "/", proof: null }
   : consumeLocation(window.location, window.history);
 export default function App() {
   const [route, setRoute] = useState(() => ({ ...initialRoute, revision: 0 }));
+  useLayoutEffect(() => {
+    document.querySelector('meta[name="description"]')?.setAttribute("content", pageDescription(route.path));
+    if (ACCOUNT_ACTION_PATHS.has(route.path)) document.title = "Review your account change | AQUA";
+    else if (!LOCAL_PATHS.has(route.path)) document.title = "Page not found | AQUA";
+  }, [route.path]);
   const guard = useRef(null), currentRoute = useRef(route);
   currentRoute.current = route;
   const registerGuard = useCallback((value) => { guard.current = value; }, []);

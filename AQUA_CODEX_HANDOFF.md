@@ -1,3 +1,17 @@
+## November 18 restart point
+
+Aqua's source on main at `8beb503` includes the fictional bank-report web tools, the saved-result companion, private saved notes, the frontend build repair and corrected monthly trend calculations. Each of the five pull requests passed all 15 checks. The combined source tree `7b9382f` passed 2,285 distinct backend tests across the Bank and Pagila fixtures, 844 frontend tests and 325 native checks. Schema 10 also passed a disposable matching-image application restore. The latest observed production checkout is `9aeaf4e` on schema 8. [Combined main CI](https://github.com/drewUTSA/Aqua/actions/runs/44342018893)
+
+| Employee workflow | Implementation and availability |
+| --- | --- |
+| Understand a saved result | The companion explains a result the user can currently read. It preserves exact numeric values and identifies missing data. The operator controls availability with `COMPANION_ENABLED`. [Saved-result contract](docs/implementation/RESULT_COMPANION_CONTRACT.md) |
+| Reuse a note | An employee can save a private note, prepare it, edit the draft and choose to send it. `CONTEXT_NOTES_ENABLED` defaults off and requires schema 10. [Saved-notes contract](docs/implementation/CONTEXT_NOTES_CONTRACT.md) |
+| Explore a bank workflow | The optional website reports and the standalone MCP use fictional data. The host selects the demo persona. The monthly trend tool now handles flat series correctly. [Web integration](docs/implementation/BANK_DEMO_WEB_CONTRACT.md) · [MCP setup](docs/implementation/BANK_MCP_DEMO.md) |
+
+P00–P10 are complete. P11 still needs a qualified production operator, original-key recovery, independently retained authority and guarded cutover. P12 needs real-provider quality and workload evidence against agreed objectives. P13 needs restricted deployment and checks at the actual ingress using supported devices and identity flows. The historical analytical hostnames returned NXDOMAIN. Restoring those data requires a verified current endpoint or an authorized snapshot. The portable public Pagila demo is available separately. [Recovery handoff](docs/implementation/PERSONAL_COMPUTER_RELEASE_HANDOFF.md) · [P12](docs/implementation/P12_PROGRESS.md) · [P13](docs/implementation/P13_PROGRESS.md) · [Portable analytics](docs/implementation/PORTABLE_ANALYTICS.md)
+
+Keep the existing Ollama weights and planner settings. The reviewed SQL adapter scored 30/67 against the base model's 33/67 and was rejected. A future bank connection requires a compatible approved interface, scoped credentials and verified identity/data mappings. The current delivery target is the synthetic demo.
+
 ## November17 standalone synthetic MCP source
 
 The [local bank MCP demonstration](docs/implementation/BANK_MCP_DEMO.md) adds
