@@ -3,9 +3,14 @@
 const visible = "el=>el.getClientRects().length&&!el.closest('[hidden],[inert]')";
 const q = JSON.stringify;
 export async function ensureNavigation({ evaluate, click, waitFor }) {
-  if (!await evaluate(`Boolean([...document.querySelectorAll('.opal-account [aria-label="Account menu"]')].find(${visible}))`)) {
-    await click('[aria-label="Open navigation"]');
-    await waitFor(`Boolean([...document.querySelectorAll('.opal-account [aria-label="Account menu"]')].find(${visible}))`, 'single_navigation_entry_ready');
+  const menu = '.opal-account [aria-label="Account menu"]', opener = '[aria-label="Open navigation"]';
+  const isVisible = selector => `Boolean([...document.querySelectorAll(${q(selector)})].find(${visible}))`;
+  // A newly loaded document may still be restoring the session. Both controls
+  // are absent until the workspace mounts in its desktop or drawer layout.
+  await waitFor(isVisible(`${menu},${opener}`), 'workspace_navigation_ready');
+  if (!await evaluate(isVisible(menu))) {
+    await click(opener);
+    await waitFor(isVisible(menu), 'single_navigation_entry_ready');
   }
 }
 export async function openAccount(ctx) {
