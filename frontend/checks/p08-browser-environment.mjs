@@ -25,9 +25,17 @@ function configured(name) {
 export function setupDiagnostic(error, ctx) {
   const token = (value, pattern = /^[a-zA-Z0-9_]{1,96}$/) => typeof value === 'string' && value.length <= 96 && pattern.test(value) ? value : null;
   const diagnostic = ctx?.cdp?.diagnostic;
+  const pipe = ctx?.cdp, child = pipe?.child;
+  const milliseconds = value => Number.isFinite(value) && value >= 0 && value <= Number.MAX_SAFE_INTEGER ? Math.round(value) : null;
   const bridge = ctx?.bridge?.diagnostic;
   return { category: token(error?.message, /^[a-z0-9_]{1,96}$/) || token(error?.name) || 'setup_failed', stage: token(ctx?.stage) || 'configuration',
-    browser: diagnostic ? { reason: token(diagnostic.reason), stage: token(diagnostic.stage), method: token(diagnostic.method, /^[A-Za-z]+\.[A-Za-z]+$/), pending_count: Number.isSafeInteger(diagnostic.pending_count) ? diagnostic.pending_count : null } : null,
+    browser: diagnostic ? { reason: token(diagnostic.reason), stage: token(diagnostic.stage), method: token(diagnostic.method, /^[A-Za-z]+\.[A-Za-z]+$/), pending_count: Number.isSafeInteger(diagnostic.pending_count) ? diagnostic.pending_count : null,
+      elapsed_ms: milliseconds(diagnostic.elapsed_ms), timeout_ms: milliseconds(diagnostic.timeout_ms),
+      // browser_stopped below is the strict success verdict. These independent
+      // observations distinguish a failed handshake from an unreaped child.
+      child_exit_observed: child ? Number.isInteger(child.exitCode) || typeof child.signalCode === "string" : null,
+      stdio_close_observed: pipe.drained === true, signal_sent: child ? child.killed === true : null,
+      close_kind: ["normal_exit", "signal_exit", "abnormal_exit"].includes(pipe.closeKind) ? pipe.closeKind : null } : null,
     bridge: bridge ? { kind: token(bridge.kind), category: token(bridge.category), stage: token(bridge.stage), module: token(bridge.module, /^[a-zA-Z0-9_.]{1,96}$/) } : null,
     cleanup: ctx?.cleanup ? { browser_stopped: ctx.cleanup.browser_stopped === true, profile_removed: ctx.cleanup.profile_removed === true, loopback_closed: ctx.cleanup.loopback_closed === true, backend_resources_removed: ctx.cleanup.backend_resources_removed === true,
       backend_status: token(ctx.cleanup.backend?.status), backend_cleanup: token(ctx.cleanup.backend?.cleanup), remaining_resources: Array.isArray(ctx.cleanup.backend?.remaining_ids) ? ctx.cleanup.backend.remaining_ids.length : null } : null };
