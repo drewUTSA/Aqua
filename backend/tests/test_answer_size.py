@@ -206,3 +206,63 @@ def test_both_extremes_share_one_instruction(question: str) -> None:
         and "LIMIT" not in instruction
         and "RANK()" not in instruction
     )
+
+
+@pytest.mark.parametrize(
+    ("question", "expected"),
+    [
+        (
+            "Compare the two hangars. Show the top three gliders in each.",
+            AnswerSize("per_group", 3),
+        ),
+        (
+            "Across the two festivals, give the top four entries from each.",
+            AnswerSize("per_group", 4),
+        ),
+        (
+            "Compare the two galleries. Give the top three artworks for each.",
+            AnswerSize("per_group", 3),
+        ),
+        (
+            "Compare the two orchestras. Which player has the highest score in each?",
+            AnswerSize("per_group", 1),
+        ),
+        (
+            "Across the two boxes, select the top 4 parts from each; include their weights.",
+            AnswerSize("per_group", 4),
+        ),
+        (
+            "Which three artists lead? Show their ticket totals for each.",
+            AnswerSize("count", 3),
+        ),
+        (
+            "Which four artists lead? Show the ticket total for each of them.",
+            AnswerSize("count", 4),
+        ),
+        (
+            "Which probes have the highest scores? Show the lowest reading from each.",
+            AnswerSize("list", DEFAULT_LIST_ROWS),
+        ),
+        (
+            "Compare the two schools. Show the top 3 science and arts teams in each.",
+            AnswerSize("per_group", 3),
+        ),
+        (
+            "List the top three crews, with their departure times for each.",
+            AnswerSize("count", 3),
+        ),
+        (
+            "List the top three panels and give the highest reading from each.",
+            AnswerSize("count", 3),
+        ),
+        (
+            "List the top four reservoirs, and display the number of sensors in each.",
+            AnswerSize("count", 4),
+        ),
+        ("Show the top two classrooms in each building.", AnswerSize("per_group", 2)),
+    ],
+)
+def test_terminal_each_in_selection_and_projection(
+    question: str, expected: AnswerSize
+) -> None:
+    assert answer_size(question) == expected

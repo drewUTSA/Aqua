@@ -116,11 +116,17 @@ _RANKED_BY = re.compile(
 )
 # "for each store", "per category", "in every country": rank within groups.
 _PER_GROUP = re.compile(r"\b(?:each|per|(?:for|in)\s+every)\s+\w")
+_TERMINAL_GROUP = re.compile(r"\b(?:in|from|for)\s+each\s*$")
+_DISPLAY_VERB = r"(?:show|display|include|give|provide|report|return|list)"
+_CLAUSE_BREAK = re.compile(
+    rf"[.,;:!?]|\b(?:and|then|but)\s+(?=(?:also\s+)?{_DISPLAY_VERB}\b)"
+    r"|\bwith\s+(?=(?:their|its)\b)"
+)
 # A second clause may ask for a field for every displayed row. Match only
 # that projection; "for each of the regions" still names a partition.
 _ROW_DETAIL = re.compile(
-    r"(?:\band\s+|[.,;]\s*)(?:also\s+)?"
-    r"(?:show|display|include|give|provide|report|return|list)\s+"
+    r"(?:\band\s+|[.,;:!?]\s*)(?:also\s+)?"
+    rf"{_DISPLAY_VERB}\s+"
     rf"(?:(?!(?:{_RANKING}|first|last|{_NUMBER})\b)[\w'-]+\s+){{1,6}}"
     r"for\s+each\s+of\s+them\b"
 )
@@ -272,6 +278,24 @@ def _requested_count(text: str) -> int | None:
     return None
 
 
+def _within_groups(text: str, count: int | None) -> bool:
+    scoped = _ROW_DETAIL.sub(" ", text)
+    if _PER_GROUP.search(scoped):
+        return True
+    # A terminal "in/from/for each" can refer back to named groups. It
+    # partitions the selection only when attached to the clause that supplied
+    # its count or ranking. A later clause may ask for another displayed value.
+    for clause in _CLAUSE_BREAK.split(scoped):
+        selects_rows = (
+            _requested_count(clause.strip()) == count
+            if count is not None
+            else _RANKING_WORD.search(clause) is not None
+        )
+        if selects_rows:
+            return _TERMINAL_GROUP.search(clause) is not None
+    return False
+
+
 def _wants_one(text: str, ranking: re.Match[str]) -> bool:
     """True for singular wording ("the least popular movie", "who"),
     False for plural ("the least popular movies")."""
@@ -312,7 +336,6 @@ def answer_size(question: str) -> AnswerSize:
     original = question.lower()
     # Work before stripping punctuation so "for each. Show..." cannot acquire
     # a group from the next sentence. Read explicit counts independently.
-    per_group = _PER_GROUP.search(_ROW_DETAIL.sub(" ", original))
     count = _requested_count(" ".join(re.sub(r"[^\w\s'-]", " ", original).split()))
     text, extremes = _BOTH_EXTREMES.subn(" ", original)
     text, ordered = _ORDER_DIRECTION.subn(" ", text)
@@ -321,7 +344,7 @@ def answer_size(question: str) -> AnswerSize:
     text = re.sub(r"\bat (?:least|most)\b", "at", text)
     ranking = _RANKING_WORD.search(text)
 
-    if per_group and (count or ranking):
+    if (count or ranking) and _within_groups(original, count):
         if count:
             return AnswerSize("per_group", count)
         return AnswerSize(
