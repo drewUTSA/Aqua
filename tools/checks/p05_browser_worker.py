@@ -94,6 +94,7 @@ def worker(
     personal_export_fixture: bool = False,
     personal_deletion_fixture: bool = False,
     bank_demo_fixture: bool = False,
+    notes_fixture: bool = False,
 ) -> int:
     """Actual app/router/session/password code; only provider and mail are fakes."""
     global WORKER_STAGE
@@ -103,8 +104,21 @@ def worker(
         or type(personal_export_fixture) is not bool
         or type(personal_deletion_fixture) is not bool
         or type(bank_demo_fixture) is not bool
+        or type(notes_fixture) is not bool
     ):
         raise ValueError("fixture_security_mode_invalid")
+    if notes_fixture and (
+        workspace_analysis is not False
+        or account_security_fixture
+        or account_identity_fixture
+        or personal_export_fixture
+        or personal_deletion_fixture
+        or bank_demo_fixture
+        or analysis_factory is not None
+    ):
+        raise ValueError("fixture_notes_mode_invalid")
+    if notes_fixture:
+        origin_value(origin)
     if bank_demo_fixture and (
         workspace_analysis is not False
         or analysis_factory is not None
@@ -112,13 +126,14 @@ def worker(
         or account_identity_fixture
         or personal_export_fixture
         or personal_deletion_fixture
+        or notes_fixture
     ):
         raise ValueError("fixture_bank_demo_mode_invalid")
     if bank_demo_fixture:
         origin_value(origin)
     schema = fixture_schema(ROOT)
-    if type(schema) is not int or schema != 9:
-        raise ValueError("fixture_schema9_required")
+    if type(schema) is not int or schema != 10:
+        raise ValueError("fixture_schema10_required")
     if account_identity_fixture and not account_security_fixture:
         raise ValueError("fixture_identity_mode_invalid")
     if personal_export_fixture and (
@@ -126,7 +141,7 @@ def worker(
     ):
         raise ValueError("fixture_export_mode_invalid")
     if personal_deletion_fixture and (
-        schema != 9
+        schema != 10
         or not account_identity_fixture
         or not account_security_fixture
         or personal_export_fixture
@@ -175,11 +190,11 @@ def worker(
         PASSWORD_REGISTRATION_ENABLED="true",
         PASSWORD_RECOVERY_ENABLED="true",
     )
-    if bank_demo_fixture:
+    if bank_demo_fixture or notes_fixture:
         # Explicit fixture authority only; inherited environment and all request
         # fields are unable to choose this synthetic actor or turn on analysis.
         for key in list(os.environ):
-            if key.startswith(("BANK_DEMO_", "COMPANION_")):
+            if key.startswith(("BANK_DEMO_", "COMPANION_", "CONTEXT_NOTES_")):
                 del os.environ[key]
     logging.disable(logging.CRITICAL)
     if personal_deletion_fixture:
@@ -224,7 +239,11 @@ def worker(
     settings = replace(
         main.app.state.settings,
         app_origin=origin,
-        database_url=DATASET if workspace_analysis else "",
+        database_url=(
+            "context-notes-browser-fixture-only-no-analytical-connection"
+            if notes_fixture
+            else DATASET if workspace_analysis else ""
+        ),
         session_secret=secrets.token_urlsafe(64),
         google_client_id="p05-fixture-client.apps.googleusercontent.com",
         auth_allowed_emails=frozenset(),
@@ -343,9 +362,15 @@ def worker(
         identity_fixture.install()
     main.answer_question = no_pipeline
     main.get_schema = no_pipeline
+    notes = None
+    if notes_fixture:
+        from context_notes_browser_fixture import NotesFixture
+
+        notes = NotesFixture(service, settings)
+        notes.install(main)
     from google import genai
 
-    genai.Client = no_pipeline
+    genai.Client = notes.no_provider if notes is not None else no_pipeline
     WORKER_STAGE = "client_readiness"
     try:
         with TestClient(
@@ -373,6 +398,11 @@ def worker(
                     "google_subject": GOOGLE_SUBJECT,
                     "dataset_grants": 0,
                     "workspace_analysis_fixture": workspace_analysis,
+                    **(
+                        {"notes_fixture": True, "bank_demo_fixture": False}
+                        if notes_fixture
+                        else {}
+                    ),
                     **(
                         {"bank_demo_fixture": True, "bank_demo_persona": "teller"}
                         if bank_demo_fixture
@@ -417,6 +447,7 @@ def worker(
                     captured,
                     analysis,
                     **({"bank_demo_fixture": True} if bank_demo_fixture else {}),
+                    **({"notes_fixture": notes} if notes_fixture else {}),
                 )
                 emit(response)
     finally:

@@ -259,7 +259,7 @@ def execute(expected: str, *, retain=None, scope=PRODUCTION) -> dict:
                 spec["source_sha256"],
             ):
                 raise RuntimeError("retirement_install_runtime_source_mismatch")
-            held.require(9)
+            held.require(10)
             # Do not generate a key or create a private root if independent
             # roles/database already exist. No destructive/reuse installation.
             if (
@@ -349,7 +349,7 @@ def execute(expected: str, *, retain=None, scope=PRODUCTION) -> dict:
             }
             write_once(root / "host/publisher.json", json_bytes(publisher_profile))
             cleanup_owner()
-            held.require(9)
+            held.require(10)
             receipt = {
                 "status": "installed_writers_still_stopped",
                 "installation_id": public["installation_id"],
@@ -369,7 +369,7 @@ def execute(expected: str, *, retain=None, scope=PRODUCTION) -> dict:
                 cleaning = False
                 signal.alarm(max(1, math.ceil(held.until - time.monotonic())))
                 retain(receipt)
-                held.require(9)
+                held.require(10)
             return receipt
     finally:
         cleaning = True

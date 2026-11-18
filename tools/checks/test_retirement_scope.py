@@ -9,7 +9,13 @@ import unittest
 from unittest.mock import patch
 
 from ops.retirement.operator_scope import Scope, PRODUCTION, BASE, PRODUCTION_PRIVATE
-from ops.retirement import maintenance, install_resources, export_resources, recover
+from ops.retirement import (
+    export,
+    maintenance,
+    install_resources,
+    export_resources,
+    recover,
+)
 
 RUN = "aqua-retirement-host-" + "1" * 24
 IMAGE = "sha256:" + "2" * 64
@@ -183,6 +189,9 @@ class ScopeGuards(unittest.TestCase):
         scope = Scope(RUN)
         schedule = ("no scheduler installed for " + RUN + "\n").encode()
         value = {
+            "runtime_image": IMAGE,
+            "source_sha256": "a" * 64,
+            "plan_sha256": "f" * 64,
             "backend_id": "b" * 64,
             "backend_image": IMAGE,
             "database_id": "d" * 64,
@@ -190,6 +199,7 @@ class ScopeGuards(unittest.TestCase):
             "paused_cron_sha256": hashlib.sha256(schedule).hexdigest(),
         }
         calls = []
+        database_max = b"9\n"
 
         def run(args, maximum=16384):
             self.assertEqual(maximum, 16384)
@@ -209,7 +219,10 @@ class ScopeGuards(unittest.TestCase):
                     values = [value["database_id"], value["database_image"], True]
                 return b"\n".join(json.dumps(item).encode() for item in values)
             if "exec" in args:
-                return b"9\n"
+                self.assertEqual(
+                    args[-1], "SELECT max(version) FROM app.schema_migrations"
+                )
+                return database_max
             raise AssertionError("unexpected host operation")
 
         with (
@@ -217,6 +230,39 @@ class ScopeGuards(unittest.TestCase):
             patch.object(maintenance, "read", return_value=schedule),
         ):
             maintenance.stopped(value, 9, scope)
+
+        # Exercise the head/export boundary and the real schema comparison together.
+        # Only the host, lock, and attestation inputs are fixture values.
+        state = {
+            "schemaVersion": 1,
+            "phase": "writers_stopped",
+            "guard": {"pid": 321, "start_ticks": "1", "boot_sha256": "0" * 64},
+            "nonce": "1" * 32,
+            "plan_sha256": value["plan_sha256"],
+            "expires_utc": "9999-01-01T00:00:00+00:00",
+        }
+        raw = maintenance.json_bytes(state)
+        files = {scope.state: raw, scope.parent / "schedule.absent": schedule}
+        with (
+            patch.object(Scope, "validate"),
+            patch.object(maintenance, "plan", return_value=value),
+            patch.object(maintenance, "identity", return_value=state["guard"]),
+            patch.object(maintenance, "lock", side_effect=BlockingIOError),
+            patch.object(maintenance, "run", side_effect=run),
+            patch.object(maintenance, "read", side_effect=files.__getitem__),
+        ):
+            for database_max in (b"9\n", b"11\n"):
+                with (
+                    self.subTest(database_max=database_max),
+                    self.assertRaisesRegex(
+                        RuntimeError, "retirement_maintenance_schema_mismatch"
+                    ),
+                ):
+                    export.boundary(value, scope)
+            database_max = b"10\n"
+            self.assertEqual(
+                export.boundary(value, scope), (state, hashlib.sha256(raw).hexdigest())
+            )
         self.assertTrue(any("label=io.aqua.run=" + RUN in call for call in calls))
         self.assertFalse(
             any(any("compose.project=bank-ai" in arg for arg in call) for call in calls)

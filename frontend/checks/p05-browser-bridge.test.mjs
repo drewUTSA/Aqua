@@ -133,8 +133,23 @@ test("terminal source/schema evidence retains only a bounded hash, known schema 
   assert.equal(bridge.finished.report.backend_source_sha256, 'a'.repeat(64)); assert.equal(bridge.finished.report.schema_version, 9); assert.equal(bridge.finished.report.actual_independent_authority, true);
 });
 test("terminal source/schema evidence rejects malformed hashes, unknown schemas and truthy authority strings", async t => {
-  const value = terminal(); value.report.backend_source_sha256 = CANARY; value.report.schema_version = 10; value.report.actual_independent_authority = 'true';
+  const value = terminal(); value.report.backend_source_sha256 = CANARY; value.report.schema_version = 11; value.report.actual_independent_authority = 'true';
   const bridge = fixture(t, emit(value)); await assert.rejects(bridge.ready, { message: 'bridge_startup_failed' });
   for (const key of ['backend_source_sha256', 'schema_version', 'actual_independent_authority']) assert.equal(Object.hasOwn(bridge.finished.report, key), false);
   assert.equal(JSON.stringify(bridge.finished).includes(CANARY), false);
 });
+
+for (const schema of [6, 7, 8, 9, 10]) {
+  test(`historical terminal parser retains schema${schema} metadata without deciding execution admission`, async t => {
+    const value = terminal(); value.report.schema_version = schema;
+    const bridge = fixture(t, emit(value)); await assert.rejects(bridge.ready, { message: "bridge_startup_failed" });
+    assert.equal(bridge.finished.report.schema_version, schema);
+  });
+}
+for (const schema of [11, true, false, "10", 10.5, null]) {
+  test(`terminal schema parser omits future or typed value ${JSON.stringify(schema)}`, async t => {
+    const value = terminal(); value.report.schema_version = schema;
+    const bridge = fixture(t, emit(value)); await assert.rejects(bridge.ready, { message: "bridge_startup_failed" });
+    assert.equal(Object.hasOwn(bridge.finished.report, "schema_version"), false);
+  });
+}

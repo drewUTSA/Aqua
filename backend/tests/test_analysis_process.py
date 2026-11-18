@@ -106,8 +106,38 @@ def test_real_child_hard_deadline_and_oversize_reap(monkeypatch):
         ProcessEngine().run(data("hold", 0.35), lambda stage: None)
     assert time.monotonic() - start < 2
     assert seen[-1][0].poll() is not None
-    with pytest.raises(ValueError, match="analysis_output_bound"):
-        ProcessEngine().run(data("oversize"), lambda stage: None)
+    oversize_index = len(seen)
+    oversize_started = time.monotonic()
+    try:
+        with pytest.raises(ValueError, match="analysis_output_bound"):
+            ProcessEngine().run(data("oversize"), lambda stage: None)
+    except RemoteUncertain as error:
+        # The production reaper intentionally suppresses the active error. Read
+        # its fixed marker and the already recorded exit status without polling.
+        original = error.__context__
+        args = original.args if original is not None else ()
+        marker = "none" if original is None else "other"
+        fixed_markers = {
+            "analysis_output_bound",
+            "analysis_child_failed",
+            "analysis_pipe_deadline",
+            "analysis_protocol_invalid",
+        }
+        if len(args) == 1 and type(args[0]) is str and args[0] in fixed_markers:
+            marker = args[0]
+        elif isinstance(original, subprocess.TimeoutExpired):
+            marker = "child_wait_timeout"
+        code = (
+            seen[oversize_index][0].returncode
+            if len(seen) == oversize_index + 1
+            else None
+        )
+        status = code if type(code) is int and -64 <= code <= 255 else "unknown"
+        elapsed = round((time.monotonic() - oversize_started) * 1000)
+        error.add_note(
+            f"oversize fixture original={marker} child_returncode={status} elapsed_ms={elapsed}"
+        )
+        raise
     assert seen[-1][0].poll() is not None
 
 

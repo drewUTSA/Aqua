@@ -10,6 +10,7 @@ from privacy import authority, policy, records
 from privacy.database import transaction
 from privacy.result_fragment import validated_bytes
 from workspace.errors import WorkspaceError
+from context_notes.policy import MAX_ACTIVE as MAX_NOTES
 
 
 class ExportFailure(RuntimeError):
@@ -77,6 +78,14 @@ class Writer:
 
 PROJECTS = "SELECT jsonb_build_object('id',id,'name',name,'archived',archived,'created_at',created_at,'updated_at',updated_at)::text FROM app.projects WHERE user_id=%s AND deleted_at IS NULL ORDER BY id LIMIT %s"
 PROMPTS = "SELECT jsonb_build_object('id',id,'label',label,'prompt',prompt,'pinned',pinned,'use_count',use_count,'last_used_at',last_used_at,'created_at',created_at,'updated_at',updated_at)::text FROM app.saved_prompts WHERE user_id=%s AND deleted_at IS NULL ORDER BY id LIMIT %s"
+NOTES = """
+SELECT CASE WHEN %s AND dataset_key=%s AND grant_version=%s THEN
+ jsonb_build_object('id',id,'revision',revision,'availability','available',
+ 'kind',kind,'label',label,'body',body,'created_at',created_at,'updated_at',updated_at)::text
+ ELSE jsonb_build_object('id',id,'revision',revision,'availability','unavailable')::text END,
+ %s AND dataset_key=%s AND grant_version=%s
+FROM app.context_notes WHERE user_id=%s AND deleted_at IS NULL ORDER BY id LIMIT %s
+"""
 CHATS = "SELECT jsonb_build_object('id',id,'title',title,'project_id',project_id,'archived',archived,'created_at',created_at,'last_activity_at',last_activity_at)::text FROM app.chats WHERE user_id=%s AND deleted_at IS NULL AND history_generation=(SELECT history_generation FROM app.users WHERE id=app.chats.user_id) ORDER BY id LIMIT %s"
 MESSAGES = """
 SELECT jsonb_build_object('id',m.id,'chat_id',m.chat_id,'sequence',m.sequence,'role',m.role,
@@ -97,7 +106,7 @@ WHERE m.user_id=%s ORDER BY m.chat_id,m.sequence,m.id LIMIT %s
 """
 
 
-def array(writer, query, arguments, maximum, *, messages=False):
+def array(writer, query, arguments, maximum, *, messages=False, notes=False):
     writer.write(b"[")
     count, sensitive = 0, False
     # A named server cursor avoids client-buffering every owned result row.
@@ -121,6 +130,8 @@ def array(writer, query, arguments, maximum, *, messages=False):
                         raise ExportFailure("encoding_failed")
                     raw = raw[:-1] + b',"response":' + response + b"}"
                     sensitive = sensitive or bool(row[2])
+                elif notes:
+                    sensitive = sensitive or bool(row[1])
                 if len(raw) > policy.MAX_SOURCE_ROW_BYTES:
                     raise ExportFailure("source_too_large")
                 writer.write((b"," if count > 1 else b"") + raw)
@@ -165,7 +176,9 @@ def capture(conn, owner, job_id, actor, auth_policy):
             "SELECT in_app_success,preview FROM app.user_notification_settings WHERE user_id=%s",
             (owner,),
         ).fetchone() or (False, "generic")
-        writer.write(b'{"schemaVersion":1,"scope":"personal_v1","export":')
+        # Scope is the existing proof/authority domain; format2 adds scoped notes.
+        # Previously ready format1 bytes are immutable and download unchanged.
+        writer.write(b'{"schemaVersion":2,"scope":"personal_v1","export":')
         writer.write(
             json_bytes(
                 {
@@ -194,8 +207,16 @@ def capture(conn, owner, job_id, actor, auth_policy):
         ]:
             writer.write(b',"' + key.encode() + b'":')
             array(writer, query, (owner,), 1000)
-        writer.write(b',"messages":')
+        writer.write(b',"context_notes":')
         dataset = auth_policy.dataset_key
+        contains_notes = array(
+            writer,
+            NOTES,
+            (allowed, dataset, version, allowed, dataset, version, owner),
+            MAX_NOTES,
+            notes=True,
+        )
+        writer.write(b',"messages":')
         contains = array(
             writer,
             MESSAGES,
@@ -218,14 +239,17 @@ def capture(conn, owner, job_id, actor, auth_policy):
         writer.check()
         if not records.lease_current(conn, job, actor, job["generation"]):
             raise ExportFailure("interrupted")
+        sensitive = contains or contains_notes
         conn.execute(
             "UPDATE app.data_exports SET output_bytes=%s,chunk_count=%s,contains_results=%s,dataset_key=%s,grant_version=%s WHERE user_id=%s AND id=%s AND generation=%s AND lease_owner=%s",
             (
                 writer.total,
                 writer.ordinal,
-                contains,
-                dataset if contains else "",
-                version if contains else 0,
+                # This existing internal predicate means grant-sensitive bytes:
+                # a notes-only export needs identical publication/download fences.
+                sensitive,
+                dataset if sensitive else "",
+                version if sensitive else 0,
                 owner,
                 job_id,
                 job["generation"],

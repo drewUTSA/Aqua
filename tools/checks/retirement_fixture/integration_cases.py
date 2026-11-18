@@ -115,7 +115,7 @@ def main():
         with psycopg.connect(
             dsn("aqua_app_migrator", "aqua_app"), autocommit=True, connect_timeout=2
         ) as conn:
-            assert apply(conn) == 9
+            assert apply(conn) == 10
         # An older app-only backup can predate the one-way installed marker.
         # The independent database catalog still makes a real host claim
         # mandatory on this same single app connection, even with no flag.

@@ -9,6 +9,7 @@ import { accountAction } from "./homepage-browser-actions.mjs";
 import { actualPersonalWorkspace, foreignPersonalWorkspace } from "./p06-real-browser-checks.mjs";
 import { actualAnalysisWorkspace } from "./p06-analysis-browser-checks.mjs";
 import { BankDemoResponseGate, bankRealMode, bankRealCleanupConfirmed, runRealBankDemoChecks } from "./bank-demo-real-browser-checks.mjs";
+import { NotesResponseGate, notesRealMode, requireNotesReady, notesResponsePrivate, notesCleanupConfirmed, NotesCancellationEvidence, notesCancellationCleanupConfirmed, runRealContextNotesChecks } from "./context-notes-real-browser-checks.mjs";
 import { createServer } from "node:http";
 import { readFile, readdir, lstat, realpath, mkdtemp, mkdir, writeFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -34,9 +35,11 @@ async function ensureArtifacts() {
 // the independent backend fixture still caps opt-in operations at 400.
 const MAX_MS = 240000, MAX_BODY = 16384, MAX_REQUESTS = 512;
 const analysisFixture = process.env.AQUA_P06_ANALYSIS_FIXTURE === "true";
-const bankDemoFixture = bankRealMode(new URL(import.meta.url).searchParams.get("journey"), analysisFixture);
+const journey = new URL(import.meta.url).searchParams.get("journey");
+const notesFixture = notesRealMode(journey, analysisFixture);
+const bankDemoFixture = bankRealMode(notesFixture ? null : journey, analysisFixture);
 const bankGate = bankDemoFixture ? new BankDemoResponseGate() : null;
-let bankDemoJourney = null;
+let bankDemoJourney = null, notesJourney = null, notesGate = null, notesCancellation = null;
 const EMAIL = "p05-browser-reader@example.test";
 const PASSWORD = "Synthetic orbital meadow password 27";
 const NEXT_PASSWORD = "Synthetic restored mountain password 48";
@@ -115,7 +118,7 @@ function rememberResponseSecrets(result) {
   for (const [name, value] of result.headers) if (name.toLowerCase() === "set-cookie") remember(value.split(";", 1)[0].split("=").slice(1).join("="));
 }
 async function rawRequest(method, pathname, body = null, headers = {}) {
-  return evaluate(`(async()=>{const response=await fetch(${quote(pathname)},{method:${quote(method)},credentials:'same-origin',cache:'no-store',redirect:'error',headers:${quote({ ...(body ? { "Content-Type": "application/json" } : {}), ...headers })},${body ? `body:${quote(JSON.stringify(body))},` : ""}});const text=await response.text();return {status:response.status,body:text.length<=16384?text:null}})()`);
+  return evaluate(`(async()=>{const response=await fetch(${quote(pathname)},{method:${quote(method)},credentials:'same-origin',cache:'no-store',redirect:'error',headers:${quote({ ...(body ? { "Content-Type": "application/json" } : {}), ...headers })},${body ? `body:${quote(JSON.stringify(body))},` : ""}});const text=await response.text();return {status:response.status,body:text.length<=16384?text:null,history_revision:/^[a-f0-9]{64}$/.test(response.headers.get('X-Aqua-History-Revision')||'')?response.headers.get('X-Aqua-History-Revision'):null}})()`);
 }
 async function assertNoProofPersistence(label) {
   await check(label, `(()=>{const values=[location.href,document.documentElement.outerHTML,document.cookie,...Object.values(localStorage),...Object.values(sessionStorage)];return !values.some(value=>${quote(proofValues)}.some(proof=>value.includes(proof)))})()`);
@@ -158,6 +161,7 @@ try {
     response.writeHead(200, { "Content-Type": type, "Cache-Control": "no-store", "Referrer-Policy": "no-referrer", "X-Content-Type-Options": "nosniff" }); response.end(files.get(key));
   });
   await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve)); origin = `http://127.0.0.1:${server.address().port}`;
+  if (notesFixture) { notesGate = new NotesResponseGate({ origin }); notesCancellation = new NotesCancellationEvidence(origin); }
   bridge = new FixtureBridge(executable, argv, origin);
   const ready = await bridge.ready;
   requireFixtureSchema(ready.schema_version);
@@ -165,6 +169,8 @@ try {
   assert.equal(ready.dataset_grants, 0, "ungranted_fixture_account_required");
   assert.equal(ready.workspace_analysis_fixture === true, analysisFixture, "explicit_analysis_fixture_mode_required");
   assert.equal(ready.bank_demo_fixture === true, bankDemoFixture, "explicit_bank_demo_fixture_mode_required");
+  assert.equal(ready.notes_fixture === true, notesFixture, "explicit_notes_fixture_mode_required");
+  if (notesFixture) requireNotesReady(ready, origin);
   if (bankDemoFixture) {
     assert.equal(ready.bank_demo_persona, "teller", "fixed_teller_fixture_required");
     assert.equal(ready.max_requests, 256, "unchanged_nonanalysis_operation_cap");
@@ -183,6 +189,9 @@ try {
   ({ sessionId } = await cdp.send("Target.attachToTarget", { targetId: targets.targetInfos.find((item) => item.type === "page").targetId, flatten: true }));
   cdp.onEvent = (event) => {
     if (event.sessionId !== sessionId) return;
+    if (event.method === "Network.loadingFailed" && notesCancellation) {
+      try { notesCancellation.observe(event.params); } catch { protocolErrors.push("notes_cancellation_event_invalid"); }
+    }
     if (event.method === "Network.loadingFailed" && event.params.canceled && abortedNetworkRequests.size < MAX_REQUESTS) abortedNetworkRequests.add(event.params.requestId);
     if (event.method === "Runtime.exceptionThrown") browserErrors.push("runtime_exception");
     if (event.method === "Runtime.consoleAPICalled" && [...sensitiveValues].some((secret) => JSON.stringify(event.params.args).includes(secret))) consoleLeaks++;
@@ -201,11 +210,16 @@ try {
         const body = request.postData || ""; if (Buffer.byteLength(body) > MAX_BODY) throw new Error("request_body_bound");
         const result = await bridge.send("request", { method: request.method, path: url.pathname + url.search, headers: Object.entries(request.headers), bodyBase64: Buffer.from(body).toString("base64") });
         assert.ok(Number.isInteger(result.status) && result.status >= 100 && result.status <= 599 && Array.isArray(result.headers), "bridge_response_shape");
-        apiOutcomes.push({ method: request.method, path: url.pathname, status: result.status });
+        apiOutcomes.push({ method: request.method, path: url.pathname, status: result.status,
+          ...(notesFixture && /^\/api\/v1\/me\/context-notes(?:\/|$)/.test(url.pathname) ? { private_no_store: notesResponsePrivate(result) } : {}) });
         const encoded = result.bodyBase64 || ""; if (Buffer.from(encoded, "base64").length > MAX_BODY) throw new Error("response_body_bound");
         rememberResponseSecrets(result);
         const fulfill = () => cdp.send("Fetch.fulfillRequest", { requestId, responseCode: result.status, responseHeaders: result.headers.map(([name, value]) => ({ name, value })), ...(result.status === 204 ? {} : { body: encoded }) });
         if (bankGate?.capture(request, result, () => fulfill().catch(interceptedFailure))) return;
+        if (notesGate?.snapshot().armed && request.method === "POST" && /^\/api\/v1\/me\/context-notes\/[a-f0-9-]{36}\/prepare$/.test(url.pathname)) {
+          const binding = notesCancellation.bind(event.params);
+          if (notesGate.capture(request, result, () => notesCancellation.finish(binding, fulfill))) return;
+        }
         await fulfill();
       } else if (url.origin === origin && request.method === "GET") await cdp.send("Fetch.continueRequest", { requestId });
       else { external++; await cdp.send("Fetch.failRequest", { requestId, errorReason: "BlockedByClient" }); }
@@ -232,7 +246,10 @@ try {
   await check("new password account has personal UI without dataset access", "document.querySelector('.opal-composer textarea').disabled&&document.body.textContent.includes('Access pending')");
   const me = await rawRequest("GET", "/api/auth/me"); assert.equal(me.status, 200, "real_session_cookie_round_trip");
   const session = JSON.parse(me.body); assert.equal(session.can_query, false, "new_account_has_no_dataset_grant");
-  if (bankDemoFixture) {
+  if (notesFixture) {
+    notesJourney = await runRealContextNotesChecks({ check, click, fill, evaluate, waitFor, rawRequest, screenshot, session, logout, gate: notesGate,
+      send: (method, parameters) => cdp.send(method, parameters), control: kind => bridge.send(kind), outcomes: () => apiOutcomes });
+  } else if (bankDemoFixture) {
     bankDemoJourney = await runRealBankDemoChecks({ check, click, evaluate, waitFor, rawRequest, screenshot, session, logout, gate: bankGate,
       send: (method, parameters) => cdp.send(method, parameters),
       companionReads: () => apiOutcomes.filter(call => call.method === "GET" && call.path === "/api/v1/companion/capabilities").map(call => call.status),
@@ -330,6 +347,10 @@ try {
   if (sessionId) await screenshot("failure-current-view").catch(() => {});
 } finally {
   clearTimeout(deadline);
+  notesGate?.close();
+  notesCancellation?.close();
+  if (!failure && notesCancellation && !notesCancellationCleanupConfirmed(notesCancellation.snapshot())) failure = "real_notes_cancellation_cleanup_unconfirmed";
+  if (!failure && notesGate && !notesCleanupConfirmed(notesGate.snapshot())) failure = "real_notes_hold_cleanup_unconfirmed";
   if (cdp) await cdp.stop();
   bankGate?.close();
   if (!failure && bankGate && !bankRealCleanupConfirmed(bankGate.snapshot())) failure = "real_bank_hold_cleanup_unconfirmed";
@@ -358,8 +379,9 @@ const backendReport = Object.fromEntries(["run", "status", "step", "cleanup", "r
 if (!failure && (!backendRemoved || !backendPassed)) failure = "backend_cleanup_unconfirmed";
 // Only explicitly sanitized bridge cleanup fields are persisted. Mail payloads,
 // cookies, credentials, CSRF values and proof links never enter the report.
-const report = { status: failure ? "failed" : "passed", failure, failure_step:failureStep, last_completed_check:results.at(-1)?.check||null, checked_utc: new Date().toISOString(), mode: bankDemoFixture ? "real_fastapi_disposable_postgres_bank_demo_browser" : "real_fastapi_disposable_postgres_browser",
+const report = { status: failure ? "failed" : "passed", failure, failure_step:failureStep, last_completed_check:results.at(-1)?.check||null, checked_utc: new Date().toISOString(), mode: notesFixture ? "real_fastapi_disposable_postgres_context_notes_browser" : bankDemoFixture ? "real_fastapi_disposable_postgres_bank_demo_browser" : "real_fastapi_disposable_postgres_browser",
   ...(bankDemoFixture ? { bank_demo_journey: bankDemoJourney, bank_demo_response_gate: bankGate.snapshot() } : {}),
+  ...(notesFixture ? { context_notes_journey: notesJourney, context_notes_response_gate: notesGate?.snapshot() ?? null, context_notes_cancellation_evidence: notesCancellation?.snapshot() ?? null } : {}),
   expected_shell: EXPECTED_SHELL, analysis_fixture: analysisFixture, browser_diagnostic: failureDiagnostic ?? cdp?.diagnostic ?? null, bridge_diagnostic: bridge?.diagnostic ?? null, loadedAssets, results, screenshots, performanceSamples, observations: { requests, apiRequests, external_attempts: external, consoleLeaks, browserErrors, protocolErrors, canceled, explicit_fixture_admission_clock_steps: fixtureClockSteps, explicit_fixture_analysis_clock_steps: analysisClockSteps, apiOutcomes },
   cleanup: { browser_stopped: !browser || cdp?.stopped === true, temporary_profile_removed: Boolean(profile), loopback_closed: !server?.listening, backend_status: bridgeCleanup?.status ?? null, backend_resources_removed: backendRemoved, backend_report: backendReport },
   elapsed_seconds: Math.round((performance.now() - started) / 10) / 100,

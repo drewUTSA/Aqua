@@ -1,8 +1,18 @@
 import { accountAction } from './homepage-browser-actions.mjs';
 import { googleCallback } from './p10c-identity-browser-checks.mjs';
 import { assertShell } from './p05-shell-browser-checks.mjs';
+import { requireFixtureSchema } from './p10b-browser-mode.mjs';
 const q = JSON.stringify;
 const phase = value => `document.querySelector('[data-deletion-phase]')?.dataset.deletionPhase===${q(value)}`;
+
+export function confirmedDeletionSchema(ready, terminal) {
+  const schema = requireFixtureSchema(ready?.schema_version);
+  if (ready.identity_fixture?.actual_independent_authority !== true ||
+      terminal?.status !== 'passed' || terminal.schema_version !== schema ||
+      terminal.actual_independent_authority !== true) throw Error('deletion_fixture_evidence_mismatch');
+  return schema;
+}
+
 export const DELETION_SCRIPT = `(()=>{
  const perform=window.fetch.bind(window), secrets=[];let held=null,lose=false;
  window.__deletionAudit=[];

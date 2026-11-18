@@ -7,7 +7,7 @@ import pytest
 from fastapi.testclient import TestClient
 import main
 from storage.migrate import apply
-from storage.pool import Storage, StorageUnavailable
+from storage.pool import SCHEMA_VERSION, Storage, StorageUnavailable
 from storage_fixtures import RUNTIME, SETTINGS, CANARY
 
 
@@ -63,7 +63,10 @@ def test_pool_replaces_a_disconnected_database_connection(storage):
 def test_readiness_rejects_a_newer_schema_version(app_database):
     apply(app_database)
     app_database.execute("SET ROLE aqua_app_owner")
-    app_database.execute("UPDATE app.schema_migrations SET version=10 WHERE version=9")
+    app_database.execute(
+        "UPDATE app.schema_migrations SET version=%s WHERE version=%s",
+        (SCHEMA_VERSION + 1, SCHEMA_VERSION),
+    )
     app_database.execute("RESET ROLE")
     service = Storage(SETTINGS)
     try:

@@ -21,7 +21,9 @@ export async function runBankDemoChecks(ctx, { emailA, emailB, help, bank }) {
   const pause = () => new Promise(resolve => setTimeout(resolve, 80));
   const gold = bankReportGold(), quote = JSON.stringify;
   const open = async () => {
-    await evaluate("document.querySelector('[data-open-companion]').focus();true"); await key("Enter");
+    const focused = await evaluate("(()=>{const trigger=document.querySelector('[data-open-companion]');trigger.focus();return document.activeElement===trigger})()");
+    assert.equal(focused, true, "bank_tools_trigger_receives_keyboard_focus");
+    await key("Enter");
     await waitFor("Boolean(document.querySelector('dialog[open] [data-bank-demo-open]'))", "bank_area_control");
     await click("[data-bank-demo-open]");
   };
@@ -47,7 +49,9 @@ export async function runBankDemoChecks(ctx, { emailA, emailB, help, bank }) {
   await evaluate("window.__bankComposer=document.querySelector('.opal-composer textarea');true");
   fixture.canQuery = false;
   await evaluate("(()=>{const c=new BroadcastChannel('aqua-session-events');c.postMessage({type:'changed'});c.close();return true})()");
-  await waitFor("document.querySelector('.opal-composer textarea')?.disabled===true", "bank_no_analytical_grant");
+  // Session revalidation keeps the previous workspace mounted, disabled and
+  // inert. Only the visible workspace can accept the next keyboard action.
+  await waitFor("document.querySelector('.opal-workspace:not([hidden]):not([inert]) .opal-composer textarea')?.disabled===true", "bank_no_analytical_grant");
   const queries = fixture.queryCount();
 
   bank.enabled = false; await open();

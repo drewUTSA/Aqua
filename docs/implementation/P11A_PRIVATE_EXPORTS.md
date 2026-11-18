@@ -107,7 +107,16 @@ may show the old job as expired/unavailable; it never upgrades its authority.
 
 ## Exact scope and serializer
 
-Produce one closed UTF-8 JSON document with schemaVersion1 and fixed personal_v1
+New schema10 source produces a closed UTF-8 JSON document with schemaVersion2
+and a context_notes array; personal_v1 remains the original authority/proof scope,
+not the document-format version. Ready schemaVersion1 snapshots remain immutable
+and downloadable under the same original session/epoch/grant fences. All prior
+section serializers are unchanged. See CONTEXT_NOTES_CONTRACT.md for exact
+grant-sensitive note projection, correction/forget invalidation and new tests.
+The following original section inventory is retained, with that explicit new
+array/version extension:
+
+Produce one closed UTF-8 JSON document with fixed personal_v1
 scope; export creation/snapshot/expiry timestamps; owned profile display name,
 primary email and account creation time; safe account preferences and separately
 labeled personal instructions/notification choices; nondeleted projects, saved

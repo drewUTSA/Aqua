@@ -1,4 +1,4 @@
-"""Explicit schema9 actual signed-deletion bridge at the reserved CDP origin."""
+"""Explicit schema10 actual signed-deletion bridge at the reserved CDP origin."""
 
 import argparse
 
@@ -17,7 +17,8 @@ def main() -> int:
     parser.add_argument("--origin", required=True, type=secure_origin)
     parser.add_argument("--image", required=True, type=immutable_image)
     args = parser.parse_args()
-    if fixture_schema(ROOT) != 9:
+    schema = fixture_schema(ROOT)
+    if type(schema) is not int or schema != 10:
         raise ValueError("fixture_deletion_schema_required")
     flags = {
         "account_security_fixture": True,

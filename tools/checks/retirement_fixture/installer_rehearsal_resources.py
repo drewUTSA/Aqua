@@ -1,7 +1,7 @@
 """Fresh native installer QA resources; never production names, data or config.
 
-Proposal only: exact reviewed child-lineage source pins are mandatory. Runtime235
-means the exact 234 /app files plus the image's /tmp/requirements-runtime.lock;
+Proposal only: exact reviewed child-lineage source pins are mandatory. Runtime243
+means the exact 242 /app files plus the image's /tmp/requirements-runtime.lock;
 the lock is independently pinned and never mounted or substituted by this QA.
 No host third-party dependencies; psycopg runs only in the immutable runtime.
 """
@@ -21,15 +21,15 @@ from pathlib import Path
 from prepare_retirement_stage import checked_archive, full_source, put, stage
 from bank_demo_sources import CORE_SOURCES
 
-IMAGE = "sha256:4e72d0102fae6ebe2dc3b9897b06656b60ddb92ef888845b5503cc03963e943d"
+IMAGE = "sha256:0c8343e4e53ccda74b8fdd230aba8dbd0dc00db479c4a39c0b86d970925e92b7"
 POSTGRES = (
     "postgres@sha256:3645570cccdfa447589da9f57dd740faa29b30938e861289a5574b6ca6b03826"
 )
 HBA_SHA256 = "a9efd9abbd930abd4914dd4fbd1c87f4dd1e7363549f5ed96d3daa48c8be1dc1"
 RUNTIME_MANIFEST_SHA256 = (
-    "7f621b7c0ca2490fd5d84dc2142f9a22d26a140cc2812bf6e82936cb07e80653"
+    "4ba657f893714a132211f22b612e060fa550da2c2afbc9ee13942c25ed60faec"
 )
-APP_MANIFEST_SHA256 = "41b9f82b8017eaf9667c78bc0975fdf29a202cd773c5d70c5d645be9e183828d"
+APP_MANIFEST_SHA256 = "d23d8ee755cf7cc22d5c32177e544c6be5b5912dcb8e80f227442a3d2faee74d"
 LOCK_SHA256 = "cad37d805664670589892c601592623d3a2b73e7c80147e3b7695e2a113339a7"
 LOCK_BYTES = 88598
 BASE = Path("/srv/bank-ai/.check-results")
@@ -70,7 +70,7 @@ for p in Path('/app').rglob('*'):
  if not stat.S_ISREG(s.st_mode) or p.resolve(strict=True)!=p:raise RuntimeError('runtime_nonregular')
  raw=p.read_bytes()
  actual[str(p.relative_to('/app'))]={'sha256':hashlib.sha256(raw).hexdigest(),'bytes':len(raw)}
-if len(actual)!=234 or actual!=v['runtime_files']:raise RuntimeError('runtime_source_mismatch')
+if len(actual)!=242 or actual!=v['runtime_files']:raise RuntimeError('runtime_source_mismatch')
 lock=Path('/tmp/requirements-runtime.lock');s=lock.lstat()
 if not stat.S_ISREG(s.st_mode) or lock.resolve(strict=True)!=lock or s.st_size!=v['lock_bytes']:raise RuntimeError('runtime_lock_metadata')
 raw=lock.read_bytes()
@@ -79,8 +79,8 @@ def connect(role,password,database='aqua_app'):
  return psycopg.connect(host='/run/aqua-app-db',port=5432,dbname=database,user=role,password=password,connect_timeout=3,autocommit=True)
 if v['action']=='migrate':
  with connect('aqua_app_migrator',v['password']) as c:
-  if apply(c)!=9:raise RuntimeError('schema9_required')
- print(json.dumps({'schema_version':9,'runtime_files':235,'app_files':234,'lock_files':1,'exact_runtime':True}))
+  if apply(c)!=10:raise RuntimeError('schema10_required')
+ print(json.dumps({'schema_version':10,'runtime_files':243,'app_files':242,'lock_files':1,'exact_runtime':True}))
 elif v['action']=='denials':
  with connect('aqua_app_runtime',v['password']) as c:
   if c.execute('SELECT current_user').fetchone()!=('aqua_app_runtime',):raise RuntimeError('runtime_identity')
@@ -375,11 +375,11 @@ class Rehearsal:
             }
         )
         if (
-            len(self.runtime_files) != 234
+            len(self.runtime_files) != 242
             or hashlib.sha256(canonical(self.runtime_files)).hexdigest()
             != APP_MANIFEST_SHA256
         ):
-            raise RuntimeError("rehearsal_exact_app234_manifest_required")
+            raise RuntimeError("rehearsal_exact_app242_manifest_required")
         if (
             self.command("image", "inspect", self.image, "--format={{.Id}}").strip()
             != self.image.encode()
@@ -511,9 +511,9 @@ class Rehearsal:
             extra=(self.socket_mount(),),
         )
         if result != {
-            "schema_version": 9,
-            "runtime_files": 235,
-            "app_files": 234,
+            "schema_version": 10,
+            "runtime_files": 243,
+            "app_files": 242,
             "lock_files": 1,
             "exact_runtime": True,
         }:

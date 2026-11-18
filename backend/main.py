@@ -44,6 +44,8 @@ from companion.policy import load_policy as load_companion_policy
 from bank_demo.router import router as bank_demo_router
 from bank_demo.policy import load_policy as load_bank_demo_policy
 from result_companion.router import router as result_companion_router
+from context_notes.router import router as context_notes_router
+from context_notes.policy import load_policy as load_context_notes_policy
 from analysis.dependencies import get_analysis
 from analysis.service import Analysis
 from nl2sql.query_service import run as run_query
@@ -128,6 +130,7 @@ SETTINGS = load_settings()
 app.state.settings = SETTINGS
 app.state.companion_policy = load_companion_policy()
 app.state.bank_demo_policy = load_bank_demo_policy()
+app.state.context_notes_policy = load_context_notes_policy()
 app.include_router(auth_router)
 app.include_router(password_router)
 app.include_router(readiness_router)
@@ -142,6 +145,7 @@ app.include_router(deletion_router)
 app.include_router(companion_router)
 app.include_router(bank_demo_router)
 app.include_router(result_companion_router)
+app.include_router(context_notes_router)
 app.state.storage = Storage(load_storage_settings())
 app.add_middleware(WorkspaceBodyLimit)
 

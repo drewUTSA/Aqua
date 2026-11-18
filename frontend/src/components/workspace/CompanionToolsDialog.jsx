@@ -6,8 +6,14 @@ import { emptyGuidedQuestion, guidedFieldValue, guidedQuestionMessage, prepareGu
 import GuidedQuestionFields from "./GuidedQuestionFields.jsx";
 import "../../styles/companion-tools.css";
 import { BankDemoPanel } from "../../features/bankDemo/index.jsx";
+import ContextNotesPanel from "../../features/contextNotes/ContextNotesPanel.jsx";
 
 export { GuidedQuestionFields };
+
+export function clearHeldCompanionReply(tools) {
+  // Switching areas must not cancel the unrelated initial capability lookup.
+  if (tools.state.menu || tools.state.answer) tools.edit();
+}
 
 export function CompanionToolsContent({ state, mode, question, canQuery, onMode, onQuestion, onRead, onApply, onReload,
   guide = { active: false }, onGuide, onGuideField, onPrepareGuide, guideRefs }) {
@@ -79,12 +85,21 @@ export default function CompanionToolsDialog({ auth, targetId, draft, onApply, o
       if (onApply(value, { targetId, draft: originalDraft.current })) onClose(); else tools.conflict();
     } catch { tools.conflict(); }
   };
+  const changeArea = next => { clearHeldCompanionReply(tools); setArea(next); };
+  const applyNote = value => {
+    if (!tools.current() || !auth.canQuery) return false;
+    const applied = onApply(value, { targetId, draft: originalDraft.current });
+    if (applied) onClose();
+    return applied;
+  };
   return <PreferenceDialog title="Aqua tools" onClose={onClose} className="companion-tools-dialog" initialFocusRef={closeRef}>
     <fieldset className="companion-tools__choice"><legend>Choose an area</legend>
-      <button type="button" aria-pressed={area === "aqua"} onClick={() => setArea("aqua")}>Aqua help</button>
-      <button type="button" data-bank-demo-open aria-pressed={area === "bank"} onClick={() => setArea("bank")}>Fictional bank demo</button>
+      <button type="button" aria-pressed={area === "aqua"} onClick={() => changeArea("aqua")}>Aqua help</button>
+      <button type="button" data-notes-open aria-pressed={area === "notes"} onClick={() => changeArea("notes")}>Saved notes</button>
+      <button type="button" data-bank-demo-open aria-pressed={area === "bank"} onClick={() => changeArea("bank")}>Fictional bank demo</button>
     </fieldset>
-    {area === "bank" ? <BankDemoPanel auth={auth} targetId={targetId} onClose={onClose} /> : <CompanionToolsContent state={tools.state} mode={mode} question={question} canQuery={auth.canQuery}
+    {area === "notes" ? <ContextNotesPanel auth={auth} targetId={targetId} assertParent={tools.current} onClose={onClose} onApply={applyNote} />
+      : area === "bank" ? <BankDemoPanel auth={auth} targetId={targetId} onClose={onClose} /> : <CompanionToolsContent state={tools.state} mode={mode} question={question} canQuery={auth.canQuery}
       onMode={changeMode} onQuestion={changeQuestion} onRead={() => tools.ask(question)} onApply={apply} onReload={tools.load}
       guide={guide} onGuide={changeGuide} onGuideField={changeGuideField} onPrepareGuide={prepareGuide} guideRefs={guideRefs} />}
     <div className="settings-dialog-actions"><button type="button" ref={closeRef} data-close-companion onClick={onClose}>Close Aqua tools</button></div>

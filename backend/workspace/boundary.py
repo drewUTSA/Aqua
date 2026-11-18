@@ -20,16 +20,19 @@ class WorkspaceBodyLimit:
         self.app = app
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
+        notes = scope.get("path", "").startswith("/api/v1/me/context-notes")
+        notes_read = notes and scope.get("method") == "GET"
         if (
             scope["type"] != "http"
             or not scope.get("path", "").startswith((*PREFIXES, "/api/query"))
-            or scope["method"] not in {"POST", "PATCH", "PUT"}
+            or (scope["method"] not in {"POST", "PATCH", "PUT"} and not notes_read)
         ):
             await self.app(scope, receive, send)
             return
         headers = dict(scope["headers"])
         if (
-            headers.get(b"content-type", b"").split(b";", 1)[0].strip().lower()
+            not notes_read
+            and headers.get(b"content-type", b"").split(b";", 1)[0].strip().lower()
             != b"application/json"
         ):
             await failure(WorkspaceError("invalid_request", 415))(scope, receive, send)
@@ -38,9 +41,13 @@ class WorkspaceBodyLimit:
         path = scope.get("path", "")
         result_brief = path == "/api/v1/companion/result-brief"
         limit = (
-            8192
-            if path.startswith("/api/v1/bank-demo") or result_brief
-            else (65536 if path.startswith("/api/v1/me/preferences") else 16384)
+            0
+            if notes_read
+            else (
+                8192
+                if path.startswith("/api/v1/bank-demo") or result_brief or notes
+                else (65536 if path.startswith("/api/v1/me/preferences") else 16384)
+            )
         )
         while True:
             event = await receive()
@@ -56,11 +63,11 @@ class WorkspaceBodyLimit:
             if not event.get("more_body", False):
                 break
         delivered = False
-        if scope.get("path", "").startswith(
+        if not notes_read and scope.get("path", "").startswith(
             ("/api/v1/me", "/api/v1/companion", "/api/v1/bank-demo")
         ):
             try:
-                if path.startswith("/api/v1/bank-demo") or result_brief:
+                if path.startswith("/api/v1/bank-demo") or result_brief or notes:
                     # This closed API accepts UTF8 JSON, never Python's implicit
                     # UTF16/32 autodetection or a BOM/embedded NUL transport.
                     text = body.decode("utf-8")
