@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { listModels, listMessages, submitQuestion, updateChat, deleteChat, operationId } from "../services/aquaClient.js";
 import { changeRecord, emptyConversation, failSubmission, finishHistory, finishSubmission, initialWorkspace, maskSavedResults, openConversation, removeConversation } from "./workspaceState.js";
 import { useWorkspaceLists } from "./useWorkspaceLists.js";
@@ -34,7 +34,7 @@ export function useWorkspace({ canQuery, canReadResults = canQuery, csrfToken, o
     onSnapshot: onAnalysis, onProgress, onError: onObservationError });
   useEffect(() => { alive.current = true; return () => { alive.current = false; for (const entry of requests.current.values()) entry.abort();
     for (const entry of reads.current) entry.abort(); requests.current.clear(); }; }, []);
-  useEffect(() => { const controller = new AbortController();
+  useLayoutEffect(() => { const controller = new AbortController();
     listModels({ demoMode: false, signal: controller.signal }).then((items) => { if (!alive.current || controller.signal.aborted) return;
       setModels(items); setModelId((previous) => items.some((item) => item.id === previous) ? previous : items[0]?.id || ""); }).catch(() => {});
     return () => controller.abort(); }, []);

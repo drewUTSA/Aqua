@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { listChats, listProjects, listPrompts, listStarters, saveProject, deleteProject, savePrompt, deletePrompt, usePrompt, operationId } from "../services/aquaClient.js";
 import { assertHistory, captureHistory } from "../services/historyAuthority.js";
 
@@ -33,8 +33,9 @@ export function useWorkspaceLists({ csrfToken, onError, enabled = true }) {
     try { const page = await read((signal) => load({ cursor, signal, ...options() }), kind); if (alive.current) save({ ...page, fromCursor: cursor, loading: false, error: false }); }
     catch (error) { if (alive.current && error.name !== "AbortError") { save((previous) => ({ ...previous, loading: false, error: true, failedCursor: cursor })); current.current.onError(error); } }
   }, [read]);
-  useEffect(() => { if (!enabled) return; void refreshChats(null, filters); }, [enabled, filters, refreshChats]);
-  useEffect(() => { if (enabled) void refreshPersonal("projects"); }, [enabled, refreshPersonal]);
+  // Start these async reads before a visible workspace can be reloaded.
+  useLayoutEffect(() => { if (enabled) void refreshChats(null, filters); }, [enabled, filters, refreshChats]);
+  useLayoutEffect(() => { if (enabled) void refreshPersonal("projects"); }, [enabled, refreshPersonal]);
   useEffect(() => { if (!enabled || !promptsEnabled) return; void refreshPersonal("prompts");
     void read((signal) => listStarters({ signal, ...options() })).then((items) => { if (alive.current) setStarters(items); }).catch((error) => {
       if (alive.current && error.name !== "AbortError") current.current.onError(error);
