@@ -1,0 +1,21 @@
+.bank-demo-panel { display: grid; gap: var(--space-3); min-width: 0; color: var(--pref-text); }
+.bank-demo-panel :is(h3,h4,h5,p,dl,ul,ol) { margin-block: 0; }
+.bank-demo-panel :is(select,button,summary) { min-height: 44px; font: inherit; }
+.bank-demo__picker select { width: 100%; min-width: 0; padding: var(--space-3); color: var(--pref-text); background: var(--pref-raised); border: 1px solid var(--pref-border); border-radius: var(--radius-sm); }
+.bank-demo__facts { display: grid; gap: var(--space-3); grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr)); }
+.bank-demo__facts dt { font-weight: 600; }
+.bank-demo__facts dd { margin: 0; overflow-wrap: anywhere; }
+.bank-demo__report { display: grid; gap: var(--space-3); padding-block: var(--space-4); border-top: 1px solid var(--pref-border); }
+.bank-demo__table { max-width: 100%; overflow: auto; border: 1px solid var(--pref-border); border-radius: var(--radius-sm); }
+.bank-demo__table table { width: 100%; border-collapse: collapse; font-size: calc(1rem * var(--pref-text-scale, 1)); }
+.bank-demo__table caption { padding: var(--space-3); text-align: left; font-weight: 600; }
+.bank-demo__table :is(th,td) { padding: var(--space-3); text-align: left; border-top: 1px solid var(--pref-border); vertical-align: top; }
+.bank-demo__table td { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.bank-demo__table th { min-width: 8rem; }
+.bank-demo__procedure { padding: var(--space-3); border: 1px solid var(--pref-border); border-radius: var(--radius-sm); }
+.bank-demo__procedure summary { display: list-item; cursor: pointer; padding-block: var(--space-2); }
+.bank-demo__procedure[open] > :not(summary) { margin-top: var(--space-3); }
+.bank-demo__error { color: var(--pref-danger); }
+.bank-demo__skeleton { min-height: 44px; border-radius: var(--radius-sm); background: var(--pref-raised); border: 1px solid var(--pref-border); }
+.bank-demo-panel :is(select,button,summary,[tabindex]):focus-visible { outline: 2px solid var(--pref-accent); outline-offset: var(--space-1); }
+@media (forced-colors: active) { .bank-demo-panel :is(select,button,summary) { border-color: ButtonText; } }

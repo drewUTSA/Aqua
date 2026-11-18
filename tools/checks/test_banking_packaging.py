@@ -1,4 +1,4 @@
-"""Source-only guards keep offline banking free of transport and runtime delivery."""
+"""Keep banking pure and limit runtime delivery to the reviewed report core."""
 
 import ast
 from pathlib import Path
@@ -38,6 +38,22 @@ CONTEXT_ALLOWLIST = {
     "!backend/privacy/*.py",
     "!backend/retirement/*.py",
     "!backend/companion/*.py",
+    "!backend/bank_demo/*.py",
+    "!mcp_demo/__init__.py",
+    "!mcp_demo/data.py",
+    "!mcp_demo/protocol.py",
+    "!mcp_demo/reports.py",
+    "!mcp_demo/guidance.py",
+    "!mcp_demo/web.py",
+    "!mcp_demo/fixtures/bank.json",
+    "!eval/__init__.py",
+    "!eval/banking/__init__.py",
+    "!eval/banking/catalog.py",
+    "!eval/banking/data.py",
+    "!eval/banking/knowledge.py",
+    "!eval/banking/proposals.py",
+    "!eval/banking/reports.py",
+    "!eval/banking/scope.py",
     "!backend/migrations/*.sql",
     "!tools/checks/Dockerfile",
     "!tools/checks/requirements-runtime.lock",
@@ -82,7 +98,7 @@ class BankingPackaging(unittest.TestCase):
                     )
                 )
 
-    def test_runtime_build_context_remains_closed_without_eval_or_new_resources(self):
+    def test_runtime_build_context_remains_closed_to_reviewed_sources(self):
         lines = [
             line.strip()
             for line in (ROOT / ".dockerignore").read_text().splitlines()

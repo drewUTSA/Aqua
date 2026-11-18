@@ -8,10 +8,15 @@ customer account, identity provider, model provider or production Aqua database.
 It is not a compliance certification, trained banking model, bank authorization
 system or durable human-approval workflow.
 
-The module is separate from the application backend and its dependency lock.
-Running it does not upgrade the backend, change the live site, migrate a database
-or install configuration into an MCP host. Existing failed Ollama tool-selection
-experiments remain unqualified; the server does not enable an autonomous planner.
+The stdio module and SDK dependency lock remain separate from the application
+backend. The optional [report web increment](BANK_DEMO_WEB_CONTRACT.md) packages
+only the explicitly reviewed SDK-free report core; it does not run the MCP
+transport or install the SDK in the backend.
+
+Running the stdio module does not upgrade the backend, change the live site,
+migrate a database or install configuration into an MCP host. Existing failed
+Ollama tool-selection experiments remain unqualified; the server does not enable
+an autonomous planner.
 
 ## Isolated installation
 

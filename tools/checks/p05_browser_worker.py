@@ -23,6 +23,7 @@ from p05_browser_protocol import (
     MIGRATOR,
     emit,
     message,
+    origin_value,
     request_limit,
     fixture_schema,
 )
@@ -92,6 +93,7 @@ def worker(
     account_identity_fixture: bool = False,
     personal_export_fixture: bool = False,
     personal_deletion_fixture: bool = False,
+    bank_demo_fixture: bool = False,
 ) -> int:
     """Actual app/router/session/password code; only provider and mail are fakes."""
     global WORKER_STAGE
@@ -100,8 +102,20 @@ def worker(
         or type(account_identity_fixture) is not bool
         or type(personal_export_fixture) is not bool
         or type(personal_deletion_fixture) is not bool
+        or type(bank_demo_fixture) is not bool
     ):
         raise ValueError("fixture_security_mode_invalid")
+    if bank_demo_fixture and (
+        workspace_analysis is not False
+        or analysis_factory is not None
+        or account_security_fixture
+        or account_identity_fixture
+        or personal_export_fixture
+        or personal_deletion_fixture
+    ):
+        raise ValueError("fixture_bank_demo_mode_invalid")
+    if bank_demo_fixture:
+        origin_value(origin)
     schema = fixture_schema(ROOT)
     if type(schema) is not int or schema != 9:
         raise ValueError("fixture_schema9_required")
@@ -130,6 +144,10 @@ def worker(
         operations = request_limit(workspace_analysis)
     WORKER_STAGE = "environment"
     sys.path.insert(0, str(ROOT / "backend"))
+    if bank_demo_fixture:
+        # The real bridge worker runs from /tmp, unlike the compiled /app
+        # server. Admit only its fixed checked-source root for shared pure data.
+        sys.path.insert(1, str(ROOT))
     for key in list(os.environ):
         if key.startswith(("PG", "APP_", "AUTH_", "PASSWORD_", "ACCOUNT_")) or key in {
             "PRIVATE_DATA_EXPORT_ENABLED",
@@ -157,6 +175,12 @@ def worker(
         PASSWORD_REGISTRATION_ENABLED="true",
         PASSWORD_RECOVERY_ENABLED="true",
     )
+    if bank_demo_fixture:
+        # Explicit fixture authority only; inherited environment and all request
+        # fields are unable to choose this synthetic actor or turn on analysis.
+        for key in list(os.environ):
+            if key.startswith(("BANK_DEMO_", "COMPANION_")):
+                del os.environ[key]
     logging.disable(logging.CRITICAL)
     if personal_deletion_fixture:
         guard_fixture(personal_deletion_fixture=True)
@@ -164,6 +188,11 @@ def worker(
         guard_fixture()
     WORKER_STAGE = "app_import"
     import main
+
+    if bank_demo_fixture:
+        from bank_demo.policy import BankDemoPolicy
+
+        main.app.state.bank_demo_policy = BankDemoPolicy(True, "teller")
     import psycopg
     from auth import password_router, router
     from auth.config import load_auth_policy
@@ -342,6 +371,11 @@ def worker(
                     "google_subject": GOOGLE_SUBJECT,
                     "dataset_grants": 0,
                     "workspace_analysis_fixture": workspace_analysis,
+                    **(
+                        {"bank_demo_fixture": True, "bank_demo_persona": "teller"}
+                        if bank_demo_fixture
+                        else {}
+                    ),
                     "network": "none",
                     "database_transport": "private_unix_socket",
                     "max_requests": operations,
@@ -373,7 +407,15 @@ def worker(
                     forward = security_dispatch
                 else:
                     forward = dispatch
-                response = forward(item, client, service, mail.once, captured, analysis)
+                response = forward(
+                    item,
+                    client,
+                    service,
+                    mail.once,
+                    captured,
+                    analysis,
+                    **({"bank_demo_fixture": True} if bank_demo_fixture else {}),
+                )
                 emit(response)
     finally:
         if previous_runtime_context is not None:

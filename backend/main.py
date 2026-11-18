@@ -41,6 +41,8 @@ from retirement.admission import RetirementAdmission
 from retirement.runtime import create as retirement_runtime
 from companion.router import router as companion_router
 from companion.policy import load_policy as load_companion_policy
+from bank_demo.router import router as bank_demo_router
+from bank_demo.policy import load_policy as load_bank_demo_policy
 from analysis.dependencies import get_analysis
 from analysis.service import Analysis
 from nl2sql.query_service import run as run_query
@@ -124,6 +126,7 @@ log = logging.getLogger("aqua")
 SETTINGS = load_settings()
 app.state.settings = SETTINGS
 app.state.companion_policy = load_companion_policy()
+app.state.bank_demo_policy = load_bank_demo_policy()
 app.include_router(auth_router)
 app.include_router(password_router)
 app.include_router(readiness_router)
@@ -136,6 +139,7 @@ app.include_router(account_identity_router)
 app.include_router(privacy_router)
 app.include_router(deletion_router)
 app.include_router(companion_router)
+app.include_router(bank_demo_router)
 app.state.storage = Storage(load_storage_settings())
 app.add_middleware(WorkspaceBodyLimit)
 
@@ -167,6 +171,7 @@ async def safe_request_validation(
             "/api/v1/me",
             "/api/v1/starter-prompts",
             "/api/v1/companion",
+            "/api/v1/bank-demo",
         )
     ):
         return workspace_failure(WorkspaceError("invalid_request", 422))

@@ -19,6 +19,12 @@ COPY --chown=1000:1000 backend/account/*.py ./account/
 COPY --chown=1000:1000 backend/privacy/*.py ./privacy/
 COPY --chown=1000:1000 backend/retirement/*.py ./retirement/
 COPY --chown=1000:1000 backend/companion/*.py ./companion/
+COPY --chown=1000:1000 backend/bank_demo/*.py ./bank_demo/
+# Exact SDK-free fictional report core; no MCP transport, eval runner or corpus.
+COPY --chown=1000:1000 mcp_demo/__init__.py mcp_demo/data.py mcp_demo/protocol.py mcp_demo/reports.py mcp_demo/guidance.py mcp_demo/web.py ./mcp_demo/
+COPY --chown=1000:1000 mcp_demo/fixtures/bank.json ./mcp_demo/fixtures/
+COPY --chown=1000:1000 eval/__init__.py ./eval/
+COPY --chown=1000:1000 eval/banking/__init__.py eval/banking/catalog.py eval/banking/data.py eval/banking/knowledge.py eval/banking/proposals.py eval/banking/reports.py eval/banking/scope.py ./eval/banking/
 COPY --chown=1000:1000 backend/migrations/*.sql ./migrations/
 USER 1000:1000
 CMD ["uvicorn", "main:app", "--host", "127.0.0.1", "--port", "8000"]

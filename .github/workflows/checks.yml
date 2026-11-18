@@ -106,6 +106,8 @@ jobs:
           python tools/checks/test_public_delivery_routes.py
           python tools/checks/test_csp_headers.py
           python tools/checks/test_companion_packaging.py
+          python tools/checks/test_bank_demo_web_packaging.py
+          python -m pytest -q tools/checks/test_bank_demo_browser_fixture.py
           python tools/checks/test_normal_runtime_argv.py
           python tools/checks/test_mixed_capacity.py
           python -m unittest discover -s tools/checks -p 'test_banking_*.py'
@@ -247,7 +249,7 @@ jobs:
         run: |
           export AQUA_CHROME_EXECUTABLE="$(command -v google-chrome)"
           test -x "$AQUA_CHROME_EXECUTABLE"
-          for journey in optional-settings optional-prompts projects-initial-failure prompts-initial-failure settings-search composer-layout public-routes companion-tools; do
+          for journey in optional-settings optional-prompts projects-initial-failure prompts-initial-failure settings-search composer-layout public-routes companion-tools bank-demo; do
             export AQUA_P05_ARTIFACT_DIR="${{ runner.temp }}/aqua-p05/opal/reliability/$journey"
             JOURNEY="$journey" node --input-type=module -e "await import('./checks/p05-browser.mjs?journey=' + process.env.JOURNEY)"
           done
@@ -263,6 +265,19 @@ jobs:
           export AQUA_P05_BRIDGE_EXECUTABLE="$(command -v python)"
           export AQUA_P05_BRIDGE_ARGS_JSON='["tools/checks/p05_browser_backend.py","--image","aqua-runtime:check","--workspace-analysis"]'
           node frontend/checks/p05-real-backend-browser.mjs
+      - name: Opal fictional reports with real sessions and private database
+        timeout-minutes: 6
+        env:
+          AQUA_P05_EXPECTED_SHELL: opal
+          AQUA_P06_ANALYSIS_FIXTURE: 'false'
+          AQUA_P05_ARTIFACT_DIR: ${{ runner.temp }}/aqua-p05/opal/bank-real
+        run: |
+          export AQUA_CHROME_EXECUTABLE="$(command -v google-chrome)"
+          test -x "$AQUA_CHROME_EXECUTABLE"
+          export AQUA_P05_BRIDGE_EXECUTABLE="$(command -v python)"
+          export AQUA_P05_BACKEND_IMAGE="$(docker image inspect aqua-runtime:check --format '{{.Id}}')"
+          export AQUA_P05_BRIDGE_ARGS_JSON="$(python -c 'import json,os; print(json.dumps(["tools/checks/bank_demo_browser_backend.py","--image",os.environ["AQUA_P05_BACKEND_IMAGE"]]))')"
+          node --input-type=module -e "await import('./frontend/checks/p05-real-backend-browser.mjs?journey=bank-demo')"
       - name: Opal Plotly controls and isolated database visual lifecycle
         timeout-minutes: 4
         working-directory: frontend
@@ -339,7 +354,7 @@ jobs:
           test -x "$AQUA_CHROME_EXECUTABLE"
           export AQUA_P05_ARTIFACT_DIR="${{ runner.temp }}/aqua-p05/legacy/synthetic"
           node frontend/checks/p05-browser.mjs
-          for journey in optional-settings optional-prompts projects-initial-failure prompts-initial-failure settings-search composer-layout public-routes companion-tools; do
+          for journey in optional-settings optional-prompts projects-initial-failure prompts-initial-failure settings-search composer-layout public-routes companion-tools bank-demo; do
             export AQUA_P05_ARTIFACT_DIR="${{ runner.temp }}/aqua-p05/legacy/reliability/$journey"
             JOURNEY="$journey" node --input-type=module -e "await import('./frontend/checks/p05-browser.mjs?journey=' + process.env.JOURNEY)"
           done
@@ -347,6 +362,19 @@ jobs:
           export AQUA_P05_BRIDGE_EXECUTABLE="$(command -v python)"
           export AQUA_P05_BRIDGE_ARGS_JSON='["tools/checks/p05_browser_backend.py","--image","aqua-runtime:check","--workspace-analysis"]'
           node frontend/checks/p05-real-backend-browser.mjs
+      - name: Classic fictional reports with real sessions and private database
+        timeout-minutes: 6
+        env:
+          AQUA_P05_EXPECTED_SHELL: legacy
+          AQUA_P06_ANALYSIS_FIXTURE: 'false'
+          AQUA_P05_ARTIFACT_DIR: ${{ runner.temp }}/aqua-p05/legacy/bank-real
+        run: |
+          export AQUA_CHROME_EXECUTABLE="$(command -v google-chrome)"
+          test -x "$AQUA_CHROME_EXECUTABLE"
+          export AQUA_P05_BRIDGE_EXECUTABLE="$(command -v python)"
+          export AQUA_P05_BACKEND_IMAGE="$(docker image inspect aqua-runtime:check --format '{{.Id}}')"
+          export AQUA_P05_BRIDGE_ARGS_JSON="$(python -c 'import json,os; print(json.dumps(["tools/checks/bank_demo_browser_backend.py","--image",os.environ["AQUA_P05_BACKEND_IMAGE"]]))')"
+          node --input-type=module -e "await import('./frontend/checks/p05-real-backend-browser.mjs?journey=bank-demo')"
       - name: Classic Plotly controls and isolated database visual lifecycle
         timeout-minutes: 4
         working-directory: frontend
@@ -418,10 +446,14 @@ jobs:
             ${{ runner.temp }}/aqua-p05/opal/synthetic/*.png
             ${{ runner.temp }}/aqua-p05/opal/real/*.json
             ${{ runner.temp }}/aqua-p05/opal/real/*.png
+            ${{ runner.temp }}/aqua-p05/opal/bank-real/*.json
+            ${{ runner.temp }}/aqua-p05/opal/bank-real/*.png
             ${{ runner.temp }}/aqua-p05/legacy/synthetic/*.json
             ${{ runner.temp }}/aqua-p05/legacy/synthetic/*.png
             ${{ runner.temp }}/aqua-p05/legacy/real/*.json
             ${{ runner.temp }}/aqua-p05/legacy/real/*.png
+            ${{ runner.temp }}/aqua-p05/legacy/bank-real/*.json
+            ${{ runner.temp }}/aqua-p05/legacy/bank-real/*.png
             ${{ runner.temp }}/aqua-p05/opal/reliability/**/*.json
             ${{ runner.temp }}/aqua-p05/opal/reliability/**/*.png
             ${{ runner.temp }}/aqua-p05/legacy/reliability/**/*.json

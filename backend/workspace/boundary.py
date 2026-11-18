@@ -11,6 +11,7 @@ PREFIXES = (
     "/api/v1/me",
     "/api/v1/starter-prompts",
     "/api/v1/companion",
+    "/api/v1/bank-demo",
 )
 
 
@@ -34,10 +35,11 @@ class WorkspaceBodyLimit:
             await failure(WorkspaceError("invalid_request", 415))(scope, receive, send)
             return
         body = bytearray()
+        path = scope.get("path", "")
         limit = (
-            65536
-            if scope.get("path", "").startswith("/api/v1/me/preferences")
-            else 16384
+            8192
+            if path.startswith("/api/v1/bank-demo")
+            else (65536 if path.startswith("/api/v1/me/preferences") else 16384)
         )
         while True:
             event = await receive()
@@ -53,9 +55,19 @@ class WorkspaceBodyLimit:
             if not event.get("more_body", False):
                 break
         delivered = False
-        if scope.get("path", "").startswith(("/api/v1/me", "/api/v1/companion")):
+        if scope.get("path", "").startswith(
+            ("/api/v1/me", "/api/v1/companion", "/api/v1/bank-demo")
+        ):
             try:
-                json.loads(body, object_pairs_hook=unique_object)
+                if path.startswith("/api/v1/bank-demo"):
+                    # This closed API accepts UTF8 JSON, never Python's implicit
+                    # UTF16/32 autodetection or a BOM/embedded NUL transport.
+                    text = body.decode("utf-8")
+                    if text.startswith("\ufeff") or "\x00" in text:
+                        raise ValueError("bank_demo_encoding_invalid")
+                    json.loads(text, object_pairs_hook=unique_object)
+                else:
+                    json.loads(body, object_pairs_hook=unique_object)
             except (ValueError, UnicodeError, RecursionError):
                 await failure(WorkspaceError("invalid_request", 422))(
                     scope, receive, send

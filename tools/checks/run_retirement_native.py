@@ -36,7 +36,19 @@ SUITES = {
 }
 HBA = "ops/appdb/pg_hba.conf"
 CLIENT_MANIFEST = "ops/retirement/backup_client/vendor-manifest.json"
-BOOTSTRAP = """
+# Only these SDK-free report inputs extend the original native source roots.
+MCP_SOURCE_NAMES = frozenset(
+    {
+        "mcp_demo/__init__.py",
+        "mcp_demo/data.py",
+        "mcp_demo/guidance.py",
+        "mcp_demo/protocol.py",
+        "mcp_demo/reports.py",
+        "mcp_demo/web.py",
+        "mcp_demo/fixtures/bank.json",
+    }
+)
+BOOTSTRAP = "mcp_sources=" + repr(sorted(MCP_SOURCE_NAMES)) + "\n" + """
 import io,os,pathlib,sys,tarfile
 data=sys.stdin.buffer.read(16777217)
 if not 0<len(data)<=16777216: raise RuntimeError('native_source_bound')
@@ -48,7 +60,8 @@ with tarfile.open(fileobj=io.BytesIO(data)) as archive:
   asset=p.parent==pathlib.PurePosixPath('backend/auth') and p.name in {'password_blocklist_sha256.txt','password_blocklist_LICENSE.txt','password_blocklist_provenance.json'}
   hba=p.as_posix()=='ops/appdb/pg_hba.conf' and sys.argv[1]=='/checks/tools/checks/run_retirement_operator.py'
   client=p.as_posix()=='ops/retirement/backup_client/vendor-manifest.json' and sys.argv[1]=='/checks/tools/checks/run_retirement_backup_models.py'
-  if not m.isfile() or p.is_absolute() or not p.parts or '..' in p.parts or any(x.startswith('.') for x in p.parts) or p.parts[0] not in {'backend','eval','ops','tools'} or (p.parts[0]=='tools' and p.parts[:2]!=('tools','checks')) or (not asset and not hba and not client and p.suffix not in {'.py','.sql','.psql','.ini'}) or not 0<=m.size<=4194304 or ((hba or client) and not 0<m.size<=131072): raise RuntimeError('native_source_member_denied')
+  shared=m.name in mcp_sources
+  if not m.isfile() or p.is_absolute() or not p.parts or '..' in p.parts or any(x.startswith('.') for x in p.parts) or p.parts[0] not in {'backend','eval','ops','tools','mcp_demo'} or (p.parts[0]=='mcp_demo' and not shared) or (p.parts[0]=='tools' and p.parts[:2]!=('tools','checks')) or (not asset and not hba and not client and not shared and p.suffix not in {'.py','.sql','.psql','.ini'}) or not 0<=m.size<=4194304 or ((hba or client or shared) and not 0<m.size<=131072): raise RuntimeError('native_source_member_denied')
  archive.extractall('/checks',filter='data')
 os.chdir('/checks/backend')
 os.execv(sys.executable,[sys.executable,'-B',sys.argv[1]])
@@ -83,22 +96,26 @@ def prepared(data: bytes, suite: str = "protocol80") -> dict:
             }
             hba = suite == "operator77" and member.name == HBA
             client = suite == "backups56" and member.name == CLIENT_MANIFEST
+            shared = member.name in MCP_SOURCE_NAMES
             if (
                 not member.isfile()
                 or path.is_absolute()
                 or not path.parts
                 or ".." in path.parts
                 or any(part.startswith(".") for part in path.parts)
-                or path.parts[0] not in {"backend", "eval", "ops", "tools"}
+                or path.parts[0] not in {"backend", "eval", "ops", "tools", "mcp_demo"}
+                or path.parts[0] == "mcp_demo"
+                and not shared
                 or path.parts[0] == "tools"
                 and path.parts[:2] != ("tools", "checks")
                 or not asset
                 and not hba
                 and not client
+                and not shared
                 and path.suffix not in {".py", ".sql", ".psql", ".ini"}
                 or member.name in names
                 or not 0 <= member.size <= 4194304
-                or (hba or client)
+                or (hba or client or shared)
                 and not 0 < member.size <= 131072
             ):
                 raise ValueError("native_source_member_denied")

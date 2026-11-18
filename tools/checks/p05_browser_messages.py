@@ -18,7 +18,11 @@ def dispatch(
     deliver: Callable[[], bool],
     captured: list[dict[str, str]],
     analysis: Any = None,
+    *,
+    bank_demo_fixture: bool = False,
 ) -> dict[str, Any]:
+    if type(bank_demo_fixture) is not bool:
+        raise ValueError("fixture_bank_demo_mode_invalid")
     identifier = item["id"]
     kind = item.get("kind")
     if kind in {
@@ -89,6 +93,15 @@ def dispatch(
                 and method in {"GET", "POST", "HEAD", "OPTIONS"}
             )
             or workspace_route(path, method)
+            or (
+                bank_demo_fixture
+                and (method, path)
+                in {
+                    ("GET", "/api/v1/bank-demo/context"),
+                    ("POST", "/api/v1/bank-demo/reports"),
+                    ("GET", "/api/v1/companion/capabilities"),
+                }
+            )
         )
     ):
         raise ValueError("fixture_request_invalid")
