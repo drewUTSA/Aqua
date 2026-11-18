@@ -30,6 +30,15 @@ def series(values, **changes):
     return payload
 
 
+def test_symmetric_monthly_counts_have_exactly_flat_fitted_direction():
+    counts = [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0]
+    result = fit_monthly_trend(
+        series(counts, unit="count", aggregation="monthly_count")
+    )
+    assert result["slope_per_month"] == "0"
+    assert result["fitted_direction"] == "flat"
+
+
 @pytest.mark.parametrize(
     ("slope", "direction"), [(3, "rising"), (-4, "falling"), (0, "flat")]
 )

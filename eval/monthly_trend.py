@@ -39,11 +39,10 @@ def _fit(values):
         count = Decimal(len(values))
         mean_x = (count - 1) / 2
         mean_y = sum(values, Decimal(0)) / count
+        # Centered month indices sum to zero. Using the original observations
+        # keeps this sum exact even when their mean has a repeating decimal.
         covariance = sum(
-            (
-                (Decimal(i) - mean_x) * (value - mean_y)
-                for i, value in enumerate(values)
-            ),
+            ((Decimal(i) - mean_x) * value for i, value in enumerate(values)),
             Decimal(0),
         )
         variance = sum(
