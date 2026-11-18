@@ -76,6 +76,12 @@ indices are unique/ascending and contain the first at most3 matching rows.
 Both extrema can have the same value. Each witness is the selected table field
 at that row, not a person/account/entity identity.
 
+For PostgreSQL `FETCH FIRST ... WITH TIES`, saved SQL preserves the requested
+cutoff, ordering and offset. Aqua reads at most 1,001 rows from a forward-only
+database cursor, returns at most 1,000, and marks the result truncated when it
+observes the extra row. A tie group can span the application cap. An external
+SQL client running the displayed statement applies its own return limit.
+
 Ready requires a valid existing v1 `result_metadata` descriptor. Source ID and
 generated time come from that saved descriptor; max_rows is1000; truncation is
 its actual flag. Prefer/validate the exact-value sidecar. Numeric is present

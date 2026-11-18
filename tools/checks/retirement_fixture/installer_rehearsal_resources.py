@@ -21,15 +21,15 @@ from pathlib import Path
 from prepare_retirement_stage import checked_archive, full_source, put, stage
 from bank_demo_sources import CORE_SOURCES
 
-IMAGE = "sha256:f383a44b5c3bd5a71e2dc4f707411e6a2f4286fbce86f35d4fda4d00685fe5d7"
+IMAGE = "sha256:90d66cc37cb8ae3cce6552f4b06987e3271d03196c583647ca1c7be2feec401b"
 POSTGRES = (
     "postgres@sha256:3645570cccdfa447589da9f57dd740faa29b30938e861289a5574b6ca6b03826"
 )
 HBA_SHA256 = "a9efd9abbd930abd4914dd4fbd1c87f4dd1e7363549f5ed96d3daa48c8be1dc1"
 RUNTIME_MANIFEST_SHA256 = (
-    "02104ff9331d9f2f3eecb4c7971817ac294412d5e0831bd6c38ad4eb44beac90"
+    "b7cf5c0bb3d706a9f1ec7213fc781e8842e2d6606951d21982ff343de41143e9"
 )
-APP_MANIFEST_SHA256 = "2440b36a942e7ff741b99be82380063992f08f987dfb13550bbc3417a2b13e9d"
+APP_MANIFEST_SHA256 = "59f216ed1911579a15d77fda3861c6bbe5cf5b783c12c37683e733a85cb7a5fe"
 LOCK_SHA256 = "cad37d805664670589892c601592623d3a2b73e7c80147e3b7695e2a113339a7"
 LOCK_BYTES = 88598
 BASE = Path("/srv/bank-ai/.check-results")
