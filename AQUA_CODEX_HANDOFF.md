@@ -25,6 +25,14 @@ For the local demo, the host can open a stdio connection and run tool discovery 
 
 Use paired scores within each study. The four later studies comprised 142 scored generations on fresh inputs held apart from training, validation and protected sets. They evaluated existing weights. Employee usefulness, acceptable latency and accuracy on an institution’s workload still require independent acceptance. [P12 qualification scope](docs/implementation/P12_PROGRESS.md)
 
+### Three-person sales demonstration
+
+The walkthrough gives one presenter and two viewers 14 minutes to see an analytical answer, chart, source rows, private note, fictional bank report, calculation, trend and proposal for human review. Each viewer signs in to their own account. The web and MCP segments have separate setup instructions. [Presenter walkthrough](docs/implementation/SALES_DEMO_20261118.md)
+
+Two overlapping employee requests on the actual Ollama and restricted database path returned the correct answers in 39.92 and 31.88 seconds. Both users read only their own chats, results and briefs. The separate sales-demo workload uses one submitting presenter and two signed-in viewers. Its target is at least 18 of 20 fresh analytics questions answered correctly within 45 seconds.
+
+On twenty new questions across five categories, Aqua delivered **18/20** saved tables in time and **17/20** correct answers in time. One ranking answer was wrong and two calls reached the 45-second model deadline before returning SQL. The combined target remains open. Calculations, filtering and calendar questions each scored 4/4, ranking 2/4 and joins 3/4. All 513 viewer reads passed, with a 95th percentile of 8.94 ms. These results cover a local pinned 8B provider and an eight-table fictional fixture.
+
 ### What remains before release
 
 | Status | Owner and next action |
