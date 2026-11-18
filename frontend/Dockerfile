@@ -15,4 +15,5 @@ RUN VITE_AQUA_DEMO_MODE=false VITE_AQUA_USE_MOCK=false VITE_AQUA_UI_SHELL="$AQUA
 FROM nginx:1.27-alpine
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /app/dist /usr/share/nginx/html
+COPY 404.html /usr/share/nginx/html/404.html
 EXPOSE 5173

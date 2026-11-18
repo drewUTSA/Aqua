@@ -20,14 +20,29 @@ class Metadata(HTMLParser):
     def __init__(self):
         super().__init__()
         self.robots = []
+        self.links = []
 
     def handle_starttag(self, tag, attributes):
         values = dict(attributes)
         if tag == "meta" and values.get("name") == "robots":
             self.robots.append(values.get("content", ""))
+        if tag == "a":
+            self.links.append(values)
 
 
 class PublicDeliveryRoutes(unittest.TestCase):
+    def test_missing_document_has_one_fixed_keyboard_accessible_recovery_link(self):
+        page = (ROOT / "frontend/404.html").read_text()
+        parser = Metadata()
+        parser.feed(page)
+        self.assertEqual([link.get("href") for link in parser.links], ["/"])
+        self.assertGreaterEqual(int(parser.links[0].get("tabindex", "0")), 0)
+        self.assertIn('<html lang="en">', page)
+        self.assertIn("<main>", page)
+        self.assertIn("<h1>Page not found</h1>", page)
+        self.assertIn(">Back to AQUA</a>", page)
+        self.assertNotRegex(page, r"<(?:script|base|form)\b")
+
     def test_every_frontend_local_route_and_only_those_routes_get_the_shell(self):
         nginx = (ROOT / "frontend/nginx.conf").read_text()
         routes = fixture.local_paths(
