@@ -1,7 +1,7 @@
 """Current243 image profile; original historical receipts remain unchanged."""
 
-IMAGE = "sha256:90d66cc37cb8ae3cce6552f4b06987e3271d03196c583647ca1c7be2feec401b"
-MANIFEST_SHA256 = "b7cf5c0bb3d706a9f1ec7213fc781e8842e2d6606951d21982ff343de41143e9"
+IMAGE = "sha256:851226a894078770e508605314418cf8233b5df104dbcbf3838a7dd132634988"
+MANIFEST_SHA256 = "9ec5f3176b39fd89f909a68b725e1050da9cb57acea84e4593d834d34a2a3cd0"
 RUNTIME_FILES = {
     "account/__init__.py": "4d300929fcb6d0c0e3a6b92377bfd4648fc336a8ad2bfb3e962d810b3b6f55e0",
     "account/action_contracts.py": "be3becba0a54378a847efdaa76cc833e3b780df3658c90d30f86a7852232a397",
@@ -137,7 +137,7 @@ RUNTIME_FILES = {
     "nl2sql/config.py": "64f5d0af2f8847ea930300ee34bb2efc9166c5d9214d3230c7515fa641e49cc1",
     "nl2sql/control.py": "d1fc5ed965876c64a2bdcaaf2432dc42f7211eb5666d5847401f6b28de3107a7",
     "nl2sql/db.py": "b2364c06d9ecfa093f8ddbd8eb2fe6efc591e1fce5f1694b2f718ca94cbde56d",
-    "nl2sql/display.py": "c9a1f3bf2bbd1aa069460288a2a204cd4eb30e1fde1b61f864e194322256a02f",
+    "nl2sql/display.py": "5eaf796017b1270417ad5b7f2c9d529c36abe9325cd56da2dbb09ec98613d4cf",
     "nl2sql/errors.py": "f89f0ade89097788337a1c8a7d73263f070a319276aaf655f01ca21cd4b2a58d",
     "nl2sql/execute.py": "25e2e6ccd6fd3a5950f16bc6e322b75f57c55a78f064e0e5f408ce315553b2db",
     "nl2sql/function_policy.py": "089e81255fa66be290e6a7f9cd6fde6fbad8beb6b5b74c135d48fdd1ca55de00",
@@ -149,8 +149,8 @@ RUNTIME_FILES = {
     "nl2sql/provider_gemini.py": "b16ee6a65ee85b783f4bff50bbf8f91a9f69d84cdc8455c0b2ceb316e4962e26",
     "nl2sql/provider_ollama.py": "4495a5d65d3aeebaa706dd0aa7ab8c4429ef057c07efda099006ab3588f4312d",
     "nl2sql/query_service.py": "d6f942e4878ed4ce834bf12d5dbdce415d241b389fe82fc63d6a676abf51dfbb",
-    "nl2sql/relations.py": "9d9c2b77b69fd10ca29d277c4e8ffcc160c8f932b58ade70cbe17293cedd2815",
-    "nl2sql/response.py": "ac1fd76d9cafbb7f4a898b316517d2b61b5b42195b623cd8de5fe80116dd5e61",
+    "nl2sql/relations.py": "e071f45961d211ca56fb0a23447716e4d352061087933f68d3371f47726a406b",
+    "nl2sql/response.py": "fbea4df9e5b7506b2c6eb0d6e2da1f2f0542c8944779bb05a59f08aafaea3a18",
     "nl2sql/result_metadata.py": "cc4f528195e7e2beb4b9ffd051e4df2942dc7ab150754f603c3633de53daecf5",
     "nl2sql/retrieval/__init__.py": "460ff5d0ef355c76275f9e8fa0d03404901eb77e49a9ce1314bc4b31081e8128",
     "nl2sql/retrieval/embed.py": "8bd830bb50bf19f64e94d073a2285b628b1e5c52db89e9f565c1d78b1e95fc5c",
@@ -165,7 +165,7 @@ RUNTIME_FILES = {
     "nl2sql/validate.py": "7f25f44a24678e521547f1a7733cdd073f0af2a71ff4c543cc052044ee7465f5",
     "nl2sql/visual_axes.py": "7df561553e4ea33b8244953fd4416f32a10d215befef75eda72620979df04158",
     "nl2sql/visual_intent.py": "f59c2394bc20b24979721ca634fff2c8db8e19fadf0b9b91af2bbf4026b86d11",
-    "nl2sql/visual_units.py": "03eaaa3195e90923468e3f21a1b40da29937f60a73fba50ba45e5d68ee88bcc3",
+    "nl2sql/visual_units.py": "f6a86e64803902996595febbe2f02a36b703b7f2a1787fef46eb2e0d370489d8",
     "nl2sql/visualize.py": "ecd97fdb22affe182897e83509ab8a2a16d268f4e7451abe4c163977d36b431d",
     "preferences/__init__.py": "a81841380c82f28835beeac04d3451b7798509e27cdd7bfda06130dd6eb8bb98",
     "preferences/contracts.py": "2073a66e7a68022905a240ff1013cd7155776adbe3fcdeddb3f2951039e0b1a6",

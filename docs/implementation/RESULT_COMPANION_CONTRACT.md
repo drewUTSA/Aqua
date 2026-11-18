@@ -135,3 +135,18 @@ Failures retain the existing fixed no-echo envelope:404 `not_found`,401
 413 raw-body cap,415 media,429 shared admission,503 unavailable/deadline. Private
 headers/access-log suppression remain. No source rows/SQL or input diagnostics
 are copied into errors or shared logs.
+
+### Stored codes in analytical results
+
+For a new answer, Aqua applies readable code labels to direct columns that it
+can trace to the authorized dataset. An employee can ask for a field's stored
+code, including through a SQL alias, and request readable labels for other
+fields in the same result. Separate, identifiable output columns can carry the
+code and label of the same field. The table, summary, chart and exports use the
+selected representation. Existing saved answers retain their recorded values.
+
+Computed expressions, literal text and unproved projections keep the SQL
+result's values. The formatter currently supports direct columns in a single
+SELECT with ordinary table joins. CTEs, subqueries, set operations and
+ambiguous column sources retain their original values. The formatter consults
+the current question and authorized column annotations without another query.

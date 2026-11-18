@@ -258,6 +258,15 @@ def test_currency_requires_source_documentation_instead_of_an_alias_guess():
     assert chart["series"][0]["unit"] is None
 
 
+def test_currency_sources_use_postgres_quoted_and_unquoted_table_aliases():
+    for table_ref, qualifier in (("payments P", "p"), ('payments "Sales"', '"Sales"')):
+        sql = f"SELECT name, SUM({qualifier}.amount) AS revenue FROM {table_ref} GROUP BY name"
+        (chart,) = present(
+            ["name", "revenue"], [("A", 10), ("B", 2)], sql=sql, schema=SCHEMA
+        )["charts"]
+        assert chart["series"][0]["unit"] == "USD"
+
+
 def test_any_exact_sidecar_cell_keeps_the_whole_result_table_only():
     result = present(
         ["record_id", "name", "amount"],
