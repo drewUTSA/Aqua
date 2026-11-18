@@ -3,7 +3,7 @@ export const SECURE_ACCOUNT_ORIGIN = "https://aqua-browser.example.test";
 // Current candidate gates require this exact migration, independently of the
 // retained historical schema8 fallback evidence in its frozen checkout.
 export function requireFixtureSchema(value) {
-  if (value !== 9) throw Error("fixture_schema9_required");
+  if (value !== 10) throw Error("fixture_schema10_required");
   return value;
 }
 export function browserFixtureMode(options) {

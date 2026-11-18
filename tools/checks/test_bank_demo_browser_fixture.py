@@ -123,14 +123,16 @@ def test_bank_mode_cannot_redirect_its_origin_before_any_native_setup(module, or
 
 
 @pytest.mark.parametrize("module", [host, worker])
-@pytest.mark.parametrize("schema", [6, 7, 8, 10, True, 9.0, "9"])
-def test_bank_mode_retains_exact_schema9_before_resources_or_app_import(module, schema):
+@pytest.mark.parametrize("schema", [6, 7, 8, 9, 11, True, 10.0, "10"])
+def test_bank_mode_retains_exact_schema10_before_resources_or_app_import(
+    module, schema
+):
     with (
         patch.object(module, "fixture_schema", return_value=schema),
         patch.object(host, "Resources") as resources,
         patch.object(worker, "guard_fixture") as guard,
     ):
-        with pytest.raises(ValueError, match="fixture_schema9_required"):
+        with pytest.raises(ValueError, match="fixture_schema10_required"):
             if module is host:
                 module.host(ORIGIN, IMAGE, bank_demo_fixture=True)
             else:
@@ -243,7 +245,7 @@ def test_bank_forwarding_keeps_original_body_header_and_cookie_boundaries():
 def test_host_routes_only_the_opt_in_to_its_fixed_worker_and_retains_256_operations(
     bank,
 ):
-    ready = {"kind": "ready", "schema_version": 9}
+    ready = {"kind": "ready", "schema_version": 10}
     if bank:
         ready.update(bank_demo_fixture=True, bank_demo_persona="teller")
     child = Mock(
@@ -255,7 +257,7 @@ def test_host_routes_only_the_opt_in_to_its_fixed_worker_and_retains_256_operati
     resources.cleanup.return_value = []
     emitted = []
     with (
-        patch.object(host, "fixture_schema", return_value=9),
+        patch.object(host, "fixture_schema", return_value=10),
         patch.object(host, "Resources", return_value=resources),
         patch.object(host.signal, "SIGALRM", 14, create=True),
         patch.object(host.signal, "SIGHUP", 1, create=True),
@@ -294,7 +296,8 @@ def test_wrong_mode_or_persona_readiness_stops_with_owned_cleanup(ready):
     child = Mock(
         stdin=io.BytesIO(),
         stdout=io.BytesIO(
-            json.dumps({"kind": "ready", "schema_version": 9, **ready}).encode() + b"\n"
+            json.dumps({"kind": "ready", "schema_version": 10, **ready}).encode()
+            + b"\n"
         ),
     )
     child.wait.return_value = 0
@@ -303,7 +306,7 @@ def test_wrong_mode_or_persona_readiness_stops_with_owned_cleanup(ready):
     resources.cleanup.return_value = []
     emitted = []
     with (
-        patch.object(host, "fixture_schema", return_value=9),
+        patch.object(host, "fixture_schema", return_value=10),
         patch.object(host, "Resources", return_value=resources),
         patch.object(host.signal, "SIGALRM", 14, create=True),
         patch.object(host.signal, "SIGHUP", 1, create=True),

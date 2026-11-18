@@ -70,7 +70,7 @@ def test_only_two_bounded_synthetic_questions_can_reach_the_real_chat_route():
         {"personal_deletion_fixture": "true"},
     ],
 )
-def test_schema9_deletion_mode_rejects_incomplete_or_ambiguous_fixture_modes(
+def test_schema10_deletion_mode_rejects_incomplete_or_ambiguous_fixture_modes(
     module, changes
 ):
     flags = {
@@ -80,7 +80,7 @@ def test_schema9_deletion_mode_rejects_incomplete_or_ambiguous_fixture_modes(
         **changes,
     }
     with (
-        patch.object(module, "fixture_schema", return_value=9),
+        patch.object(module, "fixture_schema", return_value=10),
         pytest.raises(ValueError),
     ):
         if module is host:
@@ -118,7 +118,7 @@ def test_authority_connections_and_hba_remain_fixed_socket_roles_only():
 
 
 @pytest.mark.parametrize("module", [host, worker])
-@pytest.mark.parametrize("schema", [6, 7, 8, 10, True])
+@pytest.mark.parametrize("schema", [6, 7, 8, 9, 11, True, 10.0, "10"])
 def test_deletion_mode_never_admits_an_old_unknown_or_boolean_schema(module, schema):
     flags = {
         "account_security_fixture": True,

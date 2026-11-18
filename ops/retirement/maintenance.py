@@ -352,7 +352,7 @@ class Hold:
             self.fds.append(lock(path))
             self.publisher_locked = True
 
-    def require(self, schema: int = 9) -> dict:
+    def require(self, schema: int = 10) -> dict:
         if time.monotonic() >= self.until or not self.fds:
             raise RuntimeError("retirement_maintenance_expired")
         stopped(self.value, schema, scope=self.scope)
@@ -366,7 +366,7 @@ class Hold:
         cannot create a new sender. The offline child must open its own physical
         EX descriptor; no boolean attestation can authorize its purge.
         """
-        self.require(9)
+        self.require(10)
         if getattr(self, "recovery_only", False) or not getattr(
             self, "publisher_locked", False
         ):
@@ -393,7 +393,9 @@ class Hold:
             self.close()
 
 
-def require(expected: str, schema: int = 9, scope=PRODUCTION) -> tuple[dict, dict, str]:
+def require(
+    expected: str, schema: int = 10, scope=PRODUCTION
+) -> tuple[dict, dict, str]:
     scope.validate()
     value = plan(expected, scope)
     raw = read(STATE if scope is PRODUCTION else scope.state)

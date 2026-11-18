@@ -211,7 +211,7 @@ def execute(expected: str, protected: str, scope=PRODUCTION) -> dict:
                 value["source_sha256"],
             ):
                 raise RuntimeError("recovery_plan_changed")
-            held.require(9)
+            held.require(10)
             owner = Recovery(value, program(cache, public, protected), scope=scope)
             try:
                 if (
@@ -248,7 +248,7 @@ def execute(expected: str, protected: str, scope=PRODUCTION) -> dict:
                 cleaning = True
                 signal.alarm(0)
                 owner.close()
-            held.require(9)
+            held.require(10)
             return {
                 **result,
                 "writers_resumed": False,

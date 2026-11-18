@@ -18,7 +18,7 @@ from pathlib import Path
 from types import SimpleNamespace
 
 SOURCE = Path(__file__).resolve().parents[2] / "ops/retirement/install.py"
-SOURCE_SHA256 = "4eca10e663c77639e9c92d4fe85df2dd45179041331b80a41f46a45a16226ae3"
+SOURCE_SHA256 = "809192b2f249437cc48c02a4f0109d076758bd69701e9c655628fba1ed4f68cf"
 PUBLIC_BASE = Path(tempfile.gettempdir()).resolve()
 PUBLISHER_FILES = (
     "host-sources/retirement_host.py",
@@ -216,9 +216,9 @@ class InstallFsyncTests(unittest.TestCase):
                     events.append("hold_exit")
 
                 def require(self, schema):
-                    if schema != 9:
+                    if schema != 10:
                         raise RuntimeError("wrong_fixture_schema")
-                    events.append("require9")
+                    events.append("require10")
 
                 def publisher(self):
                     events.append("publisher_EX")

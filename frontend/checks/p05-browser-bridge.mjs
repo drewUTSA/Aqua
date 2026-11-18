@@ -31,7 +31,7 @@ function finishedReport(value) {
       ...(run ? { run } : {}),
       ...(typeof report.backend_source_sha256 === "string" && /^[a-f0-9]{64}$/.test(report.backend_source_sha256) ? { backend_source_sha256: report.backend_source_sha256 } : {}),
       ...(report.actual_independent_authority === true ? { actual_independent_authority: true } : {}),
-      ...([6, 7, 8, 9].includes(report.schema_version) ? { schema_version: report.schema_version } : {}),
+      ...([6, 7, 8, 9, 10].includes(report.schema_version) ? { schema_version: report.schema_version } : {}),
       ...(["passed", "failed"].includes(report.status) ? { status: report.status } : {}),
       ...(STEPS.has(report.step) ? { step: report.step } : {}),
       ...(["failed", "removed_and_absence_confirmed"].includes(report.cleanup) ? { cleanup: report.cleanup } : {}),

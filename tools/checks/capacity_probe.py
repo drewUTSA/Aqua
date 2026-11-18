@@ -40,7 +40,7 @@ def samples(function, count: int = 30) -> dict:
 def private_history() -> dict:
     """Exercise production keyset code on one large and one hundred small owners."""
     with psycopg.connect(DSN.replace("runtime", "migrator"), autocommit=True) as conn:
-        assert apply(conn) == 9
+        assert apply(conn) == 10
     with psycopg.connect(DSN, autocommit=True) as conn:
         owner = conn.execute(
             "INSERT INTO app.users(status) VALUES('active') RETURNING id"

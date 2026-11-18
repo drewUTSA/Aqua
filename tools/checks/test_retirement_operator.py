@@ -208,7 +208,9 @@ class InstalledControllerTests(unittest.TestCase):
                 events.append("hold_exit")
 
             def require(self, schema):
-                events.append("require9")
+                if schema != 10:
+                    raise RuntimeError("wrong_fixture_schema")
+                events.append("require10")
 
             def publisher(self):
                 events.append("publisher_EX")
@@ -618,7 +620,7 @@ class RecoveryHandoffGuards(unittest.TestCase):
         events = []
         state = SimpleNamespace(unlink=lambda: events.append("attestation_removed"))
         with (
-            patch.object(holder, "require"),
+            patch.object(holder, "require") as require,
             patch.object(maintenance, "STATE", state),
             patch.object(
                 maintenance, "read", return_value=maintenance.json_bytes(holder.record)
@@ -630,6 +632,7 @@ class RecoveryHandoffGuards(unittest.TestCase):
             ),
         ):
             holder.recovery_handoff()
+        require.assert_called_once_with(10)
         self.assertEqual(events, ["attestation_removed", ("close", 13)])
         self.assertEqual(holder.fds, [11, 12, 14])
         self.assertTrue(holder.recovery_only)

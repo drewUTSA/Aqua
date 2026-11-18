@@ -72,7 +72,7 @@ def profile(expected: str, scope=PRODUCTION) -> dict:
 
 
 def boundary(value: dict, scope=PRODUCTION):
-    plan, state, digest = maintenance.require(value["plan_sha256"], 9, scope=scope)
+    plan, state, digest = maintenance.require(value["plan_sha256"], scope=scope)
     if (plan["runtime_image"], plan["source_sha256"]) != (
         value["runtime_image"],
         value["source_sha256"],

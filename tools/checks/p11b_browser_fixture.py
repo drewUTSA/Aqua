@@ -1,4 +1,4 @@
-"""Closed browser controls over actual schema9 routes and signed authority."""
+"""Closed browser controls over actual schema10 routes and signed authority."""
 
 import base64
 import json
@@ -80,7 +80,7 @@ class DeletionFixture(IdentityFixture):
             **super().metadata(),
             "security_fake_jobs": self.analysis.started,
             "personal_deletion_fixture": True,
-            "schema_version": 9,
+            "schema_version": 10,
             "actual_independent_authority": True,
         }
 

@@ -183,6 +183,46 @@ SELECT count(*) FROM app.deletion_admission;
 SELECT has_table_privilege('aqua_app_runtime','app.retirement_intents','DELETE'),has_table_privilege('aqua_app_runtime','app.retirement_intents','TRUNCATE'),has_table_privilege('aqua_app_backup','app.retirement_intents','SELECT'),has_table_privilege('aqua_app_backup','app.retirement_intents','UPDATE');
 """
     retirement_expected = sql("aqua_app", retirement_sql)
+    # Explicit saved context survives app-only recovery as a library, including
+    # historical dataset/grant rows. It never restores analytical permission.
+    sql(
+        "aqua_app",
+        b"""
+BEGIN;
+SET LOCAL ROLE aqua_app_runtime;
+INSERT INTO app.context_notes(id,user_id,dataset_key,grant_version,kind,label,body,revision,client_request_id,fingerprint,content_bytes)
+VALUES
+ ('74000000-0000-4000-8000-000000000001','00000000-0000-0000-0000-000000000001',repeat('a',64),1,'note','L1','Synthetic current note',1,'75000000-0000-4000-8000-000000000001',decode(repeat('a1',32),'hex'),24),
+ ('74000000-0000-4000-8000-000000000002','00000000-0000-0000-0000-000000000001',repeat('b',64),7,'metric_definition','L2','Retained historical note',3,'75000000-0000-4000-8000-000000000002',decode(repeat('a2',32),'hex'),26);
+UPDATE app.workspace_usage SET content_bytes=content_bytes+50
+ WHERE user_id='00000000-0000-0000-0000-000000000001';
+UPDATE app.workspace_totals SET content_bytes=content_bytes+50 WHERE singleton;
+COMMIT;
+""",
+    )
+    notes_sql = b"""
+SELECT id,user_id,dataset_key,grant_version,kind,label,body,revision,client_request_id,
+ encode(fingerprint,'hex'),content_bytes,created_at,updated_at,deleted_at IS NOT NULL
+ FROM app.context_notes ORDER BY id;
+SELECT has_table_privilege('aqua_app_runtime','app.context_notes','INSERT'),
+ has_table_privilege('aqua_app_backup','app.context_notes','SELECT'),
+ has_table_privilege('aqua_app_backup','app.context_notes','UPDATE');
+"""
+    notes_expected = sql("aqua_app", notes_sql)
+    tables_sql = (
+        b"SELECT tablename FROM pg_tables WHERE schemaname='app' ORDER BY tablename;"
+    )
+    expected_tables = (
+        "account_action_proofs account_mail account_mail_control account_security_requests "
+        "analysis_admission analysis_events analysis_jobs analysis_requests analysis_streams "
+        "auth_admission auth_challenges chats context_notes data_export_chunks data_exports "
+        "dataset_grants deletion_admission deletion_jobs external_identities mail_recipient_budget "
+        "messages password_admission password_credentials password_hash_slots privacy_admission "
+        "privacy_control projects retirement_control retirement_intents saved_prompt_uses "
+        "saved_prompts schema_migrations sessions user_emails user_notification_settings "
+        "user_preferences users visual_results workspace_admission workspace_totals workspace_usage"
+    ).split()
+    assert sql("aqua_app", tables_sql).decode().splitlines() == expected_tables
     verify_identity(sql, "aqua_app", identity_recovery, fenced=False)
     verify_exports(sql, "aqua_app", export_recovery, fenced=False)
     dump = docker(
@@ -240,10 +280,13 @@ SELECT has_table_privilege('aqua_app_runtime','app.retirement_intents','DELETE')
         "7",
         "8",
         "9",
+        "10",
         "t|f",
     ], observed
     assert sql("aqua_restore", account_sql) == account_expected
     assert sql("aqua_restore", retirement_sql) == retirement_expected
+    assert sql("aqua_restore", notes_sql) == notes_expected
+    assert sql("aqua_restore", tables_sql).decode().splitlines() == expected_tables
     assert sql("aqua_restore", proof_fence_sql).decode().splitlines() == ["2|f", "1|f"]
     verify_identity(sql, "aqua_restore", identity_recovery, fenced=False)
     verify_exports(sql, "aqua_restore", export_recovery, fenced=False)
@@ -279,7 +322,7 @@ SELECT has_table_privilege('aqua_app_runtime','app.retirement_intents','DELETE')
     verify_exports(sql, "aqua_app", export_recovery, fenced=False)
     assert sql("aqua_app", proof_fence_sql).decode().splitlines() == ["2|f", "1|f"]
     workspace_sql = b"SELECT state,reserved_bytes FROM app.analysis_requests WHERE user_id='00000000-0000-0000-0000-000000000001' ORDER BY id; SELECT content_bytes FROM app.workspace_usage WHERE user_id='00000000-0000-0000-0000-000000000001'; SELECT count(*) FROM app.visual_results WHERE user_id='00000000-0000-0000-0000-000000000001' AND response->>'message'='Completed synthetic answer'; SELECT status FROM app.messages WHERE id='20000000-0000-4000-8000-000000000004';"
-    workspace_expected = ["complete|0", "interrupted|0", "1024", "1", "interrupted"]
+    workspace_expected = ["complete|0", "interrupted|0", "1074", "1", "interrupted"]
     assert (
         sql(
             "aqua_restore",
@@ -292,6 +335,8 @@ SELECT has_table_privilege('aqua_app_runtime','app.retirement_intents','DELETE')
     assert (
         sql("aqua_restore", workspace_sql).decode().splitlines() == workspace_expected
     )
+    assert sql("aqua_restore", notes_sql) == notes_expected
+    assert sql("aqua_restore", tables_sql).decode().splitlines() == expected_tables
     lifecycle_sql = b"SELECT state,stage,lease_token,content_bytes,question='',context='[]',response IS NULL,lease_owner IS NULL,lease_until IS NULL,physical_until IS NULL FROM app.analysis_jobs WHERE user_id='00000000-0000-0000-0000-000000000001' ORDER BY id; SELECT count(*) FROM app.analysis_streams WHERE user_id='00000000-0000-0000-0000-000000000001'; SELECT count(*) FROM app.analysis_events WHERE user_id='00000000-0000-0000-0000-000000000001';"
     lifecycle_expected = [
         "interrupted|interrupted|8|0|t|t|t|t|t|t",
@@ -339,6 +384,8 @@ SELECT has_table_privilege('aqua_app_runtime','app.retirement_intents','DELETE')
         "restored_account_provenance": "derived_grant_identity_binding_and_revocation_preserved",
         "restored_account_action_proofs": "challenge_proof_bindings_preserved_consumption_fenced_repeatably",
         "restored_private_exports": "ready_and_partial_bytes_purged_repeatably_spent_admission_preserved",
+        "restored_context_notes": "all_scope_rows_and_exact_bindings_preserved_after_session_fence",
+        "restored_app_table_inventory": 41,
         "restored_retirement_intents": "permanent_original_without_user_job_and_counters_preserved_runtime_delete_truncate_denied",
         "restored_identity_actions": "google_link_and_dual_mail_and_password_add_requests_consumed_repeatably",
         "restored_identity_revisions": "email_and_google_proof_revision_snapshots_preserved",

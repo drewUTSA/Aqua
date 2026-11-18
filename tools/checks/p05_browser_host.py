@@ -51,6 +51,7 @@ def host(
     personal_export_fixture: bool = False,
     personal_deletion_fixture: bool = False,
     bank_demo_fixture: bool = False,
+    notes_fixture: bool = False,
 ) -> int:
     """Bound all operations/lifetime; lifecycle mode explicitly allows 400."""
     if (
@@ -59,14 +60,29 @@ def host(
         or type(personal_export_fixture) is not bool
         or type(personal_deletion_fixture) is not bool
         or type(bank_demo_fixture) is not bool
+        or type(notes_fixture) is not bool
     ):
         raise ValueError("fixture_security_mode_invalid")
+    if notes_fixture and (
+        workspace_analysis is not False
+        or account_security_fixture
+        or account_identity_fixture
+        or personal_export_fixture
+        or personal_deletion_fixture
+        or bank_demo_fixture
+        or type(image) is not str
+        or not re.fullmatch(r"sha256:[a-f0-9]{64}", image)
+    ):
+        raise ValueError("fixture_notes_mode_invalid")
+    if notes_fixture:
+        origin_value(origin)
     if bank_demo_fixture and (
         workspace_analysis is not False
         or account_security_fixture
         or account_identity_fixture
         or personal_export_fixture
         or personal_deletion_fixture
+        or notes_fixture
         or type(image) is not str
         or not re.fullmatch(r"sha256:[a-f0-9]{64}", image)
     ):
@@ -74,8 +90,8 @@ def host(
     if bank_demo_fixture:
         origin_value(origin)
     schema = fixture_schema(ROOT)
-    if type(schema) is not int or schema != 9:
-        raise ValueError("fixture_schema9_required")
+    if type(schema) is not int or schema != 10:
+        raise ValueError("fixture_schema10_required")
     if account_identity_fixture and (not account_security_fixture):
         raise ValueError("fixture_identity_mode_invalid")
     if personal_export_fixture and (
@@ -83,7 +99,7 @@ def host(
     ):
         raise ValueError("fixture_export_mode_invalid")
     if personal_deletion_fixture and (
-        schema != 9
+        schema != 10
         or not account_identity_fixture
         or not account_security_fixture
         or personal_export_fixture
@@ -124,6 +140,7 @@ def host(
         "real_data_accessed": False,
         "provider_calls": 0,
         "workspace_analysis_fixture": workspace_analysis,
+        **({"notes_fixture": True} if notes_fixture else {}),
         **(
             {"bank_demo_fixture": True, "bank_demo_persona": "teller"}
             if bank_demo_fixture
@@ -148,9 +165,13 @@ def host(
                 "-B",
                 "-u",
                 (
-                    "/checks/tools/checks/bank_demo_browser_backend.py"
-                    if bank_demo_fixture
-                    else None
+                    "/checks/tools/checks/context_notes_browser_backend.py"
+                    if notes_fixture
+                    else (
+                        "/checks/tools/checks/bank_demo_browser_backend.py"
+                        if bank_demo_fixture
+                        else None
+                    )
                 )
                 or (
                     "/checks/tools/checks/p11b_browser_backend.py"
@@ -174,7 +195,7 @@ def host(
                 origin,
                 *(
                     ["--image", image]
-                    if account_security_fixture or bank_demo_fixture
+                    if account_security_fixture or bank_demo_fixture or notes_fixture
                     else ["--workspace-analysis"] if workspace_analysis else []
                 ),
             ],
@@ -189,6 +210,27 @@ def host(
         )
         assert child.stdout is not None and child.stdin is not None
         ready = json.loads(child.stdout.readline(MAX_LINE + 1))
+        if type(ready) is not dict:
+            raise RuntimeError("fixture_worker_not_ready")
+        if ready.get("notes_fixture", False) is not notes_fixture:
+            raise RuntimeError("fixture_notes_worker_not_ready")
+        if notes_fixture and (
+            type(ready.get("schema_version")) is not int
+            or ready["schema_version"] != 10
+            or ready.get("origin") != origin
+            or ready.get("workspace_analysis_fixture") is not False
+            or type(ready.get("capabilities")) is not dict
+            or ready["capabilities"].get("workspace_analysis") is not False
+            or type(ready.get("max_requests")) is not int
+            or ready["max_requests"] != 256
+            or type(ready.get("max_seconds")) is not int
+            or ready["max_seconds"] != 300
+            or type(ready.get("body_bytes_max")) is not int
+            or ready["body_bytes_max"] != 16384
+            or type(ready.get("dataset_grants")) is not int
+            or ready["dataset_grants"] != 0
+        ):
+            raise RuntimeError("fixture_notes_worker_not_ready")
         if ready.get("bank_demo_fixture", False) is not bank_demo_fixture or (
             bank_demo_fixture and ready.get("bank_demo_persona") != "teller"
         ):

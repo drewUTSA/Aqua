@@ -200,7 +200,7 @@ class Runtime:
             analysis_policy.DEADLINE_SECONDS,
         ) == (2, 1, 120)
         with psycopg.connect(MIGRATOR, autocommit=True) as conn:
-            assert apply(conn) == 9
+            assert apply(conn) == 10
         self.storage = Storage(StorageSettings(True, DSN, 4, 8, 2))
         self.settings = replace(
             main.app.state.settings,

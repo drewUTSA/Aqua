@@ -156,7 +156,9 @@ def test_export_without_dataset_grant_or_mail_includes_only_owned_json(
         "saved_prompts",
         "chats",
         "messages",
+        "context_notes",
     }
+    assert payload["schemaVersion"] == 2 and payload["context_notes"] == []
     assert payload["profile"]["display_name"] == "A"
     for canary in (
         b"FOREIGN-EXPORT-CANARY",

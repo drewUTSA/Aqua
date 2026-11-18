@@ -20,9 +20,14 @@ def dispatch(
     analysis: Any = None,
     *,
     bank_demo_fixture: bool = False,
+    notes_fixture: Any = None,
 ) -> dict[str, Any]:
     if type(bank_demo_fixture) is not bool:
         raise ValueError("fixture_bank_demo_mode_invalid")
+    if notes_fixture is not None:
+        return notes_fixture.dispatch(
+            item, client, service, deliver, captured, analysis
+        )
     identifier = item["id"]
     kind = item.get("kind")
     if kind in {
@@ -80,14 +85,9 @@ def dispatch(
         }
     if kind != "request":
         raise ValueError("fixture_operation_invalid")
-    path, method = item.get("path"), item.get("method")
-    if (
-        not isinstance(path, str)
-        or len(path) > 2048
-        or not path.startswith("/api/")
-        or "\\" in path
-        or any(ord(c) < 32 for c in path)
-        or not (
+
+    def allowed(path, method):
+        return (
             (
                 urlsplit(path).path in PATHS
                 and method in {"GET", "POST", "HEAD", "OPTIONS"}
@@ -103,6 +103,21 @@ def dispatch(
                 }
             )
         )
+
+    return forward_request(item, client, allowed)
+
+
+def forward_request(item, client, allowed):
+    """Preserve actual bounded HTTP bytes/cookies under one caller's closed routes."""
+    identifier = item["id"]
+    path, method = item.get("path"), item.get("method")
+    if (
+        not isinstance(path, str)
+        or len(path) > 2048
+        or not path.startswith("/api/")
+        or "\\" in path
+        or any(ord(c) < 32 for c in path)
+        or not allowed(path, method)
     ):
         raise ValueError("fixture_request_invalid")
     headers = item.get("headers", [])

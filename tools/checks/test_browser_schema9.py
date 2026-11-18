@@ -25,16 +25,16 @@ MODES = (
 
 
 @pytest.mark.parametrize("module", (host, worker))
-@pytest.mark.parametrize("schema", (6, 7, 8, 10, True, 9.0, "9"))
+@pytest.mark.parametrize("schema", (6, 7, 8, 9, 11, True, 10.0, "10"))
 @pytest.mark.parametrize("flags", MODES)
-def test_every_candidate_mode_rejects_non_schema9_before_resources_or_app_import(
+def test_every_candidate_mode_rejects_non_schema10_before_resources_or_app_import(
     module, schema, flags
 ):
     with (
         patch.object(module, "fixture_schema", return_value=schema),
         patch.object(host, "Resources") as resources,
         patch.object(worker, "guard_fixture") as runtime,
-        pytest.raises(ValueError, match="fixture_schema9_required"),
+        pytest.raises(ValueError, match="fixture_schema10_required"),
     ):
         if module is host:
             host.host(

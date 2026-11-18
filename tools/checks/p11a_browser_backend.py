@@ -1,4 +1,4 @@
-"""Explicit schema9 personal-export seam; reserved origin, immutable image only."""
+"""Explicit schema10 personal-export seam; reserved origin, immutable image only."""
 
 import argparse
 
@@ -17,7 +17,8 @@ def main():
     parser.add_argument("--origin", required=True, type=secure_origin)
     parser.add_argument("--image", required=True, type=immutable_image)
     args = parser.parse_args()
-    if fixture_schema(ROOT) != 9:
+    schema = fixture_schema(ROOT)
+    if type(schema) is not int or schema != 10:
         raise ValueError("fixture_export_schema_required")
     flags = {
         "account_security_fixture": True,

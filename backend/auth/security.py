@@ -115,11 +115,16 @@ def require_user(
     history_write = meaningful and (
         path == "/api/query"
         or path.startswith(
-            ("/api/v1/chats", "/api/v1/projects", "/api/v1/me/saved-prompts")
+            (
+                "/api/v1/chats",
+                "/api/v1/projects",
+                "/api/v1/me/saved-prompts",
+                "/api/v1/me/context-notes",
+            )
         )
     )
     if (
-        history_write
+        (history_write or path.startswith("/api/v1/me/context-notes"))
         and generation > 1
         and not tokens_match(
             request.headers.get("x-aqua-history-revision", ""), revision

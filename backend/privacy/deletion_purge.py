@@ -163,6 +163,7 @@ def _account(conn, owner, job):
         return True
     for table, size in (
         ("account_security_requests", "0"),
+        ("context_notes", "content_bytes"),
         ("dataset_grants", "0"),
         ("sessions", "0"),
         (

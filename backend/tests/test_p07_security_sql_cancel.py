@@ -8,6 +8,7 @@ import time
 from uuid import uuid4
 
 import pytest
+import psycopg
 
 from analysis.dispatch import Halt
 from analysis.process import ProcessEngine, payload
@@ -56,12 +57,18 @@ def test_real_process_cancel_stops_fixture_sql_before_capacity_can_be_released(
     with connect(settings) as monitor:
 
         def activity():
-            rows = monitor.execute(
-                "SELECT pid,state FROM pg_stat_activity WHERE application_name=%s "
-                "AND usename=current_user AND datname=current_database() "
-                "AND pid<>pg_backend_pid()",
-                (application,),
-            ).fetchall()
+            try:
+                rows = monitor.execute(
+                    "SELECT pid,state FROM pg_stat_activity WHERE application_name=%s "
+                    "AND usename=current_user AND datname=current_database() "
+                    "AND pid<>pg_backend_pid()",
+                    (application,),
+                ).fetchall()
+            except psycopg.Error:
+                # Preserve the failed observation; cleanup needs a usable
+                # transaction rather than masking it with an aborted one.
+                monitor.rollback()
+                raise
             monitor.commit()  # A new stats snapshot is required for each poll.
             return rows
 

@@ -1,6 +1,6 @@
 """Explicit fresh-QA installer/keeper/head/export/recovery rehearsal; no default actions.
 
-The fixture helper owns PostgreSQL, schema9, the socket and private QA files.
+The fixture helper owns PostgreSQL, schema10, the socket and private QA files.
 Actual staged CLIs own installation order and all production lock/SQL behavior.
 Only allowlisted evidence is printed. Archive/key bytes never enter a file/log.
 """
@@ -20,7 +20,7 @@ import tarfile
 import time
 
 ROOT = Path(__file__).resolve().parents[2]
-IMAGE = "sha256:4e72d0102fae6ebe2dc3b9897b06656b60ddb92ef888845b5503cc03963e943d"
+IMAGE = "sha256:0c8343e4e53ccda74b8fdd230aba8dbd0dc00db479c4a39c0b86d970925e92b7"
 RUN = re.compile(r"aqua-retirement-host-[a-f0-9]{24}\Z")
 HEX = re.compile(r"[a-f0-9]{64}\Z")
 MAX_ARCHIVE = 193 * 1024 * 1024
@@ -46,7 +46,7 @@ PREFLIGHT_ERRORS = frozenset(
         "operator_stage_runtime_asset_changed",
         "rehearsal_reviewed_child_lineage_required",
         "rehearsal_exact_strict_HBA_required",
-        "rehearsal_exact_app234_manifest_required",
+        "rehearsal_exact_app242_manifest_required",
         "rehearsal_runtime_image_changed",
         "rehearsal_postgres_identity",
         "rehearsal_base_not_canonical",
