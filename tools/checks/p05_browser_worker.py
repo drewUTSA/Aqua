@@ -328,6 +328,8 @@ def worker(
         }
 
     def no_pipeline(*args: Any, **kwargs: Any) -> Any:
+        if getattr(analysis, "result_brief_enabled", False) is True:
+            analysis.provider_attempts += 1
         raise AssertionError("fixture_private_query_pipeline_was_invoked")
 
     router.verify_google_token = verify

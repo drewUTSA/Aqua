@@ -111,3 +111,42 @@ class VisualFixture(LifecycleFixture):
             result, response, metadata, context=getattr(self.local, "context", ())
         )
         return response
+
+
+class ResultBriefFixture(VisualFixture):
+    """Two ordinary visual cases in the opt-in saved-result browser journey."""
+
+    result_brief_enabled = True
+
+    def __init__(self, storage: Any, settings: Any) -> None:
+        super().__init__(storage, settings)
+        from companion.policy import CompanionPolicy
+        from main import app
+
+        app.state.companion_policy = CompanionPolicy(enabled=True)
+        self.max_executions = 2
+        self.provider_attempts = 0
+
+    def run(self, payload: dict, control: Any) -> tuple[dict, int]:
+        if payload.get("question") not in {
+            "P08 chart primitives",
+            "P08 chart exact values",
+        }:
+            raise AssertionError("fixture_result_case_denied")
+        return super().run(payload, control)
+
+    def control(self, item: dict[str, Any]) -> dict[str, Any]:
+        result = super().control(item)
+        if item["kind"] == "workspace_stats":
+            with self.storage.transaction() as conn:
+                jobs, messages = conn.execute(
+                    "SELECT (SELECT count(*) FROM app.analysis_jobs WHERE user_id=%s),"
+                    "(SELECT count(*) FROM app.messages WHERE user_id=%s)",
+                    (self.owner, self.owner),
+                ).fetchone()
+            result.update(
+                result_brief_jobs=jobs,
+                result_brief_messages=messages,
+                actual_provider_calls=self.provider_attempts,
+            )
+        return result

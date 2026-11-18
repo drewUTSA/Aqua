@@ -3,10 +3,10 @@
 import inspect
 import threading
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from p07_browser_analysis import LifecycleFixture
-from p08_browser_fixture import CASES, VisualFixture
+from p08_browser_fixture import CASES, ResultBriefFixture, VisualFixture
 from p08_browser_host import MAX_OPERATIONS, MAX_SECONDS
 
 
@@ -65,6 +65,54 @@ class VisualBoundaryTests(unittest.TestCase):
         self.assertEqual(MAX_SECONDS, 180)
         source = inspect.getsource(VisualFixture.__init__)
         self.assertIn("self.max_executions = 12", source)
+
+    def test_result_fixture_only_allows_the_two_reviewed_questions(self) -> None:
+        fixture = ResultBriefFixture.__new__(ResultBriefFixture)
+        with patch.object(VisualFixture, "run") as inherited:
+            for question in ("P08 chart primitives", "P08 chart exact values"):
+                fixture.run({"question": question}, None)
+            self.assertEqual(inherited.call_count, 2)
+            for question in ("P08 chart oversized", "P08 chart failure", ""):
+                with self.assertRaisesRegex(
+                    AssertionError, "fixture_result_case_denied"
+                ):
+                    fixture.run({"question": question}, None)
+            self.assertEqual(inherited.call_count, 2)
+
+    def test_saved_result_route_is_exact_and_opt_in(self) -> None:
+        from p05_browser_messages import dispatch
+
+        route = "/api/v1/companion/result-brief"
+        client = Mock()
+        client.request.return_value.content = b"{}"
+        client.request.return_value.headers.multi_items.return_value = []
+        saved = ResultBriefFixture.__new__(ResultBriefFixture)
+        ordinary = self.fixture()
+        for fixture, method, path in (
+            (None, "POST", route),
+            (ordinary, "POST", route),
+            (saved, "GET", route),
+            (saved, "POST", route + "?column=1"),
+        ):
+            with self.assertRaisesRegex(ValueError, "fixture_request_invalid"):
+                dispatch(
+                    dict(id="synthetic", kind="request", method=method, path=path),
+                    client,
+                    None,
+                    None,
+                    [],
+                    fixture,
+                )
+        client.request.assert_not_called()
+        dispatch(
+            dict(id="synthetic", kind="request", method="POST", path=route),
+            client,
+            None,
+            None,
+            [],
+            saved,
+        )
+        client.request.assert_called_once()
 
 
 if __name__ == "__main__":
