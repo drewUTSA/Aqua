@@ -7,27 +7,42 @@ from uuid import uuid4
 import pytest
 
 from analysis.dispatch import Halt
-from analysis.process import ProcessEngine, Unreaped, payload
+from analysis.process import ProcessEngine, RemoteUncertain, Unreaped, payload
 from nl2sql.config import Settings
 from workspace.contracts import FirstSubmission
 
 
 def test_unreaped_failure_never_refunds_physical_execution_reservation(security):
+    assert_interrupted_reservation(
+        security,
+        Unreaped("private process failure must not be reflected"),
+        quarantined=True,
+    )
+
+
+def test_remote_uncertain_retains_a_finite_physical_reservation(security):
+    assert_interrupted_reservation(
+        security, RemoteUncertain("interrupted"), quarantined=False
+    )
+
+
+def assert_interrupted_reservation(security, failure, *, quarantined):
     service = security.service()
     _, session = security.session()
     saved, _ = service.enqueue(session, FirstSubmission(**security.world.body()))
 
     def uncertain():
-        raise Unreaped("private process failure must not be reflected")
+        raise failure
 
     security.engine.hook = uncertain
     assert service.tick()
     with security.storage.transaction() as conn:
         assert conn.execute(
-            "SELECT state,physical_until>clock_timestamp(),question,context,content_bytes "
+            "SELECT state,physical_until>clock_timestamp(),"
+            "physical_until>='9999-01-01T00:00:00Z',question,context,content_bytes "
             "FROM app.analysis_jobs WHERE id=%s",
             (saved["request"]["id"],),
-        ).fetchone() == ("interrupted", True, "", [], 0)
+        ).fetchone() == ("interrupted", True, quarantined, "", [], 0)
         assert conn.execute("SELECT count(*) FROM app.visual_results").fetchone() == (
             0,
         )

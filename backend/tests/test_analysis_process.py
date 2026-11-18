@@ -106,39 +106,25 @@ def test_real_child_hard_deadline_and_oversize_reap(monkeypatch):
         ProcessEngine().run(data("hold", 0.35), lambda stage: None)
     assert time.monotonic() - start < 2
     assert seen[-1][0].poll() is not None
-    oversize_index = len(seen)
-    oversize_started = time.monotonic()
-    try:
-        with pytest.raises(ValueError, match="analysis_output_bound"):
-            ProcessEngine().run(data("oversize"), lambda stage: None)
-    except RemoteUncertain as error:
-        # The production reaper intentionally suppresses the active error. Read
-        # its fixed marker and the already recorded exit status without polling.
-        original = error.__context__
-        args = original.args if original is not None else ()
-        marker = "none" if original is None else "other"
-        fixed_markers = {
-            "analysis_output_bound",
-            "analysis_child_failed",
-            "analysis_pipe_deadline",
-            "analysis_protocol_invalid",
-        }
-        if len(args) == 1 and type(args[0]) is str and args[0] in fixed_markers:
-            marker = args[0]
-        elif isinstance(original, subprocess.TimeoutExpired):
-            marker = "child_wait_timeout"
-        code = (
-            seen[oversize_index][0].returncode
-            if len(seen) == oversize_index + 1
-            else None
-        )
-        status = code if type(code) is int and -64 <= code <= 255 else "unknown"
-        elapsed = round((time.monotonic() - oversize_started) * 1000)
-        error.add_note(
-            f"oversize fixture original={marker} child_returncode={status} elapsed_ms={elapsed}"
-        )
-        raise
-    assert seen[-1][0].poll() is not None
+
+    engine = ProcessEngine()
+    with pytest.raises(ValueError) as rejected:
+        engine.run(data("oversize-interruptible"), lambda stage: None)
+    assert rejected.value.args == ("analysis_output_bound",)
+    assert len(seen) == 2 and seen[1][0].returncode == -signal.SIGINT
+    assert not engine.children and not engine.active_runs
+
+
+def test_real_oversize_forced_kill_preserves_uncertainty(monkeypatch):
+    seen = launch(monkeypatch)
+    engine = ProcessEngine()
+    with pytest.raises(RemoteUncertain) as stopped:
+        engine.run(data("oversize-ignore-interrupt"), lambda stage: None)
+    original = stopped.value.__context__
+    assert type(original) is ValueError and original.args == ("analysis_output_bound",)
+    assert stopped.value.state == "interrupted"
+    assert len(seen) == 1 and seen[0][0].returncode == -signal.SIGKILL
+    assert not engine.children and not engine.active_runs
 
 
 def test_parent_death_stops_child_independently_of_python_cleanup():
