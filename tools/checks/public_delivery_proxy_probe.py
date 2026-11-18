@@ -63,7 +63,7 @@ def document_policy(response):
     return hashlib.sha256(encoded).hexdigest()
 
 
-def probe(paths):
+def probe(paths, recovery_sha256):
     started, last, count = time.monotonic(), 0.0, 0
     policy_hashes = set()
     policy_responses = 0
@@ -122,13 +122,22 @@ def probe(paths):
         "/account-action/missing",
         "/assets/missing.js",
         "/missing.js",
+        "/unknown-resource?source=synthetic",
+        "/404.html",
     ):
-        status, _, body = get(
+        status, kind, body = get(
             path,
             document=not path.startswith("/assets/"),
             isolated=path.startswith("/assets/"),
         )
         assert status == 404 and b'id="root"' not in body, "missing_route_shell"
+        if path.startswith("/assets/"):
+            assert hashlib.sha256(body).hexdigest() != recovery_sha256
+        else:
+            assert kind.startswith("text/html"), "missing_document_type"
+            assert (
+                hashlib.sha256(body).hexdigest() == recovery_sha256
+            ), "missing_document_recovery"
     status, kind, body = get("/robots.txt")
     assert status == 200 and kind.startswith("text/plain"), "robots_type"
     assert body == b"User-agent: *\nDisallow: /\n", "robots_policy"
@@ -157,4 +166,4 @@ def probe(paths):
 
 
 if __name__ == "__main__":
-    print(json.dumps(probe(json.loads(sys.argv[1]))))
+    print(json.dumps(probe(json.loads(sys.argv[1]), sys.argv[2])))

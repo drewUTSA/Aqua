@@ -34,6 +34,7 @@ def run(output, nginx_image=NGINX):
         raise ValueError("output_already_exists")
     content = (ROOT / "frontend/nginx.conf").read_bytes()
     index = (ROOT / "frontend/index.html").read_bytes()
+    not_found = (ROOT / "frontend/404.html").read_bytes()
     paths = local_paths((ROOT / "frontend/src/services/routes.js").read_text())
     name = "aqua-public-delivery-test-" + secrets.token_hex(12)
     containers = []
@@ -43,6 +44,7 @@ def run(output, nginx_image=NGINX):
         "cleanup": "pending",
         "config_sha256": hashlib.sha256(content).hexdigest(),
         "index_sha256": hashlib.sha256(index).hexdigest(),
+        "not_found_sha256": hashlib.sha256(not_found).hexdigest(),
     }
     try:
         report["nginx_image"] = (
@@ -80,6 +82,9 @@ def run(output, nginx_image=NGINX):
         docker("exec", "-i", proxy, "tee", "/tmp/nginx.conf", data=wrapped)
         docker(
             "exec", "-i", proxy, "tee", "/usr/share/nginx/html/index.html", data=index
+        )
+        docker(
+            "exec", "-i", proxy, "tee", "/usr/share/nginx/html/404.html", data=not_found
         )
         docker("exec", proxy, "mkdir", "/usr/share/nginx/html/assets")
         docker(
@@ -133,6 +138,7 @@ def run(output, nginx_image=NGINX):
                 "-B",
                 "/tmp/delivery_probe.py",
                 json.dumps(paths),
+                report["not_found_sha256"],
                 timeout=30,
             )
         )
