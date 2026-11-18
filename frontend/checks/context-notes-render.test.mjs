@@ -56,6 +56,22 @@ test("reviewed draft is inert plain text with explicit Apply and provider/histor
   assert.doesNotMatch(html, /<img|<script|<a\s|dangerouslySetInnerHTML|>Send<|Approve|Execute/);
 });
 
+test("invalid note fields reference their own correction and keep their existing hint", () => {
+  for (const invalid of [false, true]) {
+    const state = { ...loaded(), prepared: prepared(), draft: invalid ? " " : "A question", error: "General library error." };
+    if (invalid) state.editor = { ...state.editor, label: " Leading space", body: " " };
+    const html = render(state);
+    for (const field of ["label", "body", "draft"]) {
+      const control = html.match(new RegExp(`<(?:input|textarea)[^>]*data-notes-${field}[^>]*>`))[0];
+      const id = control.match(/ id="([^"]+)"/)[1];
+      assert.ok(control.includes(`aria-invalid="${invalid}"`));
+      assert.ok(control.includes(`aria-describedby="${id}-help${invalid ? ` ${id}-error` : ""}"`));
+      assert.ok(html.includes(`<p id="${id}-help">`));
+      assert.equal(html.includes(`<p id="${id}-error" role="alert">`), invalid);
+    }
+  }
+});
+
 test("switching areas preserves the pending help menu but cancels a held help answer", async () => {
   let menuReply, helpReply;
   const controller = createCompanionToolsController({ api: { menu: () => new Promise(resolve => { menuReply = resolve; }), help: () => new Promise(resolve => { helpReply = resolve; }) },

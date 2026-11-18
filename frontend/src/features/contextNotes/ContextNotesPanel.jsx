@@ -9,6 +9,9 @@ export function ContextNotesContent({ state, canQuery = false, onReload, onSelec
   const busy = ["loading", "reading", "creating", "saving", "forgetting", "preparing"].includes(state.phase);
   const usable = Boolean(library?.scope.can_use && canQuery), dirty = noteEditorDirty(state);
   const labelValid = Boolean(editor && validNoteLabel(editor.label)), bodyValid = Boolean(editor && validNoteBody(editor.body));
+  const labelError = Boolean(editor?.label && !labelValid), bodyError = Boolean(editor?.body && !bodyValid);
+  const draftError = Boolean(state.prepared && !validNoteDraft(state.draft));
+  const describedBy = (field, invalid) => invalid ? `${prefix}-${field}-help ${prefix}-${field}-error` : `${prefix}-${field}-help`;
   return <section className="context-notes" aria-label="User-saved context" data-context-notes>
     <h3>Your saved context</h3>
     <p>Keep a note or your own metric definition for later. These are user-saved, unverified statements; they do not change result facts or units.</p>
@@ -37,14 +40,14 @@ export function ContextNotesContent({ state, canQuery = false, onReload, onSelec
       </select>
       <label htmlFor={`${prefix}-label`}>Label</label>
       <input id={`${prefix}-label`} value={editor.label} maxLength={240} disabled={busy || !usable} onChange={event => onEdit("label", event.target.value)}
-        aria-invalid={Boolean(editor.label && !labelValid)} aria-describedby={`${prefix}-label-help`} autoComplete="off" data-notes-label />
+        aria-invalid={labelError} aria-describedby={describedBy("label", labelError)} autoComplete="off" data-notes-label />
       <p id={`${prefix}-label-help`}>{[...editor.label].length}/120 characters · {noteBytes(editor.label)}/512 bytes. No leading or trailing spaces.</p>
-      {editor.label && !labelValid && <p role="alert">Use a label within both limits, without hidden or control characters.</p>}
+      {labelError && <p id={`${prefix}-label-error`} role="alert">Use a label within both limits, without hidden or control characters.</p>}
       <label htmlFor={`${prefix}-body`}>Saved text</label>
       <textarea id={`${prefix}-body`} value={editor.body} maxLength={2000} rows={5} disabled={busy || !usable} onChange={event => onEdit("body", event.target.value)}
-        aria-invalid={Boolean(editor.body && !bodyValid)} aria-describedby={`${prefix}-body-help`} autoComplete="off" data-notes-body />
+        aria-invalid={bodyError} aria-describedby={describedBy("body", bodyError)} autoComplete="off" data-notes-body />
       <p id={`${prefix}-body-help`}>{editor.body.length}/2000 text units · {noteBytes(editor.body)}/2048 bytes. Some characters use two text units; line breaks and tabs are allowed.</p>
-      {editor.body && !bodyValid && <p role="alert">Use nonblank text within both limits, without hidden formatting or other control characters.</p>}
+      {bodyError && <p id={`${prefix}-body-error`} role="alert">Use nonblank text within both limits, without hidden formatting or other control characters.</p>}
       <button type="submit" disabled={busy || !usable || !labelValid || !bodyValid || !dirty} data-notes-save>{state.phase === "creating" || state.phase === "saving" ? "Saving…" : state.note ? "Save correction" : "Save note"}</button>
       {dirty && state.note && <p>Save the correction before preparing this note. Your composer is unchanged.</p>}
       {state.note && <button type="button" disabled={busy || !usable || dirty} onClick={onPrepare} data-notes-prepare>{state.phase === "preparing" ? "Preparing…" : "Prepare for composer"}</button>}
@@ -62,10 +65,10 @@ export function ContextNotesContent({ state, canQuery = false, onReload, onSelec
       <h4>Review your composer draft</h4><p>User-saved, unverified source: {state.prepared.source.label} · revision {state.prepared.source.revision}</p>
       <label htmlFor={`${prefix}-draft`}>Editable draft</label>
       <textarea id={`${prefix}-draft`} value={state.draft} maxLength={2000} rows={5} onChange={event => onDraft(event.target.value)}
-        aria-invalid={!validNoteDraft(state.draft)} aria-describedby={`${prefix}-draft-help`} data-notes-draft />
+        aria-invalid={draftError} aria-describedby={describedBy("draft", draftError)} data-notes-draft />
       <p id={`${prefix}-draft-help`}>{state.draft.length}/2000 text units · {noteBytes(state.draft)}/8000 bytes. Applying replaces the composer draft; nothing is sent.</p>
-      {!validNoteDraft(state.draft) && <p role="alert">Use nonblank plain text within the draft limits.</p>}
-      <button type="button" onClick={onApply} disabled={busy || !usable || !validNoteDraft(state.draft)} data-notes-apply>Apply to composer draft</button>
+      {draftError && <p id={`${prefix}-draft-error`} role="alert">Use nonblank plain text within the draft limits.</p>}
+      <button type="button" onClick={onApply} disabled={busy || !usable || draftError} data-notes-apply>Apply to composer draft</button>
       <p>If you later choose Send, this text uses your configured model or provider and becomes part of chat history. Forgetting the note does not remove that copy.</p>
     </section>}
   </section>;
