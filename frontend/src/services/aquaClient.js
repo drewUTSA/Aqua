@@ -1,7 +1,7 @@
 // The one entry point components use for answers and model choices.
 // Demo mode (VITE_AQUA_DEMO_MODE=true, or a demoMode option) swaps in the
 // offline mock (mockClient.js) for UI work without the backend or sign-in.
-// Live requests go to /api on this origin, which the Vite dev proxy and the
+// Live requests go to /api on this origin, which the dev proxy and the
 // production nginx both forward, and carry the session's CSRF token.
 import { fetchModels, queryApi } from "./apiClient.js";
 import * as mock from "./mockClient.js";

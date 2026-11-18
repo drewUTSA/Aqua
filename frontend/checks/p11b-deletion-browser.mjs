@@ -4,23 +4,25 @@ import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { createServer } from 'vite';
+import { compile } from '../scripts/build.mjs';
+import { assetServer, publicAssets } from '../scripts/serve.mjs';
 import { BrowserPipe } from './p05-browser-pipe.mjs';
 const root = fileURLToPath(new URL('..', import.meta.url));
 const artifact = process.env.AQUA_DELETION_ARTIFACT_DIR || path.resolve(root, '../.check-results/p11b-frontend');
-let server, browser, cdp, sessionId, profile, denyContent = false; const checks = [], errors = [];
+let server, browser, cdp, sessionId, stage, denies = 0, denyContent = false; const checks = [], errors = [];
 try {
-  server = await createServer({ root, configFile: false, server: { host: '127.0.0.1', port: 0, strictPort: true }, plugins: [{ name: 'deletion-ui-fixture', configureServer(instance) {
-    instance.middlewares.use((request, response, next) => {
-      if (denyContent && request.url.split('?')[0] === '/src/settings/DataDeletionContent.jsx') {
-        denyContent = false; response.writeHead(503, { 'Content-Type': 'text/javascript', 'Cache-Control': 'no-store' }); response.end(''); return;
-      }
-      if (request.url.split('?')[0] !== '/') return next();
-      response.setHeader('Content-Type', 'text/html'); response.end('<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Deletion fixture</title></head><body><div id="root"></div><script type="module" src="/checks/deletion-browser-fixture.jsx"></script></body></html>');
-    });
-  } }] });
-  await server.listen(); const origin = `http://127.0.0.1:${server.httpServer.address().port}`;
-  profile = await mkdtemp(path.join(tmpdir(), 'aqua-deletion-ui-'));
+  stage = await mkdtemp(path.join(tmpdir(), 'aqua-deletion-ui-'));
+  const directory = path.join(stage, 'dist'), profile = path.join(stage, 'profile');
+  const stats = await compile({ directory, deletionFixture: true });
+  const files = await publicAssets(stats, directory);
+  const optional = [...files.keys()].filter(name => /^\/assets\/DataDeletionContent-[a-f0-9]+\.js$/.test(name));
+  assert.equal(optional.length, 1, 'compiled_deletion_chunk_required');
+  server = assetServer({ files: () => files, deny(pathname) {
+    if (!denyContent || pathname !== optional[0]) return false;
+    denyContent = false; denies++; return true;
+  } });
+  await new Promise((resolve, reject) => { server.once('error', reject); server.listen(0, '127.0.0.1', resolve); });
+  const origin = `http://127.0.0.1:${server.address().port}`;
   browser = spawn(process.env.AQUA_CHROME_EXECUTABLE || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', ['--headless=new', '--no-first-run', '--no-default-browser-check', '--disable-background-networking', '--disable-component-update', '--disable-sync', '--disable-extensions', '--disable-default-apps', '--no-pings', '--metrics-recording-only', '--host-resolver-rules=MAP * ~NOTFOUND, EXCLUDE 127.0.0.1', '--remote-debugging-pipe', `--user-data-dir=${profile}`, 'about:blank'], { stdio: ['ignore', 'ignore', 'ignore', 'pipe', 'pipe'] });
   cdp = new BrowserPipe(browser, { session: () => sessionId, deadline: performance.now() + 90000 });
   await cdp.ready(); const targets = await cdp.send('Target.getTargets');
@@ -106,13 +108,14 @@ try {
   await evaluate('document.querySelector("dialog button").click()'); await wait('!document.querySelector("dialog")', 'expired_receipt_closed');
   checks.push('expiry_clears_receipt_without_repeating_render_or_mutation');
   assert.deepEqual(errors, []);
+  assert.equal(denies, 1, 'one_real_compiled_chunk_denied');
 } finally {
   // Every owned resource gets a cleanup attempt, even if an earlier close fails.
   try {
     if (cdp) await cdp.stop(); else browser?.kill('SIGKILL');
   } finally {
-    try { await server?.close(); }
-    finally { if (profile) await rm(profile, { recursive: true, force: true }); }
+    try { if (server?.listening) await new Promise((resolve, reject) => server.close(error => error ? reject(error) : resolve())); }
+    finally { if (stage) await rm(stage, { recursive: true, force: true }); }
   }
 }
 // BrowserPipe.stop records abnormal/forced/incomplete cleanup without throwing.

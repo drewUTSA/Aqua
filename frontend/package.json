@@ -4,8 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite --host 0.0.0.0 --port 5173 --strictPort",
-    "build": "vite build",
+    "dev": "node scripts/dev.mjs",
+    "build": "node scripts/build.mjs",
     "test": "node --test \"checks/*.test.mjs\"",
     "test:content-safety-browser": "node checks/content-safety-browser.mjs",
     "test:p05-browser": "node checks/p05-browser.mjs",
@@ -22,6 +22,7 @@
     "three": "^0.175.0"
   },
   "devDependencies": {
-    "vite": "7.3.7"
+    "@rspack/core": "2.3.3",
+    "esbuild": "0.28.2"
   }
 }
