@@ -3,12 +3,12 @@ import test from "node:test";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { readFile } from "node:fs/promises";
-import { transformWithEsbuild } from "vite";
+import { transform } from "esbuild";
 import { contextEnvelope, reportEnvelope, ownerId, option } from "./bank-demo-fixture.mjs";
 import { decodeBankContext, decodeBankReport } from "../src/features/bankDemo/contract.js";
 
 async function jsxModule(url) {
-  const transformed = await transformWithEsbuild(await readFile(url, "utf8"), url.pathname, { loader: "jsx", format: "esm" });
+  const transformed = await transform(await readFile(url, "utf8"), { sourcefile: url.pathname, loader: "jsx", format: "esm" });
   let code = transformed.code.replace(/import\s+["'][^"']+\.css["'];?/g, "");
   const imports = new Map();
   for (const match of code.matchAll(/from\s+["']([^"']+)["']/g)) {

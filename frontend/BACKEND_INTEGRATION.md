@@ -32,7 +32,7 @@ retryMessage({ prompt, csrfToken, demoMode, conversationId, requestId, modelId, 
 
 Both return a promise resolving to the normalized response object below. Live requests require a session `csrfToken` and map `prompt` to backend `question`. Demo requests preserve optional cumulative-text callbacks `(fragment, { conversationId, requestId, modelId })`; `modelId` is omitted when not supplied. Live requests return the complete result without simulated streaming. Presentation components do not make API requests.
 
-The Vite `/api` proxy is unchanged for development. Production must route the website's `/api/*` to the Python backend on the same public origin; cross-origin auth and an alternate API-base URL are not configured. `VITE_AQUA_DEMO_MODE` is the only new public frontend setting, and defaults to live mode when unset. It must be `true` explicitly to run the offline visual demo.
+The development server forwards same-origin `/api` requests to the local backend on port 8000. Production must route the website's `/api/*` to the Python backend on the same public origin; cross-origin auth and an alternate API-base URL are not configured. `VITE_AQUA_DEMO_MODE` is the only new public frontend setting, and defaults to live mode when unset. It must be `true` explicitly to run the offline visual demo.
 The real backend does not stream: the callbacks are not called, and the promise resolves with the complete answer, which can take 20 to 80 seconds. A retry sends the same question again.
 
 ## Request
@@ -160,7 +160,7 @@ Three.js and the roughly 6.3 MB of active GLBs remain the principal download/ren
 
 ## Production
 
-The frontend image builds the site (`npm ci`, `vite build`) and serves `dist/` with nginx on port 5173 (`nginx.conf`). nginx forwards `/api` to the backend on 127.0.0.1:8000, waits up to 300 seconds for an answer, limits each visitor to 10 questions a minute, and caches hashed assets for a year while never caching `index.html`. `npm run dev` is for local work only.
+The frontend image builds the site (`npm ci --ignore-scripts`, `npm run build`) and serves `dist/` with nginx on port 5173 (`nginx.conf`). nginx forwards `/api` to the backend on 127.0.0.1:8000, waits up to 300 seconds for an answer, limits each visitor to 10 questions a minute, and caches hashed assets for a year while never caching `index.html`. `npm run dev` is for local work only.
 
 ## Frontend touch points
 

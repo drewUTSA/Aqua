@@ -3,7 +3,7 @@ import test from 'node:test';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { readFile } from 'node:fs/promises';
-import { transformWithEsbuild } from 'vite';
+import { transform } from 'esbuild';
 import { ACCOUNT_DEFAULTS, DEVICE_DEFAULTS } from '../src/settings/schema.js';
 const compiled = new Map();
 async function jsxModule(url) {
@@ -11,7 +11,7 @@ async function jsxModule(url) {
   let source = await readFile(url, 'utf8');
   if (url.pathname.endsWith('/PreferencesProvider.jsx')) source += '\nexport { Context as TestPreferencesContext };';
   if (url.pathname.endsWith('/DataDeletionProvider.jsx')) source += '\nexport { Context as TestDeletionContext };';
-  const transformed = await transformWithEsbuild(source, url.pathname, { loader: 'jsx', format: 'esm' });
+  const transformed = await transform(source, { sourcefile: url.pathname, loader: 'jsx', format: 'esm' });
   let code = transformed.code.replace(/import\s+["'][^"']+\.css["'];?/g, '');
   const imports = new Map();
   for (const match of code.matchAll(/from\s+["']([^"']+)["']/g)) {
