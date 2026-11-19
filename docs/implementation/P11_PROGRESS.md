@@ -2,6 +2,8 @@
 
 ## November 19 local recovery and live status
 
+The dedicated synthetic sales database was restored to a separate, empty PostgreSQL cluster after its source container was removed. All eight tables matched their pre-backup row counts and content hashes, including a per-run change to a district name. The read-only role retained its table access, default read-only setting and ten-second statement timeout. Its presenter queries returned 3, 750 and 250. [Sales database setup and restore](SALES_DEMO_20261118.md#restore-a-synthetic-sales-database)
+
 For the revised table toolbar, the current private rehearsal kit combines the two verified backend images below with updated Opal and Legacy images. Its ZIP is 133,822,813 bytes and SHA-256 `a0e6a098331620be615403d69bc31869def30c898f9a5cf094af67b5bd09e73f`. A fresh offline extraction verified all four images. The previous frontend kit remains a historical comparison. [Updated image identities](evidence/p11bc/toolbar-rehearsal-20261119.json)
 
 The synthetic schema 10 application rehearsal covers four successive version pairs in all eight fallback and return directions. The latest two backend images were saved together. Both started from root filesystems reconstructed from the archive and reproduced the previously measured 242 application files, 50 installed Python packages, 17 fictional reports, saved-result fact cards and private-note behavior. Offline verification rejected a damaged shared layer and a truncated archive. The archive is held on one PC. [Artifact identities and measurements](evidence/p11bc/local-rehearsal-20261119.json)
