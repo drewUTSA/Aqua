@@ -1,7 +1,10 @@
 # P13 launch preparation — November 13, 2026
 
-> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](PERSONAL_COMPUTER_RESUME_20261117.md).
-> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+## November 19 packaged frontend and public site
+
+Both Opal and Legacy were restored from their saved image archives after their local image registrations were removed. Each restored Nginx server served all 14 checked document routes and all 24 expected static assets. The stock error-page URL returned Aqua’s 404 page. An ordinary API request without an available upstream still returned 502 with caching disabled. Docker retained its local layer cache. [Frontend change](https://github.com/drewUTSA/Aqua/pull/95) · [Image and archive identities](evidence/p11bc/local-rehearsal-20261119.json)
+
+The November 19 public observation found HTTPS working on the apex. Home and sign-in omitted HSTS and CSP, robots and sitemap returned the HTML shell, and the www hostname did not resolve from the observing client. The live stack was healthy on schema 8. Production rollout, ingress verification, sign-in and callback, employee assistive use and physical device acceptance remain open. [Public delivery check](P13_PUBLIC_DELIVERY_CHECK.md) · [Current handoff](../../AQUA_CODEX_HANDOFF.md)
 
 **Decision: NO-GO for production cutover or public expansion.** Ben moved the
 recovery-key discovery, backup/recovery and release execution to his personal

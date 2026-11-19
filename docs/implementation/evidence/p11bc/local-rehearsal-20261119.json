@@ -1,0 +1,67 @@
+{
+  "date": "2026-11-19",
+  "scope": "Local synthetic rehearsals on one PC. The live observation was read-only.",
+  "live_observation": {
+    "deployed_head": "9aeaf4eb91a4db55d3701e8be872f2b1e178a116",
+    "schema": 8,
+    "ready": true
+  },
+  "portable_kit": {
+    "bytes": 133822126,
+    "sha256": "ef53d207b584c21d424c683b8a33298759bda1a6f7d0f5387de4888b5b935286",
+    "files": 18
+  },
+  "backend_archive": {
+    "archive_sha256": "a804b811fc0250d38320f079a84805d2fed74fb5d2e7e6c48f29f583da464433",
+    "archive_bytes": 89689600,
+    "unique_blobs": 52,
+    "unique_layers": 48
+  },
+  "backend_images": {
+    "candidate": {
+      "image": "sha256:851226a894078770e508605314418cf8233b5df104dbcbf3838a7dd132634988",
+      "app_files": 242,
+      "packages": 50,
+      "checked_reports": 17,
+      "reconstructed_filesystem_diff_id": "sha256:afd3dd050294602614d6452ed0bf36761aad0b6f6a9cd8b99630dce2e157a113"
+    },
+    "fallback": {
+      "image": "sha256:90d66cc37cb8ae3cce6552f4b06987e3271d03196c583647ca1c7be2feec401b",
+      "app_files": 242,
+      "packages": 50,
+      "checked_reports": 17,
+      "reconstructed_filesystem_diff_id": "sha256:ca9fd191706dec1c2740324de8008ee113b64a22f2c2269ac6f8dfe3a68e90a9"
+    }
+  },
+  "frontend_tree": "b955f02950a922edfa65fe61a862f5be44c62760",
+  "frontend_images": {
+    "opal": {
+      "image": "sha256:b9117ec9aa7e8a69c641167bd84d1dbdd18f49bababb86958387827f8c42f168",
+      "archive_sha256": "a9bb7f28b5b589a72d84190c13997b4463f0bf2233269061fc661c3ae2bef412",
+      "known_routes": 14,
+      "hashed_assets": 24
+    },
+    "legacy": {
+      "image": "sha256:f9e4708e6c6b2e6272998fcafd9b1e357bdc6cfc4295127696a42b1e7843d37d",
+      "archive_sha256": "d8bcc070a748e661da6cc0751834216dcdac86bbf642bb1d343794e3e7ef8cc8",
+      "known_routes": 14,
+      "hashed_assets": 24
+    }
+  },
+  "synthetic_checkpoint": {
+    "matched": 3,
+    "rejected": 8,
+    "distinct_case_count": 11,
+    "processes_in_final_run": 18,
+    "fixture_only": true
+  },
+  "receipts_sha256": {
+    "backend_archive_verification": "e24e709835ec021f85b0406d026a6d73a729eeb12c43474084e03e9d566f6cd2",
+    "reconstructed_backend_runs": "ce7d1e9d5e0664b9901fd29752398dfbd81d319a62e77f10a89c385789ce1ef6",
+    "frontend_reloads": "6d8bfa1d1a6bad4a814d460522eeab274a28e9ae0c6eb631f51ff105c31ddf6b",
+    "checkpoint_comparisons": "bffa4b827126f78dd4c688ce9fdb5b523a15afee9e8583519b0aab7a20c33dc5"
+  },
+  "original_key_tested_in_this_run": false,
+  "independent_30_day_destination_verified": false,
+  "production_cutover": false
+}

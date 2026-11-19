@@ -1,7 +1,6 @@
 # P13 bounded public delivery inspection
 
-> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](PERSONAL_COMPUTER_RESUME_20261117.md).
-> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+The November 19 packaged and live observations are recorded in [P13 progress](P13_PROGRESS.md). The prepared source has a branded 404 for the stock Nginx error document. Use the bounded checks below to verify the public origin after the owner approves a rollout.
 
 This source adds an opt-in diagnostic for the remaining P13 delivery work. It
 is separate from the restricted delivery source fixes described below. It
