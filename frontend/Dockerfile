@@ -13,6 +13,7 @@ RUN case "$AQUA_UI_SHELL" in opal|legacy) ;; *) echo "Invalid AQUA_UI_SHELL: cho
 RUN VITE_AQUA_DEMO_MODE=false VITE_AQUA_USE_MOCK=false VITE_AQUA_UI_SHELL="$AQUA_UI_SHELL" npm run build
 
 FROM nginx:1.27-alpine
+RUN rm -f /usr/share/nginx/html/50x.html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /app/dist /usr/share/nginx/html
 COPY 404.html /usr/share/nginx/html/404.html
