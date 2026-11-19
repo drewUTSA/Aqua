@@ -1,7 +1,10 @@
 # Personal-computer release handoff â€” November 13, 2026
 
-> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](PERSONAL_COMPUTER_RESUME_20261117.md).
-> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+## November 19 restart point
+
+Production was observed healthy at `9aeaf4e` on schema 8. The newer synthetic employee demo and schema 10 recovery rehearsals are available for local verification. The private operator sources and designated independent backup destination were unavailable in this session. The release owner must still verify fresh original-key recovery, independently retained authority, the cutover operator and release approval. Consult the dated local artifact identities before selecting a release or fallback. [P11 recovery status](P11_PROGRESS.md) · [P13 delivery status](P13_PROGRESS.md) · [Employee demo and handoff](../../AQUA_CODEX_HANDOFF.md)
+
+The November 17 stop and its incomplete operator test results are preserved below. [Historical operator handoff](PERSONAL_COMPUTER_RESUME_20261117.md)
 
 ## November 17 UTC stop and continuation
 
