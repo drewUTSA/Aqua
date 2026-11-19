@@ -10,6 +10,10 @@ class Diagnostic:
 
 
 DIAGNOSTICS = {
+    "ranking_request_invalid": Diagnostic(
+        "Start a new chat and use Rank groups with one source, one group field, "
+        "and either row count or the total of one numeric field."
+    ),
     "query_failed": Diagnostic("The database could not complete this query."),
     "invalid_column": Diagnostic(
         "A query column does not exist. Use only the supplied schema columns.", True

@@ -315,6 +315,14 @@ def _number(text: str) -> int:
     return int(text) if text.isdigit() else _NUMBER_WORDS[text]
 
 
+def explicit_row_count(token: str) -> int | None:
+    """A complete supported decimal or English count within the employee row cap."""
+    if not re.fullmatch(_NUMBER, token):
+        return None
+    rows = _number(token)
+    return rows if 1 <= rows <= MAX_REQUESTED_ROWS else None
+
+
 def _is_plural(word: str) -> bool:
     if word in _IRREGULAR_PLURALS:
         return True

@@ -88,10 +88,11 @@ class Dispatcher:
             with service.storage.transaction() as conn:
                 question = job["question"]
                 if job["request_id"]:
-                    question = conn.execute(
-                        "SELECT m.content FROM app.analysis_requests r JOIN app.messages m ON m.user_id=r.user_id AND m.id=r.input_message_id WHERE r.id=%s",
+                    question, sequence = conn.execute(
+                        "SELECT m.content,m.sequence FROM app.analysis_requests r JOIN app.messages m ON m.user_id=r.user_id AND m.id=r.input_message_id WHERE r.id=%s",
                         (job["request_id"],),
-                    ).fetchone()[0]
+                    ).fetchone()
+                    job["first_chat_input"] = sequence == 1
                 remaining = float(
                     conn.execute(
                         "SELECT extract(epoch FROM (%s-clock_timestamp()))",

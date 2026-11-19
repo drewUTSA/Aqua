@@ -9,6 +9,7 @@ from nl2sql.control import CURRENT, ExecutionStopped, stage
 from nl2sql.db import DatabaseError
 from nl2sql.display import display_for
 from nl2sql.errors import ContextDenied
+from nl2sql.explicit_ranking import answer_ranking, feedback, is_ranking_request
 from nl2sql.llm import LLMError, ModelResponseTimeout
 from nl2sql.pipeline import Retriever, answer_question
 from nl2sql.response import outage_response, to_response
@@ -34,14 +35,21 @@ def run(
     auth_epoch: int,
     *,
     include_metadata: bool = False,
+    first_chat_input: bool = False,
     history_generation: int = 1,
     cache: AnswerCache | None = None,
     schema_reader: Callable = get_schema,
     answerer: Callable = answer_question,
     retriever_factory: Callable = retriever,
 ) -> tuple[dict, int]:
+    explicit = is_ranking_request(question)
+    budget = CURRENT.get()
+    if explicit and (
+        not first_chat_input or not include_metadata or (budget and budget.context)
+    ):
+        return to_response(feedback(question)), 200
     provider = model or configured.llm_provider
-    if provider == "gemini" and not configured.gemini_api_key:
+    if not explicit and provider == "gemini" and not configured.gemini_api_key:
         response = outage_response(
             "model_not_configured", "Gemini is not set up on this server."
         )
@@ -59,28 +67,30 @@ def run(
             auth_epoch=auth_epoch,
             history_generation=history_generation,
         )
-        budget = CURRENT.get()
         if budget:
             scope = replace(scope, context_revision=budget.context_digest)
-        selected = retriever_factory(settings)
-        key = scoped_cache_key(
-            question,
-            scope,
-            provider,
-            settings.gemini_model,
-            selected is not None,
-            settings.answer_size_rules,
-            settings.llm_fallback,
-            settings.gemini_fallback_models,
-            settings.ollama_model,
-            settings.ollama_think,
-            settings.gemini_embed_model,
-        )
-        answer = cache.get(key) if cache else None
-        if answer is None:
-            answer = answerer(question, settings, schema, retriever=selected)
-            if cache:
-                cache.put(key, answer)
+        if explicit:
+            answer = answer_ranking(question, settings, schema)
+        else:
+            selected = retriever_factory(settings)
+            key = scoped_cache_key(
+                question,
+                scope,
+                provider,
+                settings.gemini_model,
+                selected is not None,
+                settings.answer_size_rules,
+                settings.llm_fallback,
+                settings.gemini_fallback_models,
+                settings.ollama_model,
+                settings.ollama_think,
+                settings.gemini_embed_model,
+            )
+            answer = cache.get(key) if cache else None
+            if answer is None:
+                answer = answerer(question, settings, schema, retriever=selected)
+                if cache:
+                    cache.put(key, answer)
         stage("summarizing")
         metadata = (
             metadata_for(answer, source_id=scope.dataset)

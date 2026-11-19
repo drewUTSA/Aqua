@@ -37,4 +37,5 @@ def payload(job: dict, question: str, settings: Settings, remaining: float) -> d
         "remaining_seconds": max(0.01, min(120.0, remaining)),
         "parent_pid": os.getpid(),
         "workspace": job["request_id"] is not None,
+        "first_chat_input": job.get("first_chat_input", False),
     }
