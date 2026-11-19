@@ -4,6 +4,7 @@ import { spawn } from "node:child_process";
 import { PassThrough } from "node:stream";
 import test from "node:test";
 import { BrowserPipe } from "./p05-browser-pipe.mjs";
+import { describeInterceptionFailure } from "./p05-interception-failure.mjs";
 
 const CANARY = "synthetic-secret-never-retain-in-diagnostics";
 const encode = (value) => Buffer.from(JSON.stringify(value) + "\0");
@@ -172,6 +173,55 @@ test("unrecognized methods cannot inject diagnostic content", async (t) => {
   const { client } = fixture(t);
   await assert.rejects(client.send(CANARY, { secret: CANARY }), { message: "browser_protocol_method_rejected" });
   assert.equal(client.diagnostic.method, null); assert.equal(JSON.stringify(client.diagnostic).includes(CANARY), false);
+});
+
+test("real-browser interception reports retain the classified Fetch command and no request data", async (t) => {
+  const { client, requests, reply } = fixture(t);
+  for (const [method, message, reason] of [
+    ["Fetch.continueRequest", "Invalid InterceptionId " + CANARY, "request_no_longer_exists"],
+    ["Fetch.fulfillRequest", "Target closed " + CANARY, "target_no_longer_exists"],
+    ["Fetch.failRequest", CANARY, "other_protocol_error"],
+  ]) {
+    const command = client.send(method, { requestId: CANARY });
+    reply({ id: requests.at(-1).id, error: { code: -32000, message } });
+    await assert.rejects(command, (error) => {
+      assert.deepEqual(describeInterceptionFailure(error), {
+        category: "browser_protocol_failed", fetch: { method, protocol_reason: reason },
+      });
+      return true;
+    });
+  }
+  assert.equal(client.failure, null);
+});
+
+test("interception errors with unknown or inconsistent metadata retain only a fixed category", () => {
+  const error = {
+    message: "browser_protocol_failed", protocolReason: "request_no_longer_exists",
+    browserDiagnostic: { reason: "browser_protocol_failed", method: "Fetch.failRequest", protocol_reason: "request_no_longer_exists" },
+  };
+  for (const delta of [{ reason: CANARY }, { method: CANARY }, { method: "Page.navigate" },
+    { protocol_reason: CANARY }, { protocol_reason: "target_no_longer_exists" }]) {
+    assert.deepEqual(describeInterceptionFailure({ ...error, browserDiagnostic: { ...error.browserDiagnostic, ...delta } }),
+      { category: "browser_protocol_failed" });
+  }
+  assert.deepEqual(describeInterceptionFailure(new assert.AssertionError({ message: CANARY })), { category: "bridge_contract_assertion" });
+  assert.deepEqual(describeInterceptionFailure(new Error("request_bound")), { category: "request_bound" });
+  assert.deepEqual(describeInterceptionFailure(new Error(CANARY)), { category: "intercepted_request_failed" });
+});
+
+test("interception reports copy the field values that passed validation", () => {
+  function changing(value) {
+    let read = false;
+    return () => { if (read) return CANARY; read = true; return value; };
+  }
+  const diagnostic = Object.defineProperties({ reason: "browser_protocol_failed" }, {
+    method: { get: changing("Fetch.failRequest") }, protocol_reason: { get: changing("other_protocol_error") },
+  });
+  const error = Object.defineProperty({ browserDiagnostic: diagnostic, protocolReason: "other_protocol_error" },
+    "message", { get: changing("browser_protocol_failed") });
+  assert.deepEqual(describeInterceptionFailure(error), {
+    category: "browser_protocol_failed", fetch: { method: "Fetch.failRequest", protocol_reason: "other_protocol_error" },
+  });
 });
 
 test("explicit Browser.close may end without a response, with no cleanup failure", async (t) => {
