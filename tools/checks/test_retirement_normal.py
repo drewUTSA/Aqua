@@ -39,6 +39,7 @@ class NormalGuards(unittest.TestCase):
 
     def test_exact_compiled_runtime_subset_is_public_and_root_pinned(self):
         additions = {
+            "nl2sql/calendar_count.py",
             "context_notes/__init__.py",
             "context_notes/contracts.py",
             "context_notes/policy.py",
@@ -89,7 +90,7 @@ class NormalGuards(unittest.TestCase):
         }
         self.assertTrue(additions <= RUNTIME_FILES.keys())
         self.assertEqual(len(RUNTIME_FILES.keys() - additions), 191)
-        self.assertEqual(len(RUNTIME_FILES), 238)
+        self.assertEqual(len(RUNTIME_FILES), 239)
         self.assertEqual(len(MANIFEST_SHA256), 64)
         self.assertEqual(IMAGE, runner.IMAGE)
         self.assertIn("main.py", RUNTIME_FILES)
