@@ -75,7 +75,7 @@ def run(output, nginx_image=NGINX):
         containers.append(proxy)
         docker("start", proxy)
         wrapped = (
-            b"worker_processes 2; pid /tmp/nginx.pid; error_log /tmp/nginx-error.log warn; events { worker_connections 128; } http { access_log off; "
+            b"worker_processes 2; pid /tmp/nginx.pid; error_log /tmp/nginx-error.log warn; events { worker_connections 128; } http { include /etc/nginx/mime.types; access_log off; "
             + content
             + b"\n}"
         )
