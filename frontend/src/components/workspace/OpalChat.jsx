@@ -7,6 +7,8 @@ import legacyMark from "../../assets/models/AQUA_V2_Final_static.svg?url";
 import ModelSelector from "../navigation/ModelSelector.jsx";
 import { leaveMenuWithTab, useMenuSurface } from "../navigation/useMenuSurface.js";
 import { useReducedMotion } from "../../hooks/useReducedMotion.js";
+import RankGroupsComposer from "./RankGroupsComposer.jsx";
+import { canStartGroupRank } from "./rankGroupsDraft.js";
 
 export default function OpalChat({ chat, auth, inputRef, focusRequest, onOpenPrompts, preferences, shell = "opal", visible = true, scrollPositions, onShowVisual, onUnderstandResult, visualsHidden = false }) {
   const active = chat.messages.length > 0 || (chat.durable && chat.active.messageCount > 0);
@@ -56,6 +58,7 @@ function Composer({ chat, auth, preferences, inputRef, focusRequest, active, vis
   useEffect(() => () => animation.current?.cancel(), []);
   const allowed = auth.canQuery && !!chat.draft.trim() && !chat.pending && !chat.uncertain && !chat.active?.archived && (!chat.durable || !!chat.selectedModelId);
   const serverPending = chat.durable && chat.pending && !chat.submitting;
+  const showRank = canStartGroupRank({ auth, chat, visible, active });
   const stop = serverPending ? chat.cancelAnalysis : chat.stop;
   const stopLabel = serverPending ? chat.analysis?.cancelRequested || chat.analysis?.state === "cancelling" ? "Cancellation requested" : "Cancel analysis" : "Stop response";
   return <div ref={wrap} className="opal-composer-wrap"><form className="opal-composer" aria-label="Ask AQUA" method="post" action="/api/query"
@@ -78,7 +81,12 @@ function Composer({ chat, auth, preferences, inputRef, focusRequest, active, vis
         onClick={chat.pending ? stop : undefined}>{chat.pending ? <span className="opal-stop" aria-hidden="true" /> : <><img src={arrow} alt="" /><span className="opal-send__contrast-icon" aria-hidden="true" style={{ maskImage: `url("${arrow}")` }} /></>}</button></div>
   </form><p className="composer-hint" id={`${id}-hint`}>{!auth.canQuery ? "Data access is pending approval." : chat.active?.archived ? "Restore this archived chat before sending another question."
     : serverPending ? "Analysis continues on the server. Cancellation is confirmed by saved status."
-      : `${chat.pending ? "Stop ends this browser’s wait; server work may continue. " : ""}${preferences?.device.send_shortcut === "modified_enter" ? "Ctrl/Cmd + Enter" : "Enter"} to ${active ? "send" : "ask"} · ${preferences?.device.send_shortcut === "modified_enter" ? "Enter" : "Shift + Enter"} for a new line`}</p></div>;
+      : `${chat.pending ? "Stop ends this browser’s wait; server work may continue. " : ""}${preferences?.device.send_shortcut === "modified_enter" ? "Ctrl/Cmd + Enter" : "Enter"} to ${active ? "send" : "ask"} · ${preferences?.device.send_shortcut === "modified_enter" ? "Enter" : "Shift + Enter"} for a new line`}</p>
+    {showRank && <RankGroupsComposer key={`${auth.user?.id}:${chat.activeConversationId}`} onApply={value => {
+      chat.applyEmptyDraft(chat.activeConversationId, value);
+      textarea.current?.focus();
+    }} />}
+  </div>;
 }
 
 function ConversationActions({ chat }) {

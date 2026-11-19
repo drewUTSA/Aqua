@@ -59,6 +59,12 @@ Pass `-B -m mcp_demo --persona analyst` as host arguments. An optional second st
 | 10–13 min | Presenter · local MCP host | Switch windows and use the analyst tool card below. Retrieve the cited procedure, inspect the operating-surplus history, calculate the September-to-October change and prepare the review draft. Invite Viewer A to read the period and Viewer B to identify who must decide whether to act. |
 | 13–14 min | All three | Ask each viewer to name the source of one number and the next human decision. Record device, browser, task, time and whether help was needed. Sign out of each web session and close the local MCP host processes. [Fictional data definitions](BANK_DEMO_DATA.md) |
 
+### Rank groups in a new chat
+
+Sign in as the granted presenter, open an empty new chat and expand **Rank groups**. On the fictional sales database, enter `trans` under **Source** and `account_id` under **Group by**. Choose **Count records**, **Highest first**, **1**, and **Include ties at the cutoff**. Select **Use this draft**, review it, then press **Send**. Accounts 1 and 2 each have 500 transactions, so both belong in the answer. Selecting **Exactly this many groups** in a new chat returns a single group with the stable tie-breaker.
+
+For **This many distinct scores**, employees choose how many different count or total values to include. For example, group totals of 12, 12, 9 and 7 produce three groups at the two highest distinct scores. Results cover groups represented in the source. The form is available on both interfaces to a signed-in employee with query access. [Ranking behavior](P12_PROGRESS.md#employee-selected-group-rankings)
+
 ### Presenter's MCP tool card
 
 Ask **“What was the Central difference, how did operating surplus change, and what needs human review?”** Use the following tools in the **analyst** process. The cause of the difference remains for a reviewer to investigate.

@@ -63,6 +63,7 @@ def main() -> None:
             data["grant_version"],
             data["auth_epoch"],
             include_metadata=data["workspace"],
+            first_chat_input=data["first_chat_input"],
         )
         encoded = json.dumps(
             {"kind": "result", "response": response, "http_status": status},

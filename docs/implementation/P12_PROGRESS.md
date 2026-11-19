@@ -1,5 +1,13 @@
 # P12 capacity and AI reliability — implementation in progress
 
+## Employee-selected group rankings
+
+**Rank groups** handles one authorized fact source, one grouping field, and either a row count or the sum of one eligible numeric field. The employee can choose an exact number of groups, every group tied at the cutoff, or every group in the requested number of distinct score levels. Aqua uses the existing query validator, read-only database role and row cap. The displayed result identifies its source as **Aqua grouped ranking**. An unsupported command receives a specific correction message without invoking the model. [Walkthrough](SALES_DEMO_20261118.md#rank-groups-in-a-new-chat)
+
+An independent trial of automatic recognition compared the selected chat planner with a prospective revision on 12 fresh questions. Correct answers within 45 seconds increased from 6 to 7 and timely tied rankings from 3/7 to 4/7. Both versions answered seven correctly overall, made 12 provider calls and timed out twice. None of the questions used the automatic database route. That revision was held. [Automatic experiment](https://github.com/drewUTSA/Aqua/pull/106)
+
+A separate experiment supplied six deliberately incorrect first SQL drafts and asked the installed 8B model to repair each one against restricted PostgreSQL. Turning off reasoning for the repair saved a median 5.161 seconds per pair and reduced accuracy from 5/6 to 4/6. The current repair setting remains selected. The timer started at the supplied draft.
+
 ## Employee timeout and retry
 
 Aqua tells an employee when the model failed to answer in time. When the final provider attempt reaches a read timeout or returns HTTP 504, Aqua produces the retryable `model_timeout` response. An ordinary provider outage retains the existing retryable `model_unavailable` response. The configured deadline and fallback policy still apply.
