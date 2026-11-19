@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-18",
+  "scope": "Three separate local studies on an eight-table, 178-row fictional financial fixture. One submitting employee and two signed-in viewers reading their own records.",
+  "model": "qwen3:8b",
+  "required_correct_and_saved": 18,
+  "deadline_seconds": 45,
+  "original_acceptance": {
+    "assigned": 20,
+    "saved_in_time": 18,
+    "correct_and_saved_in_time": 17,
+    "viewer_reads_ok": 513,
+    "viewer_reads_total": 513,
+    "operator_receipt_sha256": "044d717658798d1c74f20f526e2993a784da9c81c71225de6edd4b00be4b5663"
+  },
+  "paired_prompt_research": {
+    "assigned_per_prompt": 20,
+    "release_prompt": {"saved_in_time": 19, "correct_and_saved_in_time": 12},
+    "additional_instruction": {"saved_in_time": 19, "correct_and_saved_in_time": 14},
+    "both_correct_in_time": 11,
+    "release_only_correct_in_time": 1,
+    "additional_instruction_only_correct_in_time": 3,
+    "neither_correct_in_time": 5,
+    "viewer_reads_ok": 981,
+    "viewer_reads_total": 981,
+    "operator_receipt_sha256": "fbc2407fd712d51570bf9d986080972460a24032a43e819df421f082553b44f5"
+  },
+  "final_acceptance": {
+    "tested_commit": "3058f95111db260c0545493a6619b98c536e99ba",
+    "merged_commit": "1cfbe2cc56a90d4581985004ee9ddca610ca2a2a",
+    "shared_tree": "42d97abb9d1e2c0368a943c0e4e9a05f122fe02d",
+    "application_image_digest": "sha256:851226a894078770e508605314418cf8233b5df104dbcbf3838a7dd132634988",
+    "assigned": 20,
+    "accepted": 20,
+    "saved_in_time": 19,
+    "correct_and_saved_in_time": 18,
+    "timely_wrong_answers": 1,
+    "provider_timeouts": 1,
+    "questions_per_family": 4,
+    "correct_and_saved_in_time_by_family": {"calculations": 4, "filtering": 4, "ranking": 3, "calendar": 3, "joins": 4},
+    "latency_method": "Nearest rank over all assigned questions. Treat a missing qualifying answer as infinite. Null means no finite percentile.",
+    "seconds_to_saved_answer": {"p50": 12.144573, "p90": 33.317433, "p95": 37.870843},
+    "seconds_to_correct_saved_answer": {"p50": 12.144573, "p90": 37.870843, "p95": null},
+    "viewer_reads_ok": 489,
+    "viewer_reads_total": 489,
+    "presenter_tasks_with_both_viewers_active": 20,
+    "viewer_read_p95_ms": 9.4435,
+    "operator_receipt_sha256": "eca959b98dcc319567eafadc6e37a07c549d8ba84c33c5526bfe3647f5529eee"
+  }
+}

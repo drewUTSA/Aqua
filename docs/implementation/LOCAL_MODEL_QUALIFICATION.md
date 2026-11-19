@@ -1,7 +1,6 @@
 # Prepared local-model qualification — November 16, 2026
 
-> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](PERSONAL_COMPUTER_RESUME_20261117.md).
-> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+> The November 18 signed-in local demo ran the actual pinned Ollama provider. This November 16 document describes its earlier qualification tooling. [Current P12 workload and evidence](P12_PROGRESS.md#three-person-demo-acceptance)
 
 This is an opt-in synthetic generation experiment, not a deployed provider,
 training job, retrieval-quality result or completed P12/P13 gate. No real

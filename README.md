@@ -1,11 +1,11 @@
 # Aqua
 
-> **November 18 restart point.** Read the [current Aqua handoff](AQUA_CODEX_HANDOFF.md) for the merged companion features, their configuration and the outstanding release gates.
+> **November 19 restart point.** The merged PR 93 application met the local synthetic demo target with 18/20 correct saved answers within 45 seconds. [Current Aqua handoff](AQUA_CODEX_HANDOFF.md)
 > Production remains on schema 8. The [November 17 operator handoff](docs/implementation/PERSONAL_COMPUTER_RESUME_20261117.md) records the earlier recovery work.
 
 Ask a database a question in plain English. Get back data, a readable summary and the exact SQL that produced it.
 
-Current checkpoint, November17,2026: P00 through P10 are recorded complete;
+Historical November 17 checkpoint. P00 through P10 are recorded complete;
 P11a exports are deployed on the separately verified production release
 `9aeaf4e`, private schema8. Original recovery and native component qualification
 advanced on the personal computer, while the final production operator,
