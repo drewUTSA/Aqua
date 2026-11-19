@@ -1,9 +1,11 @@
 # Aqua project guide
 
-> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](docs/implementation/PERSONAL_COMPUTER_RESUME_20261117.md).
-> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+> **November 19 restart.** Begin with the [Aqua handoff](AQUA_CODEX_HANDOFF.md) and the current [P11 recovery](docs/implementation/P11_PROGRESS.md), [P12 analytics](docs/implementation/P12_PROGRESS.md) and [P13 release](docs/implementation/P13_PROGRESS.md) records.
+> Use the [three-person sales demo guide](docs/implementation/SALES_DEMO_20261118.md) to prepare the fictional database and rehearse the employee workflows.
 
-## November 17 UTC stop and continuation
+## Historical November 17 UTC stop and continuation
+
+> Work stopped on November 17 UTC. Read the [handoff from that session](docs/implementation/PERSONAL_COMPUTER_RESUME_20261117.md). Production was on schema 8 and the release operator was unfinished at that checkpoint.
 
 Work stopped at Ben's request after PR74/main `3fd413c` (all 15 jobs each).
 [Read the continuation](docs/implementation/PERSONAL_COMPUTER_RESUME_20261116.md) for qualified current components,
