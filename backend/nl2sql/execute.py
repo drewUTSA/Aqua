@@ -61,6 +61,41 @@ class QueryResult:
     truncated: bool
 
 
+def include_cutoff_peers(query: exp.Query, rows: int) -> str | None:
+    """Preserve peers for a simple PostgreSQL ranking with an explicit row cutoff.
+
+    A second sort key could be a requested ranking criterion or just a display
+    order. Nested cutoffs, windows and offsets may have separate meanings. In
+    those shapes leave the model SQL alone rather than guessing their meaning.
+    """
+    if not isinstance(query, exp.Select):
+        return None
+    order = query.args.get("order")
+    if not order or len(order.expressions) != 1 or query.args.get("offset"):
+        return None
+    limit = query.args.get("limit")
+    if not isinstance(limit, (exp.Limit, exp.Fetch)):
+        return None
+    count, already_inclusive = _requested_limit(query)
+    if already_inclusive or count != rows:
+        return None
+    for node in query.walk():
+        if isinstance(node, (exp.Window, exp.Offset)) or (
+            isinstance(node, (exp.Fetch, exp.Limit)) and node is not limit
+        ):
+            return None
+    rewritten = query.copy()
+    rewritten.set(
+        "limit",
+        exp.Fetch(
+            direction="FIRST",
+            count=exp.Literal.number(rows),
+            limit_options=exp.LimitOptions(rows=True, with_ties=True),
+        ),
+    )
+    return rewritten.sql(dialect="postgres")
+
+
 def _requested_limit(query: exp.Query) -> tuple[int | None, bool]:
     """Return the outer row count and whether PostgreSQL must include its peers."""
     current = query.args.get("limit")

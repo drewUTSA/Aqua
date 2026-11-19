@@ -308,31 +308,41 @@ def test_secondary_display_order_does_not_break_explicit_ties_at_cutoff():
 def test_global_count_preserves_explicit_cutoff_ties():
     question = "Show the top four research stations by snowfall, including all ties at the cutoff."
     instruction = answer_size(question).instruction
-    assert instruction and "including all ties" in instruction
-    assert "RANK()" in instruction and "LIMIT 4" in instruction
+    assert instruction and "include all ties" in instruction
+    assert "RANK()" in instruction and "ranks <= 4" in instruction
+    assert "exactly" not in instruction
 
 
 @pytest.mark.parametrize(
-    ("question", "kind", "rows"),
+    ("question", "kind", "rows", "peers"),
     [
-        ("List the busiest depots, including all ties at the cutoff.", "list", 10),
-        ("Show the top four depots, including all ties.", "count", 4),
-        ("Rank depots by total shipments. Include every tied entry.", "list", 10),
-        ("Give the five busiest depots. Break ties by depot ID.", "count", 5),
+        (
+            "List the busiest depots, including all ties at the cutoff.",
+            "list",
+            10,
+            "cutoff",
+        ),
+        ("Show the top four depots, including all ties.", "count", 4, "cutoff"),
+        (
+            "Rank depots by total shipments. Include every tied entry.",
+            "list",
+            10,
+            "cutoff",
+        ),
+        ("Give the five busiest depots. Break ties by depot ID.", "count", 5, None),
     ],
 )
-def test_global_limit_and_tie_inclusive_ordering_are_separate(question, kind, rows):
+def test_global_limit_and_tie_inclusive_ordering_are_separate(
+    question, kind, rows, peers
+):
     size = answer_size(question)
-    assert size == AnswerSize(kind, rows)
-    assert f"tie-breaks before LIMIT {rows}" in size.instruction
-    assert (
-        "When keeping ties, apply secondary display order after selection"
-        in size.instruction
-    )
-    assert (
-        f"RANK() on the ranking value alone and keep ranks up to {rows}"
-        in size.instruction
-    )
+    assert size == AnswerSize(kind, rows, peers)
+    if peers:
+        assert "RANK()" in size.instruction and f"ranks <= {rows}" in size.instruction
+        assert "secondary display order after selection" in size.instruction
+        assert f"LIMIT {rows}" not in size.instruction
+    else:
+        assert f"tie-breaks before LIMIT {rows}" in size.instruction
 
 
 def test_all_records_is_distinct_from_all_peers_at_a_cutoff():
@@ -353,3 +363,73 @@ def test_all_records_is_distinct_from_all_peers_at_a_cutoff():
 )
 def test_speed_ranking_and_display_order(question, expected):
     assert answer_size(question) == expected
+
+
+@pytest.mark.parametrize(
+    ("question", "expected"),
+    [
+        (
+            "Which workshops had the lowest delay? Include ties.",
+            AnswerSize("single", 1, "cutoff"),
+        ),
+        (
+            "Name every orchard with the highest apple yield.",
+            AnswerSize("single", 1, "cutoff"),
+        ),
+        ("Which teams share the lead?", AnswerSize("single", 1, "cutoff")),
+        (
+            "Show all books with the maximum price, including ties.",
+            AnswerSize("single", 1, "cutoff"),
+        ),
+        (
+            "List the top three scores including ties. Within each tie sort by name.",
+            AnswerSize("count", 3, "cutoff"),
+        ),
+        (
+            "List the top two distinct finish times, including ties.",
+            AnswerSize("count", 2, "distinct"),
+        ),
+        (
+            "For each league, list the top two distinct score levels, including ties.",
+            AnswerSize("per_group", 2, "distinct"),
+        ),
+        (
+            "What are the top two different deposit amounts? Include ties.",
+            AnswerSize("count", 2, "distinct"),
+        ),
+        (
+            "For each pond, find all sensors with the lowest reading.",
+            AnswerSize("per_group", 1, "cutoff"),
+        ),
+    ],
+)
+def test_explicit_peer_membership(question, expected):
+    assert answer_size(question) == expected
+    if expected.peers == "distinct":
+        assert "DENSE_RANK()" in expected.instruction
+
+
+@pytest.mark.parametrize(
+    "question",
+    [
+        "Show exactly the top two suburbs by mileage, including ties.",
+        "Give the four longest intervals. Do not include ties.",
+        "List all teams ordered by wins including ties.",
+        "Return top 3 designers by awards. Break ties by name.",
+        "Which teams are not tied for first place?",
+        "Show two ties from the apparel department.",
+        "List all deposits with minimum terms of three months.",
+        "List all sensors at maximum rated pressure.",
+        "Show every charger with the maximum permitted voltage of 14 volts.",
+        "Show all junctions with the highest and lowest readings, including ties.",
+    ],
+)
+def test_plain_ordering_fixed_counts_and_nonrank_uses_do_not_expand(question):
+    assert answer_size(question).peers is None
+
+
+@pytest.mark.parametrize("amount", ["0", "1200", "32000"])
+def test_explicit_out_of_range_cutoffs_do_not_turn_into_first_place(amount):
+    assert answer_size(f"List the top {amount} runners, including ties.") == AnswerSize(
+        "open"
+    )
