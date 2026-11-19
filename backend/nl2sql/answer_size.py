@@ -115,7 +115,7 @@ _PEER_EXTREME = re.compile(
 )
 _ALL_AT_EXTREME = re.compile(
     rf"\b(?:all|every)\s+(?:[\w'-]+\s+){{1,5}}(?:with|at|matching|reaching|having)\s+"
-    rf"(?!(?:the\s+)?(?:top|bottom)\b){_AT_EXTREME}"
+    rf"the\s+(?!top\b|bottom\b)(?:{_RANKING})\b"
 )
 _KEEP_PEERS = re.compile(
     r"\b(?:includ(?:e|ing)|keep|retain|return|show|list|with)\s+"
@@ -137,6 +137,9 @@ _DEFINITE_EXTREME = re.compile(
     rf"\b(?:has|had|have|with|at|reached|recorded|achieved|earned)\s+the\s+"
     rf"(?!top\b|bottom\b)(?:{_RANKING}|minimum|maximum)\b"
 )
+# A cutoff outside the range of the sizing rules still belongs to the employee.
+# Leave SQL generation and the executor's independent row cap to handle it.
+_NUMERIC_CUTOFF = re.compile(r"\b(?:top|bottom|first|last)\s+(\d+)\b")
 # "list customers by total spend", "show films ranked by rentals": a ranked
 # list without a ranking word. The measure must follow "by", so a grouping
 # like "rentals by store" is not mistaken for a ranking.
@@ -406,20 +409,27 @@ def answer_size(question: str) -> AnswerSize:
     # a group from the next sentence. Read explicit counts independently.
     count = _requested_count(" ".join(re.sub(r"[^\w\s'-]", " ", original).split()))
     text, extremes = _BOTH_EXTREMES.subn(" ", original)
-    text, ordered = _ORDER_DIRECTION.subn(" ", text)
-    text = " ".join(re.sub(r"[^\w\s'-]", " ", text).split())
+    selection, ordered = _ORDER_DIRECTION.subn(" ", text)
+    text = " ".join(re.sub(r"[^\w\s'-]", " ", selection).split())
     # "at least once", "at most 3 days" are filters, not rankings.
     text = re.sub(r"\bat (?:least|most)\b", "at", text)
     ranking = _RANKING_WORD.search(text)
 
-    shared_extreme = _PEER_EXTREME.search(original) or _ALL_AT_EXTREME.search(original)
+    keep_peers = _KEEP_PEERS.search(selection)
+    shared_extreme = (
+        _PEER_EXTREME.search(selection)
+        or _ALL_AT_EXTREME.search(selection)
+        or (keep_peers and _DEFINITE_EXTREME.search(selection))
+    )
     distinct_ranks = _DISTINCT_RANKS.search(original)
     ambiguous_distinct = not distinct_ranks and re.search(
         r"\b(?:distinct|different)\b", original
     )
-    if (shared_extreme or _KEEP_PEERS.search(original)) and not (
+    if (shared_extreme or keep_peers) and not (
         _HARD_CUTOFF.search(original) or ambiguous_distinct
     ):
+        if count is None and _NUMERIC_CUTOFF.search(original):
+            return AnswerSize("open")
         # Displaying IDs within each tie does not partition the ranking by ID.
         scope = re.sub(r"\b(?:within|for|in) each tie\b", "within the tie", original)
         # All records in rank order have no cutoff, even if scores repeat.
@@ -430,11 +440,7 @@ def answer_size(question: str) -> AnswerSize:
             grouped = _within_groups(scope, count)
             if count:
                 kind, rows = "count", count
-            elif (
-                shared_extreme
-                or _DEFINITE_EXTREME.search(original)
-                or (ranking and _wants_one(text, ranking))
-            ):
+            elif shared_extreme or (ranking and _wants_one(text, ranking)):
                 kind, rows = "single", 1
             else:
                 kind, rows = "list", DEFAULT_LIST_ROWS

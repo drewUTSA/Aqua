@@ -378,6 +378,10 @@ def test_speed_ranking_and_display_order(question, expected):
         ),
         ("Which teams share the lead?", AnswerSize("single", 1, "cutoff")),
         (
+            "Show all books with the maximum price, including ties.",
+            AnswerSize("single", 1, "cutoff"),
+        ),
+        (
             "List the top three scores including ties. Within each tie sort by name.",
             AnswerSize("count", 3, "cutoff"),
         ),
@@ -414,7 +418,18 @@ def test_explicit_peer_membership(question, expected):
         "Return top 3 designers by awards. Break ties by name.",
         "Which teams are not tied for first place?",
         "Show two ties from the apparel department.",
+        "List all deposits with minimum terms of three months.",
+        "List all sensors at maximum rated pressure.",
+        "Show every charger with the maximum permitted voltage of 14 volts.",
+        "Show all junctions with the highest and lowest readings, including ties.",
     ],
 )
 def test_plain_ordering_fixed_counts_and_nonrank_uses_do_not_expand(question):
     assert answer_size(question).peers is None
+
+
+@pytest.mark.parametrize("amount", ["0", "1200", "32000"])
+def test_explicit_out_of_range_cutoffs_do_not_turn_into_first_place(amount):
+    assert answer_size(f"List the top {amount} runners, including ties.") == AnswerSize(
+        "open"
+    )
