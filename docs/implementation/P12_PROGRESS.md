@@ -1,5 +1,26 @@
 # P12 capacity and AI reliability — implementation in progress
 
+## Fresh ranking and timing comparison on November 19
+
+One presenter asked the same 16 questions against the same 131-row fictional ledger on main `6ee361f` and candidate `0472139`. Two other signed-in employees read their own history. A correct answer had to match the expected table and appear in its owner's saved history within 45 seconds. Python, SQLite and the restricted PostgreSQL reader agreed on the expected answers. [Candidate change](https://github.com/drewUTSA/Aqua/pull/101) · [Aggregate results](evidence/p12/ranking-and-calendar-20261119.json)
+
+| Questions | Baseline | Candidate |
+| --- | ---: | ---: |
+| Explicit ties | 3/4 | 3/4 |
+| Distinct ranked values | 0/2 | 2/2 |
+| Exact number of ranked records | 1/2 | 2/2 |
+| Calendar counts | 6/6 | 6/6 |
+| Other controls | 2/2 | 2/2 |
+| **Correct saved answers within 45 seconds** | **12/16** | **15/16** |
+
+The candidate gained one explicit-tie answer and lost another to a provider timeout. All 32 assignments called Ollama. The candidate used the existing model weights. Among saved answers, the median went from 13.66 to 16.68 seconds and the 95th percentile from 37.87 to 42.39 seconds. The timed-out assignment counted as incorrect. Viewer reads passed 396/396 on baseline and 411/411 on the candidate. The study used consecutive runs on one PC.
+
+On a separate 165-row fictional ledger, the candidate met the sales-demo target with **18/20** new questions correct within 45 seconds. Nineteen answers were saved on time. One calculation returned a wrong table and one ranking timed out. All 465 viewer reads succeeded. Median saved-answer latency was 9.13 seconds and the 95th percentile was 33.34 seconds. All 20 assignments used Ollama. The judge recognized database-only answers before this second test started. The same questions, gold tables, ownership requirements and deadline were retained.
+
+The submitted PR 101 source `b5e94ff` differs from the measured `0472139` by one blank line removed by the project's formatter. The parsed Python matched, and the rebuilt image's 243 application files matched the submitted commit. A separate signed-in test simulated an unavailable provider. Three supported calendar questions saved correct answers without a provider call. A question with an additional filter returned the existing retryable error.
+
+A subsequent experimental direct ranking tool was held after a new paired test. On another fictional ledger, both versions scored 9/12 within 45 seconds, including 3/4 tied extrema and 0/2 requests to include peers at the cutoff. All 24 assignments called Ollama. Both arms had zero provider timeouts. Viewer reads passed 294/294 and 291/291. The experiment's additional 20-question general confirmation remained sealed because the paired criterion failed. [Research PR](https://github.com/drewUTSA/Aqua/pull/102) · [Paired evidence](evidence/p12/ranking-and-calendar-20261119.json)
+
 ## Three-person demo acceptance
 
 **The November 18 local sales demo reached its target of 18/20 correct answers within 45 seconds.** Each of the three studies below used one presenter submitting questions and two other signed-in employees reading their own profile, history and saved results. The timer ran from submission until the employee could read the saved answer through the job and its private history. All assigned questions counted, including application errors. [Current handoff](../../AQUA_CODEX_HANDOFF.md) · [Aggregate evidence and receipt hashes](evidence/p12/three-person-demo.json)

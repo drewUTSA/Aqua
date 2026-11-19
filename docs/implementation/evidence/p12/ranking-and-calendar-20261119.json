@@ -1,0 +1,279 @@
+{
+  "scope": "16 new synthetic employee analytics assignments per arm on a 131-row ledger, one presenter and two signed-in viewers, 45 seconds to an owner-verified saved answer",
+  "pairedReceiptSha256": "bd59ff15dfc28827fa63664eeafacfbe8fdf7601d5e09d5ec21e720517a010c3",
+  "paidOrCustomerData": false,
+  "baseline": {
+    "source": "6ee361fe65b4c0816b977b7b6a1fb53567d25666",
+    "image": "sha256:851226a894078770e508605314418cf8233b5df104dbcbf3838a7dd132634988",
+    "studyDigest": "411a8dc62c8565bbf09aab960a4ade022f32c142b425bd20fd8149c50ca0dbd8",
+    "perArmReceiptSha256": "a0a394cc43b17827cc2949157f91dd2d31c36035fb8677b430b3dc54513c36c6",
+    "overall": {
+      "assigned": 16,
+      "saved": 16,
+      "timelyCorrect": 12,
+      "providerCalls": 16,
+      "zeroProviderAssignments": 0,
+      "providerSocketTimeoutAssignments": 0,
+      "lateSaved": 0,
+      "savedLatency": {
+        "count": 16,
+        "min_s": 4.580802,
+        "p50_s": 13.655158,
+        "p95_s": 37.866768,
+        "max_s": 37.866768
+      }
+    },
+    "categories": {
+      "ties": {
+        "assigned": 4,
+        "timelyCorrect": 3,
+        "providerSocketTimeoutAssignments": 0,
+        "providerCalls": 4
+      },
+      "tiers": {
+        "assigned": 2,
+        "timelyCorrect": 0,
+        "providerSocketTimeoutAssignments": 0,
+        "providerCalls": 2
+      },
+      "fixed": {
+        "assigned": 2,
+        "timelyCorrect": 1,
+        "providerSocketTimeoutAssignments": 0,
+        "providerCalls": 2
+      },
+      "calendar": {
+        "assigned": 6,
+        "timelyCorrect": 6,
+        "providerSocketTimeoutAssignments": 0,
+        "providerCalls": 6
+      },
+      "control": {
+        "assigned": 2,
+        "timelyCorrect": 2,
+        "providerSocketTimeoutAssignments": 0,
+        "providerCalls": 2
+      }
+    },
+    "viewerReads": 396,
+    "viewerReadsPassed": 396
+  },
+  "candidate": {
+    "source": "0472139b3766d76425a1d3fc54d5e59df9959f62",
+    "image": "sha256:620c444f909004d50803fb3e93229155dfb857ae7a3477b190db9cd3f8e39f27",
+    "studyDigest": "411a8dc62c8565bbf09aab960a4ade022f32c142b425bd20fd8149c50ca0dbd8",
+    "perArmReceiptSha256": "56324999985181a9a26c3b47a6548fc3a85e3c0b5ea74079bc8f4af0cec49266",
+    "overall": {
+      "assigned": 16,
+      "saved": 15,
+      "timelyCorrect": 15,
+      "providerCalls": 16,
+      "zeroProviderAssignments": 0,
+      "providerSocketTimeoutAssignments": 1,
+      "lateSaved": 0,
+      "savedLatency": {
+        "count": 15,
+        "min_s": 6.093857,
+        "p50_s": 16.681036,
+        "p95_s": 42.390436,
+        "max_s": 42.390436
+      }
+    },
+    "categories": {
+      "ties": {
+        "assigned": 4,
+        "timelyCorrect": 3,
+        "providerSocketTimeoutAssignments": 1,
+        "providerCalls": 4
+      },
+      "tiers": {
+        "assigned": 2,
+        "timelyCorrect": 2,
+        "providerSocketTimeoutAssignments": 0,
+        "providerCalls": 2
+      },
+      "fixed": {
+        "assigned": 2,
+        "timelyCorrect": 2,
+        "providerSocketTimeoutAssignments": 0,
+        "providerCalls": 2
+      },
+      "calendar": {
+        "assigned": 6,
+        "timelyCorrect": 6,
+        "providerSocketTimeoutAssignments": 0,
+        "providerCalls": 6
+      },
+      "control": {
+        "assigned": 2,
+        "timelyCorrect": 2,
+        "providerSocketTimeoutAssignments": 0,
+        "providerCalls": 2
+      }
+    },
+    "viewerReads": 411,
+    "viewerReadsPassed": 411
+  },
+  "targetedCriteria": {
+    "rankOrTimeoutImproved": true,
+    "totalTimelyCorrectMaintained": true,
+    "candidateAllViewerReadsPassed": true,
+    "allOwnersVerified": true,
+    "noNewlyWrongFixedCountOrControl": true,
+    "cleanup": true
+  },
+  "instrument": "The original judge expected a Qwen label. Both targeted arms used Ollama on every assignment. No targeted scores were corrected.",
+  "timingLimit": "Sequential runs on one machine. Saved-latency summaries omit the failed assignment. All assignments count for accuracy.",
+  "independentSalesConfirmation": {
+    "source": "0472139b3766d76425a1d3fc54d5e59df9959f62",
+    "datasetRows": 165,
+    "assigned": 20,
+    "targetCorrectWithin45Seconds": 18,
+    "actual": {
+      "assigned": 20,
+      "saved": 19,
+      "correct": 18,
+      "timelyCorrect": 18,
+      "savedWithin45s": 19,
+      "providerCalls": 20,
+      "providerTimeoutAssignments": 1,
+      "zeroProviderAssignments": 0,
+      "applicationOutcomes": {
+        "saved_answer": 19,
+        "application_error": 1
+      }
+    },
+    "categories": {
+      "calculation": {
+        "assigned": 4,
+        "timelyCorrect": 3,
+        "saved": 4
+      },
+      "calendar": {
+        "assigned": 4,
+        "timelyCorrect": 4,
+        "saved": 4
+      },
+      "filter": {
+        "assigned": 4,
+        "timelyCorrect": 4,
+        "saved": 4
+      },
+      "joins": {
+        "assigned": 4,
+        "timelyCorrect": 4,
+        "saved": 4
+      },
+      "ranking": {
+        "assigned": 4,
+        "timelyCorrect": 3,
+        "saved": 3
+      }
+    },
+    "viewerReadsPassed": 465,
+    "savedLatency": {
+      "count": 19,
+      "min": 6.095211,
+      "p50": 9.133197,
+      "p95": 33.33736,
+      "max": 33.33736
+    },
+    "targetMet": true,
+    "receiptSha256": "d5a69560fe94f2c696d8a072a8ed49f45aa30ced44894e0eaf70cddeadad5500",
+    "aggregateSha256": "0dfae4332c12fa889e1b68391adf1ad6af845b81106de73585e5037b8db79a1f"
+  },
+  "directRankingExperiment": {
+    "qualified": false,
+    "treatment": "Direct ranking limited to explicit stored fields. Both arms used the same existing model for all 12 measured questions.",
+    "byArm": {
+      "baseline": {
+        "commit": "b5e94ff4357a98214adb37d566f488ba2343b8c9",
+        "image": "sha256:1ac92b192642039960c451e234ae54524ef86023274f850b5871044cb3e456d2",
+        "overall": {
+          "assigned": 12,
+          "submitted": 12,
+          "saved": 12,
+          "correct": 9,
+          "timelyCorrect": 9,
+          "providerDependent": 12,
+          "providerCalls": 12,
+          "providerSocketTimeouts": 0,
+          "meanPenalizedSeconds": 20.737273,
+          "savedLatency": {
+            "n": 12,
+            "min": 4.575803,
+            "p50": 12.14067,
+            "p95": 37.869577,
+            "max": 37.869577
+          }
+        },
+        "inclusivePeer": {
+          "assigned": 6,
+          "submitted": 6,
+          "saved": 6,
+          "correct": 3,
+          "timelyCorrect": 3,
+          "providerDependent": 6,
+          "providerCalls": 6,
+          "providerSocketTimeouts": 0,
+          "meanPenalizedSeconds": 33.111799,
+          "savedLatency": {
+            "n": 6,
+            "min": 9.124157,
+            "p50": 24.253979,
+            "p95": 37.869577,
+            "max": 37.869577
+          }
+        },
+        "viewerReads": 294,
+        "viewerPass": 294,
+        "cleanup": true
+      },
+      "candidate": {
+        "commit": "e0ba460778dc811acd8a254e22f9b0936e57d604",
+        "image": "sha256:3b1beb34ff3b6ac08f9b15cbfdd67525842f4b1b43df9c613e16187179cc71e0",
+        "overall": {
+          "assigned": 12,
+          "submitted": 12,
+          "saved": 12,
+          "correct": 9,
+          "timelyCorrect": 9,
+          "providerDependent": 12,
+          "providerCalls": 12,
+          "providerSocketTimeouts": 0,
+          "meanPenalizedSeconds": 20.609301,
+          "savedLatency": {
+            "n": 12,
+            "min": 4.576621,
+            "p50": 10.635037,
+            "p95": 36.349907,
+            "max": 36.349907
+          }
+        },
+        "inclusivePeer": {
+          "assigned": 6,
+          "submitted": 6,
+          "saved": 6,
+          "correct": 3,
+          "timelyCorrect": 3,
+          "providerDependent": 6,
+          "providerCalls": 6,
+          "providerSocketTimeouts": 0,
+          "meanPenalizedSeconds": 33.108047,
+          "savedLatency": {
+            "n": 6,
+            "min": 9.113963,
+            "p50": 24.239903,
+            "p95": 36.349907,
+            "max": 36.349907
+          }
+        },
+        "viewerReads": 291,
+        "viewerPass": 291,
+        "cleanup": true
+      }
+    },
+    "receiptSha256": "4317ff718d49f12badc4cdaf9abdfdee88e45a09bfd5cecbc494f1235622c269",
+    "conditionalGeneralConfirmation": "remained sealed"
+  }
+}

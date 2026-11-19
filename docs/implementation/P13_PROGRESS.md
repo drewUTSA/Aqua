@@ -2,6 +2,10 @@
 
 ## November 19 packaged frontend and public site
 
+On both packaged sites, Nginx now returns the private sitemap's ten-byte plain-text 404 body with the correct content type. The image's normal MIME map had labeled the response as XML. After reload, each image passed all 14 route checks and 24 hashed-asset checks. A separate private HTTPS rehearsal ran 22 requests per shell. It verified the host certificate, HTTP redirect, HSTS and preservation of the origin's headers, including a private readiness response and a real 502 when the backend was unavailable. The temporary ingress issued HSTS for five minutes. Public ingress verification remains part of rollout. [Website fix](https://github.com/drewUTSA/Aqua/pull/100) · [Package and rehearsal identities](evidence/p11bc/sitemap-rehearsal-20261119.json)
+
+Desktop WebKit 27.2 then exercised both shells over verified private HTTPS with fictional accounts. On each shell the employee signed in, opened a report, saw all seven expected rows and their procedure citation, saved a private prompt, reloaded the page and reopened the saved text. After sign-out both private endpoints returned 401. Both browser runs reported zero uncaught errors. Physical-device and intended-user acceptance remain part of rollout.
+
 The three-seat WebKit walkthrough exposed a results pane in which “Download CSV” and “Show full precision” broke across several lines. The table heading and actions now wrap to separate rows when needed. The revised Opal and Legacy packages were archived, each image was restored, and all 14 document routes and 24 expected assets per shell were served again. Both builds retain the branded 404. [Toolbar change](https://github.com/drewUTSA/Aqua/pull/98) · [Revised rehearsal kit identities](evidence/p11bc/toolbar-rehearsal-20261119.json)
 
 In the original Opal walkthrough the presenter saw the correct count in 28.498 seconds and the correct amount bands in 13.786 seconds. Subsequent browser assertions in that run failed. In a fresh replay, WebKit 27.2 reopened both saved answers on the revised interface using the same SQL and fictional data. The three employee sessions completed the chart, cited facts, private note, reconciliation, history and sign-out checks. At a 374-pixel card width all three table actions sat below the title, with readable labels and 44-pixel button heights. The mobile seat used a simulated touch viewport. A separate geometry check passed for both interfaces at 1480, 390 and 320 pixels, with normal and doubled text and a visible keyboard focus ring. [Browser and scope measurements](evidence/p11bc/toolbar-rehearsal-20261119.json)
@@ -97,10 +101,15 @@ copy an untested policy into a production proxy or mark these gaps resolved.
    metadata/icons/social asset, real 404 behavior and link/accessibility review.
    Confirm policy/contact and retention language against actual operator practice.
 5. Require all exact-head PR checks, distinct merged-main checks, source/image
-   manifests, schema9-compatible fallback, migration rehearsal and independent
+   manifests, a schema 10-compatible fallback, rehearsed migration from the
+   observed schema through the schema 9 authority boundary to schema 10, and independent
    backup restore. Confirm mail singleton locking, cleanup and readiness.
 6. Perform the operator release review before any public audience/registration
    change. Restricted users receive no private dataset grant by default.
+7. Record the release operator and incident contact, who monitors readiness and
+   delivery after rollout, the rollback decision criteria and the selected
+   compatible fallback. The service owner confirms the published support contact
+   and retention information against operating practice.
 
 No backup key, private environment, Google audience, database grant or running
 application was changed by these preparations. The subsequent mobile repair
