@@ -143,7 +143,7 @@ def test_elapsed_provider_time_does_not_start_a_fresh_fallback_deadline(monkeypa
     def stalled(*args):
         calls.append("first")
         instant[0] = 106.0
-        raise LLMError("Synthetic transient timeout", transient=True)
+        raise llm.ModelResponseTimeout("Synthetic transient timeout", transient=True)
 
     monkeypatch.setattr(llm, "_complete_gemini", stalled)
     monkeypatch.setattr(

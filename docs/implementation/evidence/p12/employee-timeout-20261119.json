@@ -1,0 +1,354 @@
+{
+  "scope": "Fictional employee and recovery rehearsals. No bank data, changes to model weights or production deployment.",
+  "source": "48358722291d283b4c963236981ee200eb1d7e2a",
+  "packagingProfile": "34f047f5b335020ae4baf844e04901147d9a78ce",
+  "runtimeImage": "sha256:f36402ac1f1a83c182c613abf35af8a7e2c5ce30caa2955e52d8fcdc665b88af",
+  "packagedAppFiles": 243,
+  "groupedRanking": {
+    "scores": {
+      "baseline": {
+        "source": "b5e94ff4357a98214adb37d566f488ba2343b8c9",
+        "study": "ce0ca2ab65bed75ade20ae6b14afbbda2ce8659a3b25781beb9475d9c66740b9",
+        "overall": {
+          "assigned": 12,
+          "submitted": 12,
+          "saved": 9,
+          "correct": 6,
+          "timelyCorrect": 5,
+          "deadlineMisses": 4,
+          "providerTimeouts": 3,
+          "realCalls": 12,
+          "outcomes": {
+            "application_error": 3,
+            "saved_answer": 9
+          },
+          "savedLatency": {
+            "p50": 18.203771,
+            "p95": 45.409223
+          }
+        },
+        "groups": {
+          "tied": {
+            "assigned": 6,
+            "submitted": 6,
+            "saved": 3,
+            "correct": 2,
+            "timelyCorrect": 1,
+            "deadlineMisses": 4,
+            "providerTimeouts": 3,
+            "realCalls": 6,
+            "outcomes": {
+              "application_error": 3,
+              "saved_answer": 3
+            },
+            "savedLatency": {
+              "p50": 19.702508,
+              "p95": 45.409223
+            }
+          },
+          "fixed": {
+            "assigned": 2,
+            "submitted": 2,
+            "saved": 2,
+            "correct": 1,
+            "timelyCorrect": 1,
+            "deadlineMisses": 0,
+            "providerTimeouts": 0,
+            "realCalls": 2,
+            "outcomes": {
+              "saved_answer": 2
+            },
+            "savedLatency": {
+              "p50": 13.65236,
+              "p95": 18.197672
+            }
+          },
+          "multi": {
+            "assigned": 2,
+            "submitted": 2,
+            "saved": 2,
+            "correct": 2,
+            "timelyCorrect": 2,
+            "deadlineMisses": 0,
+            "providerTimeouts": 0,
+            "realCalls": 2,
+            "outcomes": {
+              "saved_answer": 2
+            },
+            "savedLatency": {
+              "p50": 22.720994,
+              "p95": 33.311233
+            }
+          },
+          "control": {
+            "assigned": 2,
+            "submitted": 2,
+            "saved": 2,
+            "correct": 1,
+            "timelyCorrect": 1,
+            "deadlineMisses": 0,
+            "providerTimeouts": 0,
+            "realCalls": 2,
+            "outcomes": {
+              "saved_answer": 2
+            },
+            "savedLatency": {
+              "p50": 6.094024,
+              "p95": 13.662145
+            }
+          }
+        },
+        "viewerReads": 366
+      },
+      "candidate": {
+        "source": "d4cc0af81e95c1dbbc1cd18b3671b77f8364721a",
+        "study": "ce0ca2ab65bed75ade20ae6b14afbbda2ce8659a3b25781beb9475d9c66740b9",
+        "overall": {
+          "assigned": 12,
+          "submitted": 12,
+          "saved": 9,
+          "correct": 6,
+          "timelyCorrect": 5,
+          "deadlineMisses": 4,
+          "providerTimeouts": 3,
+          "realCalls": 12,
+          "outcomes": {
+            "application_error": 3,
+            "saved_answer": 9
+          },
+          "savedLatency": {
+            "p50": 18.187551,
+            "p95": 46.929129
+          }
+        },
+        "groups": {
+          "tied": {
+            "assigned": 6,
+            "submitted": 6,
+            "saved": 3,
+            "correct": 2,
+            "timelyCorrect": 1,
+            "deadlineMisses": 4,
+            "providerTimeouts": 3,
+            "realCalls": 6,
+            "outcomes": {
+              "application_error": 3,
+              "saved_answer": 3
+            },
+            "savedLatency": {
+              "p50": 19.697017,
+              "p95": 46.929129
+            }
+          },
+          "fixed": {
+            "assigned": 2,
+            "submitted": 2,
+            "saved": 2,
+            "correct": 1,
+            "timelyCorrect": 1,
+            "deadlineMisses": 0,
+            "providerTimeouts": 0,
+            "realCalls": 2,
+            "outcomes": {
+              "saved_answer": 2
+            },
+            "savedLatency": {
+              "p50": 13.649415,
+              "p95": 18.187551
+            }
+          },
+          "multi": {
+            "assigned": 2,
+            "submitted": 2,
+            "saved": 2,
+            "correct": 2,
+            "timelyCorrect": 2,
+            "deadlineMisses": 0,
+            "providerTimeouts": 0,
+            "realCalls": 2,
+            "outcomes": {
+              "saved_answer": 2
+            },
+            "savedLatency": {
+              "p50": 22.724861,
+              "p95": 33.316101
+            }
+          },
+          "control": {
+            "assigned": 2,
+            "submitted": 2,
+            "saved": 2,
+            "correct": 1,
+            "timelyCorrect": 1,
+            "deadlineMisses": 0,
+            "providerTimeouts": 0,
+            "realCalls": 2,
+            "outcomes": {
+              "saved_answer": 2
+            },
+            "savedLatency": {
+              "p50": 6.094166,
+              "p95": 13.663021
+            }
+          }
+        },
+        "viewerReads": 369
+      }
+    },
+    "candidateSelected": false,
+    "matchingSavedSqlAndResults": 9,
+    "limitations": [
+      "Four brief CPU-only tasks could overlap the first seven baseline questions.",
+      "An optional post-run inspection failed. No compiler dispatch was attributed."
+    ]
+  },
+  "earlierProviderTimingsAcrossRepeatedAndDifferentQuestions": {
+    "calls": 100,
+    "completed": 92,
+    "timeout": 8,
+    "successfulServerSeconds": {
+      "n": 92,
+      "min": 3.77,
+      "p50": 12.601,
+      "p95": 35.663,
+      "max": 44.749
+    },
+    "successfulEndToEndRelaySeconds": {
+      "n": 92,
+      "min": 3.77,
+      "p50": 12.602,
+      "p95": 35.664,
+      "max": 44.751
+    },
+    "successfulPromptEvalTokens": {
+      "n": 92,
+      "min": 1232,
+      "p50": 1263,
+      "p95": 1388,
+      "max": 1404
+    },
+    "successfulGeneratedTokens": {
+      "n": 92,
+      "min": 283,
+      "p50": 948,
+      "p95": 2860,
+      "max": 3724
+    },
+    "timeoutRelaySeconds": {
+      "n": 8,
+      "min": 45.001,
+      "p50": 45.044,
+      "p95": 45.045,
+      "max": 45.045
+    },
+    "collectedPhaseDurationFields": {
+      "load_duration": 0,
+      "prompt_eval_duration": 0,
+      "eval_duration": 0
+    },
+    "timeoutCallsWithOllamaCountsOrDurations": 0
+  },
+  "controlledJobChecks": {
+    "passed": true,
+    "regularProcessEngine": true,
+    "schema": 10,
+    "readOnlyAnalyticalRole": true,
+    "signedIn": true,
+    "retryUsedOriginalInput": true,
+    "idempotentReplay": true,
+    "provider": "isolated synthetic HTTP fixture",
+    "cases": [
+      {
+        "providerBehavior": "read-timeout",
+        "terminal": "error",
+        "seconds": 46.631,
+        "calls": 1,
+        "employeeHistoryMatches": true,
+        "code": "model_timeout"
+      },
+      {
+        "providerBehavior": "success",
+        "terminal": "complete",
+        "seconds": 1.034,
+        "calls": 1,
+        "employeeHistoryMatches": true,
+        "code": null
+      },
+      {
+        "providerBehavior": "gateway-timeout",
+        "terminal": "error",
+        "seconds": 1.045,
+        "calls": 1,
+        "employeeHistoryMatches": true,
+        "code": "model_timeout"
+      },
+      {
+        "providerBehavior": "outage",
+        "terminal": "error",
+        "seconds": 1.031,
+        "calls": 1,
+        "employeeHistoryMatches": true,
+        "code": "model_unavailable"
+      }
+    ]
+  },
+  "focusedLinuxTests": 110,
+  "fullBackendCoverage": {
+    "unique_tests": 2454,
+    "passed_in_at_least_one_fixture": 2454
+  },
+  "kit": {
+    "sha256": "2cad216eedc3bb04cd5fcd311a37e5e2b1439455e558c91a4178427f7e722a1d",
+    "bytes": 133827567,
+    "members": 19,
+    "fallbackImage": "sha256:851226a894078770e508605314418cf8233b5df104dbcbf3838a7dd132634988"
+  },
+  "migration": {
+    "preservedRows": 69,
+    "populatedTables": 35
+  },
+  "recovery": {
+    "normalSeconds": 17.391,
+    "installerSeconds": 11.234,
+    "switchSeconds": {
+      "fallback": 16.192,
+      "resume": 16.343
+    },
+    "sharedDatabaseSwitches": 2,
+    "independentRetentionProved": false
+  },
+  "browser": {
+    "legacy": {
+      "version": "27.2",
+      "displayed_sales_count": 62,
+      "reopened_recent_chat_count": 62,
+      "all_visible_report_rows_matched": 7,
+      "uncaught_page_errors": 0,
+      "signed_out_history_http": 401
+    },
+    "opal": {
+      "version": "27.2",
+      "displayed_sales_count": 62,
+      "reopened_recent_chat_count": 62,
+      "all_visible_report_rows_matched": 7,
+      "uncaught_page_errors": 0,
+      "signed_out_history_http": 401
+    }
+  },
+  "receiptsSha256": {
+    "groupedEmployeeComparison": "bb2744ce843656cd7a5e480896b89c6a904b12fcea0a53cdadd6ce98a87a68f8",
+    "pairedSavedHashes": "9a1beb17a1a2379da9ef310561e47d01bb86ace2f7d2642518bb1465857b34b7",
+    "originalProviderTimings": "f99de753e85fbab649150253873e08bf006fa45f40e33a8994dac4869c56eff1",
+    "runtimeGitBinding": "6504b396d310627d854602c0ad732ab37ee07f56635c6d959201d7a8e0d7f5a5",
+    "controlledSignedInJobs": "edcf240a93f78ae7eb3855e2eb406e3df3e7e50d590500f098b263a06c30de89",
+    "unitTests": "91e36a357029d7ecf91c9316b6a6df1e12cbc7a682b0b92e7396760d7790102b",
+    "fullBackend": "67be04a520520cf0d4a79cc6dde0f4416bf5c0e2871353a5c0b78a4a03d490e6",
+    "schema8To10": "2564b0da7f8a1ff42f5137d20ad8c97eb9b6cea91ed1c955a607445d08506063",
+    "nativeRestore": "b871b4bff4bf4e80059a23c5dc66f27ce1213d410e4baea726833a9d902418d3",
+    "nativeFallbackAndReturn": "c85808f3ee3cdf958f20ad38304f90539b44c6c3f359784efcd2670d50e50fe6",
+    "sharedDatabase": "6b0fa7bdbfc7cbb6d9c647995cd72e1ce79eb3bf45657c2ed295d88d6a620136",
+    "portableKit": "d73ab48de46be6db7a11d5820a4f57e051df2e4ce5726e33538cb017ffe9a352",
+    "webkit3e3edcb2096d": "d3b75632c7560b2aa8d0dd6ccdb3f7832b52b3f898c6058b6b230bc976aaafa1",
+    "webkit9908e42e636f": "91ec01fcd3d01fd89f76968c6e579d036d7abeced1efd2d1462183e958f084d2"
+  }
+}

@@ -7,6 +7,7 @@ from nl2sql.control import CURRENT, remaining
 from nl2sql.llm import (
     Completion,
     LLMError,
+    ModelResponseTimeout,
     THINKING_OPTIONS,
     NON_THINKING_OPTIONS,
     SEED,
@@ -66,10 +67,13 @@ def complete(
             response = client.post(url, json=body)
             response.raise_for_status()
             data = response.json()
+    except httpx.ReadTimeout as exc:
+        raise ModelResponseTimeout("Ollama took too long to respond.") from exc
     except httpx.TimeoutException as exc:
         raise LLMError("Ollama took too long to respond.") from exc
     except httpx.HTTPStatusError as exc:
-        # Ollama explains errors in the body, e.g. a model that isn't pulled.
+        if exc.response.status_code == 504:
+            raise ModelResponseTimeout("Ollama returned HTTP 504.") from None
         raise LLMError(f"Ollama returned HTTP {exc.response.status_code}.") from None
     except httpx.RequestError:
         raise LLMError("Cannot connect to Ollama.") from None

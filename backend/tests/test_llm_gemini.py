@@ -13,7 +13,7 @@ from google.genai import errors
 
 from nl2sql.config import Settings
 from nl2sql.generate import SQL_REPLY_SCHEMA, generate_sql
-from nl2sql.llm import SEED, LLMError, complete
+from nl2sql.llm import SEED, LLMError, ModelResponseTimeout, complete
 
 SETTINGS = Settings(
     llm_provider="gemini", gemini_api_key="test-key", gemini_model="gemini-test"
@@ -162,6 +162,29 @@ def api_error(code: int) -> errors.APIError:
     )
 
 
+@pytest.mark.parametrize(
+    ("cause", "expected"),
+    [
+        (httpx.ReadTimeout("private transport detail"), ModelResponseTimeout),
+        (httpx.ConnectTimeout("private transport detail"), LLMError),
+        (httpx.PoolTimeout("private transport detail"), LLMError),
+        (httpx.WriteTimeout("private transport detail"), LLMError),
+        (api_error(504), ModelResponseTimeout),
+        (api_error(503), LLMError),
+    ],
+)
+def test_gemini_response_timeout_keeps_fallback_policy_and_private_details(
+    cause, expected
+):
+    with pytest.raises(LLMError) as caught:
+        complete("q", NO_FALLBACK, client=FakeGenai(error=cause))
+    assert type(caught.value) is expected and caught.value.transient
+    assert caught.value.__cause__ is cause
+    assert "private transport detail" not in str(caught.value) and "boom" not in str(
+        caught.value
+    )
+
+
 @pytest.mark.parametrize("code", [429, 500, 503])
 def test_gemini_outages_fall_back_to_ollama(
     monkeypatch: pytest.MonkeyPatch, code: int
@@ -304,6 +327,27 @@ def test_everything_down_reports_the_last_failure(
     )
     with pytest.raises(LLMError, match="HTTP 500"):
         complete("q", CHAIN, client=client)
+
+
+@pytest.mark.parametrize(
+    ("first", "last", "expected"),
+    [(504, 503, LLMError), (503, 504, ModelResponseTimeout)],
+)
+def test_last_provider_decides_timeout_diagnostic(monkeypatch, first, last, expected):
+    calls = ollama_down(monkeypatch)
+    client = PerModelGenai(
+        {
+            "gemini-3.5-flash-lite": api_error(first),
+            "gemma-4-26b-a4b-it": api_error(last),
+        }
+    )
+    with pytest.raises(LLMError) as caught:
+        complete("q", CHAIN, client=client)
+    assert type(caught.value) is expected
+    assert client.asked == [
+        "gemini-3.5-flash-lite",
+        "gemma-4-26b-a4b-it",
+    ] and calls == ["q"]
 
 
 def test_a_configuration_mistake_stops_the_chain(

@@ -1,0 +1,58 @@
+{
+  "commit": "48358722291d283b4c963236981ee200eb1d7e2a",
+  "image": "sha256:f36402ac1f1a83c182c613abf35af8a7e2c5ce30caa2955e52d8fcdc665b88af",
+  "studyDigest": "a8159a0c3c2b96e27665beadcfff70991f6d6fdaa3a3e97e057c9407e0b52674",
+  "receiptSha256": "708f20bd243ea785521a8505117f9bcc92357c0ec2b8faf0cc34be01fcd60c94",
+  "providerCalls": 8,
+  "assignments": 8,
+  "saved": 8,
+  "timelyCorrect": 7,
+  "viewerReads": 183,
+  "viewerPassed": 183,
+  "successfulPhaseSeconds": {
+    "load_duration": {
+      "n": 8,
+      "min": 0.0927,
+      "median": 0.0965,
+      "max": 0.0978
+    },
+    "prompt_eval_duration": {
+      "n": 8,
+      "min": 0.0223,
+      "median": 0.0411,
+      "max": 17.7256
+    },
+    "eval_duration": {
+      "n": 8,
+      "min": 3.9412,
+      "median": 10.2772,
+      "max": 29.5666
+    },
+    "total_duration": {
+      "n": 8,
+      "min": 4.2829,
+      "median": 10.7704,
+      "max": 29.7115
+    }
+  },
+  "successfulFirstContentSeconds": {
+    "n": 8,
+    "min": 3.612083,
+    "median": 10.239513,
+    "max": 29.274662
+  },
+  "scope": "Eight fresh fictional employee questions. The private measurement relay enables streaming only upstream, discards reasoning text and returns the usual complete response to Aqua. One unpaired diagnostic arm.",
+  "groups": {
+    "control": {
+      "assigned": 4,
+      "timelyCorrect": 3
+    },
+    "ranking": {
+      "assigned": 4,
+      "timelyCorrect": 4
+    }
+  },
+  "observedTimeouts": 0,
+  "numericalTotalsSha256": "346f797a9784fe132c85c85ea72d9a49994392841c990e4dc09471a014b8ad33",
+  "limits": "No failure phase was observed. The measured times on completed calls do not establish the cause of earlier timeouts."
+}

@@ -9,7 +9,7 @@ from nl2sql.control import CURRENT, ExecutionStopped, stage
 from nl2sql.db import DatabaseError
 from nl2sql.display import display_for
 from nl2sql.errors import ContextDenied
-from nl2sql.llm import LLMError
+from nl2sql.llm import LLMError, ModelResponseTimeout
 from nl2sql.pipeline import Retriever, answer_question
 from nl2sql.response import outage_response, to_response
 from nl2sql.schema import get_schema
@@ -97,6 +97,13 @@ def run(
                 context=budget.context if budget else (),
                 schema=schema,
             )
+    except ModelResponseTimeout:
+        return (
+            outage_response(
+                "model_timeout", "The language model did not answer in time."
+            ),
+            503,
+        )
     except LLMError:
         return (
             outage_response(

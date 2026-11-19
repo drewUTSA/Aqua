@@ -1,5 +1,7 @@
 ## November 19 restart point
 
+The employee demo distinguishes a model response timeout from a service outage. In a signed-in API rehearsal, retrying the original timed-out question recovered the correct saved result. Replaying the same retry added no duplicate. Separate fresh tests still found missed ties and model timeouts. On the hardest grouped-ranking set, both the selected version and the experimental revision got only one of six tied-group answers correct within 45 seconds. The experimental revision stays out of the demo. [Employee and ranking results](docs/implementation/P12_PROGRESS.md#employee-timeout-and-retry)
+
 On fresh employee questions, the first ranking change improved timely correct answers from 12/16 to 15/16. A separate general test met the sales-demo target with 18/20 correct answers saved within 45 seconds. Explicit ties stayed at 3/4 in the paired test, and both tests of that revision recorded a ranking timeout. The handoff tracks tied-record answers and provider outages separately. [P12 measurements](docs/implementation/P12_PROGRESS.md)
 
 Both corrected website packages passed private HTTPS sign-in, seven report-row and citation checks, a saved-prompt reload and sign-out in desktop WebKit. The fictional sales database also restored from a standalone transfer package. Current requirements for production recovery, independent retention, public delivery and intended-device acceptance appear in the open-items table below. [Recovery](docs/implementation/P11_PROGRESS.md) · [Website checks](docs/implementation/P13_PROGRESS.md)
