@@ -24,6 +24,7 @@ from nl2sql.config import Settings
 from nl2sql.errors import ContextDenied, RetrievalUnavailable, diagnostic
 from nl2sql.execute import DEFAULT_MAX_ROWS, QueryError, execute, include_cutoff_peers
 from nl2sql.generate import Attempt, Example, Generation, generate_sql
+from nl2sql.grouped_rank import compile_grouped_rank
 from nl2sql.schema import Schema
 from nl2sql.validate import UnsafeQueryError, validate_sql
 from nl2sql.control import CURRENT, stage
@@ -58,7 +59,7 @@ class Answer:
     the model wrote if it was rejected. error_code is "rejected" when the
     validator refused the SQL and "query_failed" when the database did;
     both are None on success. attempts counts generation attempts. A resolved
-    calendar count has zero model attempts and identifies its source in model.
+    deterministic answer has zero model attempts and identifies its source in model.
     """
 
     question: str
@@ -139,18 +140,20 @@ def answer_question(
     size = answer_size(question) if settings.answer_size_rules else AnswerSize("open")
     budget = CURRENT.get()
     # Previous turns can carry filters absent from the latest question.
-    calendar_sql = (
-        None
-        if budget and budget.context
-        else calendar_count_sql(question, schema, context.tables)
-    )
+    direct = None
+    if not (budget and budget.context):
+        if sql := calendar_count_sql(question, schema, context.tables):
+            direct = Generation(sql, thinking="", model="Aqua calendar count")
+        elif settings.answer_size_rules and (
+            ranking := compile_grouped_rank(question, schema, context.tables)
+        ):
+            direct = Generation(ranking.sql, thinking="", model="Aqua grouped ranking")
+            size = ranking.size
     previous: Attempt | None = None
     for attempt in range(1, MAX_ATTEMPTS + 1):
         stage("generating")
-        if calendar_sql is not None:
-            generation = Generation(
-                calendar_sql, thinking="", model="Aqua calendar count"
-            )
+        if direct is not None:
+            generation = direct
         else:
             generation = generate_sql(
                 question,
@@ -164,14 +167,14 @@ def answer_question(
             "question": question,
             "thinking": generation.thinking,
             "model": generation.model,
-            "attempts": 0 if calendar_sql is not None else attempt,
+            "attempts": 0 if direct is not None else attempt,
             "used_retrieval": used_retrieval,
             "size": size,
         }
         try:
             stage("validating")
             query = validate_sql(generation.sql, allowed_tables=schema.allowed_tables)
-            if size.peers == "cutoff" and size.kind != "per_group":
+            if direct is None and size.peers == "cutoff" and size.kind != "per_group":
                 revised = include_cutoff_peers(query, size.rows or 1)
                 if revised is not None:
                     query = validate_sql(revised, allowed_tables=schema.allowed_tables)
@@ -200,7 +203,7 @@ def answer_question(
         log.warning(
             "query_denied category=%s repair=%s attempt=%d", code, repair_code, attempt
         )
-        if calendar_sql is not None or not fixable or attempt == MAX_ATTEMPTS:
+        if direct is not None or not fixable or attempt == MAX_ATTEMPTS:
             return Answer(sql=generation.sql, error=error, error_code=code, **base)
         previous = Attempt(generation.sql, repair_code)
 
