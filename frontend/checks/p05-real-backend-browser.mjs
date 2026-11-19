@@ -5,6 +5,7 @@ import { spawn } from "node:child_process";
 import { FixtureBridge } from "./p05-browser-bridge.mjs";
 import { requireFixtureSchema } from "./p10b-browser-mode.mjs";
 import { BrowserPipe } from "./p05-browser-pipe.mjs";
+import { describeInterceptionFailure } from "./p05-interception-failure.mjs";
 import { accountAction } from "./homepage-browser-actions.mjs";
 import { actualPersonalWorkspace, foreignPersonalWorkspace } from "./p06-real-browser-checks.mjs";
 import { actualAnalysisWorkspace } from "./p06-analysis-browser-checks.mjs";
@@ -45,6 +46,7 @@ const PASSWORD = "Synthetic orbital meadow password 27";
 const NEXT_PASSWORD = "Synthetic restored mountain password 48";
 const started = performance.now(), results = [], screenshots = [], performanceSamples = [];
 const proofValues = [], browserErrors = [], protocolErrors = [];
+let firstFetchRejection = null;
 const sensitiveValues = new Set([PASSWORD, NEXT_PASSWORD]);
 const apiOutcomes = [];
 const abortedNetworkRequests = new Set();
@@ -200,7 +202,11 @@ try {
     const interceptedFailure = (error) => {
       if (error.shutdownSessionMissing && cdp.stopping) canceled++;
       else if (error.canceled && (wasNavigating || navigating || abortedNetworkRequests.has(event.params.networkId))) canceled++;
-      else protocolErrors.push(error instanceof assert.AssertionError ? "bridge_contract_assertion" : error.message);
+      else {
+        const failure = describeInterceptionFailure(error);
+        protocolErrors.push(failure.category);
+        if (failure.fetch) firstFetchRejection ??= failure.fetch;
+      }
     };
     void (async () => {
       const { requestId, request } = event.params, url = new URL(request.url);
@@ -382,7 +388,7 @@ if (!failure && (!backendRemoved || !backendPassed)) failure = "backend_cleanup_
 const report = { status: failure ? "failed" : "passed", failure, failure_step:failureStep, last_completed_check:results.at(-1)?.check||null, checked_utc: new Date().toISOString(), mode: notesFixture ? "real_fastapi_disposable_postgres_context_notes_browser" : bankDemoFixture ? "real_fastapi_disposable_postgres_bank_demo_browser" : "real_fastapi_disposable_postgres_browser",
   ...(bankDemoFixture ? { bank_demo_journey: bankDemoJourney, bank_demo_response_gate: bankGate.snapshot() } : {}),
   ...(notesFixture ? { context_notes_journey: notesJourney, context_notes_response_gate: notesGate?.snapshot() ?? null, context_notes_cancellation_evidence: notesCancellation?.snapshot() ?? null } : {}),
-  expected_shell: EXPECTED_SHELL, analysis_fixture: analysisFixture, browser_diagnostic: failureDiagnostic ?? cdp?.diagnostic ?? null, bridge_diagnostic: bridge?.diagnostic ?? null, loadedAssets, results, screenshots, performanceSamples, observations: { requests, apiRequests, external_attempts: external, consoleLeaks, browserErrors, protocolErrors, canceled, explicit_fixture_admission_clock_steps: fixtureClockSteps, explicit_fixture_analysis_clock_steps: analysisClockSteps, apiOutcomes },
+  expected_shell: EXPECTED_SHELL, analysis_fixture: analysisFixture, browser_diagnostic: failureDiagnostic ?? cdp?.diagnostic ?? null, bridge_diagnostic: bridge?.diagnostic ?? null, loadedAssets, results, screenshots, performanceSamples, observations: { requests, apiRequests, external_attempts: external, consoleLeaks, browserErrors, protocolErrors, first_fetch_rejection: firstFetchRejection, canceled, explicit_fixture_admission_clock_steps: fixtureClockSteps, explicit_fixture_analysis_clock_steps: analysisClockSteps, apiOutcomes },
   cleanup: { browser_stopped: !browser || cdp?.stopped === true, temporary_profile_removed: Boolean(profile), loopback_closed: !server?.listening, backend_status: bridgeCleanup?.status ?? null, backend_resources_removed: backendRemoved, backend_report: backendReport },
   elapsed_seconds: Math.round((performance.now() - started) / 10) / 100,
   limitations: ["Real FastAPI/auth/database code against synthetic disposable fixtures; no deployed origin or production data validation.", "Google verifier and email sender are synthetic test adapters; no Google or email provider contacted.", "No analytical database or AI model is exercised."] };
