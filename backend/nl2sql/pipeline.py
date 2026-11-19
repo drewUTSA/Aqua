@@ -19,13 +19,14 @@ from dataclasses import dataclass, field
 from typing import Any, Protocol
 
 from nl2sql.answer_size import AnswerSize, answer_size
+from nl2sql.calendar_count import calendar_count_sql
 from nl2sql.config import Settings
 from nl2sql.errors import ContextDenied, RetrievalUnavailable, diagnostic
 from nl2sql.execute import DEFAULT_MAX_ROWS, QueryError, execute
-from nl2sql.generate import Attempt, Example, generate_sql
+from nl2sql.generate import Attempt, Example, Generation, generate_sql
 from nl2sql.schema import Schema
 from nl2sql.validate import UnsafeQueryError, validate_sql
-from nl2sql.control import stage
+from nl2sql.control import CURRENT, stage
 
 log = logging.getLogger(__name__)
 
@@ -56,7 +57,8 @@ class Answer:
     sql is the statement that ran (with its row limit), or the last one
     the model wrote if it was rejected. error_code is "rejected" when the
     validator refused the SQL and "query_failed" when the database did;
-    both are None on success. attempts counts model calls (1 or 2).
+    both are None on success. attempts counts generation attempts. A resolved
+    calendar count has zero model attempts and identifies its source in model.
     """
 
     question: str
@@ -135,22 +137,34 @@ def answer_question(
     stage("retrieval")
     context, used_retrieval = build_context(question, schema, retriever)
     size = answer_size(question) if settings.answer_size_rules else AnswerSize("open")
+    budget = CURRENT.get()
+    # Previous turns can carry filters absent from the latest question.
+    calendar_sql = (
+        None
+        if budget and budget.context
+        else calendar_count_sql(question, schema, context.tables)
+    )
     previous: Attempt | None = None
     for attempt in range(1, MAX_ATTEMPTS + 1):
         stage("generating")
-        generation = generate_sql(
-            question,
-            context.schema_text,
-            settings,
-            examples=context.examples,
-            previous=previous,
-            size=size.instruction,
-        )
+        if calendar_sql is not None:
+            generation = Generation(
+                calendar_sql, thinking="", model="Aqua calendar count"
+            )
+        else:
+            generation = generate_sql(
+                question,
+                context.schema_text,
+                settings,
+                examples=context.examples,
+                previous=previous,
+                size=size.instruction,
+            )
         base = {
             "question": question,
             "thinking": generation.thinking,
             "model": generation.model,
-            "attempts": attempt,
+            "attempts": 0 if calendar_sql is not None else attempt,
             "used_retrieval": used_retrieval,
             "size": size,
         }
@@ -182,7 +196,7 @@ def answer_question(
         log.warning(
             "query_denied category=%s repair=%s attempt=%d", code, repair_code, attempt
         )
-        if not fixable or attempt == MAX_ATTEMPTS:
+        if calendar_sql is not None or not fixable or attempt == MAX_ATTEMPTS:
             return Answer(sql=generation.sql, error=error, error_code=code, **base)
         previous = Attempt(generation.sql, repair_code)
 
