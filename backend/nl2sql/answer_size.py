@@ -107,6 +107,22 @@ _COUNT_PATTERNS = [
     ),
 ]
 _ALL = re.compile(r"\b(?:all|every)\b")
+# A rank mentioned inside a second instruction can be a displayed flag.
+_SHOW_POPULATION = re.compile(
+    r"^(?:please\s+)?(?:show|display|list|return|keep|include)\s+"
+    r"(?:me\s+)?(?:all|every|each)\b"
+)
+_MARK_LEADERS = re.compile(
+    r"(?:[.,;:]\s*(?:and\s+)?|\s+and\s+)"
+    r"(?:mark(?:ing)?|flag(?:ging)?|highlight(?:ing)?|label(?:ling|ing)?|"
+    r"(?:add|include)\s+(?:a\s+)?(?:flag|indicator)\s+(?:for|showing))\s+"
+    r"(?:(?:the|all|any|those|groups|rows|tied|for|in|at|with)\s+){0,5}"
+    rf"(?:(?:top|bottom|first|last)\s+(?:{_NUMBER}|place)|highest|lowest)\b"
+)
+_RESELECT_AFTER_MARK = re.compile(
+    r"\b(?:return|show|keep|select|filter|drop|exclude|limit)\s+"
+    r"(?:only|just|to|out|the marked|the flagged|the highlighted)\b"
+)
 _TIED_PEERS = re.compile(r"\b(?:all|every)\s+(?:of\s+the\s+|the\s+)?(?:ties?\b|tied\b)")
 _EXTREMUM = rf"(?:{_RANKING}|minimum|maximum|first place|last place|lead)"
 _AT_EXTREME = rf"(?:the\s+)?{_EXTREMUM}\b"
@@ -232,7 +248,8 @@ class AnswerSize:
     kind is "count" (a number was given), "list" (plural, no number: the
     default applies), "single" (first place and its ties), "per_group"
     (the same within each group; rows is 1 for first place and ties), "all",
-    "extremes" (both ends of a measure), or "open" (leave the query alone).
+    "annotated" (keep the population and mark the leaders), "extremes"
+    (both ends of a measure), or "open" (leave the query alone).
     """
 
     kind: str
@@ -243,6 +260,14 @@ class AnswerSize:
     @property
     def instruction(self) -> str | None:
         """The line added to the prompt, or None for "open"."""
+        if self.kind == "annotated":
+            return (
+                "Answer size: retain the entire requested population with its filters "
+                "and grouping. Express the requested leader flag or label in the output. "
+                "Keep ties according to the question. Only filter on the mark if the "
+                "question separately requests that filter. Preserve the requested "
+                "columns and display order."
+            )
         if self.peers:
             rows = self.rows or 1
             function = "DENSE_RANK" if self.peers == "distinct" else "RANK"
@@ -413,6 +438,16 @@ def _wants_one(text: str, ranking: re.Match[str]) -> bool:
 def answer_size(question: str) -> AnswerSize:
     """Read the question's wording; see the module docstring for the rules."""
     original = question.lower()
+    if _SHOW_POPULATION.match(original.lstrip()):
+        mark = _MARK_LEADERS.search(original)
+        if (
+            mark
+            and not _RANKING_WORD.search(
+                _ORDER_DIRECTION.sub(" ", original[: mark.start()])
+            )
+            and not _RESELECT_AFTER_MARK.search(original[mark.end() :])
+        ):
+            return AnswerSize("annotated")
     # Work before stripping punctuation so "for each. Show..." cannot acquire
     # a group from the next sentence. Read explicit counts independently.
     count = _requested_count(" ".join(re.sub(r"[^\w\s'-]", " ", original).split()))

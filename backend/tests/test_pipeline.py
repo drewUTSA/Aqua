@@ -117,6 +117,22 @@ def test_only_explicit_global_row_cutoffs_expand_in_the_normal_pipeline(
     assert ("WITH TIES" in executed[0]) == inclusive
 
 
+def test_displayed_leader_flag_keeps_the_population(monkeypatch):
+    question = "Show every film and flag the top two by title length, including ties."
+    sql = (
+        "SELECT title, RANK() OVER (ORDER BY LENGTH(title) DESC) <= 2 AS leader "
+        "FROM film ORDER BY title"
+    )
+    calls = fake_model(monkeypatch, sql)
+    executed = fake_database(monkeypatch, OK)
+    answer = answer_question(question, SETTINGS, SCHEMA)
+    assert len(calls) == len(executed) == answer.attempts == 1
+    assert answer.size.kind == "annotated"
+    assert "retain the entire requested population" in calls[0]["size"]
+    assert "RANK() OVER" in executed[0]
+    assert "LIMIT" not in executed[0] and "FETCH" not in executed[0]
+
+
 def test_without_retrieval_the_model_sees_every_table(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

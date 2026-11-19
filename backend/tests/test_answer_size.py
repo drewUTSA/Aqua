@@ -4,6 +4,38 @@ import pytest
 
 from nl2sql.answer_size import DEFAULT_LIST_ROWS, AnswerSize, answer_size
 
+
+@pytest.mark.parametrize(
+    "question",
+    [
+        "Show all looms ordered by total faults. Mark the top two, including ties.",
+        "Return each station in the valley and highlight those tied for first place.",
+        "Keep every ship with a recorded arrival, flagging the highest tonnage.",
+        "List all pumps sorted lowest to highest and add a flag for the bottom 3.",
+    ],
+)
+def test_marking_leaders_preserves_the_requested_population(question):
+    size = answer_size(question)
+    assert size == AnswerSize("annotated")
+    assert "retain the entire requested population" in size.instruction
+    assert "flag or label" in size.instruction
+
+
+@pytest.mark.parametrize(
+    "question",
+    [
+        "Show the top two looms by total faults, including ties.",
+        "Show all sensors with the highest readings. Flag the top two.",
+        "List all stations, highlight the top two, then return only the flagged stations.",
+        "Show all parcels and flag first-class postage.",
+        "List all vessels and do not mark the lowest tonnage.",
+        "List all stations that mark the highest waterline.",
+    ],
+)
+def test_other_rank_requests_keep_their_own_selection_rules(question):
+    assert answer_size(question).kind != "annotated"
+
+
 CASES = [
     # Plural ranking with no number: the default list.
     ("What are the least popular movies?", "list", DEFAULT_LIST_ROWS),
