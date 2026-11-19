@@ -5,6 +5,27 @@ const q = JSON.stringify;
 const plot = "document.querySelector('.visual-pane .js-plotly-plot')";
 const paneText = "document.querySelector('.visual-pane')?.textContent";
 
+function narrowTableActionsFit() {
+  const table = document.querySelector(".conversation .financial-table");
+  if (!table) return false;
+  const bounds = table.getBoundingClientRect();
+  const title = table.querySelector("h3").getBoundingClientRect();
+  const buttons = [...table.querySelectorAll(".financial-table__actions button")];
+  return bounds.width > 0 && bounds.width < 500 && buttons.length === 3 && buttons.every(button => {
+    const box = button.getBoundingClientRect();
+    const label = button.firstChild;
+    if (box.top < title.bottom - 1 || box.left < bounds.left || box.right > bounds.right + 1 ||
+        box.height < 44 || label?.nodeType !== Node.TEXT_NODE) return false;
+    return [...label.data.matchAll(/\S+/g)].every(word => {
+      const range = document.createRange();
+      range.setStart(label, word.index);
+      range.setEnd(label, word.index + word[0].length);
+      const rects = [...range.getClientRects()];
+      return rects.length === 1 && rects[0].left >= box.left && rects[0].right <= box.right + 1;
+    });
+  });
+}
+
 export async function runVisualChecks(ctx) {
   const { check, evaluate, waitFor, click, clickText, fill } = ctx;
   await assertShell(check);
@@ -39,6 +60,9 @@ export async function runVisualChecks(ctx) {
   ctx.activeControlContrast = await evaluate("(()=>{const s=getComputedStyle(document.querySelector('.plotly-chart__controls button[aria-pressed=true]'));const luminance=rgb=>{const c=rgb.match(/[\\d.]+/g).slice(0,3).map(n=>Number(n)/255).map(n=>n<=.04045?n/12.92:((n+.055)/1.055)**2.4);return c[0]*.2126+c[1]*.7152+c[2]*.0722;};const a=luminance(s.color),b=luminance(s.backgroundColor);return (Math.max(a,b)+.05)/(Math.min(a,b)+.05)})()");
   if (!Number.isFinite(ctx.activeControlContrast) || ctx.activeControlContrast < 4.5) throw Error("active_control_contrast_insufficient");
   ctx.results.push({ check: "active Zoom control computed text contrast is at least 4.5:1", passed: true });
+  await setSize(1440);
+  await waitFor("Boolean(document.querySelector('.visual-divider'))", "desktop_split_layout");
+  await check("narrow split result keeps each action word intact and each button inside the table", `(${narrowTableActionsFit.toString()})()`);
   await evaluate("document.querySelector('.visual-divider').focus();true");
   const dividerBefore = await evaluate("Number(document.querySelector('.visual-divider').getAttribute('aria-valuenow'))");
   await ctx.cdp.send("Input.dispatchKeyEvent", { type: "keyDown", key: "ArrowRight", code: "ArrowRight" });

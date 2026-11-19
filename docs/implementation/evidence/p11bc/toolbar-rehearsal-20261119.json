@@ -1,0 +1,103 @@
+{
+  "date": "2026-11-19",
+  "frontend_tree": "ba681b8a63a9c12d2dfadcb89912c642c9966be6",
+  "frontend_build_commit": "ef0a2295e38a02977eb7c947d962bbeb27fc5306",
+  "portable_kit": {
+    "sha256": "a0e6a098331620be615403d69bc31869def30c898f9a5cf094af67b5bd09e73f",
+    "bytes": 133822813,
+    "members": 18
+  },
+  "baseline_backend_evidence": "local-rehearsal-20261119.json",
+  "latest_frontend_images": {
+    "opal": {
+      "image": "sha256:9a3eb5d2821edf45e8a595976c5657fa0fbb647135575f186759a224cdb37d12",
+      "archive_sha256": "6b5915a76af8bc2067fbf1fb5a9a388532822f0b4c60dac728394a2bd973a836",
+      "known_routes": 14,
+      "hashed_assets": 24
+    },
+    "legacy": {
+      "image": "sha256:d45ce813f23b1b179a0863c51e365018be2d47d91adda6ea4185f70d419e206e",
+      "archive_sha256": "5d545f72a95b341436f44a9b80c845402dd7a70da5a1dcf5de9942fedc0e6902",
+      "known_routes": 14,
+      "hashed_assets": 24
+    }
+  },
+  "original_published_prompt_walkthrough": {
+    "scope": "Original two questions submitted in visible UI, on earlier restored Opal build. Later assertions in that run failed. Same saved answers were subsequently reopened.",
+    "model": "qwen3:8b",
+    "first_model_calls": 2,
+    "correct_answers": 2,
+    "seconds_to_visible": [
+      28.498,
+      13.786
+    ]
+  },
+  "updated_webkit_walkthrough": {
+    "browser": "WebKit 27.2",
+    "synthetic_employee_sessions": 3,
+    "analytic_submissions": 0,
+    "extra_model_calls": 0,
+    "uncaught_page_errors": 0,
+    "table_toolbar": {
+      "card_width": 374,
+      "buttons": [
+        {
+          "name": "Copy table",
+          "height": 44,
+          "all_words_fit": true,
+          "under_title": true,
+          "inside": true
+        },
+        {
+          "name": "Download CSV",
+          "height": 44,
+          "all_words_fit": true,
+          "under_title": true,
+          "inside": true
+        },
+        {
+          "name": "Show full precision",
+          "height": 44,
+          "all_words_fit": true,
+          "under_title": true,
+          "inside": true
+        }
+      ]
+    },
+    "all_three_signed_out": true,
+    "isolated_histories": true,
+    "saved_rows_cited": 2,
+    "private_note_workflow": true,
+    "physical_mobile_device": false,
+    "sample_reused_prior_sql": true
+  },
+  "receipts_sha256": {
+    "frontend_reloads": "fc70afbfcaf93f2c55ec3adae66b9252d0d7df0ec0949484519d2f7f2f0aad70",
+    "portable_kit": "04c2051576d4d7da1d3dad62b04db4695700c71b0b6169e4a84beaebe49d9313",
+    "updated_browser_walkthrough": "0329a30c24880095bcc909b8a73c538784399b0a1c254528d0f591f199b1c57c",
+    "updated_durable_replay": "26d43aa354c733da665417cced6971e3847c060ca1bdce82e55722f17791f182",
+    "previous_walkthrough_readback": "6ef1ebcbe43688fbff12246892ecbf2b24945a403296d122b4293b429800089d",
+    "opal_geometry": "df251948d61dab42ae86b201eb1e40d6b0d47a93f067726065c0ba3b42f266f6",
+    "legacy_geometry": "885530088f79d6bbb16bedd47de4b2cf2de89846f5a097bbaef9a343b0e18b25"
+  },
+  "production_changed": false,
+  "production_release_eligible": false,
+  "packaged_browser_regression": {
+    "shells": [
+      "opal",
+      "legacy"
+    ],
+    "viewport_widths": [
+      1480,
+      390,
+      320
+    ],
+    "text_scale_percent": [
+      100,
+      200
+    ],
+    "passed_per_shell": 6,
+    "keyboard_focus_ring_px": 3,
+    "uncaught_page_errors": 0
+  }
+}
