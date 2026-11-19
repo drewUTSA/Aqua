@@ -1,7 +1,21 @@
 # P12 capacity and AI reliability — implementation in progress
 
-> **Latest session: stopped November 17 UTC.** Read the [complete next-chat handoff](PERSONAL_COMPUTER_RESUME_20261117.md).
-> Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
+## Three-person demo acceptance
+
+**The November 18 local sales demo reached its target of 18/20 correct answers within 45 seconds.** Each of the three studies below used one presenter submitting questions and two other signed-in employees reading their own profile, history and saved results. The timer ran from submission until the employee could read the saved answer through the job and its private history. All assigned questions counted, including application errors. [Current handoff](../../AQUA_CODEX_HANDOFF.md) · [Aggregate evidence and receipt hashes](evidence/p12/three-person-demo.json)
+
+| Study on fictional financial data | Saved within 45 seconds | Correct and saved within 45 seconds | Successful viewer reads |
+| --- | ---: | ---: | ---: |
+| Original 20-question acceptance | 18/20 | 17/20 | 513/513 |
+| Paired research, 20 new questions with the release prompt | 19/20 | 12/20 | 981/981 across both arms |
+| Same 20 questions with an additional planning instruction | 19/20 | 14/20 | Included in the paired total |
+| Final acceptance, 20 new questions on the PR 93 source | **19/20** | **18/20** | **489/489** |
+
+On the final run, calculations, filtering and joins scored 4/4 each. Rankings and calendar questions scored 3/4 each. One ranking returned one of two tied winners. One calendar request reached the provider socket deadline at 45.024 seconds. Across all 20 assignments, the median, P90 and P95 time to any saved answer were 12.14, 33.32 and 37.87 seconds. For a **correct** saved answer, P90 was 37.87 seconds and P95 had no finite value because two questions lacked a correct delivery. Both viewers made verified reads during every presenter job. Viewer P95 was 9.44 ms.
+
+The test used pinned Ollama Qwen3 8B, the release prompt, a real application worker and restricted PostgreSQL. Independent Python calculations, SQLite and PostgreSQL agreed on all 20 expected outputs for the 178 invented records in eight tables. The tested source `3058f951` and merged main `1cfbe2c` have identical trees. PR 93 corrected code and label rendering. Each study used a different question set. Attributing the difference between 17/20 and 18/20 to the formatter would require testing both versions on matched questions. All three studies used the existing model weights. [Formatter change](https://github.com/drewUTSA/Aqua/pull/93) · [Main CI](https://github.com/drewUTSA/Aqua/actions/runs/44408656430)
+
+The 14-minute walkthrough uses its own checked-in 1,000-transaction fixture. The 178-row qualification fixture, frozen questions, per-job receipts and local model cache are kept separately from this checkout. The aggregate evidence allows another operator to check the reported arithmetic and identify the original receipts by digest. Running the walkthrough on three devices still requires a prepared private HTTPS origin and synthetic accounts. Operational capacity, service objectives and employee sign-off remain open. [Presenter setup](SALES_DEMO_20261118.md)
 
 ## November 16 mixed HTTP local qualification
 
@@ -138,10 +152,7 @@ and 193 compiled inputs total. No case identity, skip allowance, resource limit
 or runtime hash comparison changed. This structural inventory update requires
 a fresh complete run; the earlier failed run remains recorded.
 
-Complete P12 still requires broader mixed HTTP load and agreed production SLOs,
-provider stage/cancellation/slow-stream measurements, chart/bundle/resource
-measurements and documented capacity limits. Existing backend tests retain the
-provider budget, real-process cancellation and bounded-pool recovery regressions;
-they are not substitutes for a measured end-to-end workload. Current model
-accuracy must be measured separately using an explicitly bounded synthetic
-evaluation; the fake-provider tests establish protocol behavior, not model quality.
+The November 18 three-person run provides a measured end-to-end workload for the
+local demo. Operational P12 acceptance requires a deployment-specific load mix,
+service objectives, documented capacity limits and intended employee review.
+The earlier component checks retain their original scope. [Current handoff](../../AQUA_CODEX_HANDOFF.md)
