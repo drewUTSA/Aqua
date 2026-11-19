@@ -36,6 +36,7 @@ export function setupDiagnostic(error, ctx) {
       child_exit_observed: child ? Number.isInteger(child.exitCode) || typeof child.signalCode === "string" : null,
       stdio_close_observed: pipe.drained === true, signal_sent: child ? child.killed === true : null,
       close_kind: ["normal_exit", "signal_exit", "abnormal_exit"].includes(pipe.closeKind) ? pipe.closeKind : null } : null,
+    browser_startup: pipe instanceof BrowserPipe ? pipe.startupObservation() : null,
     bridge: bridge ? { kind: token(bridge.kind), category: token(bridge.category), stage: token(bridge.stage), module: token(bridge.module, /^[a-zA-Z0-9_.]{1,96}$/) } : null,
     cleanup: ctx?.cleanup ? { browser_stopped: ctx.cleanup.browser_stopped === true, profile_removed: ctx.cleanup.profile_removed === true, loopback_closed: ctx.cleanup.loopback_closed === true, backend_resources_removed: ctx.cleanup.backend_resources_removed === true,
       backend_status: token(ctx.cleanup.backend?.status), backend_cleanup: token(ctx.cleanup.backend?.cleanup), remaining_resources: Array.isArray(ctx.cleanup.backend?.remaining_ids) ? ctx.cleanup.backend.remaining_ids.length : null } : null };

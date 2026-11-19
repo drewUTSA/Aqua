@@ -1,0 +1,133 @@
+{
+  "scope": "Synthetic sales demonstration, disposable browser and model fixtures, and the hosted export test.",
+  "preparation": {
+    "freeze": "f050296fcfe955181631372977052ce5ba91fab1956ed251d18c61c4f6fc13f9",
+    "conditions": {
+      "A": "render-only preload",
+      "B": "unrelated one-token primer",
+      "C": "permitted synthetic-schema one-token primer"
+    },
+    "arms": {
+      "1A": {
+        "secondsToSavedAfterSubmission": 30.296565,
+        "primerSeconds": 0,
+        "secondsFromProvisionToSaved": 85.675499,
+        "cachedEmployeePromptTokens": 0
+      },
+      "1B": {
+        "secondsToSavedAfterSubmission": 15.191582,
+        "primerSeconds": 16.355742,
+        "secondsFromProvisionToSaved": 84.26462,
+        "cachedEmployeePromptTokens": 3
+      },
+      "1C": {
+        "secondsToSavedAfterSubmission": 16.695697,
+        "primerSeconds": 17.439601,
+        "secondsFromProvisionToSaved": 86.706936,
+        "cachedEmployeePromptTokens": 1208
+      },
+      "2A": {
+        "secondsToSavedAfterSubmission": 28.785609,
+        "primerSeconds": 0,
+        "secondsFromProvisionToSaved": 81.32625,
+        "cachedEmployeePromptTokens": 0
+      },
+      "2B": {
+        "secondsToSavedAfterSubmission": 13.666634,
+        "primerSeconds": 16.377231,
+        "secondsFromProvisionToSaved": 82.627158,
+        "cachedEmployeePromptTokens": 3
+      },
+      "2C": {
+        "secondsToSavedAfterSubmission": 15.173314,
+        "primerSeconds": 17.226358,
+        "secondsFromProvisionToSaved": 85.479972,
+        "cachedEmployeePromptTokens": 1208
+      },
+      "3A": {
+        "secondsToSavedAfterSubmission": 34.844528,
+        "primerSeconds": 0,
+        "secondsFromProvisionToSaved": 87.634882,
+        "cachedEmployeePromptTokens": 0
+      },
+      "3B": {
+        "secondsToSavedAfterSubmission": 15.194603,
+        "primerSeconds": 16.75985,
+        "secondsFromProvisionToSaved": 84.755102,
+        "cachedEmployeePromptTokens": 3
+      },
+      "3C": {
+        "secondsToSavedAfterSubmission": 16.693595,
+        "primerSeconds": 18.088633,
+        "secondsFromProvisionToSaved": 88.457955,
+        "cachedEmployeePromptTokens": 1208
+      }
+    },
+    "timelyCorrect": 9,
+    "assigned": 9,
+    "medianEmployeeGainVsPreloadSeconds": 13.612295,
+    "medianEmployeeGainVsUnrelatedSeconds": -1.504115,
+    "medianTotalGainVsPreloadSeconds": -1.031437,
+    "scopedPrimerRecommended": false,
+    "calls": {
+      "renderOnly": 9,
+      "primers": 6,
+      "employee": 9
+    },
+    "viewerReadsPassed": 204
+  },
+  "packagedBrowserRetry": {
+    "kitSha256": "2cad216eedc3bb04cd5fcd311a37e5e2b1439455e558c91a4178427f7e722a1d",
+    "shells": {
+      "legacy": {
+        "controlledProviderResponses": [
+          504,
+          200
+        ],
+        "visibleButtonClicks": 1,
+        "savedCount": 19,
+        "chats": 1,
+        "messages": 3,
+        "sameOriginalInputVerified": true,
+        "foreignProviderDetailRedacted": true
+      },
+      "opal": {
+        "controlledProviderResponses": [
+          504,
+          200
+        ],
+        "visibleButtonClicks": 1,
+        "savedCount": 19,
+        "chats": 1,
+        "messages": 3,
+        "sameOriginalInputVerified": true,
+        "foreignProviderDetailRedacted": true
+      }
+    }
+  },
+  "researchReadback": {
+    "experimentalSource": "d4cc0af81e95c1dbbc1cd18b3671b77f8364721a",
+    "provider": "controlled synthetic SQL",
+    "realModelCalls": 0,
+    "foreignDenials": 6,
+    "missingObjectControls": 6,
+    "altersPreviousStudy": false,
+    "adopted": false
+  },
+  "hostedExport": {
+    "main": "1da8b352781f0713f82c9363847d7c611c3f138e",
+    "run": 44608655794,
+    "successfulRetryJob": 135871757422,
+    "matchedAssertions": 89,
+    "servedAssetsPerScenario": 26,
+    "scenarios": 8
+  },
+  "receiptsSha256": {
+    "presenterTotals": "35444b85e4e27d159beef5bf187c0fb4593c217e7f56799ea6e2be2102cf7826",
+    "selectedPackage": "d73ab48de46be6db7a11d5820a4f57e051df2e4ce5726e33538cb017ffe9a352",
+    "visibleRetryLegacy": "64545dd1d022289e7e46811f30e0dc6ea77aaf5404fd24ed6c453844771fcf07",
+    "visibleRetryOpal": "20403f76396db261eeab2d8789340bca9ca08a477e4b8769a6041ffd258c778e",
+    "separateReadbackRehearsal": "4f02ef2d75b1d484ee78dd4ebd33b6352226b18ee3b48009ea7eeb2864f35d4b",
+    "hostedExportRetry": "35522a91525162990d144525a11a20ff2ed6b6d3da2a70db5c9d6b6186426cad"
+  }
+}

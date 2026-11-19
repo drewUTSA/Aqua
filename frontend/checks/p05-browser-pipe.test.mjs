@@ -69,14 +69,24 @@ test("cold startup gets one bounded allowance; later commands retain seven secon
 
 test("stalled startup fails at thirty seconds and cleanup never reuses the timed-out pipe", async (t) => {
   t.mock.timers.enable({ apis: ["setTimeout"] });
-  const { client, requests } = fixture(t);
+  const { child, client, requests } = fixture(t);
+  let acknowledge;
+  const write = child.stdio[3].write.bind(child.stdio[3]);
+  child.stdio[3].write = (frame, callback) => { acknowledge = callback; return write(frame); };
   const failure = assert.rejects(client.ready(), { message: "browser_protocol_deadline" });
   t.mock.timers.tick(29999); assert.equal(client.failure, null);
   t.mock.timers.tick(1); await failure;
   assert.equal(client.diagnostic.stage, "browser_startup");
   assert.equal(client.diagnostic.method, "Browser.getVersion");
   assert.equal(client.diagnostic.timeout_ms, 30000);
+  const snapshot = client.startupObservation();
+  assert.ok(Number.isInteger(snapshot.write_started_ms));
+  assert.equal(snapshot.write_outcome, null);
+  assert.equal(snapshot.first_pipe_bytes_ms, null);
+  assert.equal(snapshot.version_reply_ms, null);
   assert.equal(await client.stop(), true);
+  acknowledge();
+  assert.deepEqual(client.startupObservation(), snapshot);
   await assert.rejects(client.send("Browser.close"), { message: "browser_protocol_deadline" });
   assert.equal(requests.length, 1);
 });
@@ -87,6 +97,55 @@ test("startup allowance cannot extend the remaining overall suite deadline", asy
   const failure = assert.rejects(client.ready(), { message: "browser_protocol_deadline" });
   t.mock.timers.tick(1000); await failure;
   assert.ok(client.diagnostic.timeout_ms > 0 && client.diagnostic.timeout_ms <= 1000);
+});
+
+test("startup records the first write acknowledgment, first pipe bytes and version reply independently", async (t) => {
+  const { child, client } = fixture(t);
+  let written;
+  child.stdio[3].write = (_frame, callback) => { written = callback; return true; };
+  child.emit("spawn");
+  const ready = client.ready();
+  assert.equal(client.startupObservation().write_outcome, null);
+  written();
+  assert.equal(client.startupObservation().write_outcome, "callback_ok");
+  assert.equal(client.startupObservation().first_pipe_bytes_ms, null);
+  const reply = encode({ id: 1, result: { product: CANARY } });
+  child.stdio[4].write(reply.subarray(0, 1));
+  const partial = client.startupObservation();
+  assert.ok(Number.isInteger(partial.first_pipe_bytes_ms));
+  assert.equal(partial.version_reply_ms, null);
+  child.stdio[4].write(reply.subarray(1));
+  assert.equal((await ready).product, CANARY);
+  const observed = client.startupObservation();
+  assert.deepEqual(Object.keys(observed).sort(), ["first_pipe_bytes_ms", "spawn_ms", "spawn_outcome",
+    "version_reply_ms", "write_finished_ms", "write_outcome", "write_started_ms"]);
+  assert.equal(observed.spawn_outcome, "spawned");
+  const times = [observed.spawn_ms, observed.write_started_ms, observed.write_finished_ms,
+    observed.first_pipe_bytes_ms, observed.version_reply_ms];
+  assert.ok(times.every((v, i) => Number.isInteger(v) && v >= 0 && v <= 240000 && (i === 0 || v >= times[i - 1])));
+  assert.equal(observed.first_pipe_bytes_ms, partial.first_pipe_bytes_ms);
+  assert.ok(!JSON.stringify(observed).includes(CANARY));
+});
+
+test("a failed first write retains only its fixed outcome through forced cleanup", async (t) => {
+  for (const outcome of ["callback_error", "write_threw"]) {
+    const { child, client } = fixture(t);
+    child.stdio[3].write = (_frame, callback) => {
+      if (outcome === "write_threw") throw Error(CANARY);
+      callback(Error(CANARY));
+    };
+    await assert.rejects(client.ready(), { message: "browser_pipe_closed" });
+    const observed = client.startupObservation();
+    assert.equal(observed.write_outcome, outcome);
+    assert.ok(Number.isInteger(observed.write_finished_ms));
+    assert.equal(observed.first_pipe_bytes_ms, null);
+    assert.equal(observed.version_reply_ms, null);
+    assert.ok(!JSON.stringify(observed).includes(CANARY));
+    await client.stop();
+    assert.equal(client.cleanupFailure, "browser_pipe_closed");
+    child.stdio[4].write(encode({ id: 1, result: {} }));
+    assert.deepEqual(client.startupObservation(), observed);
+  }
 });
 
 test("split and coalesced frames preserve request/session correlation and events", async (t) => {
@@ -144,6 +203,12 @@ test("write, read and spawn errors have fixed redacted diagnostics", async (t) =
     const failed = assert.rejects(client.ready(), { message: stream === "spawn" ? "browser_start_failed" : "browser_pipe_closed" });
     (stream === "spawn" ? child : child.stdio[stream === "write" ? 3 : 4]).emit("error", new Error(CANARY));
     await failed; assert.equal(JSON.stringify(client.diagnostic).includes(CANARY), false);
+    if (stream === "spawn") {
+      const observed = client.startupObservation();
+      assert.equal(observed.spawn_outcome, "error");
+      assert.ok(Number.isInteger(observed.spawn_ms));
+      assert.ok(!JSON.stringify(observed).includes(CANARY));
+    }
   }
 });
 
