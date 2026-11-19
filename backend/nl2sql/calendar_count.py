@@ -6,7 +6,6 @@ from datetime import date, timedelta
 from nl2sql.metadata_policy import BANK_TABLES
 from nl2sql.schema import Schema
 
-
 _MONTHS = (
     "january",
     "february",
