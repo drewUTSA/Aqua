@@ -311,8 +311,10 @@ class AnswerSize:
         return None
 
 
-def _number(text: str) -> int:
-    return int(text) if text.isdigit() else _NUMBER_WORDS[text]
+def requested_rows(text: str) -> int | None:
+    """Read one supported bounded cutoff without inferring a default."""
+    rows = int(text) if re.fullmatch(r"\d{1,4}", text) else _NUMBER_WORDS.get(text)
+    return rows if rows is not None and 1 <= rows <= MAX_REQUESTED_ROWS else None
 
 
 def _is_plural(word: str) -> bool:
@@ -343,8 +345,8 @@ def _requested_count(text: str) -> int | None:
     for pattern in _COUNT_PATTERNS:
         match = pattern.search(text)
         if match:
-            rows = _number(match.group(1))
-            if 1 <= rows <= MAX_REQUESTED_ROWS:
+            rows = requested_rows(match.group(1))
+            if rows is not None:
                 return rows
     return None
 
