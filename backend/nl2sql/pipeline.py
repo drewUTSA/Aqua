@@ -22,7 +22,7 @@ from nl2sql.answer_size import AnswerSize, answer_size
 from nl2sql.calendar_count import calendar_count_sql
 from nl2sql.config import Settings
 from nl2sql.errors import ContextDenied, RetrievalUnavailable, diagnostic
-from nl2sql.execute import DEFAULT_MAX_ROWS, QueryError, execute
+from nl2sql.execute import DEFAULT_MAX_ROWS, QueryError, execute, include_cutoff_peers
 from nl2sql.generate import Attempt, Example, Generation, generate_sql
 from nl2sql.schema import Schema
 from nl2sql.validate import UnsafeQueryError, validate_sql
@@ -171,6 +171,10 @@ def answer_question(
         try:
             stage("validating")
             query = validate_sql(generation.sql, allowed_tables=schema.allowed_tables)
+            if size.peers == "cutoff" and size.kind != "per_group":
+                revised = include_cutoff_peers(query, size.rows or 1)
+                if revised is not None:
+                    query = validate_sql(revised, allowed_tables=schema.allowed_tables)
             stage("executing")
             result = execute(query, settings, max_rows=max_rows)
         except UnsafeQueryError as exc:

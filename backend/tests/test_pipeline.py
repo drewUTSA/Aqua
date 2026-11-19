@@ -96,6 +96,27 @@ def test_success_returns_rows_and_provenance(monkeypatch: pytest.MonkeyPatch) ->
     assert answer.attempts == 1 and answer.used_retrieval is False
 
 
+@pytest.mark.parametrize(
+    ("question", "inclusive"),
+    [
+        ("Give the top two films by title length, including all ties.", True),
+        ("Give exactly the top two films by title length.", False),
+        ("Give the top two distinct lengths, including all ties.", False),
+        ("Give the top two films per category by title length, including ties.", False),
+    ],
+)
+def test_only_explicit_global_row_cutoffs_expand_in_the_normal_pipeline(
+    monkeypatch, question, inclusive
+):
+    sql = "SELECT film_id FROM film ORDER BY LENGTH(title) DESC LIMIT 2"
+    calls = fake_model(monkeypatch, sql)
+    executed = fake_database(monkeypatch, OK)
+    answer = answer_question(question, SETTINGS, SCHEMA)
+    assert len(calls) == len(executed) == answer.attempts == 1
+    assert "public.film" in executed[0]
+    assert ("WITH TIES" in executed[0]) == inclusive
+
+
 def test_without_retrieval_the_model_sees_every_table(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

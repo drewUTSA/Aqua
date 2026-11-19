@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
+from typing import Literal
 
 # Rows for a plural ranking question that gives no number.
 DEFAULT_LIST_ROWS = 10
@@ -107,6 +108,35 @@ _COUNT_PATTERNS = [
 ]
 _ALL = re.compile(r"\b(?:all|every)\b")
 _TIED_PEERS = re.compile(r"\b(?:all|every)\s+(?:of\s+the\s+|the\s+)?(?:ties?\b|tied\b)")
+_EXTREMUM = rf"(?:{_RANKING}|minimum|maximum|first place|last place|lead)"
+_AT_EXTREME = rf"(?:the\s+)?{_EXTREMUM}\b"
+_PEER_EXTREME = re.compile(
+    rf"\b(?:tied? for|ties for|share|shares|sharing|shared|jointly hold)\s+{_AT_EXTREME}"
+)
+_ALL_AT_EXTREME = re.compile(
+    rf"\b(?:all|every)\s+(?:[\w'-]+\s+){{1,5}}(?:with|at|matching|reaching|having)\s+"
+    rf"(?!(?:the\s+)?(?:top|bottom)\b){_AT_EXTREME}"
+)
+_KEEP_PEERS = re.compile(
+    r"\b(?:includ(?:e|ing)|keep|retain|return|show|list|with)\s+"
+    r"(?:(?:all|any|every|the)\s+)?(?:ties\b|tied\s+[\w'-]+)"
+)
+_HARD_CUTOFF = re.compile(
+    rf"\b(?:exactly|only|at most|no more than)\s+(?:(?:the\s+)?(?:top|bottom|first|last)\s+)?{_NUMBER}\b"
+    r"|\b(?:break(?:ing)?|exclude|excluding|ignore|ignoring|without|no)\s+(?:all\s+|any\s+)?ties\b"
+    r"|\b(?:do not|don't|never)\s+(?:include|keep|show|return|list|retain)\s+(?:all\s+|any\s+)?ties\b"
+    r"|\b(?:one|a single) winner\b|\b(?:not|isn't|aren't|weren't) tied\b"
+    r"|\b(?:strict (?:cap|limit)|strictly (?:limit|at most)|limit (?:the )?(?:result\w* |output )?to)\b"
+)
+_DISTINCT_RANKS = re.compile(
+    r"\b(?:distinct|different)\s+(?:(?!(?:and|by|for|of|with)\b)[\w'-]+\s+){0,2}"
+    r"(?:ranks?|places?|levels?|values?|scores?|amounts?|totals?|balances?|prices?|rates?|"
+    r"lengths?|speeds?|times?|counts?|durations?|weights?|temperatures?)\b"
+)
+_DEFINITE_EXTREME = re.compile(
+    rf"\b(?:has|had|have|with|at|reached|recorded|achieved|earned)\s+the\s+"
+    rf"(?!top\b|bottom\b)(?:{_RANKING}|minimum|maximum)\b"
+)
 # "list customers by total spend", "show films ranked by rentals": a ranked
 # list without a ranking word. The measure must follow "by", so a grouping
 # like "rentals by store" is not mistaken for a ranking.
@@ -204,10 +234,26 @@ class AnswerSize:
 
     kind: str
     rows: int | None = None
+    # Only set when the employee explicitly requests peers at a ranked cutoff.
+    peers: Literal["cutoff", "distinct"] | None = None
 
     @property
     def instruction(self) -> str | None:
         """The line added to the prompt, or None for "open"."""
+        if self.peers:
+            rows = self.rows or 1
+            function = "DENSE_RANK" if self.peers == "distinct" else "RANK"
+            partition = (
+                "PARTITION BY the requested group " if self.kind == "per_group" else ""
+            )
+            return (
+                f"Answer size: include all ties. Compute {function}() OVER "
+                f"({partition}ORDER BY the requested ranking value) and keep ranks <= {rows}. "
+                "Use DESC for largest and ASC for smallest. Exclude NULL scores when ranking "
+                "known values. Apply secondary display order "
+                "after selection. Include the ranking value by default. "
+                f"{_OUTPUT_FIELDS}"
+            )
         if self.kind == "count":
             return (
                 f"Answer size: normally return exactly {self.rows} rows. If ranked, order by "
@@ -365,6 +411,35 @@ def answer_size(question: str) -> AnswerSize:
     # "at least once", "at most 3 days" are filters, not rankings.
     text = re.sub(r"\bat (?:least|most)\b", "at", text)
     ranking = _RANKING_WORD.search(text)
+
+    shared_extreme = _PEER_EXTREME.search(original) or _ALL_AT_EXTREME.search(original)
+    distinct_ranks = _DISTINCT_RANKS.search(original)
+    ambiguous_distinct = not distinct_ranks and re.search(
+        r"\b(?:distinct|different)\b", original
+    )
+    if (shared_extreme or _KEEP_PEERS.search(original)) and not (
+        _HARD_CUTOFF.search(original) or ambiguous_distinct
+    ):
+        # Displaying IDs within each tie does not partition the ranking by ID.
+        scope = re.sub(r"\b(?:within|for|in) each tie\b", "within the tie", original)
+        # All records in rank order have no cutoff, even if scores repeat.
+        all_rows = _ALL.search(_TIED_PEERS.sub(" ", text))
+        if (ranking or shared_extreme or _RANKED_BY.search(text)) and (
+            count or shared_extreme or not all_rows
+        ):
+            grouped = _within_groups(scope, count)
+            if count:
+                kind, rows = "count", count
+            elif (
+                shared_extreme
+                or _DEFINITE_EXTREME.search(original)
+                or (ranking and _wants_one(text, ranking))
+            ):
+                kind, rows = "single", 1
+            else:
+                kind, rows = "list", DEFAULT_LIST_ROWS
+            peers = "distinct" if distinct_ranks else "cutoff"
+            return AnswerSize("per_group" if grouped else kind, rows, peers)
 
     if (count or ranking) and _within_groups(original, count):
         if count:

@@ -13,7 +13,13 @@ from nl2sql import execute as execute_module
 from nl2sql.config import Settings, load_settings
 from nl2sql.control import Budget, CURRENT, ExecutionStopped
 from nl2sql.db import DatabaseError
-from nl2sql.execute import DEFAULT_MAX_ROWS, QueryError, execute, limit_rows
+from nl2sql.execute import (
+    DEFAULT_MAX_ROWS,
+    QueryError,
+    execute,
+    include_cutoff_peers,
+    limit_rows,
+)
 from nl2sql.validate import UnsafeQueryError, validate_sql
 
 # ---- row limit (moved here from test_validate.py) ----
@@ -22,6 +28,44 @@ from nl2sql.validate import UnsafeQueryError, validate_sql
 def limited(sql: str, dialect: str = "postgres", max_rows: int = 1000) -> str:
     """Validate, apply the row limit, and return the SQL that would run."""
     return limit_rows(validate_sql(sql, dialect=dialect), max_rows).sql(dialect=dialect)
+
+
+@pytest.mark.parametrize("limit", ["LIMIT 2", "FETCH FIRST 2 ROWS ONLY"])
+@pytest.mark.parametrize(
+    "direction", ["ASC NULLS LAST", "DESC NULLS LAST", "DESC NULLS FIRST"]
+)
+def test_simple_cutoff_can_retain_peers_without_changing_projection_or_order(
+    limit, direction
+):
+    original = validate_sql(
+        f"SELECT site FROM scores WHERE points IS NOT NULL ORDER BY points {direction} {limit}",
+        allowed_tables={"scores"},
+    )
+    revised = include_cutoff_peers(original, 2)
+    validated = validate_sql(revised, allowed_tables={"scores"})
+    assert validated.sql(dialect="postgres").endswith("FETCH FIRST 2 ROWS WITH TIES")
+    assert original.args["order"] == validated.args["order"]
+    assert original.expressions == validated.expressions
+    assert original.args["where"] == validated.args["where"]
+    assert "WITH TIES" not in original.sql(dialect="postgres")
+
+
+@pytest.mark.parametrize(
+    "sql",
+    [
+        "SELECT site FROM scores LIMIT 2",
+        "SELECT site FROM scores ORDER BY points",
+        "SELECT site FROM scores ORDER BY points, site LIMIT 2",
+        "SELECT site FROM scores ORDER BY points LIMIT 2 OFFSET 1",
+        "SELECT site FROM scores ORDER BY points LIMIT 3",
+        "SELECT site FROM scores ORDER BY points FETCH FIRST 2 ROWS WITH TIES",
+        "SELECT site FROM (SELECT site, points FROM scores ORDER BY points LIMIT 5) sub ORDER BY points LIMIT 2",
+        "SELECT site, RANK() OVER (PARTITION BY league ORDER BY points) AS place FROM scores ORDER BY place LIMIT 2",
+        "SELECT site FROM scores UNION SELECT site FROM scores ORDER BY site LIMIT 2",
+    ],
+)
+def test_cutoff_does_not_guess_when_membership_is_ambiguous_or_already_inclusive(sql):
+    assert include_cutoff_peers(validate_sql(sql, allowed_tables={"scores"}), 2) is None
 
 
 @pytest.mark.parametrize(
