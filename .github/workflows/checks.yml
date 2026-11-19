@@ -252,7 +252,7 @@ jobs:
         run: |
           export AQUA_CHROME_EXECUTABLE="$(command -v google-chrome)"
           test -x "$AQUA_CHROME_EXECUTABLE"
-          for journey in optional-settings optional-prompts projects-initial-failure prompts-initial-failure settings-search composer-layout public-routes companion-tools bank-demo result-companion context-notes; do
+          for journey in optional-settings optional-prompts projects-initial-failure prompts-initial-failure settings-search composer-layout public-routes companion-tools bank-demo result-companion context-notes rank-groups; do
             export AQUA_P05_ARTIFACT_DIR="${{ runner.temp }}/aqua-p05/opal/reliability/$journey"
             JOURNEY="$journey" node --input-type=module -e "await import('./checks/p05-browser.mjs?journey=' + process.env.JOURNEY)"
           done
@@ -384,7 +384,7 @@ jobs:
           test -x "$AQUA_CHROME_EXECUTABLE"
           export AQUA_P05_ARTIFACT_DIR="${{ runner.temp }}/aqua-p05/legacy/synthetic"
           node frontend/checks/p05-browser.mjs
-          for journey in optional-settings optional-prompts projects-initial-failure prompts-initial-failure settings-search composer-layout public-routes companion-tools bank-demo result-companion context-notes; do
+          for journey in optional-settings optional-prompts projects-initial-failure prompts-initial-failure settings-search composer-layout public-routes companion-tools bank-demo result-companion context-notes rank-groups; do
             export AQUA_P05_ARTIFACT_DIR="${{ runner.temp }}/aqua-p05/legacy/reliability/$journey"
             JOURNEY="$journey" node --input-type=module -e "await import('./frontend/checks/p05-browser.mjs?journey=' + process.env.JOURNEY)"
           done

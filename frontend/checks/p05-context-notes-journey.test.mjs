@@ -31,7 +31,7 @@ test("notes journey is explicit and isolated with all canonical resource and fai
   assert.match(source, /const NOTES_ONLY=JOURNEY==="context-notes";/);
   assert.match(source, /const notesFixture = NOTES_ONLY \? installContextNotesFixture\(fixture\) : null;/);
   assert.match(source, /if\(NOTES_ONLY\)contextNotesJourney=await runContextNotesChecks/);
-  assert.match(source, /if\(!NOTES_ONLY\)\s+if\(!NOTICE_ONLY&&!RELIABILITY_ONLY&&!COMPANION_ONLY&&!BANK_ONLY&&!RESULT_ONLY\)/);
+  assert.match(source, /if \(JOURNEY === null\) \{/);
   for (const threshold of [/assert\.equal\(consoleLeaks,0\)/, /assert\.equal\(runtimeErrors,0\)/, /assert\.equal\(protocolFailures\.length,0\)/, /assert\.equal\(external\.length,0\)/]) assert.match(source, threshold);
   assert.match(source, /NOTES_ONLY && notesFixture\.blockChunk/);
   assert.match(source, /if \(NOTES_ONLY\) notesFixture\.chunkDenials\+\+;/);

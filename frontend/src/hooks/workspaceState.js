@@ -9,6 +9,12 @@ export function initialWorkspace() {
   const conversation = emptyConversation();
   return { activeId: conversation.id, records: { [conversation.id]: conversation }, deletedChatIds: [], notice: "", loading: false };
 }
+export function applyEmptyChatDraft(state, id, value) {
+  const record = state.records[id];
+  if (!id?.startsWith("draft-") || state.activeId !== id || !record || record.draft !== "" || record.operation
+    || record.messages.length || record.messageCount || record.historyLoading || record.archived) return state;
+  return changeRecord(state, id, item => ({ ...item, draft: value }));
+}
 export function mergeMessages(previous, incoming) {
   const byId = new Map(previous.map((message) => [message.id, message]));
   incoming.forEach((message) => byId.set(message.id, message));

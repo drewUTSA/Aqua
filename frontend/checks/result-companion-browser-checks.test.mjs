@@ -20,5 +20,5 @@ test("new journey is an explicit isolated branch with the retained shared resour
   assert.match(source, /RESULT_ONLY=JOURNEY==="result-companion"/);
   assert.match(source, /const resultFixture = RESULT_ONLY \? installResultCompanionFixture\(fixture\) : null;/);
   assert.match(source, /if\(RESULT_ONLY\)resultCompanionJourney=await runResultCompanionChecks/);
-  assert.match(source, /if\(!NOTICE_ONLY&&!RELIABILITY_ONLY&&!COMPANION_ONLY&&!BANK_ONLY&&!RESULT_ONLY\)/);
+  assert.match(source, /if \(JOURNEY === null\) \{/);
 });

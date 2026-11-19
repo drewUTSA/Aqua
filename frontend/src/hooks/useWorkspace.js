@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { listModels, listMessages, submitQuestion, updateChat, deleteChat, operationId } from "../services/aquaClient.js";
-import { changeRecord, emptyConversation, failSubmission, finishHistory, finishSubmission, initialWorkspace, maskSavedResults, openConversation, removeConversation } from "./workspaceState.js";
+import { applyEmptyChatDraft, changeRecord, emptyConversation, failSubmission, finishHistory, finishSubmission, initialWorkspace, maskSavedResults, openConversation, removeConversation } from "./workspaceState.js";
 import { useWorkspaceLists } from "./useWorkspaceLists.js";
 import { useAnalysisRequests } from "./useAnalysisRequests.js";
 import { acceptAnalysis, progressAnalysis, activeAnalysis, analysisRequests } from "./workspaceAnalysisState.js";
@@ -137,6 +137,10 @@ export function useWorkspace({ canQuery, canReadResults = canQuery, csrfToken, o
     drafts: Object.values(state.records).filter((item) => item.draft.trim()),
     recoverableDrafts: Object.values(state.records).filter((item) => item.draft.trim() || item.operation),
     stop: () => requests.current.get(current.current.activeId)?.abort(),
+    applyEmptyDraft: (id, value) => {
+      if (access.current.canQuery && access.current.canReadResults && !access.current.suspended && typeof value === "string" && value.length <= 2000)
+        update(previous => applyEmptyChatDraft(previous, id, value));
+    },
     setDraft: (draft) => update((previous) => changeRecord(previous, previous.activeId, (item) => ({ ...item, draft: String(draft).slice(0, 2000) }))),
     refresh: () => { void loadMessages(current.current.activeId); void library.refreshChats(); },
     loadOlder: () => loadMessages(state.activeId, true), mutateChat,

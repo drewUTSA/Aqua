@@ -21,6 +21,7 @@ import { installBankDemoFixture } from "./bank-demo-browser-fixture.mjs";
 import { runResultCompanionChecks } from "./result-companion-browser-checks.mjs";
 import { installResultCompanionFixture } from "./result-companion-browser-fixture.mjs";
 import { runContextNotesChecks } from "./p05-context-notes-journey.mjs";
+import { rankGroupsJourney } from "./rank-groups-browser-checks.mjs";
 import { installContextNotesFixture } from "./p05-context-notes-fixture.mjs";
 import { RELIABILITY_JOURNEYS, reliabilityFault, optionalViewFailure, personalListRetry, settingsActionSearch, modifiedComposerShortcut, measureComposerFooters, publicRouteWalkthrough, PUBLIC_ROUTE_CASES } from "./workspace-reliability-browser.mjs";
 import { LOCAL_PATHS } from "../src/services/routes.js";
@@ -31,7 +32,8 @@ const MAX_MS = 240000, MAX_REQUESTS = 900, MAX_API = 320;
 const JOURNEY=new URL(import.meta.url).searchParams.get("journey");
 const NOTICE_ONLY=JOURNEY==="c-notices", RELIABILITY_ONLY=RELIABILITY_JOURNEYS.includes(JOURNEY), COMPANION_ONLY=JOURNEY==="companion-tools", BANK_ONLY=JOURNEY==="bank-demo", RESULT_ONLY=JOURNEY==="result-companion";
 const NOTES_ONLY=JOURNEY==="context-notes";
-if(JOURNEY!==null&&!NOTICE_ONLY&&!RELIABILITY_ONLY&&!COMPANION_ONLY&&!BANK_ONLY&&!RESULT_ONLY&&!NOTES_ONLY)throw Error("browser_journey_invalid");
+const RANK_ONLY=JOURNEY==="rank-groups";
+if(JOURNEY!==null&&!NOTICE_ONLY&&!RELIABILITY_ONLY&&!COMPANION_ONLY&&!BANK_ONLY&&!RESULT_ONLY&&!NOTES_ONLY&&!RANK_ONLY)throw Error("browser_journey_invalid");
 const started = performance.now();
 const frontend = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 function configuredPath(name, fallback) {
@@ -271,8 +273,7 @@ try {
     });
   };
   await preparePage();
-  if(!NOTES_ONLY)
-  if(!NOTICE_ONLY&&!RELIABILITY_ONLY&&!COMPANION_ONLY&&!BANK_ONLY&&!RESULT_ONLY){
+  if (JOURNEY === null) {
   await viewport(1440, 900); await navigate();
   await waitFor("Boolean(document.querySelector('[data-testid=fixture-google-button]'))", "google_fixture_ready");
   await assertLoginDelivery(check); performanceSamples.push(await capturePerformance(evaluate, "desktop-signin"));
@@ -612,6 +613,7 @@ try {
   if(BANK_ONLY)bankDemoJourney=await runBankDemoChecks({check,click,clickText,fill,key,waitFor,evaluate,navigate,signIn,viewport,screenshot,fixture},{emailA:EMAIL_A,emailB:EMAIL_B,help:companionFixture,bank:bankFixture});
   if(RESULT_ONLY)resultCompanionJourney=await runResultCompanionChecks({check,click,clickText,fill,key,waitFor,evaluate,navigate,signIn,viewport,screenshot,fixture},{emailA:EMAIL_A,emailB:EMAIL_B,result:resultFixture});
   if(NOTES_ONLY)contextNotesJourney=await runContextNotesChecks({check,click,clickText,fill,key,waitFor,evaluate,navigate,signIn,viewport,screenshot,fixture},{emailA:EMAIL_A,emailB:EMAIL_B,notes:notesFixture});
+  if(RANK_ONLY)await rankGroupsJourney({check,click,fill,key,waitFor,evaluate,navigate,signIn,viewport,fixture});
   assert.equal(fixture.forbiddenCalls,0);assert.equal(consoleLeaks,0);assert.equal(runtimeErrors,0);assert.equal(protocolFailures.length,0);assert.equal(external.length,0);assert.ok(apiRequests<=MAX_API&&requestCount<=MAX_REQUESTS&&performance.now()-started<=MAX_MS);
   await writeFile(path.join(artifacts, "browser-version.json"), JSON.stringify({ browser: version.product }, null, 2) + "\n");
   await writeFile(path.join(artifacts, "font-diagnostics.json"), JSON.stringify(fonts, null, 2) + "\n");
@@ -642,6 +644,7 @@ const report = { status: failure ? "failed" : "passed", failure, failureLayout, 
   bank_demo_journey:bankDemoJourney,
   ...(RESULT_ONLY?{result_companion_journey:resultCompanionJourney}:{}),
   ...(NOTES_ONLY?{context_notes_journey:contextNotesJourney}:{}),
+  ...(RANK_ONLY?{journey:"rank-groups"}:{}),
   ...(BANK_ONLY?{bank_demo_geometry:bankFixture.geometry}:{}),
   cleanup: cleanup ? "browser_stopped_loopback_closed_temporary_profile_removed" : "failed",
   elapsed_seconds: Math.round((performance.now() - started) / 10) / 100,

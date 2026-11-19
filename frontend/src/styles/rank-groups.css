@@ -1,0 +1,17 @@
+.rank-groups { margin: 4px; color: var(--pref-text); }
+.rank-groups > summary { width: fit-content; min-height: 44px; padding: 10px 6px; cursor: pointer; color: var(--pref-accent); font-weight: 600; }
+.rank-groups__form { display: grid; gap: 14px; padding: 16px; border: 1px solid var(--pref-border); border-radius: 14px; background: var(--pref-panel); }
+.rank-groups__form p { margin: 0; color: var(--pref-muted); line-height: 1.45; }
+.rank-groups__fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); gap: 12px; }
+.rank-groups__fields label { display: grid; align-content: start; min-width: 0; gap: 4px; }
+.rank-groups__name { min-width: 0; }
+.rank-groups__fields :is(input, select), .rank-groups__form button { min-width: 0; min-height: 44px; border: 1px solid var(--pref-border); border-radius: 8px; padding: 7px 9px; color: var(--pref-text); background: var(--pref-raised); font: inherit; }
+.rank-groups__fields small { color: var(--pref-danger); }
+.rank-groups__form .rank-groups__preview { color: var(--pref-text); overflow-wrap: anywhere; }
+.rank-groups__preview strong { display: block; }
+.rank-groups__form button { justify-self: start; padding-inline: 16px; cursor: pointer; }
+.rank-groups__form button:disabled { opacity: .65; cursor: default; }
+.opal-workspace[data-theme] .opal-chat:has(.rank-groups[open]) { justify-content: flex-start; overflow-y: auto; }
+@media (forced-colors: active) {
+  .rank-groups__form, .rank-groups__fields :is(input, select), .rank-groups__form button { border-color: ButtonText; }
+}
