@@ -26,6 +26,11 @@ test('a failed startup stays red even when the actual owned child exits and clos
   assert.equal(report.browser.signal_sent, true);
   assert.equal(report.browser.child_exit_observed, true);
   assert.equal(report.browser.stdio_close_observed, true);
+  assert.equal(report.browser_startup.spawn_outcome, 'spawned');
+  assert.ok(Number.isInteger(report.browser_startup.spawn_ms));
+  assert.ok(Number.isInteger(report.browser_startup.write_started_ms));
+  assert.equal(report.browser_startup.first_pipe_bytes_ms, null);
+  assert.equal(report.browser_startup.version_reply_ms, null);
   assert.equal(report.cleanup.browser_stopped, false);
 });
 

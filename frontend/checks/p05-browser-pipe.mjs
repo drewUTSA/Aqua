@@ -26,6 +26,14 @@ const REASONS = new Set(["browser_closed", "browser_start_failed", "browser_pipe
   "browser_protocol_pending_bound", "browser_protocol_method_rejected", "browser_event_failed"]);
 
 export class BrowserPipe {
+  // Timings start when the private transport is attached and saturate at four minutes.
+  // A completed write and the first pipe bytes are separate from a correlated reply.
+  #attachedAt = performance.now();
+  #startup = { spawn_outcome: null, spawn_ms: null, write_started_ms: null, write_outcome: null,
+    write_finished_ms: null, first_pipe_bytes_ms: null, version_reply_ms: null };
+  #elapsed() { return Math.min(240000, Math.max(0, Math.round(performance.now() - this.#attachedAt))); }
+  startupObservation() { return { ...this.#startup }; }
+
   constructor(child, { session = () => null, deadline = performance.now() + 240000, startupMs = 30000, commandMs = 7000 } = {}) {
     if (![deadline, startupMs, commandMs].every(Number.isFinite) || startupMs <= 0 || startupMs > 30000 || commandMs <= 0 || commandMs > 7000) throw new Error("browser_deadline_invalid");
     this.child = child; this.session = session; this.deadline = deadline; this.startupMs = startupMs; this.commandMs = commandMs;
@@ -40,7 +48,15 @@ export class BrowserPipe {
     }));
     // Exit alone is not a pipe boundary: the final response can still be buffered.
     child.once("exit", () => { this.stopped = true; });
-    child.once("error", () => this.fail("browser_start_failed"));
+    child.once("spawn", () => {
+      if (!this.failure) { this.#startup.spawn_outcome = "spawned"; this.#startup.spawn_ms = this.#elapsed(); }
+    });
+    child.once("error", () => {
+      if (!this.#startup.spawn_outcome && !this.failure) {
+        this.#startup.spawn_outcome = "error"; this.#startup.spawn_ms = this.#elapsed();
+      }
+      this.fail("browser_start_failed");
+    });
     child.stdio[3].on("error", () => this.fail("browser_pipe_closed"));
     child.stdio[4].on("error", () => this.fail("browser_pipe_closed"));
     child.stdio[4].on("end", () => {
@@ -79,6 +95,7 @@ export class BrowserPipe {
   }
   receive(chunk) {
     if (this.failure) return;
+    if (chunk.length && this.#startup.first_pipe_bytes_ms === null) this.#startup.first_pipe_bytes_ms = this.#elapsed();
     this.buffer = Buffer.concat([this.buffer, chunk]);
     let end;
     while ((end = this.buffer.indexOf(0)) !== -1) {
@@ -108,7 +125,10 @@ export class BrowserPipe {
           error.shutdownSessionMissing = shutdownSessionMissing;
           error.browserDiagnostic = { ...this.describe("browser_protocol_failed", task), protocol_reason: error.protocolReason };
           task.reject(error);
-        } else task.resolve(message.result);
+        } else {
+          if (task.stage === "browser_startup") this.#startup.version_reply_ms = this.#elapsed();
+          task.resolve(message.result);
+        }
       } else {
         if (typeof message.method !== "string" || message.method.length > 128 || !/^[A-Za-z]+\.[A-Za-z]+$/.test(message.method)
           || (Object.hasOwn(message, "params") && !record(message.params))) return this.invalidFrame("event_shape");
@@ -146,8 +166,19 @@ export class BrowserPipe {
       try {
         const frame = JSON.stringify({ id, method, params, ...(target ? { sessionId: target } : {}) });
         if (Buffer.byteLength(frame) > MAX_FRAME) return this.fail("browser_protocol_frame_bound", task);
-        this.child.stdio[3].write(frame + "\0", (error) => { if (error) this.fail("browser_pipe_closed", task); });
-      } catch { this.fail("browser_pipe_closed", task); }
+        if (stage === "browser_startup") this.#startup.write_started_ms = this.#elapsed();
+        this.child.stdio[3].write(frame + "\0", (error) => {
+          if (stage === "browser_startup" && !this.failure) {
+            this.#startup.write_outcome = error ? "callback_error" : "callback_ok"; this.#startup.write_finished_ms = this.#elapsed();
+          }
+          if (error) this.fail("browser_pipe_closed", task);
+        });
+      } catch {
+        if (stage === "browser_startup" && this.#startup.write_started_ms !== null && !this.failure) {
+          this.#startup.write_outcome = "write_threw"; this.#startup.write_finished_ms = this.#elapsed();
+        }
+        this.fail("browser_pipe_closed", task);
+      }
     });
   }
   async stop() {
