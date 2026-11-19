@@ -2,6 +2,8 @@
 
 ## November 19 local recovery and live status
 
+For the revised table toolbar, the current private rehearsal kit combines the two verified backend images below with updated Opal and Legacy images. Its ZIP is 133,822,813 bytes and SHA-256 `a0e6a098331620be615403d69bc31869def30c898f9a5cf094af67b5bd09e73f`. A fresh offline extraction verified all four images. The previous frontend kit remains a historical comparison. [Updated image identities](evidence/p11bc/toolbar-rehearsal-20261119.json)
+
 The synthetic schema 10 application rehearsal covers four successive version pairs in all eight fallback and return directions. The latest two backend images were saved together. Both started from root filesystems reconstructed from the archive and reproduced the previously measured 242 application files, 50 installed Python packages, 17 fictional reports, saved-result fact cards and private-note behavior. Offline verification rejected a damaged shared layer and a truncated archive. The archive is held on one PC. [Artifact identities and measurements](evidence/p11bc/local-rehearsal-20261119.json)
 
 A separate synthetic exercise verified three signed checkpoints. All eleven comparisons behaved as expected across two runs. An older archive still matched its own signature but failed when checked against the newer checkpoint. A missing or mismatched checkpoint also failed. The exercise used public fixture keys and a simulated dump.

@@ -1,5 +1,7 @@
 ## November 19 restart point
 
+The November 19 follow-up adds a dedicated synthetic sales database and corrects the narrow table toolbar. The two published presenter questions returned the expected count of 3 and chart rows of 750 and 250 through the signed-in application. On a separate 66-row ledger, all eight fresh questions and both prespecified repeats returned correct saved answers within 45 seconds. Production was observed on schema 8. The source, local rehearsal and live rollout have separate evidence. [Prepare the walkthrough](docs/implementation/SALES_DEMO_20261118.md) · [Current frontend rehearsal](docs/implementation/P13_PROGRESS.md) · [Recovery status](docs/implementation/P11_PROGRESS.md)
+
 **The synthetic employee demo met its local analytics target.** Through PR 93, Aqua returned 18 of 20 fresh answers correctly within 45 seconds while two other signed-in employees read their own saved work. The tested source at `3058f951` and merged main at `1cfbe2c` share the same Git tree. Main passed all 15 hosted checks. P00–P10 are complete. P11–P13 retain the operational release gates below. The November 18 production observation recorded `9aeaf4e` on schema 8. [PR 93](https://github.com/drewUTSA/Aqua/pull/93) · [Main CI](https://github.com/drewUTSA/Aqua/actions/runs/44408656430) · [Local workload results](docs/implementation/P12_PROGRESS.md#three-person-demo-acceptance)
 
 | Status | Employee or operator capability | Evidence and scope |
