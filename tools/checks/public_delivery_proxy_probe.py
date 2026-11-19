@@ -124,6 +124,7 @@ def probe(paths, recovery_sha256):
         "/missing.js",
         "/unknown-resource?source=synthetic",
         "/404.html",
+        "/50x.html",
     ):
         status, kind, body = get(
             path,
@@ -151,6 +152,11 @@ def probe(paths, recovery_sha256):
     status, kind, body = get("/api/ready", isolated=True)
     assert status == 404 and kind.startswith("application/json"), "readiness_exposed"
     assert body == b'{"detail":"Not found"}', "readiness_body_changed"
+    # No upstream runs in this isolated fixture. Preserve a real gateway failure.
+    status, _, body = get("/api/health", isolated=True)
+    assert (
+        status == 502 and hashlib.sha256(body).hexdigest() != recovery_sha256
+    ), "upstream_failure_rewritten"
     assert len(policy_hashes) == 1 and policy_responses > 0, "document_csp_inconsistent"
     return {
         "status": "passed",
