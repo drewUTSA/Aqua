@@ -3,6 +3,7 @@ from dataclasses import replace
 from unittest.mock import Mock
 
 import pytest
+from sqlglot import exp
 
 from nl2sql import pipeline
 from nl2sql.config import Settings
@@ -39,7 +40,7 @@ def catalog():
             t: Table(
                 t,
                 tuple(Column(k, v, False) for k, v in columns.get(t, {}).items()),
-                (),
+                (f'PRIMARY KEY ("{t}_id")',),
                 frozenset(),
             )
             for t in BANK_TABLES
@@ -122,17 +123,26 @@ def catalog():
             "DESC",
             1,
         ),
+        (
+            "Show every loan with the largest monthly payment. Return only account ID.",
+            "loan",
+            "account_id",
+            "payments",
+            "DESC",
+            1,
+        ),
     ],
 )
 def test_complete_explicit_rank(question, table, output, score, order, rows, catalog):
     sql = ranked_rows_sql(question, catalog, tuple(BANK_TABLES))
-    assert sql == (
-        f"SELECT {output} FROM {table} WHERE {score} IS NOT NULL ORDER BY {score} {order} "
-        f"FETCH FIRST {rows} ROWS WITH TIES"
+    assert sql.startswith(f"SELECT {output} FROM (SELECT ")
+    assert sql.endswith(
+        f"FROM {table} WHERE {score} IS NOT NULL ORDER BY {score} {order} "
+        f"FETCH FIRST {rows} ROWS WITH TIES) AS ranked ORDER BY {score} {order}, {table}_id ASC"
     )
-    assert f"public.{table}" in validate_sql(
-        sql, allowed_tables=catalog.allowed_tables
-    ).sql(dialect="postgres")
+    query = validate_sql(sql, allowed_tables=catalog.allowed_tables)
+    assert query.named_selects == output.split(", ")
+    assert all(t.db == "public" and t.name == table for t in query.find_all(exp.Table))
 
 
 @pytest.mark.parametrize(
@@ -190,6 +200,18 @@ def test_schema_and_retrieved_field_checks(catalog, column, bad_type):
         ),
     ):
         changed = Schema({**catalog.tables, "loan": replace(loan, columns=update)})
+        assert ranked_rows_sql(question, changed, ("loan",)) is None
+
+
+def test_deterministic_display_requires_scoped_unique_integer_identifier(catalog):
+    question = "Which loans share the maximum amount? Return only the loan date."
+    loan = catalog.tables["loan"]
+    for update in (
+        replace(loan, constraints=()),
+        replace(loan, constraints=("PRIMARY KEY (loan_id, account_id)",)),
+        replace(loan, columns=tuple(c for c in loan.columns if c.name != "loan_id")),
+    ):
+        changed = Schema({**catalog.tables, "loan": update})
         assert ranked_rows_sql(question, changed, ("loan",)) is None
 
 

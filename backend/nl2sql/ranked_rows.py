@@ -130,13 +130,23 @@ def ranked_rows_sql(
             columns.append(column)
         if named_id and _IDS[table] not in columns:
             return None
-    catalog = {c.name: c.type for c in schema.tables[table].columns}
-    if not all(_typed_field(c, catalog.get(c, "")) for c in [*columns, metric]):
+    relation = schema.tables[table]
+    identifier = _IDS[table]
+    key_forms = {f"PRIMARY KEY ({identifier})", f'PRIMARY KEY ("{identifier}")'}
+    if key_forms.isdisjoint(relation.constraints):
+        return None
+    catalog = {c.name: c.type for c in relation.columns}
+    inner_columns = list(dict.fromkeys([*columns, metric, identifier]))
+    if not all(_typed_field(c, catalog.get(c, "")) for c in inner_columns):
         return None
     direction = (
         "DESC" if match["end"] in {"top", "highest", "largest", "maximum"} else "ASC"
     )
+    # The primary key orders the display only. Adding it to the inner ranking
+    # would remove peers. Neither the key nor the score is added to the output.
     return (
-        f"SELECT {', '.join(columns)} FROM {table} WHERE {metric} IS NOT NULL "
-        f"ORDER BY {metric} {direction} FETCH FIRST {rows} ROWS WITH TIES"
+        f"SELECT {', '.join(columns)} FROM (SELECT {', '.join(inner_columns)} "
+        f"FROM {table} WHERE {metric} IS NOT NULL ORDER BY {metric} {direction} "
+        f"FETCH FIRST {rows} ROWS WITH TIES) AS ranked "
+        f"ORDER BY {metric} {direction}, {identifier} ASC"
     )
