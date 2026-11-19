@@ -1,5 +1,13 @@
 # P12 capacity and AI reliability — implementation in progress
 
+## Employee timeout and retry
+
+Aqua tells an employee when the model failed to answer in time. When the final provider attempt reaches a read timeout or returns HTTP 504, Aqua produces the retryable `model_timeout` response. An ordinary provider outage retains the existing retryable `model_unavailable` response. The configured deadline and fallback policy still apply.
+
+In an isolated signed-in rehearsal, a real HTTP connection to a synthetic provider accepted an employee request and withheld the reply. The signed-in employee API returned the timeout in private history after 46.63 seconds. Calling the endpoint used by **Try again** on the original input saved the correct count of 267 in 1.03 seconds once the fixture could answer. Replaying the completed retry made no extra model call. Separate gateway 504 and service 503 responses produced the intended distinct messages. [Verification](evidence/p12/employee-timeout-20261119.json)
+
+On a separate 141-record fictional ledger, the selected ranking source and an experimental grouped-query change each made 12 real Qwen3 8B calls. Each version returned six correct answers, five within 45 seconds. Among six grouped ties, each returned one correct answer on time, one correct answer late, one incorrect answer and three provider timeouts. All nine paired saved answers had identical SQL and result hashes. Across both viewers, all 366 baseline reads and all 369 experimental reads passed. The proposed change stayed out of the application. Four brief CPU-only tasks may have overlapped the first seven baseline questions. An optional SQL inspection failed after scoring. These runs establish the employee-visible outcomes and do not establish a speed gain.
+
 ## Fresh ranking and timing comparison on November 19
 
 One presenter asked the same 16 questions against the same 131-row fictional ledger on main `6ee361f` and candidate `0472139`. Two other signed-in employees read their own history. A correct answer had to match the expected table and appear in its owner's saved history within 45 seconds. Python, SQLite and the restricted PostgreSQL reader agreed on the expected answers. [Candidate change](https://github.com/drewUTSA/Aqua/pull/101) · [Aggregate results](evidence/p12/ranking-and-calendar-20261119.json)
