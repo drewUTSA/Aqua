@@ -10,7 +10,27 @@
 | Viewer A · laptop | Sign in with a different granted synthetic account. Have one recent chat or answer ready in its own history. |
 | Viewer B · phone or tablet | Use a third synthetic account without an analytical grant. Sign-in, settings and Privacy are available. |
 
-The web segment requires a **prepared private HTTPS demo origin** reachable by all three devices, schema 10 app storage, synthetic sign-ins and a separate read-only analytical connection. Use a fresh disposable analytics database with the checked-in synthetic fixture. Its 1,000 transaction IDs and amounts each run from 1 to 1,000. The fictional bank reports use a different bundled snapshot. [Transaction fixture](../../tools/checks/fixtures/bank.sql) · [Private storage](../../ops/appdb/README.md)
+The web segment requires a **prepared private HTTPS demo origin** reachable by all three devices, schema 10 app storage, synthetic sign-ins and a separate read-only analytical connection. The sales database contains 1,000 fictional transaction amounts from 1 through 1,000 CZK dated November 1–16, 1996. The MCP’s fictional USD reports use a separate bundled snapshot dated November 16, 2026. [Sales database](../../db/sales_demo/bootstrap.sql) · [Private app storage](../../ops/appdb/README.md)
+
+From the repository root, use PostgreSQL's client tools with an administrator who can create databases and roles on a **new, dedicated PostgreSQL demo cluster**. It must contain only the standard databases. Keep its listener private. Configure a `hostssl` rule for `aqua_sales_demo_reader`, database `aqua_sales_demo`, the backend’s private address and `scram-sha-256`. Reject the reader’s other connections before broader rules. Use a direct libpq connection or a service profile that enforces the same certificate and hostname checks.
+
+```powershell
+$env:PGHOST = Read-Host 'Private demo database DNS name on its TLS certificate'
+$env:PGUSER = Read-Host 'Demo database administrator login'
+$env:PGSSLMODE = 'verify-full'
+$env:PGSSLROOTCERT = (Resolve-Path -ErrorAction Stop -LiteralPath (Read-Host 'Path to the trusted demo CA certificate')).Path
+psql -X --dbname=postgres --file=db/sales_demo/create_database.sql
+if ($LASTEXITCODE -ne 0) { throw 'Could not create a fresh sales demo database' }
+psql -X --dbname=aqua_sales_demo --file=db/sales_demo/bootstrap.sql
+if ($LASTEXITCODE -ne 0) { throw 'Sales demo bootstrap failed' }
+psql -X --set=ON_ERROR_STOP=1 --dbname=aqua_sales_demo --command "SET password_encryption='scram-sha-256'" --command '\password aqua_sales_demo_reader'
+```
+
+The first script checks the maintenance database read-only before creation. Reserve the cluster until setup completes. A concurrent cluster change can cause the second script to stop with the newly created database still empty. Enter a new demo-reader password at the private prompt.
+
+From the permitted backend address, use the same private DNS name, trusted CA and `verify-full` settings. Run `psql -X --username=aqua_sales_demo_reader --dbname=aqua_sales_demo --password --file=db/sales_demo/check_reader.sql` to verify the reader and both presenter answers. Configure the demo backend's `DATABASE_URL` through its secret configuration with the same reader, database, DNS name and explicit `sslmode=verify-full` and `sslrootcert` parameters. Give the backend a readable copy of that trusted CA at the specified path. Keep `APP_DATABASE_URL` pointed at the separate schema 10 application store. Provision the presenter’s current dataset grant for this connection. Rehearse the chart and save it in the presenter’s account before the call.
+
+On November 19, one signed-in presenter used a different 66-row fictional ledger. Aqua returned 8/8 correct saved answers within 45 seconds, with one model call per question. Times ranged from 7.61 to 43.91 seconds. The two preselected repeat questions, covering leap day and tied rankings, both returned the same correct results. The three-person demonstration was measured separately. [Three-person results](P12_PROGRESS.md#three-person-demo-acceptance)
 
 On the **demo** backend, enable `COMPANION_ENABLED=true`, `CONTEXT_NOTES_ENABLED=true`, `BANK_DEMO_ENABLED=true` and `BANK_DEMO_PERSONA=analyst`. Select the approved local Ollama endpoint and installed model with `LLM_PROVIDER=ollama`, `LLM_FALLBACK=off`. The web report persona applies to the whole instance. Analytics grants, chats and notes remain account-specific. [Companion configuration](RESULT_COMPANION_CONTRACT.md) · [Notes configuration](CONTEXT_NOTES_CONTRACT.md) · [Web report scope](BANK_DEMO_WEB_CONTRACT.md)
 
