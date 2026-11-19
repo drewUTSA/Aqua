@@ -1,5 +1,13 @@
 # P12 capacity and AI reliability — implementation in progress
 
+## Grouped employee rankings
+
+An employee can ask for tied leaders, a fixed number of groups, or the groups at the first few distinct totals. For example, in a calibration dataset, “From calibrations, show the top three benches by total drift, including ties” returns every bench whose position reaches the three-row cutoff. If two benches tie for third, the result has four rows. “Which benches have the top two distinct total drift values from calibrations?” includes all benches at either value. Asking for an exact number uses a stable tie-breaker. An explicit display order changes how the selected rows appear.
+
+For supported single-table counts and numeric sums, Aqua validates the generated SQL, executes it with the existing read-only role, and saves the result under the employee’s account. The answer identifies its source as **Aqua grouped ranking**. The existing result cap still applies. Questions involving a date filter, multiple measures, ambiguous fields, or context from a prior turn continue through the ordinary planner. When an employee asks to list every group and mark the leaders, the planner receives the full-list instruction.
+
+Five signed-in development questions verified the saved columns, ordering and membership with zero provider calls. Reopening each result worked for the author, and another employee’s request for it returned HTTP 404.
+
 ## Employee timeout and retry
 
 Aqua tells an employee when the model failed to answer in time. When the final provider attempt reaches a read timeout or returns HTTP 504, Aqua produces the retryable `model_timeout` response. An ordinary provider outage retains the existing retryable `model_unavailable` response. The configured deadline and fallback policy still apply.
