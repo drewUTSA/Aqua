@@ -179,9 +179,7 @@ def test_gemini_response_timeout_keeps_fallback_policy_and_private_details(
     with pytest.raises(LLMError) as caught:
         complete("q", NO_FALLBACK, client=FakeGenai(error=cause))
     assert type(caught.value) is expected and caught.value.transient
-    assert caught.value.__cause__ is (
-        cause if isinstance(cause, httpx.TimeoutException) else None
-    )
+    assert caught.value.__cause__ is cause
     assert "private transport detail" not in str(caught.value) and "boom" not in str(
         caught.value
     )

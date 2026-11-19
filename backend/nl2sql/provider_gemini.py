@@ -89,7 +89,7 @@ def complete(
         if exc.code == 504:
             raise ModelResponseTimeout(
                 "Gemini returned HTTP 504.", transient=True
-            ) from None
+            ) from exc
         raise LLMError(
             f"Gemini returned HTTP {exc.code}.",
             transient=exc.code in FALLBACK_CODES,
