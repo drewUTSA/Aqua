@@ -7,6 +7,7 @@ from nl2sql.control import CURRENT, remaining
 from nl2sql.llm import (
     Completion,
     LLMError,
+    ModelResponseTimeout,
     SEED,
     GEMINI_TIMEOUT_MS,
     GEMINI_ATTEMPTS,
@@ -85,9 +86,17 @@ def complete(
             config=types.GenerateContentConfig(**config),
         )
     except errors.APIError as exc:
+        if exc.code == 504:
+            raise ModelResponseTimeout(
+                "Gemini returned HTTP 504.", transient=True
+            ) from None
         raise LLMError(
             f"Gemini returned HTTP {exc.code}.",
             transient=exc.code in FALLBACK_CODES,
+        ) from exc
+    except httpx.ReadTimeout as exc:
+        raise ModelResponseTimeout(
+            "Gemini took too long to respond.", transient=True
         ) from exc
     except httpx.TimeoutException as exc:
         raise LLMError("Gemini took too long to respond.", transient=True) from exc

@@ -16,6 +16,7 @@ from nl2sql.llm import (
     SEED,
     THINKING_OPTIONS,
     LLMError,
+    ModelResponseTimeout,
     complete,
 )
 
@@ -148,10 +149,34 @@ def test_connection_failure_is_an_llm_error() -> None:
         complete("q", SETTINGS, client=client)
 
 
-def test_timeout_is_an_llm_error() -> None:
-    client, _ = mock_client(error=httpx.ReadTimeout("slow"))
-    with pytest.raises(LLMError, match="too long"):
+@pytest.mark.parametrize(
+    ("transport_type", "expected"),
+    [
+        (httpx.ReadTimeout, ModelResponseTimeout),
+        (httpx.ConnectTimeout, LLMError),
+        (httpx.WriteTimeout, LLMError),
+        (httpx.PoolTimeout, LLMError),
+    ],
+)
+def test_only_response_read_timeout_reports_a_late_answer(transport_type, expected):
+    cause = transport_type("private transport detail")
+    client, _ = mock_client(error=cause)
+    with pytest.raises(LLMError) as caught:
         complete("q", SETTINGS, client=client)
+    assert type(caught.value) is expected
+    assert caught.value.__cause__ is cause
+    assert "private transport detail" not in str(caught.value)
+
+
+@pytest.mark.parametrize(
+    "status, expected", [(504, ModelResponseTimeout), (503, LLMError)]
+)
+def test_ollama_gateway_timeout_distinguished_from_service_outage(status, expected):
+    client, _ = mock_client({"error": "private provider detail"}, status=status)
+    with pytest.raises(LLMError) as caught:
+        complete("q", SETTINGS, client=client)
+    assert type(caught.value) is expected
+    assert str(caught.value) == f"Ollama returned HTTP {status}."
 
 
 def test_non_json_reply_is_an_llm_error() -> None:

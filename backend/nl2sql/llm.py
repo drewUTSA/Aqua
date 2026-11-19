@@ -70,6 +70,10 @@ class LLMError(RuntimeError):
         self.transient = transient
 
 
+class ModelResponseTimeout(LLMError):
+    """The provider response timed out locally or at an upstream gateway."""
+
+
 @dataclass(frozen=True)
 class Completion:
     """The model's reply.

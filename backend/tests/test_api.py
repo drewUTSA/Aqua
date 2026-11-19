@@ -11,7 +11,7 @@ import main
 from auth.security import UserSession, require_database_access
 from nl2sql.config import Settings
 from nl2sql.db import DatabaseError
-from nl2sql.llm import LLMError
+from nl2sql.llm import LLMError, ModelResponseTimeout
 from nl2sql.pipeline import Answer
 from nl2sql.schema import Schema
 from legacy_contract_fixture import install
@@ -114,6 +114,18 @@ def test_outages_are_503_without_internal_details(
     assert body["error"]["code"] == code
     assert body["error"]["retryable"] is True
     assert "100.64.0.1" not in response.text and "db.internal" not in response.text
+
+
+def test_provider_response_timeout_returns_fixed_retryable_message(monkeypatch):
+    use_answer(monkeypatch, ModelResponseTimeout("sensitive transport context"))
+    response = client.post("/api/query", json={"question": "q"})
+    assert response.status_code == 503
+    assert response.json()["error"] == {
+        "code": "model_timeout",
+        "message": "The language model did not answer in time.",
+        "retryable": True,
+    }
+    assert "sensitive transport context" not in response.text
 
 
 @pytest.mark.parametrize(
