@@ -88,7 +88,12 @@ def run(output, nginx_image=NGINX):
         )
         # Reproduce the file shipped in the upstream Nginx document root.
         docker(
-            "exec", "-i", proxy, "tee", "/usr/share/nginx/html/50x.html", data=b"stock error page"
+            "exec",
+            "-i",
+            proxy,
+            "tee",
+            "/usr/share/nginx/html/50x.html",
+            data=b"stock error page",
         )
         docker("exec", proxy, "mkdir", "/usr/share/nginx/html/assets")
         docker(

@@ -154,7 +154,9 @@ def probe(paths, recovery_sha256):
     assert body == b'{"detail":"Not found"}', "readiness_body_changed"
     # No upstream runs in this isolated fixture. Preserve a real gateway failure.
     status, _, body = get("/api/health", isolated=True)
-    assert status == 502 and hashlib.sha256(body).hexdigest() != recovery_sha256, "upstream_failure_rewritten"
+    assert (
+        status == 502 and hashlib.sha256(body).hexdigest() != recovery_sha256
+    ), "upstream_failure_rewritten"
     assert len(policy_hashes) == 1 and policy_responses > 0, "document_csp_inconsistent"
     return {
         "status": "passed",
