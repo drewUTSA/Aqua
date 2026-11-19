@@ -167,7 +167,22 @@ The old Windows Restic command in `ops/appdb/README.md` describes a different
 historical backup foundation; do not silently substitute it for the current
 reviewed age/authority recovery workflow.
 
-## Required before the schema9 production cutover
+## Release review for the current schema 10 application
+
+The November 19 production observation found schema 8. The current backend's storage readiness check requires schema 10. The release owner must qualify the complete transition and a schema 10 fallback on the chosen source and images. Retain and qualify the original P11 retirement-authority and writer-fencing gates at the schema 9 boundary before proceeding to schema 10. [Runtime readiness](../../backend/storage/pool.py) · [Schema 10 contract](CONTEXT_NOTES_CONTRACT.md) · [Recovery status](P11_PROGRESS.md)
+
+| Checkpoint | Evidence required for release review |
+| --- | --- |
+| Prepare from schema 8 | Freeze the release and fallback images, migrations, configuration and reviewed operator. Establish original-key recovery, independent retention of current authority and a fresh stopped-writer backup. Compare restored earlier migrations, data, ownership, grants and physical locks with the preservation baseline. |
+| Reach schema 9 | Rehearse the reviewed additive deletion migration with the original prerequisites below. Verify the migration checksums, physical mail lock, writer shutdown, retained authority and startup fencing before advancing. |
+| Reach schema 10 | Rehearse the subsequent context-notes migration against the same isolated application database. Verify the full ten-migration history, preserved prior rows and grants, private-note ownership, read-only analytical access and exact schema 10 backend readiness. Record the intended feature flags separately from the schema change. |
+| Recover at schema 10 | Exercise the selected compatible fallback and return to the candidate with retained authority. Reopen preexisting saved data and verify that other users cannot access it. Separately rehearse recovery of the original schema 8 backup with the release owner's authorization and the current retained authority. Keep writers fenced until previously accepted deletions have been reconciled. Record the limits on restoring earlier state. |
+
+The release owner records the chosen revisions, receipts, acceptable recovery time, monitoring and decision to reopen writers. The local synthetic rehearsals cover individual checks. Production still requires current owner-controlled evidence and the qualified operator.
+
+## Historical schema 9 cutover procedure
+
+The following sequence describes the earlier schema 9 release and its authority controls. Step 8 ends at that intermediate schema. Use the current schema 10 review above for the present application.
 
 1. Refresh the exact PR head and its complete current 15-job CI result, merge only
    after required checks pass, and require a distinct passing merged-main run.

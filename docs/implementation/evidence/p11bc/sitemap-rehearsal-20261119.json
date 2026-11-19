@@ -1,0 +1,78 @@
+{
+  "source": "6d69cdf6d9e2ec80369c6893cd6f82f1c42afa68",
+  "frontendTree": "54965d311517e054ed54f58a60e645109fe2051e",
+  "privateSyntheticImageKit": {
+    "file": "Aqua-synthetic-demo-images-sitemap-20261119.zip",
+    "bytes": 133823567,
+    "sha256": "e2c2b31ec621e2dfc19e4b25d6a7782fc77dc0abcd7fd40c4bcaf546cea7a470",
+    "members": 18
+  },
+  "web": {
+    "opal": {
+      "image": "sha256:30d6163bf5b049062e25b40a7846c370b25a7a82d379a6425769713fcebaf6f6",
+      "archive_sha256": "788f30b5817a58b42779b1e3ba183b68cb86483fe6a015776082f49c23b474fe",
+      "known_routes": 14,
+      "hashed_assets": 24,
+      "sitemap_response": {
+        "status": 404,
+        "content_type": "text/plain",
+        "body_sha256": "493fda53120050f85836032324409be6c6484f90a0755ae0c6a673ba7626818b",
+        "body_bytes": 10
+      },
+      "privateWebKitReceiptSha256": "f8d4b7f2840fe4d2b2136004cf20f3af02d064b1aa785e701c24905c58f8dd68"
+    },
+    "legacy": {
+      "image": "sha256:468ae6bb4cc6f15dd5fb33745efc4fa457ee5796441c9c60eee21a765c1fff79",
+      "archive_sha256": "6458ffb10cce2c3ca0561df151e6541bbd455e7d5a5976b2e4092f1a2a90c3ad",
+      "known_routes": 14,
+      "hashed_assets": 24,
+      "sitemap_response": {
+        "status": 404,
+        "content_type": "text/plain",
+        "body_sha256": "493fda53120050f85836032324409be6c6484f90a0755ae0c6a673ba7626818b",
+        "body_bytes": 10
+      },
+      "privateWebKitReceiptSha256": "bb89f652ccbb3018bb81372ccaf34340adaf5c5a92e468a10c8086fb9c8ab76f"
+    }
+  },
+  "localHttps": {
+    "hostPortsPublished": 0,
+    "originAndEdgeRequestsPerShell": 22,
+    "edgeHstsMaxAgeSeconds": 300,
+    "receiptSha256": "264389713e1452f4a7bdc77b5f1113076aeb695be250cb3760b1f1df79a32500"
+  },
+  "syntheticSalesRestore": {
+    "databaseTables": 8,
+    "transactions": 1000,
+    "archiveSha256": "e2e8d929a92a049a8702d23cf0bfc5b98cad16e240e9bf42ab6b71546542d29f",
+    "confirmedPresenterCounts": [
+      3,
+      750,
+      250
+    ],
+    "damagedCopiesRejected": 2,
+    "receiptSha256": "066140fd9b507c4ae812823a59f36afd039ac00fb21c2e4fa42ebcce442984b9",
+    "transferKitSha256": "3c98f59e7bc8863013b44abeeccb46c12ebc6a595c738d03e7477c0ac803d85d",
+    "transferKitBytes": 11144
+  },
+  "releaseGatesOpen": [
+    "original recovery material and cutover operator",
+    "independent 30-day retention",
+    "live ingress and device acceptance"
+  ],
+  "selectedPr101Kit": {
+    "commit": "a4e92a291fc41cdd39d293d30a548eace358a900",
+    "file": "Aqua-synthetic-demo-a4e92a291fc4.zip",
+    "bytes": 133827567,
+    "members": 19,
+    "sha256": "8785558110e059a6e9e9e15c0d2a8cff8bc2ed004ab5036804def3baec67631d",
+    "candidate_image": "sha256:1ac92b192642039960c451e234ae54524ef86023274f850b5871044cb3e456d2",
+    "fallback_image": "sha256:851226a894078770e508605314418cf8233b5df104dbcbf3838a7dd132634988",
+    "git_matched_application_files": 243,
+    "inventory_sha256": "78d9cd4088ae43cdaab59ba6c5cdf321db060b449d2730116450aa9c6355e7e7",
+    "nativeNormalAndInstallerReceiptSha256": "99740fe5cd5298d6de5352d1230daade6877ed9f594910d313bd9ba952b447e4",
+    "retainedAuthorityCrossoverReceiptSha256": "2b56f469980a0d302e02f65886881fb895822408696a12c190e2d0da9463582a",
+    "populatedSchemaMigrationReceiptSha256": "ac63835f7b3f44098e01ddeaa738b61c80e06e638a1ed8a0a181182ba416927e",
+    "sharedDatabaseCrossoverReceiptSha256": "e7b78b2f9c9ba87e5d5a0a30883e6614815f942eb2e8c7589c90e8cc3d95bbe7"
+  }
+}
