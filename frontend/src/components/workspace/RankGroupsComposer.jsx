@@ -19,7 +19,11 @@ export default function RankGroupsComposer({ onApply, onBack, original, reveal =
     setFields(initialRankFields);
   }, [original]);
   useLayoutEffect(() => {
-    if (reveal) { details.current.open = true; source.current.focus(); }
+    if (reveal) {
+      if (reveal === "complete") setFields({ source: "", group: "", measure: "", field: "", direction: "", number: "", ties: "" });
+      details.current.open = true;
+      source.current.focus();
+    }
   }, [reveal]);
   const numberHint = useId(), invalidNumber = fields.number !== "" && !validRankNumber(fields.number);
   const update = (key, value) => setFields(previous => ({ ...previous, [key]: value }));
@@ -38,16 +42,19 @@ export default function RankGroupsComposer({ onApply, onBack, original, reveal =
         <NameField inputRef={source} name="source" label="Source" value={fields.source} placeholder="e.g. loans" onChange={value => update("source", value)} />
         <NameField name="group" label="Group by" value={fields.group} placeholder="e.g. branches" onChange={value => update("group", value)} />
         <label>Measure<select name="measure" value={fields.measure} onChange={event => update("measure", event.target.value)}>
+          {!fields.measure && <option value="" disabled>Choose a measure</option>}
           <option value="count">Count records</option><option value="total">Total a field</option></select></label>
         {fields.measure === "total" && <NameField name="field" label="Field to total" value={fields.field} placeholder="e.g. balance"
           onChange={value => update("field", value)} />}
         <label>Direction<select name="direction" value={fields.direction} onChange={event => update("direction", event.target.value)}>
+          {!fields.direction && <option value="" disabled>Choose a direction</option>}
           <option value="top">Highest first</option><option value="bottom">Lowest first</option></select></label>
         <div><label>Number<input name="number" type="number" inputMode="numeric" min="1" max="1000" step="1" required value={fields.number}
           aria-invalid={invalidNumber || undefined} aria-describedby={invalidNumber ? numberHint : undefined}
           onChange={event => update("number", event.target.value)} /></label>
           {invalidNumber && <small id={numberHint}>Enter a whole number from 1 to 1,000.</small>}</div>
         <label>Ties<select name="ties" value={fields.ties} onChange={event => update("ties", event.target.value)}>
+          {!fields.ties && <option value="" disabled>Choose a tie rule</option>}
           <option value="peers">Include ties at the cutoff</option><option value="fixed">Exactly this many groups</option>
           <option value="levels">This many distinct scores</option></select></label>
       </div>

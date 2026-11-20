@@ -32,7 +32,7 @@ function SqlBlock({ sql, label = "SQL" }) {
   );
 }
 
-export default function AquaMessage({ message, hidden = false, onRetry, onRankRecovery, onShowVisual, onUnderstandResult, preferences }) {
+export default function AquaMessage({ message, hidden = false, onRetry, onRankAction, onShowVisual, onUnderstandResult, preferences }) {
   const [copyStatus, setCopyStatus] = useState("");
   const copyTimer = useRef(null);
   useEffect(() => () => window.clearTimeout(copyTimer.current), []);
@@ -72,7 +72,7 @@ export default function AquaMessage({ message, hidden = false, onRetry, onRankRe
               Try again
             </button>
           )}
-          {onRankRecovery && <button type="button" className="text-action" onClick={onRankRecovery}>Rank groups in a new chat</button>}
+          {onRankAction && <button type="button" className="text-action" onClick={onRankAction}>Rank groups in a new chat</button>}
         </div>
       </article>
     );
@@ -97,6 +97,7 @@ export default function AquaMessage({ message, hidden = false, onRetry, onRankRe
         )}
         {(response.status !== "stopped" || response.message) && <div className="response-actions">
           {onUnderstandResult && isSavedResultCandidate(message) && <button type="button" className="text-action" data-understand-result onClick={() => onUnderstandResult(message.id)}>Understand this result</button>}
+          {onRankAction && <button type="button" className="text-action" data-rank-ties onClick={onRankAction}>Choose tie rules in a new chat</button>}
           <button type="button" className="text-action" onClick={copyResponse}>
             {copyStatus === "Response copied" ? "Copied" : "Copy response"}
           </button>

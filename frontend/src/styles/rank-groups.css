@@ -1,4 +1,6 @@
 .rank-groups { margin: 4px; color: var(--pref-text); }
+.response-actions:has([data-rank-ties]) { flex-wrap: wrap; }
+.response-actions:has([data-rank-ties]) > button { min-height: 44px; }
 .rank-groups > summary { width: fit-content; min-height: 44px; padding: 10px 6px; cursor: pointer; color: var(--pref-accent); font-weight: 600; }
 .rank-groups__form { display: grid; gap: 14px; padding: 16px; border: 1px solid var(--pref-border); border-radius: 14px; background: var(--pref-panel); }
 .rank-groups__form p { margin: 0; color: var(--pref-muted); line-height: 1.45; }

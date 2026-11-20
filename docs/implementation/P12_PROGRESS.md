@@ -8,6 +8,12 @@ In a signed-in synthetic check, both versions saved all four expected numbers. T
 
 Private follow-up admission keeps the same eight-turn window and prior-SQL limit. With eight 900-row saved results, it read 547 bytes of PostgreSQL result fields, down from 1,032,883. Across 24 alternating pairs, median context selection and decoding took 1.70 ms, previously 3.82 ms. With eight single-row results the medians were 0.54 and 0.50 ms respectively. Every pair produced the same context and digest.
 
+## Review a saved ranking
+
+The latest successful ordinary ranking with a table offers **Choose tie rules in a new chat**. This action opens an empty guided form in the same project. Choose every field, review the wording, select **Use this draft** and press **Send**. The original answer remains in its own chat. An employee can use this workflow to compare tie policies whether the original returned one row or several.
+
+Classic and Opal each passed two signed-in private tests against a fictional PostgreSQL ledger. A controlled model reply returned either one of two tied accounts or both accounts. The manually reviewed query returned both at 500 transactions each in 1.34–1.36 seconds with zero additional model calls. Each original answer reopened unchanged.
+
 ## Choose the tie rule before sending
 
 In a new chat, a granted employee typing a ranking can open **Rank groups** by keyboard and enter the source, grouping field, measure and tie rule. **Back to my question** restores focus to the original text. **Use in a new draft** preserves the original in this visit’s unsent drafts and opens the preview for editing in the same project. Creating or switching drafts starts zero queries.

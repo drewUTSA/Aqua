@@ -1,3 +1,7 @@
+## November 20 review of a saved ranking
+
+On the latest successful ordinary ranking with a saved table, a granted employee can select **Choose tie rules in a new chat**. A new draft in the same project starts with all six fields empty. The original saved answer stays available for comparison. [Employee workflow](docs/implementation/P12_PROGRESS.md#review-a-saved-ranking)
+
 ## November 20 guided ranking before Send
 
 Employees can open **Rank groups** while typing a ranking in a new chat. **Back to my question** returns to the original text. **Use in a new draft** opens an editable preview in the same project. Only **Send** starts a query. The original wording stays available under **Recent chats → Unsent drafts** for that visit. [Presenter walkthrough](docs/implementation/SALES_DEMO_20261118.md#rank-groups-in-a-new-chat)

@@ -1,4 +1,5 @@
 import { operationId } from "../services/workspaceClient.js";
+import { isSavedResultCandidate } from "../features/resultCompanion/reference.js";
 
 export function emptyConversation() {
   const id = `draft-${operationId()}`;
@@ -16,22 +17,28 @@ export function isOrdinaryRanking(text) {
   const words = text.replace(/\bat (?:most|least)\b/gi, "");
   return /\b(?:ranks?|ranked|ranking|top|bottom|highest|lowest|most|least|fewest|largest|smallest|best|worst|busiest|ties|tied)\b/i.test(words);
 }
-export function rankTimeoutReply(record) {
+export function savedRankReply(record) {
   if (!record?.loaded || !record.revision || record.archived || record.historyLoading || record.operation) return null;
   const reply = record.messages.at(-1);
-  if (!reply?.id || reply.conversationId !== record.id || reply.role !== "aqua" || reply.status !== "error"
-    || reply.sequence !== record.messageCount || !reply.requestId || !reply.replyTo || reply.resultUnavailable
-    || reply.response?.status !== "error" || reply.response.error?.code !== "model_timeout") return null;
+  if (!reply?.id || reply.conversationId !== record.id || reply.role !== "aqua" || reply.sequence !== record.messageCount
+    || !reply.requestId || !reply.replyTo || reply.resultUnavailable) return null;
+  const timeout = reply.status === "error" && reply.response?.status === "error" && reply.response.error?.code === "model_timeout";
+  // An ordinary saved table can be ranked again with a different business rule.
+  // Do not infer whether its rows, ordering or omission of peers were correct.
+  const analysis = record.analyses?.[reply.requestId];
+  if (!timeout && (!isSavedResultCandidate(reply) || record.draft !== "" || (analysis && analysis.state !== "complete"))) return null;
   const input = record.messages.find(item => item.id === reply.replyTo && item.role === "user");
   if (!input || input.conversationId !== record.id || input.status !== "complete" || input.sequence >= reply.sequence || typeof input.content !== "string"
     || (record.draft !== "" && record.draft !== input.content)) return null;
   return isOrdinaryRanking(input.content) ? reply : null;
 }
-export function matchesRankRecovery(state, access, history, binding) {
+export function matchesSavedRank(state, access, history, binding) {
   if (!access.canQuery || !access.canReadResults || access.suspended || !binding.ownerId || history.owner !== binding.ownerId
     || state.activeId !== binding.chatId || state.deletedChatIds?.includes(binding.chatId)) return false;
-  const reply = rankTimeoutReply(state.records[binding.chatId]);
-  return Boolean(reply && reply.id === binding.replyId && reply.requestId === binding.requestId);
+  const record = state.records[binding.chatId];
+  const reply = savedRankReply(record);
+  return Boolean(reply && reply.id === binding.replyId && reply.requestId === binding.requestId
+    && reply.status === binding.status && record.projectId === binding.projectId);
 }
 export function isUnsentChatDraft(record, text) {
   return Boolean(record?.id?.startsWith("draft-") && record.draft === text && !record.operation && !record.revision

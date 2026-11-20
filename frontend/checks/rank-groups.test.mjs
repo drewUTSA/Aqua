@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { canStartGroupRank, initialRankFields, rankGroupsDraft, rankLabel } from "../src/components/workspace/rankGroupsDraft.js";
-import { applyEmptyChatDraft, applyRankingPreview, initialWorkspace, isEmptyChatDraft, matchesRankRecovery, rankTimeoutReply } from "../src/hooks/workspaceState.js";
+import { applyEmptyChatDraft, applyRankingPreview, initialWorkspace, isEmptyChatDraft, matchesSavedRank, savedRankReply } from "../src/hooks/workspaceState.js";
 
 const fields = { ...initialRankFields, source: "observations", group: "stations", field: "rainfall", number: "2" };
 for (const direction of ["top", "bottom"]) {
@@ -136,10 +136,10 @@ const timeout = { id: "reply", requestId: "request", replyTo: user.id, conversat
 const failed = { id: savedChat, loaded: true, revision: 2, messageCount: 2, draft: question, messages: [user, timeout] };
 
 test("an eligible saved timeout matches the original question even after reload or a retry", () => {
-  assert.equal(rankTimeoutReply(failed), timeout);
-  assert.equal(rankTimeoutReply({ ...failed, draft: "" }), timeout);
+  assert.equal(savedRankReply(failed), timeout);
+  assert.equal(savedRankReply({ ...failed, draft: "" }), timeout);
   const again = { ...timeout, sequence: 3, id: "retry-reply", requestId: "second-request" };
-  assert.equal(rankTimeoutReply({ ...failed, messages: [user, timeout, again], messageCount: 3 }), again);
+  assert.equal(savedRankReply({ ...failed, messages: [user, timeout, again], messageCount: 3 }), again);
 });
 
 test("recovery needs the latest terminal reply, its own original input, and an unedited source draft", () => {
@@ -150,12 +150,12 @@ test("recovery needs the latest terminal reply, its own original input, and an u
     { messages: [{ ...user, conversationId: "other-chat" }, timeout] },
     { messages: [user, { ...timeout, conversationId: "other-chat" }] },
     { messages: [user, { ...timeout, response: { status: "error", error: { code: "model_unavailable" } } }] }]) {
-    assert.equal(rankTimeoutReply({ ...failed, ...patch }), null);
+    assert.equal(savedRankReply({ ...failed, ...patch }), null);
   }
 });
 
 test("the recovery offer is limited to ordinary ranking language in the linked input", () => {
-  const check = content => rankTimeoutReply({ ...failed, draft: "", messages: [{ ...user, content }, timeout] });
+  const check = content => savedRankReply({ ...failed, draft: "", messages: [{ ...user, content }, timeout] });
   for (const text of ["Rank departments by receipts.", "Show top three offices.", "Include groups tied for first."]) {
     assert.equal(check(text), timeout);
   }
@@ -168,17 +168,17 @@ test("a stale recovery action cannot navigate after identity, request, chat, gra
   const state = { activeId: savedChat, records: { [savedChat]: failed } };
   const access = { canQuery: true, canReadResults: true, suspended: false };
   const history = { owner: "employee-a" };
-  const binding = { ownerId: history.owner, chatId: savedChat, replyId: timeout.id, requestId: timeout.requestId };
-  assert.ok(matchesRankRecovery(state, access, history, binding));
+  const binding = { ownerId: history.owner, chatId: savedChat, projectId: failed.projectId, replyId: timeout.id, requestId: timeout.requestId, status: timeout.status };
+  assert.ok(matchesSavedRank(state, access, history, binding));
   for (const patch of [{ ownerId: "" }, { ownerId: "other employee" }, { chatId: "another chat" }, { requestId: "other request" }, { replyId: "other reply" }]) {
-    assert.equal(matchesRankRecovery(state, access, history, { ...binding, ...patch }), false);
+    assert.equal(matchesSavedRank(state, access, history, { ...binding, ...patch }), false);
   }
   for (const patch of [{ canReadResults: false }, { canQuery: false }, { suspended: true }]) {
-    assert.equal(matchesRankRecovery(state, { ...access, ...patch }, history, binding), false);
+    assert.equal(matchesSavedRank(state, { ...access, ...patch }, history, binding), false);
   }
-  assert.equal(matchesRankRecovery({ ...state, activeId: "new view" }, access, history, binding), false);
-  assert.equal(matchesRankRecovery({ ...state, deletedChatIds: [savedChat] }, access, history, binding), false);
-  assert.equal(matchesRankRecovery({ ...state, records: { [savedChat]: { ...failed, draft: "new notes" } } }, access, history, binding), false);
+  assert.equal(matchesSavedRank({ ...state, activeId: "new view" }, access, history, binding), false);
+  assert.equal(matchesSavedRank({ ...state, deletedChatIds: [savedChat] }, access, history, binding), false);
+  assert.equal(matchesSavedRank({ ...state, records: { [savedChat]: { ...failed, draft: "new notes" } } }, access, history, binding), false);
 });
 
 test("the reused destination must also be empty enough to apply the eventual manual draft", () => {
@@ -186,4 +186,45 @@ test("the reused destination must also be empty enough to apply the eventual man
   assert.ok(isEmptyChatDraft(destination));
   for (const patch of [{ id: savedChat }, { draft: " " }, { messageCount: 1 }, { messages: [user] },
     { operation: {} }, { historyLoading: true }, { archived: true }]) assert.equal(isEmptyChatDraft({ ...destination, ...patch }), false);
+});
+
+const frostRequest = "0a2cb1c7-a444-418f-ad94-0e07f22d3800";
+const frostReply = "8d3aeeda-cf83-40c0-ae0f-d37a3225aab6";
+const frostInput = { ...user, content: "Which inspection zones tied for the most frost warnings?" };
+const frostTable = { id: "result", columns: ["zone", "warnings"], rows: [["South", 9], ["Hill", 9]] };
+const completed = { ...timeout, id: frostReply, requestId: frostRequest, status: "complete", historical: true, resultUnavailable: false,
+  response: { status: "success", tables: [frostTable] } };
+const saved = { ...failed, draft: "", projectId: "inspection-project", messages: [frostInput, completed] };
+
+test("choosing tie rules is available on either a full or a partial saved ordinary ranking", () => {
+  for (const rows of [frostTable.rows, frostTable.rows.slice(0, 1), []]) {
+    const answer = { ...completed, response: { status: "success", tables: [{ ...frostTable, rows }] } };
+    assert.equal(savedRankReply({ ...saved, messages: [frostInput, answer] }), answer);
+  }
+});
+
+test("saved ranking choices require the latest visible table, its linked ordinary question, and an empty composer", () => {
+  const changeReply = patch => ({ ...saved, messages: [frostInput, { ...completed, ...patch }] });
+  for (const record of [
+    { ...saved, messages: [{ ...frostInput, content: "Count the stations." }, completed] },
+    { ...saved, messages: [{ ...frostInput, content: "Rank groups: From warnings, show the top 3 zones by row count, including ties." }, completed] },
+    { ...saved, messages: [frostInput, completed, { ...frostInput, sequence: 3 }], messageCount: 3 },
+    { ...saved, draft: frostInput.content }, { ...saved, analyses: { [frostRequest]: { state: "cancelled" } } },
+    { ...saved, historyLoading: true }, { ...saved, archived: true },
+    changeReply({ historical: false }), changeReply({ resultUnavailable: true }), changeReply({ replyTo: "missing" }),
+    changeReply({ response: { status: "success", tables: [] } }), changeReply({ status: "error", response: { status: "error", error: { code: "model_unavailable" } } }),
+  ]) assert.equal(savedRankReply(record), null);
+});
+
+test("a saved-answer action cannot cross the owner, project, access or outcome originally displayed", () => {
+  const state = { activeId: savedChat, records: { [savedChat]: saved } };
+  const access = { canQuery: true, canReadResults: true, suspended: false }, history = { owner: "employee" };
+  const binding = { ownerId: history.owner, chatId: savedChat, projectId: saved.projectId, replyId: frostReply, requestId: frostRequest, status: "complete" };
+  assert.equal(matchesSavedRank(state, access, history, binding), true);
+  for (const patch of [{ ownerId: "different" }, { projectId: null }, { status: "error" }, { replyId: "older reply" }, { requestId: "different request" }]) {
+    assert.equal(matchesSavedRank(state, access, history, { ...binding, ...patch }), false);
+  }
+  for (const patch of [{ canReadResults: false }, { canQuery: false }, { suspended: true }]) {
+    assert.equal(matchesSavedRank(state, { ...access, ...patch }, history, binding), false);
+  }
 });

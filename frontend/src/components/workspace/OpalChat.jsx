@@ -16,14 +16,15 @@ export default function OpalChat({ chat, auth, inputRef, focusRequest, onOpenPro
   const [rankTarget, setRankTarget] = useState(null);
   const visibility = useRef(visible); visibility.current = visible;
   const owner = auth.user?.id;
-  const timeout = visible && owner && !auth.demoMode && auth.canQuery && auth.session?.can_query === true && chat.rankTimeout;
+  const reply = visible && owner && !auth.demoMode && auth.canQuery && auth.session?.can_query === true && chat.rankReply;
   const applyRank = value => visibility.current && chat.applyRankDraft({
     ownerId: owner, chatId: chat.activeConversationId, projectId: chat.active.projectId, original: chat.draft,
   }, value);
-  const rankRecovery = timeout ? { replyId: timeout.id, open: () => {
+  const rankAction = reply ? { replyId: reply.id, open: () => {
     if (!visibility.current) return;
-    const id = chat.startRankRecovery({ ownerId: owner, chatId: chat.activeConversationId, replyId: timeout.id, requestId: timeout.requestId });
-    if (id) setRankTarget({ owner, id });
+    const id = chat.startSavedRankDraft({ ownerId: owner, chatId: chat.activeConversationId, projectId: chat.active.projectId,
+      replyId: reply.id, requestId: reply.requestId, status: reply.status });
+    if (id) setRankTarget({ owner, id, status: reply.status });
   } } : null;
   useEffect(() => { if (rankTarget) setRankTarget(null); }, [rankTarget]);
   return <main className={`opal-chat${active ? " opal-chat--active" : ""}${visualsHidden ? " opal-chat--visual-hidden" : ""}`}>
@@ -33,14 +34,14 @@ export default function OpalChat({ chat, auth, inputRef, focusRequest, onOpenPro
       {chat.durable && <div className="workspace-history-controls"><ConversationActions chat={chat} />
         {chat.active.olderCursor && <button type="button" disabled={chat.pending || chat.active.historyLoading} onClick={chat.loadOlder}>Load older messages</button>}
         {chat.active.historyLoading && <span role="status">Loading messages…</span>}</div>}
-      <Conversation key={chat.active?.viewId || chat.activeConversationId} messages={chat.messages} preferences={preferences} pending={chat.durable ? chat.submitting : chat.pending} waiting={chat.waiting} onRetry={chat.retry} rankRecovery={rankRecovery} onShowVisual={onShowVisual} onUnderstandResult={onUnderstandResult} suspended={!visible}
+      <Conversation key={chat.active?.viewId || chat.activeConversationId} messages={chat.messages} preferences={preferences} pending={chat.durable ? chat.submitting : chat.pending} waiting={chat.waiting} onRetry={chat.retry} rankAction={rankAction} onShowVisual={onShowVisual} onUnderstandResult={onUnderstandResult} suspended={!visible}
         position={scrollPositions?.get(chat.activeConversationId)} onPositionChange={(position) => scrollPositions?.set(chat.activeConversationId, position)} /></>}
     {chat.durable && !active && chat.active.historyLoading && <p role="status">Loading saved conversation…</p>}
     {chat.durable && chat.uncertain && <div className="workspace-request-notice" role="status"><p>This request may still be processing. Stopping this browser request does not cancel work on the server.</p>
       <button type="button" disabled={chat.pending || !auth.canQuery} onClick={chat.checkSaved}>Check saved request</button></div>}
     {chat.durable && !chat.submitting && <AnalysisStatus request={chat.analysis} connection={chat.analysisConnection} onReconnect={chat.reconnectAnalysis} />}
     <Composer chat={chat} auth={auth} preferences={preferences} inputRef={inputRef} focusRequest={focusRequest} active={active} visible={visible} onOpenPrompts={onOpenPrompts}
-      applyRank={applyRank} revealRank={Boolean(rankTarget && rankTarget.owner === owner && rankTarget.id === chat.activeConversationId)} />
+      applyRank={applyRank} revealRank={rankTarget && rankTarget.owner === owner && rankTarget.id === chat.activeConversationId ? rankTarget.status : null} />
     <p className="opal-disclaimer">Check important figures against your source.</p>
   </main>;
 }
