@@ -1,11 +1,13 @@
+import { isOrdinaryRanking } from "../../hooks/workspaceState.js";
+
 export const initialRankFields = {
   source: "", group: "", measure: "count", field: "", direction: "top", number: "3", ties: "peers",
 };
 
 export function canStartGroupRank({ auth, chat, visible, active }) {
   return Boolean(visible && !active && !auth.demoMode && auth.canQuery && auth.session?.can_query === true
-    && chat.durable && chat.activeConversationId?.startsWith("draft-") && chat.draft === ""
-    && !chat.active?.historyLoading && !chat.active?.archived && !chat.pending && !chat.uncertain);
+    && chat.durable && chat.activeConversationId?.startsWith("draft-") && (chat.draft === "" || isOrdinaryRanking(chat.draft))
+    && !chat.active?.revision && !chat.active?.operation && !chat.active?.historyLoading && !chat.active?.archived && !chat.pending && !chat.uncertain);
 }
 
 // Each input names one thing. Keep sentence punctuation and instructions out of the labels.

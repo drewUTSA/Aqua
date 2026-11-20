@@ -17,6 +17,9 @@ export default function OpalChat({ chat, auth, inputRef, focusRequest, onOpenPro
   const visibility = useRef(visible); visibility.current = visible;
   const owner = auth.user?.id;
   const timeout = visible && owner && !auth.demoMode && auth.canQuery && auth.session?.can_query === true && chat.rankTimeout;
+  const applyRank = value => visibility.current && chat.applyRankDraft({
+    ownerId: owner, chatId: chat.activeConversationId, projectId: chat.active.projectId, original: chat.draft,
+  }, value);
   const rankRecovery = timeout ? { replyId: timeout.id, open: () => {
     if (!visibility.current) return;
     const id = chat.startRankRecovery({ ownerId: owner, chatId: chat.activeConversationId, replyId: timeout.id, requestId: timeout.requestId });
@@ -37,12 +40,12 @@ export default function OpalChat({ chat, auth, inputRef, focusRequest, onOpenPro
       <button type="button" disabled={chat.pending || !auth.canQuery} onClick={chat.checkSaved}>Check saved request</button></div>}
     {chat.durable && !chat.submitting && <AnalysisStatus request={chat.analysis} connection={chat.analysisConnection} onReconnect={chat.reconnectAnalysis} />}
     <Composer chat={chat} auth={auth} preferences={preferences} inputRef={inputRef} focusRequest={focusRequest} active={active} visible={visible} onOpenPrompts={onOpenPrompts}
-      revealRank={Boolean(rankTarget && rankTarget.owner === owner && rankTarget.id === chat.activeConversationId)} />
+      applyRank={applyRank} revealRank={Boolean(rankTarget && rankTarget.owner === owner && rankTarget.id === chat.activeConversationId)} />
     <p className="opal-disclaimer">Check important figures against your source.</p>
   </main>;
 }
 
-function Composer({ chat, auth, preferences, inputRef, focusRequest, active, visible, onOpenPrompts, revealRank }) {
+function Composer({ chat, auth, preferences, inputRef, focusRequest, active, visible, onOpenPrompts, applyRank, revealRank }) {
   const ownRef = useRef(null), wrap = useRef(null), previous = useRef(null), animation = useRef(null), id = useId();
   const textarea = inputRef || ownRef;
   const reduced = useReducedMotion() || preferences?.device.motion === "reduce";
@@ -93,10 +96,9 @@ function Composer({ chat, auth, preferences, inputRef, focusRequest, active, vis
   </form><p className="composer-hint" id={`${id}-hint`}>{!auth.canQuery ? "Data access is pending approval." : chat.active?.archived ? "Restore this archived chat before sending another question."
     : serverPending ? "Analysis continues on the server. Cancellation is confirmed by saved status."
       : `${chat.pending ? "Stop ends this browser’s wait; server work may continue. " : ""}${preferences?.device.send_shortcut === "modified_enter" ? "Ctrl/Cmd + Enter" : "Enter"} to ${active ? "send" : "ask"} · ${preferences?.device.send_shortcut === "modified_enter" ? "Enter" : "Shift + Enter"} for a new line`}</p>
-    {showRank && <RankGroupsComposer key={`${auth.user?.id}:${chat.activeConversationId}`} reveal={revealRank} onApply={value => {
-      chat.applyEmptyDraft(chat.activeConversationId, value);
-      textarea.current?.focus();
-    }} />}
+    {showRank && <RankGroupsComposer key={`${auth.user?.id}:${chat.activeConversationId}:${chat.active.projectId}`}
+      original={chat.draft} reveal={revealRank} onBack={() => textarea.current?.focus()}
+      onApply={value => { if (applyRank(value)) textarea.current?.focus(); }} />}
   </div>;
 }
 

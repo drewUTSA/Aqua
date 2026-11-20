@@ -9,6 +9,7 @@
 .rank-groups__fields small { color: var(--pref-danger); }
 .rank-groups__form .rank-groups__preview { color: var(--pref-text); overflow-wrap: anywhere; }
 .rank-groups__preview strong { display: block; }
+.rank-groups__actions { display: flex; flex-wrap: wrap; gap: 8px; }
 .rank-groups__form button { justify-self: start; padding-inline: 16px; cursor: pointer; }
 .rank-groups__form button:disabled { opacity: .65; cursor: default; }
 .opal-workspace[data-theme] .opal-chat:has(.rank-groups[open]) { justify-content: flex-start; overflow-y: auto; }

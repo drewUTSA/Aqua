@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { listModels, listMessages, submitQuestion, updateChat, deleteChat, operationId } from "../services/aquaClient.js";
-import { applyEmptyChatDraft, changeRecord, emptyConversation, failSubmission, finishHistory, finishSubmission, initialWorkspace, isEmptyChatDraft, maskSavedResults, matchesRankRecovery, openConversation, rankTimeoutReply, removeConversation } from "./workspaceState.js";
+import { applyRankingPreview, changeRecord, failSubmission, finishHistory, finishSubmission, initialWorkspace, maskSavedResults, matchesRankRecovery, openConversation, rankTimeoutReply, removeConversation, startProjectDraft } from "./workspaceState.js";
 import { useWorkspaceLists } from "./useWorkspaceLists.js";
 import { useAnalysisRequests } from "./useAnalysisRequests.js";
 import { acceptAnalysis, progressAnalysis, activeAnalysis, analysisRequests } from "./workspaceAnalysisState.js";
@@ -66,12 +66,15 @@ export function useWorkspace({ canQuery, canReadResults = canQuery, csrfToken, o
     let summary = candidates.reduce((latest, item) => !latest || (item.revision || 0) > (latest.revision || 0) ? item : latest, null);
     if (!summary || current.current.deletedChatIds.includes(id)) return;
     update((previous) => openConversation(previous, summary)); void loadMessages(id); };
-  const startConversation = ({ projectId = null } = {}) => { const previous = current.current;
+  const selectDraftState = next => {
+    if (!next) { onError(new Error("Keep up to 100 unsent drafts in this visit. Reuse an existing chat.")); return null; }
+    update(() => next);
+    return current.current === next ? next.activeId : null;
+  };
+  const startConversation = ({ projectId = null } = {}) => {
     if (projectId !== null && !validId(projectId)) return null;
-    const empty = Object.values(previous.records).find((item) => item.projectId === projectId && isEmptyChatDraft(item));
-    if (empty) { update((value) => ({ ...value, activeId: empty.id, notice: "" })); return empty.id; }
-    if (Object.keys(previous.records).length >= 100) { onError(new Error("Keep up to 100 unsent drafts in this visit. Reuse an existing chat.")); return null; }
-    const item = { ...emptyConversation(), projectId }; update((value) => ({ ...value, records: { ...value.records, [item.id]: item }, activeId: item.id, notice: "" })); return item.id; };
+    return selectDraftState(startProjectDraft(current.current, projectId));
+  };
   const run = useCallback(async (recordId, operation) => {
     try { assertHistory(operation.historyContext); } catch { return; }
     if (!access.current.canQuery || access.current.suspended || requests.current.has(recordId)) return;
@@ -147,9 +150,13 @@ export function useWorkspace({ canQuery, canReadResults = canQuery, csrfToken, o
     drafts: Object.values(state.records).filter((item) => item.draft.trim()),
     recoverableDrafts: Object.values(state.records).filter((item) => item.draft.trim() || item.operation),
     stop: () => requests.current.get(current.current.activeId)?.abort(),
-    applyEmptyDraft: (id, value) => {
-      if (access.current.canQuery && access.current.canReadResults && !access.current.suspended && typeof value === "string" && value.length <= 2000)
-        update(previous => applyEmptyChatDraft(previous, id, value));
+    applyRankDraft: (binding, value) => {
+      const previous = current.current;
+      if (!alive.current || requests.current.has(binding.chatId)) return false;
+      let authority;
+      try { authority = assertHistory(mountedHistory.current); } catch { return false; }
+      const next = applyRankingPreview(previous, access.current, authority, binding, value);
+      return next !== previous && Boolean(selectDraftState(next));
     },
     setDraft: (draft) => update((previous) => changeRecord(previous, previous.activeId, (item) => ({ ...item, draft: String(draft).slice(0, 2000) }))),
     refresh: () => { void loadMessages(current.current.activeId); void library.refreshChats(); },

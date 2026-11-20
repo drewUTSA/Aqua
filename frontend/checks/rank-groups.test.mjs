@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { canStartGroupRank, initialRankFields, rankGroupsDraft, rankLabel } from "../src/components/workspace/rankGroupsDraft.js";
-import { applyEmptyChatDraft, initialWorkspace, isEmptyChatDraft, matchesRankRecovery, rankTimeoutReply } from "../src/hooks/workspaceState.js";
+import { applyEmptyChatDraft, applyRankingPreview, initialWorkspace, isEmptyChatDraft, matchesRankRecovery, rankTimeoutReply } from "../src/hooks/workspaceState.js";
 
 const fields = { ...initialRankFields, source: "observations", group: "stations", field: "rainfall", number: "2" };
 for (const direction of ["top", "bottom"]) {
@@ -27,16 +27,93 @@ test("only bounded names, whole levels and supported options create an explicit 
     assert.equal(rankGroupsDraft({ ...fields, ...invalid }), "");
   }
 });
-test("the option only appears in an empty, visible, authorized new durable chat", () => {
+test("a new authorized chat offers ranking on a blank draft or while typing an ordinary ranking", () => {
   const auth = { canQuery: true, session: { can_query: true } };
   const chat = { durable: true, activeConversationId: "draft-test", draft: "", active: {} };
   const allowed = (a = auth, c = chat, view = {}) => canStartGroupRank({ visible: true, active: false, ...view, chat: c, auth: a });
   assert.equal(allowed(), true);
+  assert.equal(allowed(auth, { ...chat, draft: "Which locations had the highest turnover?" }), true);
   for (const patch of [{ durable: false }, { pending: true }, { uncertain: true }, { draft: " " }, { activeConversationId: "saved" },
-    { active: { archived: true } }, { active: { historyLoading: true } }]) assert.equal(allowed(auth, { ...chat, ...patch }), false);
+    { draft: "Count deposits of at least 100." }, { draft: "  Rank groups: From readings, show the top group." },
+    { active: { archived: true } }, { active: { operation: {} } }, { active: { revision: 1 } },
+    { active: { historyLoading: true } }]) assert.equal(allowed(auth, { ...chat, ...patch }), false);
   for (const patch of [{ canQuery: false }, { session: {} }, { demoMode: true }]) assert.equal(allowed({ ...auth, ...patch }), false);
   assert.equal(allowed(auth, chat, { active: true }), false);
   assert.equal(allowed(auth, chat, { visible: false }), false);
+});
+
+function composingRanking() {
+  const state = initialWorkspace(), chatId = state.activeId, original = "  Which stations had the most readings? ";
+  const projectId = "88ea088a-60b8-43a0-9fc6-a457e620e3e4";
+  state.records[chatId] = { ...state.records[chatId], projectId, draft: original };
+  const binding = { ownerId: "reader", chatId, original, projectId };
+  const access = { canQuery: true, canReadResults: true, suspended: false };
+  const history = { owner: binding.ownerId }, value = rankGroupsDraft(fields);
+  const apply = (s = state, b = binding, a = access, h = history, v = value) => applyRankingPreview(s, a, h, b, v);
+  return { state, binding, access, history, value, apply };
+}
+test("taking a preview keeps the exact original visit-local draft and opens an unsent ranking in the same project", () => {
+  const { state, binding, value, apply } = composingRanking();
+  const next = apply();
+  assert.notEqual(next.activeId, binding.chatId);
+  assert.equal(next.records[binding.chatId], state.records[binding.chatId]);
+  assert.equal(next.records[binding.chatId].draft, binding.original);
+  assert.deepEqual([next.records[next.activeId].draft, next.records[next.activeId].projectId], [value, binding.projectId]);
+  for (const item of Object.values(next.records)) {
+    assert.deepEqual(item.messages, []);
+    assert.equal(item.messageCount, 0);
+    assert.equal(item.operation, null);
+    assert.equal(item.revision, null);
+  }
+});
+test("a preview reuses only a blank visit-local draft in the original project, and respects capacity", () => {
+  const { state, binding, value, apply } = composingRanking();
+  const source = state.records[binding.chatId];
+  for (let i = 1; i < 100; i++) {
+    const id = `draft-${i}`;
+    state.records[id] = { ...source, id, draft: "", projectId: null };
+  }
+  assert.equal(apply(), null);
+  assert.equal(state.records[binding.chatId].draft, binding.original);
+  const id = "draft-99";
+  state.records[id].projectId = binding.projectId;
+  const next = apply();
+  assert.equal(next.activeId, id);
+  assert.equal(next.records[id].draft, value);
+  assert.equal(next.records["draft-1"], state.records["draft-1"]);
+  assert.equal(Object.keys(next.records).length, 100);
+});
+test("a stale preview cannot open a new draft or change its source", () => {
+  const { state, binding, access, history, value, apply } = composingRanking();
+  for (const patch of [{ ownerId: "" }, { ownerId: "someone else" }, { chatId: "draft-another" }, { projectId: null }, { original: "old words" }]) {
+    assert.equal(apply(state, { ...binding, ...patch }), state);
+  }
+  for (const patch of [{ canQuery: false }, { canReadResults: false }, { suspended: true }]) {
+    assert.equal(apply(state, binding, { ...access, ...patch }), state);
+  }
+  assert.equal(apply(state, binding, access, { owner: "new owner" }), state);
+  for (const patch of [{ operation: {} }, { revision: 1 }, { archived: true }, { historyLoading: true }, { messages: [{}] }, { messageCount: 1 }]) {
+    const changed = { ...state, records: { [binding.chatId]: { ...state.records[binding.chatId], ...patch } } };
+    assert.equal(apply(changed), changed);
+  }
+  for (const patch of [{ deletedChatIds: [binding.chatId] }, { activeId: "draft-another" }]) {
+    const changed = { ...state, ...patch };
+    assert.equal(apply(changed), changed);
+  }
+  assert.equal(apply(state,binding,access,history,""),state);
+  assert.equal(apply(state,binding,access,history,value.padEnd(2001)),state);
+});
+test("empty first drafts receive the preview in place and unrelated wording stays in the composer", () => {
+  const { state, binding, value, apply } = composingRanking();
+  for (const original of ["Count all deposits.", "   ", "Rank groups: show top three."]) {
+    state.records[binding.chatId].draft = original;
+    assert.equal(apply(state, { ...binding, original }), state);
+  }
+  state.records[binding.chatId].draft = "";
+  const next = apply(state, { ...binding, original: "" });
+  assert.equal(next.activeId, binding.chatId);
+  assert.equal(next.records[next.activeId].draft, value);
+  assert.equal(Object.keys(next.records).length, 1);
 });
 test("a late form application cannot replace an existing draft or apply to a different chat", () => {
   const state = initialWorkspace(), id = state.activeId, value = rankGroupsDraft(fields);
