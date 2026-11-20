@@ -9,6 +9,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createHash } from "node:crypto";
 import { BrowserPipe } from "./p05-browser-pipe.mjs";
+import { startupHandshake } from "./p05-browser-startup.mjs";
 import { accountAction, openAccount, recentsAction, openPrompts, closePrompts } from "./homepage-browser-actions.mjs";
 import { initialHomepageChecks, mobileHomepageChecks } from './homepage-browser-checks.mjs';
 import { workspaceJourneys, pendingWorkspaceJourney } from "./p06-browser-checks.mjs";
@@ -52,6 +53,18 @@ async function ensureArtifacts() {
   if ((await lstat(artifacts)).isSymbolicLink()) throw new Error("artifact_directory_symlink_rejected");
 }
 const temporaryRoot = await realpath(tmpdir());
+const startupAttempts = [];
+async function removeProfile() {
+  if (!profile) return;
+  const resolved = await realpath(profile);
+  assert.equal(path.dirname(resolved), temporaryRoot);
+  assert.ok(path.basename(resolved).startsWith("aqua-p05-browser-"));
+  assert.equal((await lstat(profile)).isSymbolicLink(), false);
+  await rm(profile, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
+  const remains = await lstat(profile).catch((error) => { if (error.code !== "ENOENT") throw error; return null; });
+  if (remains) throw Error("browser_profile_cleanup_failed");
+  profile = null;
+}
 const fixture = makeFixture();
 const companionFixture = COMPANION_ONLY || BANK_ONLY || NOTES_ONLY ? installCompanionToolsFixture(fixture) : null;
 const bankFixture = BANK_ONLY ? installBankDemoFixture(fixture) : null;
@@ -213,15 +226,22 @@ try {
     const type = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".svg": "image/svg+xml", ".png": "image/png", ".webp": "image/webp", ".woff2": "font/woff2" }[extension] || "application/octet-stream";
     response.writeHead(200, { "Content-Type": type, "Cache-Control": "no-store", "Referrer-Policy": "no-referrer", "X-Content-Type-Options": "nosniff" }); response.end(data);
   });
-  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
-  origin = `http://127.0.0.1:${server.address().port}`;
-  profile = await mkdtemp(path.join(temporaryRoot, "aqua-p05-browser-"));
   const executable = process.env.AQUA_CHROME_EXECUTABLE || (process.platform === "win32" ? "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe" : "/usr/bin/google-chrome");
   const env = Object.fromEntries(["SystemRoot", "WINDIR", "PATH", "TEMP", "TMP", "LOCALAPPDATA", "USERPROFILE", "APPDATA", "HOME"].filter((name) => process.env[name]).map((name) => [name, process.env[name]]));
-  browser = spawn(executable, ["--headless=new", "--no-first-run", "--no-default-browser-check", "--disable-background-networking", "--disable-component-update", "--disable-sync", "--disable-extensions", "--disable-default-apps", "--disable-client-side-phishing-detection", "--no-pings", "--metrics-recording-only", "--host-resolver-rules=MAP * ~NOTFOUND, EXCLUDE 127.0.0.1", "--remote-debugging-pipe", `--user-data-dir=${profile}`, "about:blank"], { windowsHide: true, stdio: ["ignore", "ignore", "ignore", "pipe", "pipe"], env });
-  cdp = new BrowserPipe(browser, { session: () => sessionId, deadline: started + MAX_MS });
+  const version = await startupHandshake({
+    attempts: startupAttempts, removeProfile,
+    untouched: () => !sessionId && staticRequests === 0 && requestCount === 0 && apiRequests === 0 && results.length === 0,
+    launch: async () => {
+      profile = await mkdtemp(path.join(temporaryRoot, "aqua-p05-browser-"));
+      browser = spawn(executable, ["--headless=new", "--no-first-run", "--no-default-browser-check", "--disable-background-networking", "--disable-component-update", "--disable-sync", "--disable-extensions", "--disable-default-apps", "--disable-client-side-phishing-detection", "--no-pings", "--metrics-recording-only", "--host-resolver-rules=MAP * ~NOTFOUND, EXCLUDE 127.0.0.1", "--remote-debugging-pipe", `--user-data-dir=${profile}`, "about:blank"], { windowsHide: true, stdio: ["ignore", "ignore", "ignore", "pipe", "pipe"], env });
+      cdp = new BrowserPipe(browser, { session: () => sessionId, deadline: started + MAX_MS });
+      return cdp;
+    },
+  });
   deadline = setTimeout(() => cdp.fail("browser_suite_deadline"), Math.max(1, MAX_MS - (performance.now() - started)));
-  const version = await cdp.ready();
+  // An employee page or request cannot reach this fixture during either handshake.
+  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
+  origin = `http://127.0.0.1:${server.address().port}`;
   const targets = await cdp.send("Target.getTargets");
   const target = targets.targetInfos.find((item) => item.type === "page"); assert.ok(target, "isolated_page_missing");
   ({ sessionId } = await cdp.send("Target.attachToTarget", { targetId: target.targetId, flatten: true }));
@@ -628,15 +648,11 @@ try {
   if (cdp) await cdp.stop();
   if (!failure && cdp?.cleanupFailure) failure = "browser_cleanup_failed";
   server?.closeAllConnections(); if (server?.listening) await new Promise((resolve) => server.close(resolve));
-  if (profile) {
-    const resolved = await realpath(profile); assert.equal(path.dirname(resolved), temporaryRoot);
-    assert.ok(path.basename(resolved).startsWith("aqua-p05-browser-")); assert.equal((await lstat(profile)).isSymbolicLink(), false);
-    await rm(profile, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
-  }
-  cleanup = !browser || cdp?.stopped === true;
+  try { await removeProfile(); } catch { failure ||= "browser_profile_cleanup_failed"; }
+  cleanup = !profile && (!browser || cdp?.stopped === true && cdp?.drained === true);
 }
 if (!failure && protocolFailures.length) failure = "interception_failure";
-const report = { status: failure ? "failed" : "passed", failure, failureLayout, checked_utc: new Date().toISOString(),
+const report = { status: failure || !cleanup ? "failed" : "passed", failure, failureLayout, checked_utc: new Date().toISOString(), browser_startup_attempts: startupAttempts,
   mode: NOTES_ONLY?"production_build_context_notes_mocked_api_browser":RESULT_ONLY?"production_build_result_companion_mocked_api_browser":BANK_ONLY?"production_build_bank_demo_mocked_api_browser":COMPANION_ONLY?"production_build_companion_tools_synthetic_api_browser":NOTICE_ONLY?"production_build_c_notification_synthetic_api_browser":RELIABILITY_ONLY?"production_build_reliability_synthetic_api_browser":"production_build_synthetic_api_browser", expected_shell: EXPECTED_SHELL, browser_diagnostic: failureDiagnostic ?? cdp?.diagnostic ?? null, homepage_menu_text_audit:homepageMenuTextAudit, loadedAssets, results, screenshots, performanceSamples,
   limits: { maximum_seconds: MAX_MS / 1000, maximum_requests: MAX_REQUESTS, maximum_api_requests: MAX_API },
   observations: { requestCount, staticRequests, apiRequests, external_attempts: external.length, consoleLeaks, runtimeErrors, forbidden_api_calls: fixture.forbiddenCalls, protocolFailures, canceledInterceptions, scrollObservations },notification_privacy_journey:notificationPrivacyJourney,reliability_journey:RELIABILITY_ONLY?{journey:JOURNEY,faults:reliabilityFaults,...reliabilityJourney}:null,
