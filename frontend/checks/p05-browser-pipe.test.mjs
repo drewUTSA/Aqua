@@ -4,6 +4,7 @@ import { spawn } from "node:child_process";
 import { PassThrough } from "node:stream";
 import test from "node:test";
 import { BrowserPipe } from "./p05-browser-pipe.mjs";
+import { startupHandshake } from "./p05-browser-startup.mjs";
 import { describeInterceptionFailure } from "./p05-interception-failure.mjs";
 
 const CANARY = "synthetic-secret-never-retain-in-diagnostics";
@@ -17,6 +18,95 @@ function fixture(t, options = {}) {
   t.after(() => { client.fail("browser_closed", null, false); child.stdio[3].destroy(); child.stdio[4].destroy(); });
   return { child, client, requests, reply: (value) => child.stdio[4].write(encode(value)) };
 }
+
+function startupFixture(t, outcomes, options = {}) {
+  const attempts = [], pipes = [], calls = [];
+  const start = () => startupHandshake({
+    attempts, untouched: options.untouched || (() => true),
+    removeProfile: options.removeProfile || (async () => calls.push("remove-profile")),
+    launch: async () => {
+      const outcome = outcomes[pipes.length];
+      assert.ok(outcome, "no additional browser launch");
+      const { client, child } = fixture(t, { startupMs: 20 });
+      pipes.push(client); calls.push("launch"); child.emit("spawn");
+      options.configure?.(client);
+      child.stdio[3].on("data", (frame) => {
+        const request = JSON.parse(frame.toString().slice(0, -1));
+        if (request.method !== "Browser.getVersion") return;
+        if (outcome === "ready") child.stdio[4].write(encode({ id: request.id, result: { product: CANARY } }));
+        if (outcome === "partial") child.stdio[4].write(Buffer.from("{"));
+        if (outcome === "malformed") child.stdio[4].write(Buffer.from("x\0"));
+      });
+      return client;
+    },
+  });
+  return { start, attempts, calls, pipes };
+}
+
+test("only a silent version timeout retries on a fresh pipe after checked cleanup", async (t) => {
+  const run = startupFixture(t, ["silent", "ready"]);
+  assert.deepEqual(await run.start(), { product: CANARY });
+  assert.deepEqual(run.calls, ["launch", "remove-profile", "launch"]);
+  const [first, second] = run.attempts;
+  assert.equal(first.diagnostic.reason, "browser_protocol_deadline");
+  assert.equal(first.startup.first_pipe_bytes_ms, null);
+  assert.deepEqual(first.cleanup, { child_stopped: true, stdio_closed: true, profile_removed: true });
+  assert.equal(second.outcome, "ready");
+  assert.ok(!JSON.stringify(run.attempts).includes(CANARY));
+  assert.equal(run.pipes[0].sequence, 1);
+  assert.equal(run.pipes[1].sequence, 1);
+});
+
+test("a second silent timeout remains a failure", async (t) => {
+  const run = startupFixture(t, ["silent", "silent"]);
+  await assert.rejects(run.start(), { message: "browser_protocol_deadline" });
+  assert.deepEqual(run.attempts.map(({ outcome }) => outcome), ["failed", "failed"]);
+  assert.equal(run.pipes.length, 2);
+});
+
+test("partial frames, protocol failures and application activity forbid relaunch", async (t) => {
+  for (const [outcome, untouched, expected] of [["partial", true, "browser_protocol_deadline"], ["malformed", true, "browser_protocol_invalid_json"], ["silent", false, "browser_protocol_deadline"]]) {
+    const run = startupFixture(t, [outcome], { untouched: () => untouched });
+    await assert.rejects(run.start(), { message: expected });
+    assert.deepEqual(run.calls, ["launch"]);
+  }
+});
+
+test("failed cleanup or newly observed traffic prevents the second launch", async (t) => {
+  const cleanup = startupFixture(t, ["silent"], { removeProfile: () => { throw Error(CANARY); } });
+  await assert.rejects(cleanup.start(), { message: "browser_startup_profile_cleanup_failed" });
+  assert.equal(cleanup.attempts[0].cleanup.profile_removed, false);
+  let touched = false;
+  const late = startupFixture(t, ["silent"], { untouched: () => !touched, removeProfile: () => { touched = true; } });
+  await assert.rejects(late.start(), { message: "browser_protocol_deadline" });
+  assert.equal(late.pipes.length, 1);
+});
+
+test("a missing pipe-close receipt or an exhausted suite budget cannot start a replacement", async (t) => {
+  for (const cause of ["unclosed", "deadline"]) {
+    const run = startupFixture(t, ["silent"], { configure(pipe) {
+      const stop = pipe.stop.bind(pipe);
+      pipe.stop = async () => {
+        await stop();
+        if (cause === "unclosed") pipe.drained = false;
+        else pipe.deadline = performance.now();
+      };
+    } });
+    await assert.rejects(run.start(), { message: "browser_protocol_deadline" });
+    assert.deepEqual(run.calls, cause === "unclosed" ? ["launch"] : ["launch", "remove-profile"]);
+  }
+});
+
+test("a later page command failure propagates without another browser launch", async (t) => {
+  const run = startupFixture(t, ["ready"]);
+  await run.start();
+  const pipe = run.pipes[0];
+  const request = pipe.send("Target.getTargets");
+  pipe.child.stdio[4].write(Buffer.from("invalid\0"));
+  await assert.rejects(request, { message: "browser_protocol_invalid_json" });
+  assert.deepEqual(run.calls, ["launch"]);
+  assert.equal(run.attempts.length, 1);
+});
 
 test("CSP observation admits only its fixed sanitized binding under the existing session and deadline", async (t) => {
   const { CSP_BINDING } = await import("./csp-browser-probes.mjs");
