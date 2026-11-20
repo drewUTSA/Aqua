@@ -20,7 +20,7 @@ import tarfile
 import time
 
 ROOT = Path(__file__).resolve().parents[2]
-IMAGE = "sha256:ff881b477c2fb963e9abae6e253b685f305398f2414fb91555891bd160e8f378"
+IMAGE = "sha256:16885ad04bcdad073ad53d5c6f1a569d24343cb8bcd7134bd21fe20e43126ad6"
 RUN = re.compile(r"aqua-retirement-host-[a-f0-9]{24}\Z")
 HEX = re.compile(r"[a-f0-9]{64}\Z")
 MAX_ARCHIVE = 193 * 1024 * 1024
@@ -46,7 +46,7 @@ PREFLIGHT_ERRORS = frozenset(
         "operator_stage_runtime_asset_changed",
         "rehearsal_reviewed_child_lineage_required",
         "rehearsal_exact_strict_HBA_required",
-        "rehearsal_exact_app247_manifest_required",
+        "rehearsal_exact_app248_manifest_required",
         "rehearsal_runtime_image_changed",
         "rehearsal_postgres_identity",
         "rehearsal_base_not_canonical",
