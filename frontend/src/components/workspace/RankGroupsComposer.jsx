@@ -2,11 +2,11 @@ import React, { useId, useLayoutEffect, useRef, useState } from "react";
 import { initialRankFields, rankGroupsDraft, rankLabel, validRankNumber } from "./rankGroupsDraft.js";
 import "../../styles/rank-groups.css";
 
-function NameField({ name, label, value, onChange, placeholder, inputRef }) {
+function NameField({ name, label, value, onChange, placeholder, inputRef, description }) {
   const hintId = useId();
   const invalid = value !== "" && !rankLabel(value);
   return <div className="rank-groups__name"><label>{label}<input ref={inputRef} type="text" name={name} value={value} placeholder={placeholder} required maxLength={64}
-    autoComplete="off" aria-invalid={invalid || undefined} aria-describedby={invalid ? hintId : undefined} onChange={event => onChange(event.target.value)} /></label>
+    autoComplete="off" aria-invalid={invalid || undefined} aria-describedby={[invalid && hintId, description].filter(Boolean).join(" ") || undefined} onChange={event => onChange(event.target.value)} /></label>
     {invalid && <small id={hintId}>Use words, numbers, spaces, hyphens or underscores. Start with a letter.</small>}
   </div>;
 }
@@ -25,7 +25,7 @@ export default function RankGroupsComposer({ onApply, onBack, original, reveal =
       source.current.focus();
     }
   }, [reveal]);
-  const numberHint = useId(), invalidNumber = fields.number !== "" && !validRankNumber(fields.number);
+  const nameHint = useId(), numberHint = useId(), invalidNumber = fields.number !== "" && !validRankNumber(fields.number);
   const update = (key, value) => setFields(previous => ({ ...previous, [key]: value }));
   const draft = rankGroupsDraft(fields);
   return <details ref={details} className="rank-groups" onToggle={event => {
@@ -37,10 +37,10 @@ export default function RankGroupsComposer({ onApply, onBack, original, reveal =
       if (draft) onApply(draft);
     }}>
       <p>{original ? "Choose ranking fields for a new draft. Your original question stays in Unsent drafts for this visit."
-        : "Rank the groups present in a source you can access."}</p>
+        : "Rank the groups present in a source you can access."} <span id={nameHint}>If you have a saved ranking, open its SQL to find the source table and grouping column. Result headings may be aliases.</span></p>
       <div className="rank-groups__fields">
-        <NameField inputRef={source} name="source" label="Source" value={fields.source} placeholder="e.g. loans" onChange={value => update("source", value)} />
-        <NameField name="group" label="Group by" value={fields.group} placeholder="e.g. branches" onChange={value => update("group", value)} />
+        <NameField inputRef={source} name="source" label="Source" value={fields.source} placeholder="e.g. loans" description={nameHint} onChange={value => update("source", value)} />
+        <NameField name="group" label="Group by" value={fields.group} placeholder="e.g. branches" description={nameHint} onChange={value => update("group", value)} />
         <label>Measure<select name="measure" value={fields.measure} onChange={event => update("measure", event.target.value)}>
           {!fields.measure && <option value="" disabled>Choose a measure</option>}
           <option value="count">Count records</option><option value="total">Total a field</option></select></label>

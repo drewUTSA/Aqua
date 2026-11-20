@@ -21,6 +21,11 @@ export async function rankGroupsJourney({ navigate, signIn, viewport, click, fil
   await waitFor(`Boolean(${query(".rank-groups summary")})`, "signed_in_rank_action");
   await fill(box, original); await openRank();
   await waitFor(`document.activeElement===${query(scope + ' input[name="source"]')}`, "typed_rank_source_focus");
+  await check("Source and Group by share visible guidance about saved SQL and result aliases", `
+    ['source','group'].every(name=>{
+      const input=${query(scope)}.elements.namedItem(name), hint=document.getElementById(input.getAttribute('aria-describedby'));
+      return hint?.getClientRects().length && hint.textContent==='If you have a saved ranking, open its SQL to find the source table and grouping column. Result headings may be aliases.';
+    })`);
   await input("source", "readings"); await input("group", "meters");
   await click(scope + ' button[type="button"]');
   await check("Back to my question keeps the original text intact and restores keyboard focus",
