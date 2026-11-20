@@ -17,6 +17,7 @@ class Budget:
     context: list[dict] = field(default_factory=list)
     context_digest: str = "standalone-question-v1"
     calls: int = 0
+    first_workspace_input: bool = False
 
     def remaining(self) -> float:
         remaining = self.deadline - time.monotonic()
