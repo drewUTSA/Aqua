@@ -11,6 +11,22 @@ const assistant = { ...input, id: C, sequence: 2, role: "aqua", content: "", rep
 const submission = { chat, request: { id: D, client_request_id: D, state: "complete", input_message_id: B, reply_message_id: C }, input_message: input, assistant_message: assistant, response };
 const json = (body, status = 200, headers = {}) => new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json", ...headers } });
 
+test("only short analysis submissions use the retry interval as employee-facing copy", async (t) => {
+  let header = "3";
+  const fetch = t.mock.method(globalThis, "fetch", async () => json({}, 429, { "Retry-After": header }));
+  const normal = { csrfToken: "csrf" }, input = { client_request_id: D, question: "Synthetic count" };
+  const denied = () => submitQuestion(input, normal);
+  await assert.rejects(denied(), { code: "throttled", retryAfter: 3, message: "Try submitting your question again in 3 seconds." });
+  header = "1";
+  await assert.rejects(denied(), { message: "Try submitting your question again in 1 second." });
+  await assert.rejects(listChats(normal), { message: "Too many workspace actions. Wait before trying again." });
+  for (const value of ["60", "9999", "garbled"]) {
+    header = value;
+    await assert.rejects(denied(), { message: "Too many workspace actions. Wait before trying again." });
+  }
+  assert.equal(fetch.mock.callCount(), 6);
+});
+
 test("first durable submit and explicit retry use canonical routes without assistant uploads", async (t) => {
   const calls = []; t.mock.method(globalThis, "fetch", async (url, init) => { calls.push({ url, init }); return json(submission, 201); });
   const result = await submitQuestion({ client_request_id: D, question: "Synthetic question", model: "gemini" }, { csrfToken: "csrf" });

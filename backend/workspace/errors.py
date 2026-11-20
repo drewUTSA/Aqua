@@ -10,6 +10,7 @@ from fastapi.responses import JSONResponse
 class WorkspaceError(Exception):
     code: str
     status: int = 404
+    retry_after: int | None = None
 
 
 MESSAGES = {
@@ -40,17 +41,23 @@ MESSAGES = {
 
 
 def failure(error: WorkspaceError) -> JSONResponse:
+    headers = {"Cache-Control": "no-store"}
+    message = MESSAGES.get(error.code, MESSAGES["invalid_request"])
+    if error.status == 429:
+        headers["Retry-After"] = "60"
+        if error.code == "analysis_rate_limited" and error.retry_after is not None:
+            seconds = error.retry_after
+            headers["Retry-After"] = str(seconds)
+            unit = "second" if seconds == 1 else "seconds"
+            message = f"Try submitting your question again in {seconds} {unit}."
     return JSONResponse(
         status_code=error.status,
         content={
             "error": {
                 "code": error.code,
-                "message": MESSAGES.get(error.code, MESSAGES["invalid_request"]),
+                "message": message,
                 "request_id": str(uuid4()),
             }
         },
-        headers={
-            "Cache-Control": "no-store",
-            **({"Retry-After": "60"} if error.status == 429 else {}),
-        },
+        headers=headers,
     )

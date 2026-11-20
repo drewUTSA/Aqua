@@ -1,7 +1,7 @@
 """Pinned application image and compiled file digests for the native recovery rehearsal."""
 
-IMAGE = "sha256:ff881b477c2fb963e9abae6e253b685f305398f2414fb91555891bd160e8f378"
-MANIFEST_SHA256 = "b165db08cc1fad6d997a2ee6da06f1443431b89dfdcea70194b4b00680a82506"
+IMAGE = "sha256:44804483820335cfd78f910f377bc6a17afc49093bf230939a4185bd1d64d778"
+MANIFEST_SHA256 = "022bb5e9f96fa7c27195b6e78527d8767f0bc1b46ffc114a6c82158800907d77"
 RUNTIME_FILES = {
     "account/__init__.py": "4d300929fcb6d0c0e3a6b92377bfd4648fc336a8ad2bfb3e962d810b3b6f55e0",
     "account/action_contracts.py": "be3becba0a54378a847efdaa76cc833e3b780df3658c90d30f86a7852232a397",
@@ -30,7 +30,7 @@ RUNTIME_FILES = {
     "account/security_http.py": "f5d56cdff47c5b849f558b8c41baab53d9bb943cb368c346231f13aa3c19ccb2",
     "account/security_router.py": "764a81683d11474a83dee345a175bff1b1b5807102da294fb16c7c90a027f3f5",
     "analysis/__init__.py": "21a91f22d295d99c41c27c747729a2c864a0bc0713a339d256fb911da1794d2f",
-    "analysis/admission.py": "182220150a53ec9645048fef6f04e65d35bd644f4325f2fc8f653744d76ae697",
+    "analysis/admission.py": "5fe6d6b1f483d6d8a973bd2fefed68212a56bbe6c263bafc028d10b67c68ba3e",
     "analysis/child.py": "85ceefcbd280ca24b166a5a7635ab31878e70653086439cff354b7c4bb5cd4ec",
     "analysis/child_payload.py": "8eb7372fae6e810f80d1bf9797eb29bae105742d2294aad696ee60f7b155ea16",
     "analysis/context.py": "dda2eb2ad1acbb071170c5e1e0534c6e0a7fb67ac2cc0ccad2e01deb0c69e37b",
@@ -241,7 +241,7 @@ RUNTIME_FILES = {
     "workspace/cursors.py": "81f79e882267e00e9b340fdbc9000cd7d11c6ec3f24bdb640c64185cc1aff8d9",
     "workspace/database.py": "a354ac0942e27db43c5c16a21ae3664eaeee9edd22609069b48d67813326ac9e",
     "workspace/dependencies.py": "0195ab365dfd3f48260d32fa87ea5ac210e8ebbbeeb23e6f87e6aec7f75ee309",
-    "workspace/errors.py": "8275307ad0d3ffd66de0f24cb8d62b513a28a230647b6d362f443ff0e353253d",
+    "workspace/errors.py": "8c5e144d5e9d7455ae44be159d4c706ae29dc20c31c5dca7a070833c66cd1b07",
     "workspace/history.py": "3bca945309c344c82c371a17bcb301040488890498957a341f66b4161e4382a8",
     "workspace/router.py": "8659eb09fcd35b8e03dd38a79b837c226145bdd42aeb5b1a946899255ad4061e",
     "workspace/service.py": "8f6436c7b3a1c424a8187b9bae301d94aa48cbca3af80827b0ee2024b9920d34",

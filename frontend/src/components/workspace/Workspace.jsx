@@ -149,7 +149,9 @@ function WorkspaceView({ auth, hidden, path, onNavigate, chat }) {
       {(auth.demoMode || !auth.canQuery) && <span className="data-badge">{auth.demoMode ? "Demo data" : "Access pending"}</span>}
     </header>
     {notice && <p className="workspace-notice" role="status">{notice}</p>}
-    {chat.notice && <p className="workspace-notice" role="alert">{chat.notice}</p>}
+    <div role="alert" aria-live="assertive" aria-atomic="true">
+      {chat.notice && <p className="workspace-notice">{chat.notice}</p>}
+    </div>
     {!settings && preferences.error && <p className="workspace-notice" role="alert">{preferences.error} Open Settings to review or retry.</p>}
     <div className="chat-route" hidden={settings} inert={settings || undefined} style={settings ? { display: "none" } : undefined}>
       <VisualWorkspace chat={chat} auth={auth} preferences={{ account, device }} onDeviceChange={preferences.persistDeviceValue} chartTheme={theme} inputRef={inputRef} focusRequest={focus} onOpenPrompts={openPrompts} onUnderstandResult={resultAllowed && chat.durable ? openResult : undefined} shell={UI_SHELL} visible={!hidden && !settings} scrollPositions={scrollPositions.current} />

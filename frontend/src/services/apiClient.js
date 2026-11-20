@@ -1,4 +1,5 @@
 import { assertHistory, bindHistoryIntent, captureHistory, historyHeaders, observeHistory } from "./historyAuthority.js";
+import { questionRetryMessage } from "./questionRetry.js";
 // The real transport: POST /api/query and GET /api/models on the backend.
 // Everything API-specific stays here, so components only ever see the
 // normalized response shape documented in BACKEND_INTEGRATION.md.
@@ -93,7 +94,7 @@ export async function queryApi(
 
   if (response.status === 401) return errorResponse("sign_in_required", SESSION_ENDED, false);
   if (response.status === 403) return errorResponse("access_denied", NO_ACCESS, false);
-  if (response.status === 429) return errorResponse("rate_limited", TOO_FAST, true);
+  if (response.status === 429) return errorResponse("rate_limited", questionRetryMessage(response.headers?.get?.("Retry-After"), TOO_FAST), true);
   if (response.status === 422) return errorResponse("invalid_question", BAD_QUESTION, false);
 
   let body = null;

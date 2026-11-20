@@ -51,6 +51,12 @@ An independent trial of automatic recognition compared the selected chat planner
 
 A separate experiment supplied six deliberately incorrect first SQL drafts and asked the installed 8B model to repair each one against restricted PostgreSQL. Turning off reasoning for the repair saved a median 5.161 seconds per pair and reduced accuracy from 5/6 to 4/6. The current repair setting remains selected. The timer started at the supplied draft.
 
+## When the employee's analysis allowance resets
+
+If an employee presses **Send** after using their allowance, both websites show how many seconds remain in that employee's current window. The question stays editable. The employee can send it after the window resets. A full shared queue can still require a longer wait.
+
+With five seconds left on a synthetic account, the former backend advised waiting 60 seconds. The revised Classic and Opal sites each displayed five seconds. The operator sent the retained question after 5.25 seconds, and each site saved one result showing the correct count of three. This measures the wait before Aqua accepts a question. The model's response deadline is a separate measurement.
+
 ## Employee timeout and retry
 
 Aqua tells an employee when the model failed to answer in time. When the final provider attempt reaches a read timeout or returns HTTP 504, Aqua produces the retryable `model_timeout` response. An ordinary provider outage retains the existing retryable `model_unavailable` response. The configured deadline and fallback policy still apply.
@@ -103,7 +109,7 @@ On the final run, calculations, filtering and joins scored 4/4 each. Rankings an
 
 The test used pinned Ollama Qwen3 8B, the release prompt, a real application worker and restricted PostgreSQL. Independent Python calculations, SQLite and PostgreSQL agreed on all 20 expected outputs for the 178 invented records in eight tables. The tested source `3058f951` and merged main `1cfbe2c` have identical trees. PR 93 corrected code and label rendering. Each study used a different question set. Attributing the difference between 17/20 and 18/20 to the formatter would require testing both versions on matched questions. All three studies used the existing model weights. [Formatter change](https://github.com/drewUTSA/Aqua/pull/93) · [Main CI](https://github.com/drewUTSA/Aqua/actions/runs/44408656430)
 
-The 14-minute walkthrough uses its own checked-in 1,000-transaction fixture. The 178-row qualification fixture, frozen questions, per-job receipts and local model cache are kept separately from this checkout. The aggregate evidence allows another operator to check the reported arithmetic and identify the original receipts by digest. Running the walkthrough on three devices still requires a prepared private HTTPS origin and synthetic accounts. Operational capacity, service objectives and employee sign-off remain open. [Presenter setup](SALES_DEMO_20261118.md)
+The 14-minute walkthrough uses its own checked-in 1,000-transaction fixture. The 178-row qualification fixture, frozen questions, per-job receipts and local model cache are kept separately from this checkout. The aggregate evidence allows another operator to check the reported arithmetic and identify the original receipts by digest. Running the walkthrough on three devices still requires a prepared private HTTPS origin and synthetic accounts. The private synthetic demo completed its six-task workflow review on November 20. Operational capacity and service objectives depend on the intended deployment. [Presenter setup](SALES_DEMO_20261118.md)
 
 ## November 16 mixed HTTP local qualification
 

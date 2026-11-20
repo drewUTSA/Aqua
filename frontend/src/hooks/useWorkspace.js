@@ -81,7 +81,8 @@ export function useWorkspace({ canQuery, canReadResults = canQuery, csrfToken, o
     if (requests.current.size >= 4) { onError(new Error("Wait for another open request to finish before asking another question.")); return; }
     const controller = new AbortController(); requests.current.set(recordId, controller);
     messageEpoch.current.set(recordId, (messageEpoch.current.get(recordId) || 0) + 1);
-    update((previous) => changeRecord(previous, recordId, (item) => ({ ...item, operation: { ...operation, busy: true, uncertain: false } })));
+    // Clear the previous announcement before a new attempt, including a repeat of the same question.
+    update((previous) => changeRecord({ ...previous, notice: "" }, recordId, (item) => ({ ...item, operation: { ...operation, busy: true, uncertain: false } })));
     try { const result = await submitQuestion(operation.submission, { csrfToken: operation.historyContext.csrf || access.current.csrfToken, historyContext: operation.historyContext, signal: controller.signal });
       if (controller.signal.aborted || !alive.current) return;
       messageEpoch.current.set(result.chat.id, (messageEpoch.current.get(result.chat.id) || 0) + 1);
