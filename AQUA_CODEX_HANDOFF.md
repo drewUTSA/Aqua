@@ -1,3 +1,7 @@
+## November 20 related records in ordinary chat
+
+In a new employee chat, Aqua can answer which account has the most or fewest transactions when the granted database confirms their relationship. It returns every tied account ID and its count. A private browser regression on both packaged websites returned both 500-transaction accounts and preserved the answer after reload. [Scope and measurements](docs/implementation/P12_PROGRESS.md#which-entity-has-the-most-or-fewest-records)
+
 ## November 20 ordinary chat counts
 
 In the reviewed bank and Pagila demos, ordinary chat can answer a standalone record count directly from the authorized database. The saved answer identifies **Aqua record count** as its source. Follow-ups retain their existing context. Building that context now reads only the eligible questions and bounded SQL from recent turns. [Scope and measurements](docs/implementation/P12_PROGRESS.md#ordinary-record-counts-and-follow-up-history)

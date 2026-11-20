@@ -24,6 +24,7 @@ from nl2sql.config import Settings
 from nl2sql.errors import ContextDenied, RetrievalUnavailable, diagnostic
 from nl2sql.execute import DEFAULT_MAX_ROWS, QueryError, execute, include_cutoff_peers
 from nl2sql.generate import Attempt, Example, Generation, generate_sql
+from nl2sql.relationship_count import relationship_count_sql
 from nl2sql.scalar_count import scalar_count_sql
 from nl2sql.schema import Schema
 from nl2sql.validate import UnsafeQueryError, validate_sql
@@ -146,6 +147,10 @@ def answer_question(
             direct = Generation(sql, thinking="", model="Aqua calendar count")
         elif sql := scalar_count_sql(question, schema, context.tables):
             direct = Generation(sql, thinking="", model="Aqua record count")
+        elif budget and budget.first_workspace_input and settings.answer_size_rules:
+            if sql := relationship_count_sql(question, schema, context.tables):
+                direct = Generation(sql, thinking="", model="Aqua relationship count")
+                size = AnswerSize("single")
     previous: Attempt | None = None
     for attempt in range(1, MAX_ATTEMPTS + 1):
         stage("generating")

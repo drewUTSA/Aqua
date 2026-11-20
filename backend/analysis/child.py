@@ -52,7 +52,13 @@ def main() -> None:
     from nl2sql.control import Budget, CURRENT
     from nl2sql.query_service import run
 
-    budget = Budget(deadline, notify, data["context"], data["context_digest"])
+    budget = Budget(
+        deadline,
+        notify,
+        data["context"],
+        data["context_digest"],
+        first_workspace_input=data["workspace"] and data["first_chat_input"],
+    )
     token = CURRENT.set(budget)
     try:
         response, status = run(

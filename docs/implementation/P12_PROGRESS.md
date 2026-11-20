@@ -1,5 +1,11 @@
 # P12 capacity and AI reliability — implementation in progress
 
+## Which entity has the most or fewest records
+
+An employee can ask “Which account had the most transactions? Include any accounts tied for first.” The bank and rental demo catalogs supply the entity names. Aqua checks the employee's allowed tables, the parent primary key and the child foreign key before counting. Every parent participates, including those with zero matching records. Tied parents appear in ID order. The saved result identifies **Aqua relationship count** as its source. Follow-ups, filters, requests to pick a single winner and ambiguous relationships use the existing query workflow.
+
+In the private browser regression, both websites returned accounts 1 and 2 with 500 transactions each. The time from Send to the visible and verified answer was 1.81 seconds on the classic shell and 1.46 seconds on Opal. Both used zero provider calls, restored the private answer after reload and denied another employee access. Separate PostgreSQL checks covered equal display names, zero activity and the result cap. These measurements use synthetic data.
+
 ## Ordinary record counts and follow-up history
 
 Employees can ask how many reviewed records exist or specify a numeric amount threshold. For example, “How many transactions have an amount greater than 957.25 CZK?” uses the bank transaction amount. Aqua checks the selected tables and field types, validates the SQL and executes with the read-only analytical role. Counts with prior context, unsupported units, additional filters or grouping continue through the existing question pipeline.
