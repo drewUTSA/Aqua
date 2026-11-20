@@ -1,3 +1,7 @@
+## November 20 ranking timeout recovery
+
+When a signed-in employee's latest ordinary ranking question times out, both websites offer **Rank groups in a new chat** beside **Try again**. The new action opens an empty ranking form in the same project and focuses **Source**. The original chat keeps its private timeout record. The employee reviews the new question and chooses **Send**. [Employee workflow](docs/implementation/P12_PROGRESS.md#recover-a-timed-out-ranking)
+
 ## November 20 ordinary chat counts
 
 In the reviewed bank and Pagila demos, ordinary chat can answer a standalone record count directly from the authorized database. The saved answer identifies **Aqua record count** as its source. Follow-ups retain their existing context. Building that context now reads only the eligible questions and bounded SQL from recent turns. [Scope and measurements](docs/implementation/P12_PROGRESS.md#ordinary-record-counts-and-follow-up-history)
