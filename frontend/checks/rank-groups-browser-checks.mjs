@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { openDrafts } from "./homepage-browser-actions.mjs";
 
 // Both production shells share a durable employee composer. This fixture checks
 // its actual controls and submitted API text, independently of SQL qualification.
@@ -12,9 +13,24 @@ export async function rankGroupsJourney({ navigate, signIn, viewport, click, fil
     el.value=${JSON.stringify(value)}; el.dispatchEvent(new Event('change',{bubbles:true})); return true;
   })()`);
   const input = (name, value) => fill(`${scope} input[name="${name}"]`, value);
+  const original = "Which meters have the largest totals?";
+  const openRank = async () => {
+    await evaluate(`${query(".rank-groups summary")}.focus();true`); await key("Enter", 0, "\r");
+    await waitFor(`Boolean(${query(".rank-groups[open]")})`, "rank_keyboard_open");
+  };
   await waitFor(`Boolean(${query(".rank-groups summary")})`, "signed_in_rank_action");
-  await evaluate(`${query(".rank-groups summary")}.focus();true`); await key("Enter", 0, "\r");
-  await waitFor(`Boolean(${query(".rank-groups[open]")})`, "rank_keyboard_open");
+  await fill(box, original); await openRank();
+  await waitFor(`document.activeElement===${query(scope + ' input[name="source"]')}`, "typed_rank_source_focus");
+  await input("source", "readings"); await input("group", "meters");
+  await click(scope + ' button[type="button"]');
+  await check("Back to my question keeps the original text intact and restores keyboard focus",
+    `!${query(".rank-groups[open]")} && ${query(box)}.value===${JSON.stringify(original)} && document.activeElement===${query(box)}`);
+  await openRank();
+  await click(scope + ' button[type="submit"]');
+  await check("Taking the preview opens a separate editable draft and leaves sending to the employee",
+    `${query(box)}.value==='Rank groups: From readings, show the top 3 meters by row count, including ties.' && document.activeElement===${query(box)}`);
+  assert.equal(fixture.queryCount(), 0, "typed_rank_preparation_must_not_send");
+  await fill(box, ""); await openRank();
   await check("Rank groups is keyboard accessible and blocks an incomplete draft",
     `${query(scope + " button")}.disabled && !${query(scope + ' input[name="field"]')}`);
   await input("source", "readings"); await input("group", "meters");
@@ -41,6 +57,10 @@ export async function rankGroupsJourney({ navigate, signIn, viewport, click, fil
   assert.equal(submissions[0].body.question, edited, "employee_edits_are_the_exact_submitted_text");
   await check("The explicit Send is saved literally and the tool is absent from history",
     `${query(".conversation .message--user")}.textContent.includes(${JSON.stringify(edited)}) && !${query(".rank-groups")}`);
+  await openDrafts({ evaluate, click, waitFor });
+  await click(".refined-recovery-dialog .refined-search-results button");
+  await waitFor(`${query(box)}?.value===${JSON.stringify(original)}`, "original_unsent_ranking_restored");
+  assert.equal(fixture.queryCount(), 1, "restoring_the_original_must_not_send");
   fixture.canQuery = false;
   await navigate("/");
   await waitFor(`${query(box)}?.disabled===true`, "rank_restricted_workspace");

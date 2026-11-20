@@ -11,22 +11,29 @@ function NameField({ name, label, value, onChange, placeholder, inputRef }) {
   </div>;
 }
 
-export default function RankGroupsComposer({ onApply, reveal = false }) {
+export default function RankGroupsComposer({ onApply, onBack, original, reveal = false }) {
   const [fields, setFields] = useState(initialRankFields);
   const details = useRef(null), source = useRef(null);
+  useLayoutEffect(() => {
+    details.current.open = false;
+    setFields(initialRankFields);
+  }, [original]);
   useLayoutEffect(() => {
     if (reveal) { details.current.open = true; source.current.focus(); }
   }, [reveal]);
   const numberHint = useId(), invalidNumber = fields.number !== "" && !validRankNumber(fields.number);
   const update = (key, value) => setFields(previous => ({ ...previous, [key]: value }));
   const draft = rankGroupsDraft(fields);
-  return <details ref={details} className="rank-groups">
+  return <details ref={details} className="rank-groups" onToggle={event => {
+    if (original && event.currentTarget.open) source.current?.focus();
+  }}>
     <summary>Rank groups</summary>
     <form className="rank-groups__form" aria-label="Rank groups" onSubmit={event => {
       event.preventDefault();
       if (draft) onApply(draft);
     }}>
-      <p>Rank the groups present in a source you can access.</p>
+      <p>{original ? "Choose ranking fields for a new draft. Your original question stays in Unsent drafts for this visit."
+        : "Rank the groups present in a source you can access."}</p>
       <div className="rank-groups__fields">
         <NameField inputRef={source} name="source" label="Source" value={fields.source} placeholder="e.g. loans" onChange={value => update("source", value)} />
         <NameField name="group" label="Group by" value={fields.group} placeholder="e.g. branches" onChange={value => update("group", value)} />
@@ -45,7 +52,9 @@ export default function RankGroupsComposer({ onApply, reveal = false }) {
           <option value="levels">This many distinct scores</option></select></label>
       </div>
       {draft && <p className="rank-groups__preview"><strong>Draft preview</strong> {draft}</p>}
-      <button type="submit" disabled={!draft}>Use this draft</button>
+      <div className="rank-groups__actions"><button type="submit" disabled={!draft}>{original ? "Use in a new draft" : "Use this draft"}</button>
+        {original && <button type="button" onClick={() => { details.current.open = false; onBack(); }}>Back to my question</button>}
+      </div>
     </form>
   </details>;
 }

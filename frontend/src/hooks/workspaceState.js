@@ -10,8 +10,12 @@ export function initialWorkspace() {
   return { activeId: conversation.id, records: { [conversation.id]: conversation }, deletedChatIds: [], notice: "", loading: false };
 }
 
-// A recovery offer is local navigation for the latest saved ordinary question.
-// Its wording never supplies fields to the rank form or authorizes a submission.
+// This cue offers an optional form. Only employee-selected fields define its query.
+export function isOrdinaryRanking(text) {
+  if (typeof text !== "string" || /^\s*Rank groups:/i.test(text)) return false;
+  const words = text.replace(/\bat (?:most|least)\b/gi, "");
+  return /\b(?:ranks?|ranked|ranking|top|bottom|highest|lowest|most|least|fewest|largest|smallest|best|worst|busiest|ties|tied)\b/i.test(words);
+}
 export function rankTimeoutReply(record) {
   if (!record?.loaded || !record.revision || record.archived || record.historyLoading || record.operation) return null;
   const reply = record.messages.at(-1);
@@ -20,9 +24,8 @@ export function rankTimeoutReply(record) {
     || reply.response?.status !== "error" || reply.response.error?.code !== "model_timeout") return null;
   const input = record.messages.find(item => item.id === reply.replyTo && item.role === "user");
   if (!input || input.conversationId !== record.id || input.status !== "complete" || input.sequence >= reply.sequence || typeof input.content !== "string"
-    || (record.draft !== "" && record.draft !== input.content) || /^Rank groups:/i.test(input.content)) return null;
-  const words = input.content.replace(/\bat (?:most|least)\b/gi, "");
-  return /\b(?:ranks?|ranked|ranking|top|bottom|highest|lowest|most|least|fewest|largest|smallest|best|worst|busiest|ties|tied)\b/i.test(words) ? reply : null;
+    || (record.draft !== "" && record.draft !== input.content)) return null;
+  return isOrdinaryRanking(input.content) ? reply : null;
 }
 export function matchesRankRecovery(state, access, history, binding) {
   if (!access.canQuery || !access.canReadResults || access.suspended || !binding.ownerId || history.owner !== binding.ownerId
@@ -30,9 +33,29 @@ export function matchesRankRecovery(state, access, history, binding) {
   const reply = rankTimeoutReply(state.records[binding.chatId]);
   return Boolean(reply && reply.id === binding.replyId && reply.requestId === binding.requestId);
 }
-export function isEmptyChatDraft(record) {
-  return Boolean(record?.id?.startsWith("draft-") && record.draft === "" && !record.operation
+export function isUnsentChatDraft(record, text) {
+  return Boolean(record?.id?.startsWith("draft-") && record.draft === text && !record.operation && !record.revision
     && !record.messages.length && !record.messageCount && !record.historyLoading && !record.archived);
+}
+export function isEmptyChatDraft(record) {
+  return isUnsentChatDraft(record, "");
+}
+// A draft belongs to its project and stays local until the normal Send action.
+export function startProjectDraft(state, projectId, draft = "") {
+  const records = Object.values(state.records);
+  const empty = records.find(item => item.projectId === projectId && isEmptyChatDraft(item));
+  if (!empty && records.length >= 100) return null;
+  const item = { ...(empty || emptyConversation()), projectId, draft };
+  return { ...state, records: { ...state.records, [item.id]: item }, activeId: item.id, notice: "" };
+}
+export function applyRankingPreview(state, access, history, binding, value) {
+  const { ownerId, chatId, projectId, original } = binding;
+  const record = state.records[chatId];
+  if (!access.canQuery || !access.canReadResults || access.suspended || !ownerId || history.owner !== ownerId
+    || state.activeId !== chatId || state.deletedChatIds?.includes(chatId) || !isUnsentChatDraft(record, original)
+    || record.projectId !== projectId || typeof value !== "string" || !value || value.length > 2000) return state;
+  if (original === "") return applyEmptyChatDraft(state, chatId, value);
+  return isOrdinaryRanking(original) ? startProjectDraft(state, projectId, value) : state;
 }
 export function applyEmptyChatDraft(state, id, value) {
   const record = state.records[id];
