@@ -1,22 +1,26 @@
-import React, { useId, useState } from "react";
+import React, { useId, useLayoutEffect, useRef, useState } from "react";
 import { initialRankFields, rankGroupsDraft, rankLabel, validRankNumber } from "./rankGroupsDraft.js";
 import "../../styles/rank-groups.css";
 
-function NameField({ name, label, value, onChange, placeholder }) {
+function NameField({ name, label, value, onChange, placeholder, inputRef }) {
   const hintId = useId();
   const invalid = value !== "" && !rankLabel(value);
-  return <div className="rank-groups__name"><label>{label}<input type="text" name={name} value={value} placeholder={placeholder} required maxLength={64}
+  return <div className="rank-groups__name"><label>{label}<input ref={inputRef} type="text" name={name} value={value} placeholder={placeholder} required maxLength={64}
     autoComplete="off" aria-invalid={invalid || undefined} aria-describedby={invalid ? hintId : undefined} onChange={event => onChange(event.target.value)} /></label>
     {invalid && <small id={hintId}>Use words, numbers, spaces, hyphens or underscores. Start with a letter.</small>}
   </div>;
 }
 
-export default function RankGroupsComposer({ onApply }) {
+export default function RankGroupsComposer({ onApply, reveal = false }) {
   const [fields, setFields] = useState(initialRankFields);
+  const details = useRef(null), source = useRef(null);
+  useLayoutEffect(() => {
+    if (reveal) { details.current.open = true; source.current.focus(); }
+  }, [reveal]);
   const numberHint = useId(), invalidNumber = fields.number !== "" && !validRankNumber(fields.number);
   const update = (key, value) => setFields(previous => ({ ...previous, [key]: value }));
   const draft = rankGroupsDraft(fields);
-  return <details className="rank-groups">
+  return <details ref={details} className="rank-groups">
     <summary>Rank groups</summary>
     <form className="rank-groups__form" aria-label="Rank groups" onSubmit={event => {
       event.preventDefault();
@@ -24,7 +28,7 @@ export default function RankGroupsComposer({ onApply }) {
     }}>
       <p>Rank the groups present in a source you can access.</p>
       <div className="rank-groups__fields">
-        <NameField name="source" label="Source" value={fields.source} placeholder="e.g. loans" onChange={value => update("source", value)} />
+        <NameField inputRef={source} name="source" label="Source" value={fields.source} placeholder="e.g. loans" onChange={value => update("source", value)} />
         <NameField name="group" label="Group by" value={fields.group} placeholder="e.g. branches" onChange={value => update("group", value)} />
         <label>Measure<select name="measure" value={fields.measure} onChange={event => update("measure", event.target.value)}>
           <option value="count">Count records</option><option value="total">Total a field</option></select></label>

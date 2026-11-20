@@ -2,7 +2,7 @@ import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import AquaMessage from "./AquaMessage.jsx";
 import UserMessage from "./UserMessage.jsx";
 
-export default function Conversation({ messages, pending, waiting, preferences, formingIds = [], onRetry, onShowVisual, onUnderstandResult, suspended = false, position, onPositionChange }) {
+export default function Conversation({ messages, pending, waiting, preferences, formingIds = [], onRetry, rankRecovery, onShowVisual, onUnderstandResult, suspended = false, position, onPositionChange }) {
   const follow = preferences?.device.auto_scroll !== "manual";
   const [essentialError, setEssentialError] = useState("");
   const knownStatuses = useRef(new Map(messages.map((message) => [message.id, message.response?.status || message.status])));
@@ -83,6 +83,7 @@ export default function Conversation({ messages, pending, waiting, preferences, 
                 preferences={preferences}
                 hidden={formingIds.includes(message.id)}
                 onRetry={onRetry}
+                onRankRecovery={message.id === rankRecovery?.replyId ? rankRecovery.open : undefined}
                 onShowVisual={onShowVisual}
                 onUnderstandResult={onUnderstandResult}
               />)}

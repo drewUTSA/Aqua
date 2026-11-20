@@ -9,10 +9,34 @@ export function initialWorkspace() {
   const conversation = emptyConversation();
   return { activeId: conversation.id, records: { [conversation.id]: conversation }, deletedChatIds: [], notice: "", loading: false };
 }
+
+// A recovery offer is local navigation for the latest saved ordinary question.
+// Its wording never supplies fields to the rank form or authorizes a submission.
+export function rankTimeoutReply(record) {
+  if (!record?.loaded || !record.revision || record.archived || record.historyLoading || record.operation) return null;
+  const reply = record.messages.at(-1);
+  if (!reply?.id || reply.conversationId !== record.id || reply.role !== "aqua" || reply.status !== "error"
+    || reply.sequence !== record.messageCount || !reply.requestId || !reply.replyTo || reply.resultUnavailable
+    || reply.response?.status !== "error" || reply.response.error?.code !== "model_timeout") return null;
+  const input = record.messages.find(item => item.id === reply.replyTo && item.role === "user");
+  if (!input || input.conversationId !== record.id || input.status !== "complete" || input.sequence >= reply.sequence || typeof input.content !== "string"
+    || (record.draft !== "" && record.draft !== input.content) || /^Rank groups:/i.test(input.content)) return null;
+  const words = input.content.replace(/\bat (?:most|least)\b/gi, "");
+  return /\b(?:ranks?|ranked|ranking|top|bottom|highest|lowest|most|least|fewest|largest|smallest|best|worst|busiest|ties|tied)\b/i.test(words) ? reply : null;
+}
+export function matchesRankRecovery(state, access, history, binding) {
+  if (!access.canQuery || !access.canReadResults || access.suspended || !binding.ownerId || history.owner !== binding.ownerId
+    || state.activeId !== binding.chatId || state.deletedChatIds?.includes(binding.chatId)) return false;
+  const reply = rankTimeoutReply(state.records[binding.chatId]);
+  return Boolean(reply && reply.id === binding.replyId && reply.requestId === binding.requestId);
+}
+export function isEmptyChatDraft(record) {
+  return Boolean(record?.id?.startsWith("draft-") && record.draft === "" && !record.operation
+    && !record.messages.length && !record.messageCount && !record.historyLoading && !record.archived);
+}
 export function applyEmptyChatDraft(state, id, value) {
   const record = state.records[id];
-  if (!id?.startsWith("draft-") || state.activeId !== id || !record || record.draft !== "" || record.operation
-    || record.messages.length || record.messageCount || record.historyLoading || record.archived) return state;
+  if (state.activeId !== id || !isEmptyChatDraft(record)) return state;
   return changeRecord(state, id, item => ({ ...item, draft: value }));
 }
 export function mergeMessages(previous, incoming) {
