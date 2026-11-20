@@ -65,6 +65,10 @@ export async function rankGroupsJourney({ navigate, signIn, viewport, click, fil
     { key: "total", label: "Total", type: "number" }], rows: [{ meter: "Orchard", total: 9 }] }];
   await click('[aria-label="Send message"]');
   await waitFor(`Boolean(${query("[data-rank-ties]")})`, "saved_ordinary_ranking_action");
+  await check("Saved ranking actions fit a narrow screen with full touch targets", `
+    [...${query("[data-rank-ties]")}.parentElement.querySelectorAll('button')].every(el=>{
+      const r=el.getBoundingClientRect(); return r.width>0 && r.left>=0 && r.right<=innerWidth+1 && r.height>=43.9;
+    })`);
   const beforeReview = fixture.calls.length;
   await evaluate(`${query("[data-rank-ties]")}.focus();true`); await key("Enter", 0, "\r");
   await waitFor(`Boolean(${query(".rank-groups[open]")})`, "saved_rank_keyboard_open");
