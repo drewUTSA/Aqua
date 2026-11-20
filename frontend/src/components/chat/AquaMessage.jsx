@@ -32,7 +32,7 @@ function SqlBlock({ sql, label = "SQL" }) {
   );
 }
 
-export default function AquaMessage({ message, hidden = false, onRetry, onShowVisual, onUnderstandResult, preferences }) {
+export default function AquaMessage({ message, hidden = false, onRetry, onRankRecovery, onShowVisual, onUnderstandResult, preferences }) {
   const [copyStatus, setCopyStatus] = useState("");
   const copyTimer = useRef(null);
   useEffect(() => () => window.clearTimeout(copyTimer.current), []);
@@ -72,6 +72,7 @@ export default function AquaMessage({ message, hidden = false, onRetry, onShowVi
               Try again
             </button>
           )}
+          {onRankRecovery && <button type="button" className="text-action" onClick={onRankRecovery}>Rank groups in a new chat</button>}
         </div>
       </article>
     );

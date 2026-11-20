@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { listModels, listMessages, submitQuestion, updateChat, deleteChat, operationId } from "../services/aquaClient.js";
-import { applyEmptyChatDraft, changeRecord, emptyConversation, failSubmission, finishHistory, finishSubmission, initialWorkspace, maskSavedResults, openConversation, removeConversation } from "./workspaceState.js";
+import { applyEmptyChatDraft, changeRecord, emptyConversation, failSubmission, finishHistory, finishSubmission, initialWorkspace, isEmptyChatDraft, maskSavedResults, matchesRankRecovery, openConversation, rankTimeoutReply, removeConversation } from "./workspaceState.js";
 import { useWorkspaceLists } from "./useWorkspaceLists.js";
 import { useAnalysisRequests } from "./useAnalysisRequests.js";
 import { acceptAnalysis, progressAnalysis, activeAnalysis, analysisRequests } from "./workspaceAnalysisState.js";
@@ -68,7 +68,7 @@ export function useWorkspace({ canQuery, canReadResults = canQuery, csrfToken, o
     update((previous) => openConversation(previous, summary)); void loadMessages(id); };
   const startConversation = ({ projectId = null } = {}) => { const previous = current.current;
     if (projectId !== null && !validId(projectId)) return null;
-    const empty = Object.values(previous.records).find((item) => item.id.startsWith("draft-") && !item.messages.length && !item.draft && !item.operation && item.projectId === projectId);
+    const empty = Object.values(previous.records).find((item) => item.projectId === projectId && isEmptyChatDraft(item));
     if (empty) { update((value) => ({ ...value, activeId: empty.id, notice: "" })); return empty.id; }
     if (Object.keys(previous.records).length >= 100) { onError(new Error("Keep up to 100 unsent drafts in this visit. Reuse an existing chat.")); return null; }
     const item = { ...emptyConversation(), projectId }; update((value) => ({ ...value, records: { ...value.records, [item.id]: item }, activeId: item.id, notice: "" })); return item.id; };
@@ -128,7 +128,17 @@ export function useWorkspace({ canQuery, canReadResults = canQuery, csrfToken, o
     return true;
   };
   const analysis = activeAnalysis(active), running = Boolean(analysis && !terminalAnalysis(analysis.state));
+  const startRankRecovery = binding => {
+    const latest = current.current, chatId = binding.chatId;
+    if (!alive.current || requests.current.has(chatId)) return null;
+    try { if (!matchesRankRecovery(latest, access.current, assertHistory(mountedHistory.current), binding)) return null; } catch { return null; }
+    const item = latest.records[chatId];
+    if (analysisRequests({ records: { [chatId]: item } }).length) return null;
+    const id = startConversation({ projectId: item.projectId });
+    return id === current.current.activeId ? id : null;
+  };
   return { durable: true, ...library, conversations, activeConversationId: state.activeId, active, messages: maskSavedResults(active.messages, canReadResults), draft: active.draft,
+    rankTimeout: canQuery && canReadResults && !suspended && !running ? rankTimeoutReply(active) : null, startRankRecovery,
     pending: Boolean(active.operation?.busy || running), submitting: Boolean(active.operation?.busy), waiting: Boolean(active.operation?.busy), uncertain: Boolean(active.operation?.uncertain), notice: state.notice,
     analysis, analysisConnection: analysis ? lifecycle.connections[analysis.id] : null, reconnectAnalysis: lifecycle.reconnect,
     cancelAnalysis: analysis?.cancellable && !analysis.cancelRequested && analysis.state !== "cancelling" ? () => lifecycle.cancel(analysis.id) : null,

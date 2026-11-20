@@ -8,6 +8,14 @@ In a signed-in synthetic check, both versions saved all four expected numbers. T
 
 Private follow-up admission keeps the same eight-turn window and prior-SQL limit. With eight 900-row saved results, it read 547 bytes of PostgreSQL result fields, down from 1,032,883. Across 24 alternating pairs, median context selection and decoding took 1.70 ms, previously 3.82 ms. With eight single-row results the medians were 0.54 and 0.50 ms respectively. Every pair produced the same context and digest.
 
+## Recover a timed-out ranking
+
+On a saved ranking timeout, **Try again** repeats the original question. **Rank groups in a new chat** opens the guided ranking form in an empty chat for the same project. Enter a source and grouping field, choose a measure and tie rule, and select **Use this draft**. Review the generated question in the ordinary composer and press **Send**. The first chat remains available in private history.
+
+The shortcut is available to employees with permission to query and read their results. Aqua checks the selected conversation, saved request and current access when the employee opens the form. Opening it sends no analysis request. The employee can leave the form without submitting a question.
+
+In the private browser rehearsal, a synthetic gateway timeout interrupted the original typed question. Both websites opened the blank form with the keyboard. After manual submission, Classic displayed both tied accounts and their counts in 1.417 seconds and Opal in 1.366 seconds. Each account had 500 transactions. Both results used zero additional provider calls. Each employee could reopen their own two chats, and a separate employee was denied access.
+
 ## Employee-selected group rankings
 
 **Rank groups** handles one authorized fact source, one grouping field, and either a row count or the sum of one eligible numeric field. The employee can choose an exact number of groups, every group tied at the cutoff, or every group in the requested number of distinct score levels. Aqua uses the existing query validator, read-only database role and row cap. The displayed result identifies its source as **Aqua grouped ranking**. An unsupported command receives a specific correction message without invoking the model. [Walkthrough](SALES_DEMO_20261118.md#rank-groups-in-a-new-chat)
