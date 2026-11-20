@@ -1,0 +1,112 @@
+{
+  "scope": "Operator-run six-task synthetic employee demo",
+  "completed": "2026-11-20",
+  "employeeReview": "passed",
+  "packageSha256": "6d42a0fe0fe250871280d27b7564439c5dd85f99b69e16ea56e08a4a53d345c9",
+  "website": {
+    "legacy": {
+      "receiptSha256": "c92c1c9a043fb9e29e59bdcef8f74d02bf18ffc05f4471bd4ce147316f03d925",
+      "browser": "WebKit",
+      "version": "27.2",
+      "privateHttps": true,
+      "syntheticIdentity": true,
+      "savedValueAndDraft": {
+        "savedField": "transaction_count",
+        "citedRows": [
+          1,
+          2
+        ],
+        "citedValue": 500,
+        "returnedRows": 2,
+        "followupEditedAndDiscarded": true,
+        "unchangedSavedHistory": true,
+        "additionalRequestsSubmitted": 0,
+        "keyboardReturnedToComposerDraft": true
+      },
+      "millisecondsToGuidedResult": 1410.855,
+      "providerCalls": 0,
+      "pageErrors": 0,
+      "signedOutReads": [
+        401,
+        401
+      ],
+      "otherEmployeeReads": [
+        404,
+        404
+      ]
+    },
+    "opal": {
+      "receiptSha256": "c9077faccb6f20c8ec4a1ee7ab39dbd0d4873b3e8f87b40ca7e81abe8f5aad9f",
+      "browser": "WebKit",
+      "version": "27.2",
+      "privateHttps": true,
+      "syntheticIdentity": true,
+      "savedValueAndDraft": {
+        "savedField": "transaction_count",
+        "citedRows": [
+          1,
+          2
+        ],
+        "citedValue": 500,
+        "returnedRows": 2,
+        "followupEditedAndDiscarded": true,
+        "unchangedSavedHistory": true,
+        "additionalRequestsSubmitted": 0,
+        "keyboardReturnedToComposerDraft": true
+      },
+      "millisecondsToGuidedResult": 1364.518,
+      "providerCalls": 0,
+      "pageErrors": 0,
+      "signedOutReads": [
+        401,
+        401
+      ],
+      "otherEmployeeReads": [
+        404,
+        404
+      ]
+    }
+  },
+  "windowsBankMcp": {
+    "receiptSha256": "81ae87446efef7b12180709362fca5c17be61ba3ade8ca65d266c261306ccc2d",
+    "reconciliation": {
+      "period": [
+        "2026-11-01",
+        "2026-11-16"
+      ],
+      "currency": "USD",
+      "branchDifferences": {
+        "north": "0.00",
+        "central": "250.00",
+        "south": "0.00"
+      },
+      "source": "finance_help"
+    },
+    "proposal": {
+      "status": "proposal_only",
+      "humanApprovalRequired": true,
+      "approvalRecorded": false,
+      "executionEnabled": false,
+      "boundToObservedReport": true
+    },
+    "history": {
+      "unit": "USD",
+      "observed_points": 18,
+      "observed_start": "2025-05-01",
+      "observed_end": "2026-10-01",
+      "slope_per_month": "5559.855521155830753354",
+      "fitted_direction": "rising",
+      "interpretation": "historical_fit_not_forecast_or_causation"
+    },
+    "excludedPartial": [
+      "2026-11"
+    ]
+  },
+  "productionDeploymentTested": false,
+  "humanEmployeeObserved": false,
+  "open": [
+    "General free-text ranked answers within deadline",
+    "Operational scale beyond the synthetic demo",
+    "Public rollout"
+  ]
+}
