@@ -1,5 +1,6 @@
 import { chatRecord, isRecord, messageRecord, pageRecord, projectRecord, promptRecord, requireContract, submissionRecord, validId } from "./workspaceContract.js";
 import { assertHistory, bindHistoryIntent, captureHistory, historyHeaders, observeHistory, HistoryChangedError } from "./historyAuthority.js";
+import { questionRetryMessage } from "./questionRetry.js";
 
 // A requested history page has at most twenty server-capped 240kB results.
 const MAX_BYTES = 6 * 1024 * 1024;
@@ -8,7 +9,9 @@ const COPY = { unauthenticated: "Your session has ended. Please sign in again.",
   conflict: "This item changed elsewhere. Refresh it before trying again.", invalid_input: "Check the text and try again.",
   throttled: "Too many workspace actions. Wait before trying again.", history_changed: "History changed. Reload the workspace before starting another action.", invalid_response: "AQUA could not read the saved workspace safely." };
 export class WorkspaceError extends Error {
-  constructor(code, status = 0, retryAfter = null) { super(COPY[code] || COPY.unavailable); this.name = "WorkspaceError";
+  constructor(code, status = 0, retryAfter = null, questionSubmission = false) {
+    const copy = COPY[code] || COPY.unavailable;
+    super(questionSubmission && code === "throttled" ? questionRetryMessage(retryAfter, copy) : copy); this.name = "WorkspaceError";
     this.code = Object.hasOwn(COPY, code) ? code : "unavailable"; this.status = status; this.retryAfter = retryAfter; }
 }
 export const operationId = () => globalThis.crypto.randomUUID();
@@ -32,7 +35,7 @@ async function readBody(response, signal, history, maxBytes) {
     return JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(result));
   } finally { await reader.cancel().catch(() => {}); reader.releaseLock(); }
 }
-export async function workspaceRequest(path, { method = "GET", body, csrfToken, signal, timeout = 15000, historyContext, maxBytes = MAX_BYTES,
+export async function workspaceRequest(path, { method = "GET", body, csrfToken, signal, timeout = 15000, historyContext, maxBytes = MAX_BYTES, questionSubmission = false,
   expectedStatuses = method === "DELETE" ? [204] : method === "POST" ? [200, 201] : [200] } = {}) {
   if (signal?.aborted) throw aborted();
   if (!Number.isSafeInteger(maxBytes) || maxBytes < 1 || maxBytes > MAX_BYTES) throw new WorkspaceError("invalid_input");
@@ -51,7 +54,7 @@ export async function workspaceRequest(path, { method = "GET", body, csrfToken, 
     if (response.redirected || !expectedStatuses.includes(response.status)) {
       await response.body?.cancel();
       const retry = response.headers.get("Retry-After"), seconds = /^\d{1,5}$/.test(retry || "") ? Math.min(Number(retry), 86400) : null;
-      throw new WorkspaceError(({ 401: "unauthenticated", 403: "forbidden", 404: "not_found", 409: "conflict", 422: "invalid_input", 429: "throttled" })[response.status] || "unavailable", response.status, seconds);
+      throw new WorkspaceError(({ 401: "unauthenticated", 403: "forbidden", 404: "not_found", 409: "conflict", 422: "invalid_input", 429: "throttled" })[response.status] || "unavailable", response.status, seconds, questionSubmission);
     }
     const result = response.status === 204 ? null : await readBody(response, controller.signal, history, maxBytes);
     assertHistory(history); return result;
@@ -78,7 +81,7 @@ export const submitQuestion = (submission, options = {}) => {
   const { chatId, retryInputId, ...body } = submission;
   return validated(chatId
   ? `/chats/${idPath(chatId)}/messages${retryInputId ? `/${idPath(retryInputId)}/retries` : ""}` : "/chats",
-{ ...options, historyContext, method: "POST", body, timeout: 120000, expectedStatuses: [200, 201, 202] }, (value) => {
+{ ...options, historyContext, method: "POST", body, timeout: 120000, expectedStatuses: [200, 201, 202], questionSubmission: true }, (value) => {
   const result = submissionRecord(value); requireContract(result.request.clientId === body.client_request_id && (!chatId || result.chat.id === chatId)); return result;
 }); };
 export const updateChat = (id, body, options) => validated(`/chats/${idPath(id)}`, { ...options, method: "PATCH", body }, (value) => chatRecord(value?.chat));

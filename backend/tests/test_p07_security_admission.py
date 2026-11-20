@@ -121,6 +121,62 @@ def test_legacy_http_route_cannot_bypass_budget_spent_through_durable_routes(
         assert conn.execute("SELECT count(*) FROM app.chats").fetchone() == (3,)
 
 
+def test_short_retry_after_is_exclusive_to_the_requesting_accounts_window(
+    security, monkeypatch
+):
+    import main
+
+    service = security.service()
+    client, session = security.session("Window-owner")
+    other, _ = security.session("Independent-window")
+    monkeypatch.setattr(main.app.state, "storage", service.storage)
+    monkeypatch.setattr(main.app.state, "analysis", service, raising=False)
+    bodies = [security.world.body(f"Original {i}", model="ollama") for i in range(3)]
+    for body in bodies:
+        job = client.post("/api/v1/chats", json=body)
+        assert job.status_code == 202
+        service.cancel(session, job.json()["request"]["id"])
+    account = "account:" + session.user["id"]
+    with security.storage.transaction() as db:
+        db.execute(
+            "UPDATE app.analysis_admission SET expires_at=clock_timestamp()+interval '5 seconds' WHERE scope=%s",
+            (account,),
+        )
+        db.execute(
+            "UPDATE app.analysis_admission SET units=60 WHERE scope='provider:ollama'"
+        )
+    question = security.world.body("One more question", model="ollama")
+    shared = client.post("/api/v1/chats", json=question)
+    assert shared.status_code == 429 and shared.headers["Retry-After"] == "60"
+    with security.storage.transaction() as db:
+        db.execute(
+            "UPDATE app.analysis_admission SET units=12 WHERE scope='provider:ollama'"
+        )
+    for route, body in [
+        ("/api/v1/chats", question),
+        ("/api/query", {"question": "Check", "model": "ollama"}),
+    ]:
+        denied = client.post(route, json=body)
+        assert (
+            denied.status_code == 429 and denied.headers["cache-control"] == "no-store"
+        )
+        seconds = int(denied.headers["Retry-After"])
+        assert 1 <= seconds <= 5
+        assert str(seconds) in denied.json()["error"]["message"]
+        assert denied.json()["error"]["code"] == "analysis_rate_limited"
+    assert client.post("/api/v1/chats", json=bodies[0]).status_code in (200, 202)
+    assert other.post("/api/v1/chats", json=security.world.body()).status_code == 202
+    with security.storage.transaction() as db:
+        assert db.execute(
+            "SELECT units FROM app.analysis_admission WHERE scope=%s", (account,)
+        ).fetchone() == (12,)
+        db.execute(
+            "UPDATE app.analysis_admission SET expires_at=clock_timestamp()-interval '1 second' WHERE scope=%s",
+            (account,),
+        )
+    assert client.post("/api/v1/chats", json=question).status_code == 202
+
+
 def test_legacy_success_keeps_original_json_and_never_creates_hidden_chat(
     security, monkeypatch
 ):

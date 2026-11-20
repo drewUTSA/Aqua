@@ -73,6 +73,10 @@ test("rate limits, bad questions, proxy pages and network failures become friend
   const limited = await queryApi({ prompt: "q", csrfToken: "t" }, fakeFetch(jsonReply(429, null)));
   assert.equal(limited.error.code, "rate_limited");
   assert.equal(limited.error.retryable, true);
+  const brief = await queryApi({ prompt: "q", csrfToken: "t" }, fakeFetch({
+    ...jsonReply(429, null), headers: new Headers({ "Retry-After": "4" })
+  }));
+  assert.equal(brief.error.message, "Try submitting your question again in 4 seconds.");
 
   const invalid = await queryApi({ prompt: "x".repeat(3000), csrfToken: "t" }, fakeFetch(jsonReply(422, { detail: [] })));
   assert.equal(invalid.error.code, "invalid_question");

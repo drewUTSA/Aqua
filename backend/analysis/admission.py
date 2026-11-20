@@ -1,6 +1,7 @@
 """Shared PostgreSQL admission cannot be multiplied by sessions or web workers."""
 
 import hashlib
+import math
 from psycopg import Connection
 from analysis import policy
 from workspace.database import LOCK as WORKSPACE_LOCK, one
@@ -22,11 +23,14 @@ def reserve(conn: Connection, owner: str, dataset: str, provider: str) -> None:
     ).fetchone()
     if counts[0] >= policy.QUEUED_GLOBAL or counts[1] >= policy.QUEUED_OWNER:
         raise WorkspaceError("analysis_busy", 429)
+    account_scope = "account:" + owner
     scopes = [
         ("global", 120),
-        ("account:" + owner, 12),
         ("dataset:" + hashlib.sha256(dataset.encode()).hexdigest(), 120),
         ("provider:" + provider, 60),
+        # A shared denial keeps its conservative delay even when this account
+        # also has a nearly expired window.
+        (account_scope, 12),
     ]
     conn.execute(
         "DELETE FROM app.analysis_admission WHERE expires_at<=clock_timestamp()"
@@ -52,6 +56,11 @@ def reserve(conn: Connection, owner: str, dataset: str, provider: str) -> None:
             and current["expires_at"] > current["instant"]
             and current["units"] + 4 > maximum
         ):
+            if scope == account_scope:
+                remaining = (current["expires_at"] - current["instant"]).total_seconds()
+                raise WorkspaceError(
+                    "analysis_rate_limited", 429, min(60, math.ceil(remaining))
+                )
             raise WorkspaceError("analysis_rate_limited", 429)
     # Reserve the complete four-call fallback/repair budget up front. Unused
     # attempts do not refund this minute's allowance and cannot fund a flood.
