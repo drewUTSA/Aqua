@@ -7,6 +7,7 @@ import path from "node:path";
 import { createHash } from "node:crypto";
 import { FixtureBridge } from "./p05-browser-bridge.mjs";
 import { BrowserPipe } from "./p05-browser-pipe.mjs";
+import { startupHandshake } from "./p05-browser-startup.mjs";
 import { browserFixtureMode, requireFixtureSchema, SECURE_ACCOUNT_ORIGIN, staticFixtureResponse } from "./p10b-browser-mode.mjs";
 import { documentPolicyHeaders, loadDocumentPolicies } from "./csp-policy.mjs";
 import { CSP_BINDING, CSP_OBSERVER_SOURCE, CSP_PROBE_PATH, CSP_PROBE_SOURCE, createCspDiagnostics, observeCspBinding } from "./csp-browser-probes.mjs";
@@ -37,13 +38,14 @@ export function setupDiagnostic(error, ctx) {
       stdio_close_observed: pipe.drained === true, signal_sent: child ? child.killed === true : null,
       close_kind: ["normal_exit", "signal_exit", "abnormal_exit"].includes(pipe.closeKind) ? pipe.closeKind : null } : null,
     browser_startup: pipe instanceof BrowserPipe ? pipe.startupObservation() : null,
+    ...(ctx?.startupAttempts ? { browser_startup_attempts: ctx.startupAttempts } : {}),
     bridge: bridge ? { kind: token(bridge.kind), category: token(bridge.category), stage: token(bridge.stage), module: token(bridge.module, /^[a-zA-Z0-9_.]{1,96}$/) } : null,
     cleanup: ctx?.cleanup ? { browser_stopped: ctx.cleanup.browser_stopped === true, profile_removed: ctx.cleanup.profile_removed === true, loopback_closed: ctx.cleanup.loopback_closed === true, backend_resources_removed: ctx.cleanup.backend_resources_removed === true,
       backend_status: token(ctx.cleanup.backend?.status), backend_cleanup: token(ctx.cleanup.backend?.cleanup), remaining_resources: Array.isArray(ctx.cleanup.backend?.remaining_ids) ? ctx.cleanup.backend.remaining_ids.length : null } : null };
 }
 
 export async function openP08Browser(options) {
-  const { secureAccountFixture, personalDeletionFixture = false, cspEnforcedFixture = false } = browserFixtureMode(options);
+  const { secureAccountFixture, personalDeletionFixture = false, cspEnforcedFixture = false, passwordStartupRecovery = false } = browserFixtureMode(options);
   const ctx = { started: performance.now(), stage: "configuration", runtimePhase: "setup", results: [], screenshots: [], assets: [], external: 0, requests: 0, api: 0,
     errors: [], protocolDiagnostics: [], runtimeErrors: 0, consoleLeaks: 0, navigating: false, pending: 0, maximumPending: 0, secrets: new Set() };
   const policies = loadDocumentPolicies(), cspMode = cspEnforcedFixture ? "enforced-fixture" : "source";
@@ -55,6 +57,7 @@ export async function openP08Browser(options) {
   if (imageIndex < 0 || argv.lastIndexOf("--image") !== imageIndex || !/^sha256:[a-f0-9]{64}$/.test(argv[imageIndex + 1] || "")) throw Error("immutable_fixture_image_required");
   const entries = personalDeletionFixture ? ["/tools/checks/p11b_browser_backend.py"] : ["/tools/checks/p10b_browser_backend.py","/tools/checks/p10c_browser_backend.py","/tools/checks/p11a_browser_backend.py"];
   if (secureAccountFixture && !argv.some(arg => entries.some(entry=>arg.endsWith(entry)))) throw Error("secure_account_fixture_entry_required");
+  if (passwordStartupRecovery && !argv.some(arg => arg.endsWith("/tools/checks/p10b_browser_backend.py"))) throw Error("password_fixture_entry_required");
   ctx.backendImage = argv[imageIndex + 1];
   await mkdir(artifacts, { recursive: true }); if ((await lstat(artifacts)).isSymbolicLink()) throw Error("artifact_symlink_denied");
   ctx.artifacts = artifacts;
@@ -82,6 +85,16 @@ export async function openP08Browser(options) {
   ctx.screenshot = async (name) => { const { data } = await ctx.cdp.send("Page.captureScreenshot", { format: "png", captureBeyondViewport: false });
     if (!/^[a-z0-9-]{1,80}$/.test(name) || data.length > 8 * 1024 * 1024) throw Error("screenshot_bound");
     await writeFile(path.join(artifacts, name + ".png"), Buffer.from(data, "base64")); ctx.screenshots.push(name + ".png"); };
+  let profileRemoved = false;
+  async function removeProfile() {
+    if (!ctx.profile) return;
+    const temporary = await realpath(tmpdir()), target = await realpath(ctx.profile);
+    if (path.dirname(target) !== temporary || !path.basename(target).startsWith("aqua-p08-browser-") || (await lstat(ctx.profile)).isSymbolicLink()) throw Error("profile_cleanup_scope_invalid");
+    await rm(ctx.profile, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
+    const remains = await lstat(ctx.profile).catch(error => { if (error.code !== "ENOENT") throw error; return null; });
+    if (remains) throw Error("browser_profile_cleanup_failed");
+    ctx.profile = null; profileRemoved = true;
+  }
   ctx.close = async () => {
     ctx.runtimePhase = "cleanup";
     clearTimeout(ctx.deadline);
@@ -95,10 +108,7 @@ export async function openP08Browser(options) {
     if (ctx.bridge && !finished && ctx.bridge.process.exitCode === null) { try { finished = await ctx.bridge.send("finish", {}, 30000); } catch { finished = ctx.bridge.finished; } }
     if (ctx.bridge) { ctx.bridge.process.stdin.end(); await Promise.race([ctx.bridge.closed, delay(3000)]); if (ctx.bridge.process.exitCode === null) ctx.bridge.process.kill(); finished ||= ctx.bridge.finished; }
     ctx.server?.closeAllConnections(); if (ctx.server?.listening) await new Promise((resolve) => ctx.server.close(resolve));
-    let profileRemoved = false;
-    if (ctx.profile) { const temporary = await realpath(tmpdir()), target = await realpath(ctx.profile);
-      if (path.dirname(target) !== temporary || !path.basename(target).startsWith("aqua-p08-browser-") || (await lstat(ctx.profile)).isSymbolicLink()) throw Error("profile_cleanup_scope_invalid");
-      await rm(ctx.profile, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 }); profileRemoved = true; }
+    await removeProfile();
     ctx.cleanup = { browser_stopped: ctx.cdp?.stopped === true && !ctx.cdp?.cleanupFailure, profile_removed: profileRemoved, loopback_closed: !ctx.server?.listening,
       backend_resources_removed: finished?.status === "passed" && finished.report?.cleanup === "removed_and_absence_confirmed" && finished.report?.remaining_ids?.length === 0,
       backend: finished?.report || null };
@@ -135,14 +145,28 @@ export async function openP08Browser(options) {
     ctx.personalExportFixture=ready.personal_export_fixture===true;
     if (secureAccountFixture && ready.account_security_fixture !== true) throw Error("secure_account_fixture_required");
     if ((await ctx.bridge.send("workspace_stats")).p08_presentation_fixture !== true) throw Error("p08_fixture_required");
-    ctx.profile = await mkdtemp(path.join(await realpath(tmpdir()), "aqua-p08-browser-"));
     const chrome = process.env.AQUA_CHROME_EXECUTABLE || (process.platform === "win32" ? "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe" : "/usr/bin/google-chrome");
     const env = Object.fromEntries(["SystemRoot", "WINDIR", "PATH", "TEMP", "TMP", "LOCALAPPDATA", "USERPROFILE", "APPDATA", "HOME"].filter((name) => process.env[name]).map((name) => [name, process.env[name]]));
-    ctx.browser = spawn(chrome, ["--headless=new", "--no-first-run", "--no-default-browser-check", "--disable-background-networking", "--disable-component-update", "--disable-sync", "--disable-extensions", "--disable-default-apps", "--no-pings", "--metrics-recording-only", "--host-resolver-rules=MAP * ~NOTFOUND, EXCLUDE 127.0.0.1", "--remote-debugging-pipe", `--user-data-dir=${ctx.profile}`, "about:blank"],
-      { windowsHide: true, stdio: ["ignore", "ignore", "ignore", "pipe", "pipe"], env });
-    ctx.cdp = new BrowserPipe(ctx.browser, { session: () => ctx.sessionId, deadline: ctx.started + LIMITS.milliseconds });
-    ctx.deadline = setTimeout(() => ctx.cdp.fail("browser_suite_deadline"), Math.max(1, LIMITS.milliseconds - (performance.now() - ctx.started)));
-    ctx.browserVersion = (await ctx.cdp.ready()).product;
+    async function launch() {
+      ctx.profile = await mkdtemp(path.join(await realpath(tmpdir()), "aqua-p08-browser-")); profileRemoved = false;
+      ctx.browser = spawn(chrome, ["--headless=new", "--no-first-run", "--no-default-browser-check", "--disable-background-networking", "--disable-component-update", "--disable-sync", "--disable-extensions", "--disable-default-apps", "--no-pings", "--metrics-recording-only", "--host-resolver-rules=MAP * ~NOTFOUND, EXCLUDE 127.0.0.1", "--remote-debugging-pipe", `--user-data-dir=${ctx.profile}`, "about:blank"],
+        { windowsHide: true, stdio: ["ignore", "ignore", "ignore", "pipe", "pipe"], env });
+      ctx.cdp = new BrowserPipe(ctx.browser, { session: () => ctx.sessionId, deadline: ctx.started + LIMITS.milliseconds });
+      ctx.deadline ??= setTimeout(() => ctx.cdp.fail("browser_suite_deadline"), Math.max(1, LIMITS.milliseconds - (performance.now() - ctx.started)));
+      return ctx.cdp;
+    }
+    if (passwordStartupRecovery) {
+      ctx.startupAttempts = [];
+      // workspace_stats above is the single read-only bridge operation. No page exists
+      // until the successful handshake below. Account operations never re-enter here.
+      const untouched = () => !ctx.sessionId && !ctx.server && ctx.requests === 0 && ctx.api === 0 && ctx.pending === 0
+        && !ctx.navigating && ctx.results.length === 0 && ctx.screenshots.length === 0 && ctx.secrets.size === 0
+        && ctx.bridge.id === 1 && !ctx.bridge.pending.size && !ctx.bridge.failure && !ctx.bridge.finished;
+      ctx.browserVersion = (await startupHandshake({ launch, removeProfile, untouched, attempts: ctx.startupAttempts })).product;
+    } else {
+      const pipe = await launch();
+      ctx.browserVersion = (await pipe.ready()).product;
+    }
     const targets = await ctx.cdp.send("Target.getTargets"); ({ sessionId: ctx.sessionId } = await ctx.cdp.send("Target.attachToTarget", { targetId: targets.targetInfos.find((item) => item.type === "page").targetId, flatten: true }));
     let queue = Promise.resolve(), nextRequest = 0; const aborted = new Set();
     if (secureAccountFixture) ctx.probeCopiedSession = token => {
