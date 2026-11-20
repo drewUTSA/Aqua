@@ -19,6 +19,13 @@ test("actual deletion mode requires the secure fixture and remains a closed bool
   for (const value of [{ personalDeletionFixture: true }, { secureAccountFixture: false, personalDeletionFixture: true }, { secureAccountFixture: true, personalDeletionFixture: 'true' },
     Object.defineProperty({ secureAccountFixture: true }, 'personalDeletionFixture', { get() { throw Error('must not evaluate'); }, enumerable: true })]) assert.throws(() => browserFixtureMode(value), /fixture_mode_invalid/);
 });
+test("initial password handshake recovery is opt-in for the secure account fixture only", () => {
+  assert.deepEqual(browserFixtureMode({ secureAccountFixture: true, passwordStartupRecovery: true }), { secureAccountFixture: true, passwordStartupRecovery: true });
+  assert.deepEqual(browserFixtureMode({ secureAccountFixture: true, passwordStartupRecovery: false }), { secureAccountFixture: true });
+  for (const mode of [{}, { secureAccountFixture: true, personalDeletionFixture: true }, { secureAccountFixture: true, cspEnforcedFixture: true }])
+    assert.throws(() => browserFixtureMode({ ...mode, passwordStartupRecovery: true }), /fixture_mode_invalid/);
+  assert.throws(() => browserFixtureMode({ secureAccountFixture: true, passwordStartupRecovery: "true" }), /fixture_mode_invalid/);
+});
 test("reserved secure static responses serve only frozen bytes with safe headers and no fallback network", () => {
   const files = new Map([["/index.html", Buffer.from("synthetic app")], ["/assets/code.js", Buffer.from("synthetic code")]]);
   for (const [route, expected] of [["/", "synthetic app"], ["/settings", "synthetic app"], ["/assets/code.js", "synthetic code"]]) {

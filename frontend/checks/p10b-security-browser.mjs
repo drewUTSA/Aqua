@@ -11,7 +11,7 @@ const EMAIL = "p05-browser-reader@example.test", PASSWORD = "Synthetic orbital m
 let ctx, failure = null, setup = null, workload = null, stats = null;
 try {
   if (!SECURITY_SCENARIOS.has(scenario)) throw Error("security_scenario_invalid");
-  ctx = await openP08Browser({ secureAccountFixture: true }); ctx.secrets.add(PASSWORD); ctx.secrets.add(NEXT_PASSWORD);
+  ctx = await openP08Browser({ secureAccountFixture: true, passwordStartupRecovery: scenario === "password" }); ctx.secrets.add(PASSWORD); ctx.secrets.add(NEXT_PASSWORD);
   await ctx.navigate("/register"); await ctx.fill("#auth-email", EMAIL); await ctx.click("[data-testid=password-auth-submit]");
   await ctx.waitFor("location.pathname==='/registration-sent'", "registration_acknowledged");
   const mail = await ctx.bridge.send("mailbox", { purpose: "verify_email" });
@@ -36,6 +36,7 @@ const report = { status: failure ? "failed" : "passed", failure, checked_utc: ne
   limits: LIMITS, workload, fixture: stats, secure_origin: ctx?.secureAccountFixture || null,
   boundary: { backend_image: ctx?.backendImage || null, schema_version: ctx?.schemaVersion ?? null, network: "none", live_provider_or_production: false, dns_socket_tls_transport_tested: false },
   browser_diagnostic: ctx?.cdp?.diagnostic || null, protocol_diagnostics: ctx?.protocolDiagnostics || [], setup_diagnostic: setup,
+  ...(ctx?.startupAttempts ? { browser_startup_attempts: ctx.startupAttempts } : {}),
   checks: ctx?.results || [], screenshots: ctx?.screenshots || [], assets: ctx?.assets || [], cleanup: ctx?.cleanup || null,
   observations: ctx ? { requests: ctx.requests, api_requests: ctx.api, external_attempts: ctx.external, runtime_errors: ctx.runtimeErrors,
     console_leaks: ctx.consoleLeaks, protocol_errors: ctx.errors, maximum_paused_requests: ctx.maximumPending } : null,

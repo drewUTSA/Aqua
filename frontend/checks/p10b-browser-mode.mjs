@@ -10,10 +10,12 @@ export function browserFixtureMode(options) {
   if (options === undefined) return { secureAccountFixture: false };
   if (!options || typeof options !== "object" || Array.isArray(options) || ![Object.prototype, null].includes(Object.getPrototypeOf(options))) throw Error("fixture_mode_invalid");
   const keys = Reflect.ownKeys(options);
-  if (keys.some(key => !["secureAccountFixture", "personalDeletionFixture", "cspEnforcedFixture"].includes(key) || !Object.hasOwn(Object.getOwnPropertyDescriptor(options, key), "value") || typeof options[key] !== "boolean")
-    || options.personalDeletionFixture === true && options.secureAccountFixture !== true) throw Error("fixture_mode_invalid");
+  if (keys.some(key => !["secureAccountFixture", "personalDeletionFixture", "cspEnforcedFixture", "passwordStartupRecovery"].includes(key) || !Object.hasOwn(Object.getOwnPropertyDescriptor(options, key), "value") || typeof options[key] !== "boolean")
+    || options.personalDeletionFixture === true && options.secureAccountFixture !== true
+    || options.passwordStartupRecovery === true && (options.secureAccountFixture !== true || options.personalDeletionFixture || options.cspEnforcedFixture)) throw Error("fixture_mode_invalid");
   return { secureAccountFixture: options.secureAccountFixture === true, ...(options.personalDeletionFixture === true ? { personalDeletionFixture: true } : {}),
-    ...(options.cspEnforcedFixture === true ? { cspEnforcedFixture: true } : {}) };
+    ...(options.cspEnforcedFixture === true ? { cspEnforcedFixture: true } : {}),
+    ...(options.passwordStartupRecovery === true ? { passwordStartupRecovery: true } : {}) };
 }
 
 // Secure mode uses the same frozen byte map as HTTP. This account fixture
