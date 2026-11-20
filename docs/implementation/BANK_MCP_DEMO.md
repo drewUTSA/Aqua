@@ -1,5 +1,11 @@
 # Local fictional bank MCP demonstration
 
+### Prepare an offline demo for an employee
+
+From a trusted Aqua checkout, run `python tools/bank_demo/build_offline_demo.py ../aqua-bank-demo-transfer` with a new output directory. The builder takes the reviewed bank sources, fixtures, launchers and wheel locks from the current Git commit and retrieves only hash-pinned wheels. Give the employee the resulting ZIP and its SHA-256 through your usual trusted handoff.
+
+On Windows x64 or glibc Linux x86_64, the employee needs CPython 3.12 with venv support. Setup in the extracted folder installs locally with package indexes disabled and prints an MCP host entry. The included teller, analyst and manager walkthroughs run without a database login, cloud account or model download. [Offline installation and employee roles](../../tools/bank_demo/offline/README.md)
+
 This is a runnable **sales demonstration using original synthetic bank data**.
 An MCP host can discover scoped aggregate reports, receive cited fictional
 guidance, perform exact financial calculations, inspect descriptive monthly
