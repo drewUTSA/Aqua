@@ -9,6 +9,62 @@ from analysis.policy import MAX_CONTEXT_BYTES
 from workspace_fixtures import GOOD
 
 
+def test_frozen_context_projects_only_eligible_fields_from_the_original_recent_window(
+    security, monkeypatch
+):
+    from analysis import context as history
+    from psycopg.types.json import Jsonb
+
+    _, session = security.session()
+    first = security.seed(session, "Older than the eight-turn window")
+    chat = first["chat"]["id"]
+    saved = [security.seed(session, f"Observation {n}", chat_id=chat) for n in range(8)]
+    # Include legacy/malformed SQL values and UTF-8 byte boundaries. Non-SQL
+    # fields may still contain a large, valid saved answer for the history UI.
+    payloads = [
+        {"status": "success", "sql": "oldest eligible SQL"},
+        {"status": "success", "sql": "\u00e9" * 2048},
+        {"status": "success", "sql": "\u00e9" * 2048 + "x"},
+        {"status": "success", "sql": ["legacy value"]},
+        {"status": "success"},
+        {"status": "error", "sql": "missing success"},
+        {"status": "success", "sql": ""},
+        {"status": "success", "sql": "previous grant"},
+    ]
+    with security.storage.transaction() as conn:
+        for saved_turn, payload in zip(saved, payloads):
+            response = {**payload, "tables": [{"rows": ["PRIVATE_ROW" * 1000]}]}
+            conn.execute(
+                "UPDATE app.visual_results SET response=%s WHERE request_id=%s",
+                (Jsonb(response), saved_turn["request"]["id"]),
+            )
+        conn.execute(
+            "UPDATE app.analysis_requests SET grant_version=grant_version+1 WHERE id=%s",
+            (saved[-1]["request"]["id"],),
+        )
+    fetch = history.rows
+
+    def measured(conn, query, params):
+        candidates = fetch(conn, query, params)
+        assert len(candidates) == 7
+        assert all(
+            set(row) == {"id", "sequence", "content", "sql"} for row in candidates
+        )
+        assert all(
+            row["sql"] is None or len(row["sql"].encode()) <= 4096 for row in candidates
+        )
+        return candidates
+
+    monkeypatch.setattr(history, "rows", measured)
+    selected, digest = context(security, session, chat)
+    assert [x["question"] for x in selected] == [f"Observation {n}" for n in range(7)]
+    assert [(x["question"], x["sql"]) for x in selected if "sql" in x] == [
+        ("Observation 1", "\u00e9" * 2048),
+        ("Observation 6", ""),
+    ]
+    assert digest == hashlib.sha256(encode(selected)).digest()
+
+
 def context(security, session, chat_id, sequence=1000):
     with security.storage.transaction() as conn:
         return select(

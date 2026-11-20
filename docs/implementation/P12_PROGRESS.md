@@ -1,5 +1,13 @@
 # P12 capacity and AI reliability — implementation in progress
 
+## Ordinary record counts and follow-up history
+
+Employees can ask how many reviewed records exist or specify a numeric amount threshold. For example, “How many transactions have an amount greater than 957.25 CZK?” uses the bank transaction amount. Aqua checks the selected tables and field types, validates the SQL and executes with the read-only analytical role. Counts with prior context, unsupported units, additional filters or grouping continue through the existing question pipeline.
+
+In a signed-in synthetic check, both versions saved all four expected numbers. The earlier version asked the fixture provider for SQL four times. The revised version made zero generation calls and saved the four results in 0.677–0.894 seconds. Two unsupported controls still reached the provider and preserved the normal service error. These timings used a local counting provider and synthetic PostgreSQL data.
+
+Private follow-up admission keeps the same eight-turn window and prior-SQL limit. With eight 900-row saved results, it read 547 bytes of PostgreSQL result fields, down from 1,032,883. Across 24 alternating pairs, median context selection and decoding took 1.70 ms, previously 3.82 ms. With eight single-row results the medians were 0.54 and 0.50 ms respectively. Every pair produced the same context and digest.
+
 ## Employee-selected group rankings
 
 **Rank groups** handles one authorized fact source, one grouping field, and either a row count or the sum of one eligible numeric field. The employee can choose an exact number of groups, every group tied at the cutoff, or every group in the requested number of distinct score levels. Aqua uses the existing query validator, read-only database role and row cap. The displayed result identifies its source as **Aqua grouped ranking**. An unsupported command receives a specific correction message without invoking the model. [Walkthrough](SALES_DEMO_20261118.md#rank-groups-in-a-new-chat)

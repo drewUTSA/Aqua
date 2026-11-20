@@ -1,3 +1,7 @@
+## November 20 ordinary chat counts
+
+In the reviewed bank and Pagila demos, ordinary chat can answer a standalone record count directly from the authorized database. The saved answer identifies **Aqua record count** as its source. Follow-ups retain their existing context. Building that context now reads only the eligible questions and bounded SQL from recent turns. [Scope and measurements](docs/implementation/P12_PROGRESS.md#ordinary-record-counts-and-follow-up-history)
+
 ## November 19 restart point
 
 Employees with a dataset grant can open **Rank groups** in a new chat on either website. The employee chooses the grouping field, count or total, direction and tie rule, reviews the draft, then sends it. Aqua executes supported requests against the authorized database and saves the private result with zero model calls. Ordinary chat keeps its existing planner. [Presenter walkthrough](docs/implementation/SALES_DEMO_20261118.md#rank-groups-in-a-new-chat) · [Free-text and repair measurements](docs/implementation/P12_PROGRESS.md#employee-selected-group-rankings)

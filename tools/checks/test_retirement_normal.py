@@ -39,6 +39,7 @@ class NormalGuards(unittest.TestCase):
 
     def test_exact_compiled_runtime_subset_is_public_and_root_pinned(self):
         additions = {
+            "nl2sql/scalar_count.py",
             "nl2sql/calendar_count.py",
             "nl2sql/explicit_ranking.py",
             "nl2sql/group_rank_language.py",
@@ -93,7 +94,7 @@ class NormalGuards(unittest.TestCase):
         }
         self.assertTrue(additions <= RUNTIME_FILES.keys())
         self.assertEqual(len(RUNTIME_FILES.keys() - additions), 191)
-        self.assertEqual(len(RUNTIME_FILES), 242)
+        self.assertEqual(len(RUNTIME_FILES), 243)
         self.assertEqual(len(MANIFEST_SHA256), 64)
         self.assertEqual(IMAGE, runner.IMAGE)
         self.assertIn("main.py", RUNTIME_FILES)
