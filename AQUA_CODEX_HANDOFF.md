@@ -1,3 +1,7 @@
+## November 20 guided ranking before Send
+
+Employees can open **Rank groups** while typing a ranking in a new chat. **Back to my question** returns to the original text. **Use in a new draft** opens an editable preview in the same project. Only **Send** starts a query. The original wording stays available under **Recent chats → Unsent drafts** for that visit. [Presenter walkthrough](docs/implementation/SALES_DEMO_20261118.md#rank-groups-in-a-new-chat)
+
 ## November 20 ranking timeout recovery
 
 When a signed-in employee's latest ordinary ranking question times out, both websites offer **Rank groups in a new chat** beside **Try again**. The new action opens an empty ranking form in the same project and focuses **Source**. The original chat keeps its private timeout record. The employee reviews the new question and chooses **Send**. [Employee workflow](docs/implementation/P12_PROGRESS.md#recover-a-timed-out-ranking)

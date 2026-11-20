@@ -8,6 +8,12 @@ In a signed-in synthetic check, both versions saved all four expected numbers. T
 
 Private follow-up admission keeps the same eight-turn window and prior-SQL limit. With eight 900-row saved results, it read 547 bytes of PostgreSQL result fields, down from 1,032,883. Across 24 alternating pairs, median context selection and decoding took 1.70 ms, previously 3.82 ms. With eight single-row results the medians were 0.54 and 0.50 ms respectively. Every pair produced the same context and digest.
 
+## Choose the tie rule before sending
+
+In a new chat, a granted employee typing a ranking can open **Rank groups** by keyboard and enter the source, grouping field, measure and tie rule. **Back to my question** restores focus to the original text. **Use in a new draft** preserves the original in this visit’s unsent drafts and opens the preview for editing in the same project. Creating or switching drafts starts zero queries.
+
+On a fictional 1,000-transaction ledger, a signed-in employee used this path to return both accounts tied at 500 transactions. From pressing **Send** to seeing the complete table took 1.97 seconds on Classic and 1.39 seconds on Opal. Each run saved one request, made zero model calls and reopened the result after reload. The ordinary free-text route still has a separate accuracy and latency target.
+
 ## Recover a timed-out ranking
 
 On a saved ranking timeout, **Try again** repeats the original question. **Rank groups in a new chat** opens the guided ranking form in an empty chat for the same project. Enter a source and grouping field, choose a measure and tie rule, and select **Use this draft**. Review the generated question in the ordinary composer and press **Send**. The first chat remains available in private history.
