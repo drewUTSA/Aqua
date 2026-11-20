@@ -1,5 +1,20 @@
 # P12 capacity and AI reliability — implementation in progress
 
+## Six-task employee demo
+
+✅ All six tasks passed on November 20 under the product owner's operator-review criterion for the synthetic sales demo.
+
+| Employee task | Observed result |
+| --- | --- |
+| Explain a saved value | Both websites reopened the two account rows and cited the saved transaction count of 500 in each. |
+| Revise a follow-up | The operator edited a draft, discarded it and reopened the original result. Neither site submitted another query. |
+| Interpret a reconciliation | For November 1–16, the fictional Central branch statement exceeded its ledger by USD 250. The other two branches reconciled. |
+| Prepare a proposal | The analyst MCP attached the proposal to the observed report, required human review and left execution disabled. |
+| Explain a trend | The fitted historical monthly surplus rose by about USD 5,560 per month over 18 complete months. The calculation excluded the partial November period. |
+| Navigate by keyboard | Both sites returned focus to the editable draft after the operator reopened the saved result. |
+
+The web checks ran in desktop WebKit over private HTTPS with disposable accounts. The MCP ran locally on Windows. The synthetic three-person workload retains its separately measured 18/20 result within 45 seconds. General free-text rankings still need accuracy and latency work. [Packaged workflow evidence](evidence/p12/employee-workflow-20261120.json)
+
 ## Ordinary record counts and follow-up history
 
 Employees can ask how many reviewed records exist or specify a numeric amount threshold. For example, “How many transactions have an amount greater than 957.25 CZK?” uses the bank transaction amount. Aqua checks the selected tables and field types, validates the SQL and executes with the read-only analytical role. Counts with prior context, unsupported units, additional filters or grouping continue through the existing question pipeline.
@@ -233,5 +248,5 @@ a fresh complete run; the earlier failed run remains recorded.
 
 The November 18 three-person run provides a measured end-to-end workload for the
 local demo. Operational P12 acceptance requires a deployment-specific load mix,
-service objectives, documented capacity limits and intended employee review.
+service objectives and documented capacity limits. The six-task review above covers the synthetic demo.
 The earlier component checks retain their original scope. [Current handoff](../../AQUA_CODEX_HANDOFF.md)
