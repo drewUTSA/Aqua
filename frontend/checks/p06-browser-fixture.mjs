@@ -58,7 +58,7 @@ export function workspaceFixture(fixture) {
       if (input.content?.startsWith("P07 ")) return json(202, analysis.submit(data, record, input, body, requestId));
       const captured = fixture.queryMessage;
       const finish = async () => {
-        const response = { status: "success", message: captured, sql: "SELECT 1 AS synthetic_value", model: "fixture-model", tables: [], visualizations: [], kpis: [] };
+        const response = { status: "success", message: captured, sql: "SELECT 1 AS synthetic_value", model: "fixture-model", tables: fixture.queryTables || [], visualizations: [], kpis: [] };
         const assistant = { ...input, id: randomUUID(), sequence: record.messages.length + 1, role: "aqua", content: "", request_id: requestId, reply_to: input.id, response };
         record.messages.push(assistant); record.chat.message_count = record.messages.length; record.chat.revision++; record.chat.last_activity_at = now();
         data.chats.set(record.chat.id, record);

@@ -56,11 +56,31 @@ export async function rankGroupsJourney({ navigate, signIn, viewport, click, fil
   assert.equal(submissions.length, 1, "only_the_employee_send_creates_a_question");
   assert.equal(submissions[0].body.question, edited, "employee_edits_are_the_exact_submitted_text");
   await check("The explicit Send is saved literally and the tool is absent from history",
-    `${query(".conversation .message--user")}.textContent.includes(${JSON.stringify(edited)}) && !${query(".rank-groups")}`);
+    `${query(".conversation .message--user")}.textContent.includes(${JSON.stringify(edited)}) && !${query(".rank-groups")} && !${query("[data-rank-ties]")}`);
   await openDrafts({ evaluate, click, waitFor });
   await click(".refined-recovery-dialog .refined-search-results button");
   await waitFor(`${query(box)}?.value===${JSON.stringify(original)}`, "original_unsent_ranking_restored");
   assert.equal(fixture.queryCount(), 1, "restoring_the_original_must_not_send");
+  fixture.queryTables = [{ id: "result", title: "Meter totals", columns: [{ key: "meter", label: "Meter", type: "string" },
+    { key: "total", label: "Total", type: "number" }], rows: [{ meter: "Orchard", total: 9 }] }];
+  await click('[aria-label="Send message"]');
+  await waitFor(`Boolean(${query("[data-rank-ties]")})`, "saved_ordinary_ranking_action");
+  const beforeReview = fixture.calls.length;
+  await evaluate(`${query("[data-rank-ties]")}.focus();true`); await key("Enter", 0, "\r");
+  await waitFor(`Boolean(${query(".rank-groups[open]")})`, "saved_rank_keyboard_open");
+  await check("Choosing tie rules from a saved table focuses Source and leaves every ranking choice to the employee", `
+    document.activeElement===${query(scope + ' input[name="source"]')} && ${query(box)}.value==='' &&
+    [...${query(scope)}.querySelectorAll('input,select')].every(el=>el.value==='') &&
+    ${query(scope + ' button[type="submit"]')}.disabled && !${query(".rank-groups__preview")}`);
+  await input("source", "readings"); await input("group", "meters"); await input("number", "2");
+  await change("measure", "count"); await change("direction", "top");
+  await check("Preview waits for an explicit tie rule", `${query(scope + ' button[type="submit"]')}.disabled && !${query(".rank-groups__preview")}`);
+  await change("ties", "peers");
+  await click(scope + ' button[type="submit"]');
+  await check("A new editable question explicitly includes ties and waits for Send", `
+    ${query(box)}.value==='Rank groups: From readings, show the top 2 meters by row count, including ties.' && document.activeElement===${query(box)}`);
+  assert.equal(fixture.queryCount(), 2, "opening_a_saved_rank_and_preparing_its_draft_must_not_submit");
+  assert.ok(fixture.calls.slice(beforeReview).every(call => call.method === "GET"), "saved_review_never_writes");
   fixture.canQuery = false;
   await navigate("/");
   await waitFor(`${query(box)}?.disabled===true`, "rank_restricted_workspace");

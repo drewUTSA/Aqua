@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { listModels, listMessages, submitQuestion, updateChat, deleteChat, operationId } from "../services/aquaClient.js";
-import { applyRankingPreview, changeRecord, failSubmission, finishHistory, finishSubmission, initialWorkspace, maskSavedResults, matchesRankRecovery, openConversation, rankTimeoutReply, removeConversation, startProjectDraft } from "./workspaceState.js";
+import { applyRankingPreview, changeRecord, failSubmission, finishHistory, finishSubmission, initialWorkspace, maskSavedResults, matchesSavedRank, openConversation, savedRankReply, removeConversation, startProjectDraft } from "./workspaceState.js";
 import { useWorkspaceLists } from "./useWorkspaceLists.js";
 import { useAnalysisRequests } from "./useAnalysisRequests.js";
 import { acceptAnalysis, progressAnalysis, activeAnalysis, analysisRequests } from "./workspaceAnalysisState.js";
@@ -131,17 +131,17 @@ export function useWorkspace({ canQuery, canReadResults = canQuery, csrfToken, o
     return true;
   };
   const analysis = activeAnalysis(active), running = Boolean(analysis && !terminalAnalysis(analysis.state));
-  const startRankRecovery = binding => {
+  const startSavedRankDraft = binding => {
     const latest = current.current, chatId = binding.chatId;
     if (!alive.current || requests.current.has(chatId)) return null;
-    try { if (!matchesRankRecovery(latest, access.current, assertHistory(mountedHistory.current), binding)) return null; } catch { return null; }
+    try { if (!matchesSavedRank(latest, access.current, assertHistory(mountedHistory.current), binding)) return null; } catch { return null; }
     const item = latest.records[chatId];
     if (analysisRequests({ records: { [chatId]: item } }).length) return null;
     const id = startConversation({ projectId: item.projectId });
     return id === current.current.activeId ? id : null;
   };
   return { durable: true, ...library, conversations, activeConversationId: state.activeId, active, messages: maskSavedResults(active.messages, canReadResults), draft: active.draft,
-    rankTimeout: canQuery && canReadResults && !suspended && !running ? rankTimeoutReply(active) : null, startRankRecovery,
+    rankReply: canQuery && canReadResults && !suspended && !running ? savedRankReply(active) : null, startSavedRankDraft,
     pending: Boolean(active.operation?.busy || running), submitting: Boolean(active.operation?.busy), waiting: Boolean(active.operation?.busy), uncertain: Boolean(active.operation?.uncertain), notice: state.notice,
     analysis, analysisConnection: analysis ? lifecycle.connections[analysis.id] : null, reconnectAnalysis: lifecycle.reconnect,
     cancelAnalysis: analysis?.cancellable && !analysis.cancelRequested && analysis.state !== "cancelling" ? () => lifecycle.cancel(analysis.id) : null,
