@@ -155,16 +155,74 @@ def _result(payload, *, error=False):
     return result
 
 
-def _error(category="demo_request_denied"):
+def _error(category="demo_request_denied", *, message=None):
     # The category is selected locally, never copied from a request/exception.
     return _result(
         {
             "status": "denied",
             "reason": category,
-            "message": "I can help with the fictional examples available to this demo persona. Check the listed tools and their input fields.",
+            "message": message
+            or "I can help with the fictional examples available to this demo persona. Check the listed tools and their input fields.",
         },
         error=True,
     )
+
+
+_FINANCE_CURRENCY = (
+    "Confirm the supplied amounts are in USD. Declare currency exactly once, "
+    "beside operation or inside parameters. This calculator cannot convert currencies."
+)
+_FINANCE_LOAN = (
+    "These terms cannot produce a valid cent-rounded loan schedule. Confirm the "
+    "employee's principal, annual rate and term. If the terms are correct, withhold the illustration."
+)
+_FINANCE_HINTS = {
+    "finance_currency": _FINANCE_CURRENCY,
+    "finance_period": "Use the same stated period for the amounts. Choose day, month, quarter, year or statement only when it matches the employee's records.",
+    "finance_amount": "Supply monetary amounts as plain USD decimal strings with at most two decimal places, within the calculator's published bounds.",
+    "finance_rate": "Supply the stated annual percentage as plain numeric text, from 0 through 100 with at most six decimal places.",
+    "finance_term": "Confirm the employee's term and use whole-number text in the unit and range specified for this operation.",
+    "finance_positive_amount": "Confirm the supplied amount for the required positive operand. A zero or negative amount cannot be used for that operand.",
+    "finance_nonnegative_amount": "Check the operand sign against the operation's published definition. This operand requires a nonnegative amount.",
+    "finance_payment_below_cent": _FINANCE_LOAN,
+    "finance_rounding_prevents_amortization": _FINANCE_LOAN,
+}
+
+
+def _finance_fields_message(raw):
+    # Echo only the published operand vocabulary, never a submitted key or value.
+    operation = raw.get("operation")
+    expected = finance.INPUT_FIELDS.get(operation) if type(operation) is str else None
+    if expected is None:
+        return "Choose one of the operations in calculate_finance's published input schema and supply its named operands in parameters."
+    operands = expected - {"currency"}
+    params = raw.get("parameters")
+    if type(params) is dict and set(params) - {"currency"} == operands:
+        if ("currency" in raw) == ("currency" in params):
+            return _FINANCE_CURRENCY
+    return (
+        "Use the published request shape and supply "
+        + ", ".join(sorted(operands))
+        + " in parameters. Declare USD currency once. Ask for any missing employee inputs."
+    )
+
+
+def _finance_call(actor, raw):
+    require_tool(actor, "public_education")
+    require("public_finance" in actor.scope.object_ids, "demo_scope_denied")
+    try:
+        values = FinanceArguments.model_validate(raw).model_dump()
+    except ValidationError:
+        return _error(message=_finance_fields_message(raw))
+    try:
+        calculation = finance.calculate_finance(**values)
+    except finance.FinanceDenied as error:
+        category = error.args[0] if len(error.args) == 1 else None
+        if category == "finance_parameters":
+            return _error(message=_finance_fields_message(raw))
+        # Unrecognized and internal failures retain the ordinary generic denial.
+        return _error(message=_FINANCE_HINTS.get(category))
+    return _result(calculation)
 
 
 def _visible(actor):
@@ -208,10 +266,6 @@ def _dispatch(actor, name, values):
         return reports.run_report(actor, **values)
     if name == "search_demo_guidance":
         return guidance.search(actor, **values)
-    if name == "calculate_finance":
-        require_tool(actor, "public_education")
-        require("public_finance" in actor.scope.object_ids, "demo_scope_denied")
-        return finance.calculate_finance(**values)
     if name == "analyze_monthly_trend":
         from mcp_demo.trends import analyze_monthly_trend
 
@@ -283,6 +337,8 @@ def build_server(actor=None):
             require(
                 type(raw) is dict and len(canonical(raw)) <= 8192, "demo_input_budget"
             )
+            if params.name == "calculate_finance":
+                return _finance_call(actor, raw)
             values = ARGUMENTS[params.name].model_validate(raw).model_dump()
             return _result(_dispatch(actor, params.name, values))
         except (
