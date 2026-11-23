@@ -89,8 +89,8 @@ def test_known_hidden_scalar_appends_to_existing_row_filters():
             "weight",
         ),
         (
-            "SELECT device_id,weight FROM readings ORDER BY weight,device_id LIMIT 2",
-            "weight",
+            "SELECT device_id,status FROM readings ORDER BY status,device_id FETCH FIRST 2 ROWS WITH TIES",
+            "score",
         ),
         (
             "SELECT device_id,weight FROM readings ORDER BY weight OFFSET 2 LIMIT 2",
@@ -127,3 +127,26 @@ def test_every_tie_is_inclusive_but_a_tiebreak_is_not():
     assert not answer_size(
         "Which samples have the highest weight? Show each tie-break decision."
     ).peers
+
+
+@pytest.mark.parametrize("policy", ["LIMIT 2", "FETCH FIRST 2 ROWS WITH TIES"])
+@pytest.mark.parametrize(
+    "orders",
+    ["weight DESC NULLS FIRST, device_id ASC", "weight ASC NULLS LAST, device_id DESC"],
+)
+def test_known_primary_metric_preserves_all_sort_keys_and_original_membership(
+    policy, orders
+):
+    original = validate_sql(
+        "SELECT device_id,weight FROM readings ORDER BY " + orders + " " + policy,
+        allowed_tables={"readings"},
+    )
+    fixed = validate_sql(
+        include_cutoff_peers(original, 2, known_measure="weight"),
+        allowed_tables={"readings"},
+    )
+    assert (
+        fixed.args["order"] == original.args["order"]
+        and fixed.args["limit"] == original.args["limit"]
+    )
+    assert fixed.args["where"].find(exp.Is).this.name == "weight"

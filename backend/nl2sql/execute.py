@@ -78,8 +78,30 @@ def _exclude_unknown_score(query: exp.Select, requested: str) -> bool:
     column = score.this if aggregate else score
     if not isinstance(column, exp.Column):
         return False
-    if requested not in column.name.split("_") and requested not in {"score", "value"}:
-        if requested not in {"sum", "total"} or not isinstance(score, exp.Sum):
+    terms = set(column.name.split("_"))
+    if requested not in terms:
+        generic_numeric = requested in {"score", "value"} and (
+            isinstance(score, (exp.Sum, exp.Avg))
+            or bool(
+                terms
+                & {
+                    "amount",
+                    "total",
+                    "sum",
+                    "score",
+                    "value",
+                    "balance",
+                    "rate",
+                    "price",
+                    "cost",
+                    "weight",
+                    "duration",
+                }
+            )
+        )
+        if not generic_numeric and not (
+            requested in {"sum", "total"} and isinstance(score, exp.Sum)
+        ):
             return False
     group = query.args.get("group")
     if group and (
@@ -103,14 +125,17 @@ def include_cutoff_peers(
 ) -> str | None:
     """Preserve peers for a simple PostgreSQL ranking with an explicit row cutoff.
 
-    A second sort key could be a requested ranking criterion or just a display
-    order. Nested cutoffs, windows and offsets may have separate meanings. In
-    those shapes leave the model SQL alone rather than guessing their meaning.
+    A secondary sort key can determine membership, so preserve its original
+    order and cutoff. An explicit known-value request can still exclude NULLs
+    from the primary measure. Nested cutoffs, windows and offsets are delegated.
     """
     if not isinstance(query, exp.Select):
         return None
     order = query.args.get("order")
-    if not order or len(order.expressions) != 1 or query.args.get("offset"):
+    if not order or not order.expressions or query.args.get("offset"):
+        return None
+    secondary = len(order.expressions) > 1
+    if secondary and not known_measure:
         return None
     limit = query.args.get("limit")
     if not isinstance(limit, (exp.Limit, exp.Fetch)):
@@ -127,7 +152,7 @@ def include_cutoff_peers(
             return None
     rewritten = query.copy()
     filtered = bool(known_measure and _exclude_unknown_score(rewritten, known_measure))
-    if already_inclusive or rows is None:
+    if already_inclusive or rows is None or secondary:
         return rewritten.sql(dialect="postgres") if filtered else None
     rewritten.set(
         "limit",
