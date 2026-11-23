@@ -79,6 +79,23 @@ class PresenterTests(unittest.TestCase):
             command.call_args_list[-1], mock.call("rm", "--force", "--volumes", "def")
         )
 
+    def test_manual_cleanup_preserves_an_active_session(self):
+        with (
+            mock.patch.object(
+                run, "remove_profile", side_effect=run.ActiveProfile("open")
+            ),
+            mock.patch.object(run, "cleanup") as cleanup,
+        ):
+            with self.assertRaises(run.ActiveProfile):
+                run.recover("c" * 24)
+            cleanup.assert_not_called()
+        with (
+            mock.patch.object(run, "remove_profile"),
+            mock.patch.object(run, "cleanup") as cleanup,
+        ):
+            run.recover("c" * 24)
+            cleanup.assert_called_once_with("c" * 24)
+
     def test_mounts_include_only_pinned_read_only_files(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)

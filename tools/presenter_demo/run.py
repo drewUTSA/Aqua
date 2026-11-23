@@ -105,6 +105,10 @@ def new_profile(session):
         remove_profile(session)
 
 
+class ActiveProfile(RuntimeError):
+    """The launcher or Firefox still owns this session."""
+
+
 def remove_profile(session):
     import ctypes
     from ctypes import wintypes
@@ -113,11 +117,17 @@ def remove_profile(session):
     if not root.exists():
         return
     marker = root / "presenter.session"
-    if (
-        root.resolve(strict=True) != root
-        or marker.resolve(strict=True) != marker
-        or marker.read_bytes() != session.encode()
-    ):
+    try:
+        owned = (
+            marker.read_bytes() == session.encode()
+            if marker.resolve(strict=True) == marker
+            else False
+        )
+    except PermissionError:
+        raise ActiveProfile(
+            "Close the running presenter session before cleanup"
+        ) from None
+    if root.resolve(strict=True) != root or not owned:
         raise ValueError("Unrecognized temporary presenter directory")
     parent_lock = root / "profile" / "parent.lock"
     if parent_lock.exists():
@@ -135,10 +145,21 @@ def remove_profile(session):
         ]
         handle = open_file(str(parent_lock), 0x80000000, 0, None, 3, 0, None)
         if handle == ctypes.c_void_p(-1).value:
-            raise RuntimeError("Close the dedicated Firefox window and repeat cleanup")
+            raise ActiveProfile("Close the dedicated Firefox window and repeat cleanup")
         kernel.CloseHandle.argtypes = [wintypes.HANDLE]
         kernel.CloseHandle(handle)
     shutil.rmtree(root)
+
+
+def recover(session):
+    try:
+        remove_profile(session)
+    except ActiveProfile:
+        raise
+    except OSError:
+        cleanup(session)
+        raise
+    cleanup(session)
 
 
 def require_archive(path, manifest):
@@ -535,10 +556,7 @@ def main():
         parser.error("Use 64-bit Windows Python and Firefox.")
     verify_engine()
     if args.cleanup:
-        try:
-            remove_profile(args.cleanup)
-        finally:
-            cleanup(args.cleanup)
+        recover(args.cleanup)
         return
     from profile_ca import FIREFOX
 
