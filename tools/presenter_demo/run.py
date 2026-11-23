@@ -201,6 +201,7 @@ def write_private(container, fixed_path, data):
     if fixed_path not in {
         "/tmp/service.py",
         "/tmp/tls_edge.py",
+        "/tmp/model_cache.py",
         "/tmp/service-env.json",
         "/var/lib/postgresql/data/pg_hba.conf",
     }:
@@ -377,18 +378,14 @@ def install(transfer, shell, session, stack, model_cache, cpu):
             ],
             ["serve"],
         )
-        wait_command(
-            api,
-            [
-                "python",
-                "-c",
-                "import json,sys,urllib.request; models=json.load(urllib.request.urlopen('http://127.0.0.1:11434/api/tags',timeout=2))['models']; sys.exit([(m['name'],m['digest']) for m in models] != [("
-                + repr(ollama.MODEL)
-                + ","
-                + repr(ollama.DIGEST)
-                + ")])",
-            ],
+        write_private(
+            api, "/tmp/model_cache.py", (HERE / "model_cache.py").read_bytes()
         )
+        client = ["python", "-B", "/tmp/model_cache.py"]
+        wait_command(api, [*client, "probe"])
+        STAGE = "loading the selected Qwen model"
+        print("Loading Qwen into memory before opening the website.", flush=True)
+        docker("exec", api, *client, "preload", timeout=190)
     port = stack.enter_context(relay(api))
     hostname = f"aqua-{session}.example.test"
     origin = f"https://{hostname}:{port}"

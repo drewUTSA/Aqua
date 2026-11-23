@@ -139,6 +139,25 @@ class PresenterTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 run.require_archive(archive, original)
 
+    def test_model_preload_has_no_prompt_and_requires_residency(self):
+        loaded = {"model": model_cache.MODEL, "done": True, "response": ""}
+        running = {
+            "models": [{"name": model_cache.MODEL, "digest": model_cache.DIGEST}]
+        }
+        with mock.patch.object(
+            model_cache, "local_api", side_effect=[loaded, running]
+        ) as api:
+            model_cache.preload(16384)
+            payload = api.call_args_list[0].args[1]
+            self.assertNotIn("prompt", payload)
+            self.assertEqual(payload["options"]["num_ctx"], 16384)
+            self.assertEqual(api.call_args_list[1], mock.call("ps"))
+        with mock.patch.object(
+            model_cache, "local_api", side_effect=[loaded, {"models": []}]
+        ):
+            with self.assertRaises(ValueError):
+                model_cache.preload(16384)
+
 
 if __name__ == "__main__":
     unittest.main()

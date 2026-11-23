@@ -6,6 +6,8 @@ import io
 import json
 from pathlib import Path
 import re
+import sys
+from urllib.request import ProxyHandler, Request, build_opener
 
 IMAGE = "ollama/ollama@sha256:9c1dc45ea758396139ec0adfa52947714c61f8d1e4537a6e2daef8138e7a64a9"
 MODEL = "qwen3:8b"
@@ -62,3 +64,51 @@ def verified_mounts(folder):
         mount, _ = verified(Path("blobs") / ("sha256-" + digest), digest, entry["size"])
         args.extend(mount)
     return args
+
+
+def local_api(route, payload=None):
+    request = Request(
+        "http://127.0.0.1:11434/api/" + route,
+        data=json.dumps(payload).encode() if payload else None,
+        headers={"Content-Type": "application/json"},
+    )
+    with build_opener(ProxyHandler({})).open(
+        request, timeout=165 if payload else 4
+    ) as response:
+        return json.loads(response.read(65537))
+
+
+def check_selected(route):
+    models = local_api(route)["models"]
+    if [(m["name"], m["digest"]) for m in models] != [(MODEL, DIGEST)]:
+        raise ValueError("Local Ollama does not have the selected model")
+
+
+def preload(context_length):
+    # An empty request makes Ollama load the model without generating any text.
+    response = local_api(
+        "generate",
+        {
+            "model": MODEL,
+            "stream": False,
+            "keep_alive": "10m",
+            "options": {"num_ctx": context_length},
+        },
+    )
+    if (
+        response.get("model") != MODEL
+        or response.get("done") is not True
+        or response.get("response") != ""
+    ):
+        raise ValueError("Ollama did not complete the local preload")
+    check_selected("ps")
+
+
+if __name__ == "__main__":
+    if sys.argv[1] == "probe":
+        check_selected("tags")
+    elif sys.argv[1] == "preload":
+        sys.path.insert(0, "/app")
+        from nl2sql.llm import NUM_CTX
+
+        preload(NUM_CTX)
