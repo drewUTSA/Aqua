@@ -63,7 +63,7 @@ Pass `-B -m mcp_demo --persona analyst` as host arguments. An optional second st
 
 ### Rank groups in a new chat
 
-To compare an existing ordinary ranking, open its most recent successful table and select **Choose tie rules in a new chat**. Choose the source, grouping field, measure, direction, number and tie policy. Review the preview and send it as a new question. You can reopen either answer in the same project.
+To compare an existing ordinary ranking, open its most recent successful table and select **Choose tie rules in a new chat**. If Aqua can represent the saved query and match its cutoff to your question, review the five copied fields and choose **Ties**. If the form opens on **Source**, enter the source, grouping field, measure, direction, number and tie policy. Select **Use this draft**, review it in the composer and press **Send**. You can reopen either answer in the same project.
 
 If you already started typing a ranking, you can open **Rank groups** before sending it. Use **Back to my question** to continue typing or **Use in a new draft** to review the guided wording. Both questions stay in the same project. Press **Send** on the version you want to run. To return to the other version before reloading or signing out, open the **Recent chats** actions menu and choose **Unsent drafts**.
 

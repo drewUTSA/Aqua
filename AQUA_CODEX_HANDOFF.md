@@ -1,10 +1,18 @@
+## November 23 employee demo and release status
+
+The private Windows transfer starts either website and a synthetic employee workspace on one PC. The optional local Qwen 3 8B mode loads the model before sign-in. The six employee tasks passed again on the current demo components. The bank MCP now lists two fictional report choices for tellers, four for analysts and seventeen for managers. [Windows start guide](tools/presenter_demo/README.md) · [Bank MCP walkthrough](tools/bank_demo/offline/README.md)
+
+A saved ranking can now carry its source, group, measure, direction and requested count into a new draft. Employees review those fields and choose how ties should be handled. In the controlled browser rehearsal, manual submission returned both tied accounts in about 1.3 seconds on both websites. Across three separate ordinary-chat studies, the selected model returned 12 of 24 fresh answers correctly within 45 seconds, including 4 of 15 tied rankings. Ordinary-chat reliability remains open. [Ranking review](docs/implementation/P12_PROGRESS.md#review-a-saved-ranking)
+
+The private demo is ready for a synthetic walkthrough. Live release still requires a qualified recovery and rollback operator, independent retention for the current retirement authority, and an approved cutover window. The supported application-only restore relies on a continuously retained authority and checkpoint. The shipped operator refuses full-host recovery from replacement copies of both databases. [Recovery status](docs/implementation/P11_PROGRESS.md) · [Production handoff](docs/implementation/PERSONAL_COMPUTER_RELEASE_HANDOFF.md)
+
 ## November 20 employee demo acceptance
 
 ✅ The packaged sales demo passed all six employee tasks in the operator walkthrough accepted for this release candidate. Both private websites reopened the evidence for a saved value, preserved it after an edited follow-up was discarded, and supported keyboard return to a draft. The Windows bank MCP explained a reconciliation difference, prepared a proposal for human review and reported the historical trend. Ordinary-chat ranking reliability and public rollout are still open. [Task results](docs/implementation/P12_PROGRESS.md#six-task-employee-demo)
 
 ## November 20 review of a saved ranking
 
-On the latest successful ordinary ranking with a saved table, a granted employee can select **Choose tie rules in a new chat**. A new draft in the same project starts with all six fields empty. The original saved answer stays available for comparison. [Employee workflow](docs/implementation/P12_PROGRESS.md#review-a-saved-ranking)
+The November 20 version introduced **Choose tie rules in a new chat** with an initially empty draft. The November 23 version can fill supported fields from the saved answer. The original stays available in the same project for comparison. [Current employee workflow](docs/implementation/P12_PROGRESS.md#review-a-saved-ranking)
 
 ## November 20 guided ranking before Send
 
