@@ -77,6 +77,7 @@ class FinanceArguments(Arguments):
 
     operation: Literal[
         "simple_interest",
+        "simple_interest_actual_days",
         "amortizing_loan_payment",
         "percent_change",
         "liquidity_coverage",
@@ -133,7 +134,7 @@ DESCRIPTIONS = {
         "No SQL, customer records or live bank query."
     ),
     "search_demo_guidance": "Find literal cited fictional policy or clearly separated public financial education. Does not establish a real bank's policy.",
-    "calculate_finance": "Calculate a bounded deterministic financial example from plain numeric strings. USD only; not a quote, credit decision or action.",
+    "calculate_finance": "Calculate a bounded USD illustration. For simple interest with actual elapsed days, use simple_interest_actual_days only with an explicit Actual/360 or Actual/365 Fixed basis. For whole months use simple_interest. Ask for a missing basis. Never treat elapsed days as months.",
     "prepare_review_proposal": "Prepare an unapproved, inert internal-review draft bound to this fictional report revision. Do not include real personal data. Cannot approve or execute.",
     "analyze_monthly_trend": "Fit and evaluate a descriptive trend on the server's authorized fictional monthly ledger. No caller rows, forecast or causality claim.",
 }

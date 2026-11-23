@@ -10,6 +10,7 @@ CENT = Decimal("0.01")
 SIX_PLACES = Decimal("0.000001")
 MAX_AMOUNT = Decimal("1000000000000.00")
 PERIODS = frozenset({"day", "month", "quarter", "year", "statement"})
+DAY_BASES = {"Actual/360": 360, "Actual/365 Fixed": 365}
 INPUT_FIELDS = {
     "simple_interest": {
         "currency",
@@ -22,6 +23,13 @@ INPUT_FIELDS = {
         "principal_usd",
         "annual_rate_percent",
         "term_months",
+    },
+    "simple_interest_actual_days": {
+        "currency",
+        "principal_usd",
+        "annual_rate_percent",
+        "elapsed_days",
+        "day_count_basis",
     },
     "percent_change": {"currency", "previous_usd", "current_usd", "period"},
     "liquidity_coverage": {
@@ -131,6 +139,37 @@ def simple_interest(parameters):
             "Simple interest is principal × annual rate (percent) × months / 1200.",
             "A month is one twelfth of a year; there is no compounding or day-count adjustment.",
             "Interest is rounded once to cents at the end; fees, taxes and bank product terms are excluded.",
+        ],
+    )
+
+
+def simple_interest_actual_days(parameters):
+    principal = money(parameters["principal_usd"], positive=True)
+    annual_rate = rate(parameters["annual_rate_percent"])
+    elapsed = parameters["elapsed_days"]
+    basis = parameters["day_count_basis"]
+    require(
+        type(elapsed) is str
+        and re.fullmatch(r"[1-9][0-9]{0,4}", elapsed)
+        and int(elapsed) <= 18300,
+        "finance_term",
+    )
+    require(type(basis) is str and basis in DAY_BASES, "finance_parameters")
+    days, denominator = int(elapsed), DAY_BASES[basis]
+    interest = (principal * annual_rate * days / (100 * denominator)).quantize(CENT)
+    return (
+        {
+            "interest_usd": usd(interest),
+            "principal_plus_interest_usd": usd(principal + interest),
+            "elapsed_days": elapsed,
+            "day_count_basis": basis,
+            "year_fraction": f"{days}/{denominator}",
+        },
+        f"Over {days} elapsed days on {basis}, simple interest is {usd(interest)} USD using {days}/{denominator} of a year.",
+        [
+            "The employee supplies the actual elapsed calendar days and the fixed day-count denominator.",
+            "Simple interest is principal × annual percentage / 100 × elapsed days / the stated denominator.",
+            "Interest is rounded once to cents at the end. Fees, compounding and product-specific terms are excluded.",
         ],
     )
 
@@ -287,6 +326,7 @@ def reconciliation(parameters):
 
 OPERATIONS = {
     "simple_interest": simple_interest,
+    "simple_interest_actual_days": simple_interest_actual_days,
     "amortizing_loan_payment": amortizing_loan_payment,
     "percent_change": percent_change,
     "liquidity_coverage": liquidity_coverage,
