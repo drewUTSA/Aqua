@@ -1,7 +1,7 @@
 """Pinned application image and compiled file digests for the native recovery rehearsal."""
 
-IMAGE = "sha256:245d05e3296f5f2cb89c6727920f99e736d4ce4f6018d99bc3a6be7112aac6b9"
-MANIFEST_SHA256 = "1d414334ea89162d44a45f8aebdca0c34d182e7cb75c70f06e873816361f8b98"
+IMAGE = "sha256:aac68361c640fe0705f9124707fc23f92a59e50cebb44c8039a0958db92611e6"
+MANIFEST_SHA256 = "628b1623bf89bd5df8d5372b0e7a99d410d30dfebac0a7ed82f949de0ddfb489"
 RUNTIME_FILES = {
     "account/__init__.py": "4d300929fcb6d0c0e3a6b92377bfd4648fc336a8ad2bfb3e962d810b3b6f55e0",
     "account/action_contracts.py": "be3becba0a54378a847efdaa76cc833e3b780df3658c90d30f86a7852232a397",
@@ -117,7 +117,7 @@ RUNTIME_FILES = {
     "mcp_demo/data.py": "0213446283991323991cf18019efc8f3d81e243ea79266677b3426a03bcf7150",
     "mcp_demo/guidance.py": "9869fe6ad2ea1bdaaab091d7f73c77a7d3a3cd04b0e3556c138f939ab1a0f906",
     "mcp_demo/protocol.py": "053b5c59dc579ad2b19f8d4a1620165cd1bae20bcfca51767ce3d9ffefa454a0",
-    "mcp_demo/reports.py": "8b5e3729d7a0f2afdb4227fa4def4d330ca52777e3f8e4b591e316fcbc72c81d",
+    "mcp_demo/reports.py": "cf6bef246cd29eeac50dd6a2669151e405829996c9a464632e9b57c3c9b74868",
     "mcp_demo/web.py": "822b5d63aff3091ac6d375cca12ea9da98661ac162b0c4717672f1ccaac50822",
     "migrations/0001_identity.sql": "3255ad354362cd186577e49a7d47dea4c4b5127665a989d25ad15961d6a173bc",
     "migrations/0002_identity_policy.sql": "8b977d0188612df5f4cec37a8c78bc7a25af0d63c3f486dbffbd19b095f3b20b",
