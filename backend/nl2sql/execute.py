@@ -99,7 +99,7 @@ def _exclude_unknown_score(query: exp.Select, requested: str) -> bool:
 
 
 def include_cutoff_peers(
-    query: exp.Query, rows: int, *, known_measure: str | None = None
+    query: exp.Query, rows: int | None, *, known_measure: str | None = None
 ) -> str | None:
     """Preserve peers for a simple PostgreSQL ranking with an explicit row cutoff.
 
@@ -116,7 +116,9 @@ def include_cutoff_peers(
     if not isinstance(limit, (exp.Limit, exp.Fetch)):
         return None
     count, already_inclusive = _requested_limit(query)
-    if (already_inclusive and not known_measure) or count != rows:
+    if count is None or (rows is not None and count != rows):
+        return None
+    if (already_inclusive or rows is None) and not known_measure:
         return None
     for node in query.walk():
         if isinstance(node, (exp.Window, exp.Offset)) or (
@@ -125,7 +127,7 @@ def include_cutoff_peers(
             return None
     rewritten = query.copy()
     filtered = bool(known_measure and _exclude_unknown_score(rewritten, known_measure))
-    if already_inclusive:
+    if already_inclusive or rows is None:
         return rewritten.sql(dialect="postgres") if filtered else None
     rewritten.set(
         "limit",

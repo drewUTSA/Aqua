@@ -119,7 +119,7 @@ _ALL_AT_EXTREME = re.compile(
 )
 _KEEP_PEERS = re.compile(
     r"\b(?:includ(?:e|ing)|keep|retain|return|show|list|with)\s+"
-    r"(?:(?:all|any|every|the)\s+)?(?:ties\b|tied\s+[\w'-]+)"
+    r"(?:(?:every|each)\s+tie\b(?![- ]?break)|(?:(?:all|any|every|the)\s+)?(?:ties\b|tied\s+[\w'-]+))"
 )
 _HARD_CUTOFF = re.compile(
     rf"\b(?:exactly|only|at most|no more than)\s+(?:(?:the\s+)?(?:top|bottom|first|last)\s+)?{_NUMBER}\b"

@@ -141,6 +141,11 @@ def answer_question(
     context, used_retrieval = build_context(question, schema, retriever)
     size = answer_size(question) if settings.answer_size_rules else AnswerSize("open")
     budget = CURRENT.get()
+    known = (
+        known_rank_measure(question)
+        if settings.answer_size_rules and not (budget and budget.context)
+        else None
+    )
     # Previous turns can carry filters absent from the latest question.
     direct = None
     if not (budget and budget.context):
@@ -170,10 +175,9 @@ def answer_question(
         try:
             stage("validating")
             query = validate_sql(generation.sql, allowed_tables=schema.allowed_tables)
-            if size.peers == "cutoff" and size.kind != "per_group":
-                revised = include_cutoff_peers(
-                    query, size.rows or 1, known_measure=known_rank_measure(question)
-                )
+            if size.kind != "per_group" and (size.peers == "cutoff" or known):
+                peer_rows = (size.rows or 1) if size.peers == "cutoff" else None
+                revised = include_cutoff_peers(query, peer_rows, known_measure=known)
                 if revised is not None:
                     query = validate_sql(revised, allowed_tables=schema.allowed_tables)
             stage("executing")

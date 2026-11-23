@@ -2,7 +2,7 @@
 
 import pytest
 from sqlglot import exp
-from nl2sql.answer_size import known_rank_measure
+from nl2sql.answer_size import answer_size, known_rank_measure
 from nl2sql.execute import include_cutoff_peers
 from nl2sql.validate import validate_sql
 
@@ -100,3 +100,30 @@ def test_known_hidden_scalar_appends_to_existing_row_filters():
 )
 def test_no_unproved_metric_or_changed_ranking_basis(raw, metric):
     assert wrap(raw, metric) is None
+
+
+@pytest.mark.parametrize("previous", ["LIMIT 2", "FETCH FIRST 2 ROWS WITH TIES"])
+def test_request_for_known_values_preserves_an_existing_strict_or_inclusive_cutoff(
+    previous,
+):
+    q = validate_sql(
+        "SELECT device_id, weight FROM readings ORDER BY weight DESC " + previous,
+        allowed_tables={"readings"},
+    )
+    result = include_cutoff_peers(q, None, known_measure="weight")
+    after = validate_sql(result, allowed_tables={"readings"})
+    assert (
+        q.args["limit"] == after.args["limit"]
+        and not q.args.get("where")
+        and after.args["where"].find(exp.Is)
+    )
+
+
+def test_every_tie_is_inclusive_but_a_tiebreak_is_not():
+    assert (
+        answer_size("Which samples have the highest weight? Keep every tie.").peers
+        == "cutoff"
+    )
+    assert not answer_size(
+        "Which samples have the highest weight? Show each tie-break decision."
+    ).peers
