@@ -1,7 +1,7 @@
 """Pinned application image and compiled file digests for the native recovery rehearsal."""
 
-IMAGE = "sha256:44804483820335cfd78f910f377bc6a17afc49093bf230939a4185bd1d64d778"
-MANIFEST_SHA256 = "022bb5e9f96fa7c27195b6e78527d8767f0bc1b46ffc114a6c82158800907d77"
+IMAGE = "sha256:245d05e3296f5f2cb89c6727920f99e736d4ce4f6018d99bc3a6be7112aac6b9"
+MANIFEST_SHA256 = "1d414334ea89162d44a45f8aebdca0c34d182e7cb75c70f06e873816361f8b98"
 RUNTIME_FILES = {
     "account/__init__.py": "4d300929fcb6d0c0e3a6b92377bfd4648fc336a8ad2bfb3e962d810b3b6f55e0",
     "account/action_contracts.py": "be3becba0a54378a847efdaa76cc833e3b780df3658c90d30f86a7852232a397",
@@ -140,7 +140,7 @@ RUNTIME_FILES = {
     "nl2sql/db.py": "b2364c06d9ecfa093f8ddbd8eb2fe6efc591e1fce5f1694b2f718ca94cbde56d",
     "nl2sql/display.py": "5eaf796017b1270417ad5b7f2c9d529c36abe9325cd56da2dbb09ec98613d4cf",
     "nl2sql/errors.py": "3ceb7dc50a46aca84f0c12a967b1f57e98a02c721c3934d69846576c291deedd",
-    "nl2sql/execute.py": "fd34311c4bfec769e36a93ce6f5615667c02a26737c7062dd507fbb7917a4db8",
+    "nl2sql/execute.py": "6f42636d7dbc9d6ba724b266bdf1b75e2af7f68ea8f5cdeb7e777d65a9881614",
     "nl2sql/explicit_ranking.py": "0a51edb30996bd4fe3f86416410a009aa5b254245a31d7496316b9a2ba13750e",
     "nl2sql/function_policy.py": "089e81255fa66be290e6a7f9cd6fde6fbad8beb6b5b74c135d48fdd1ca55de00",
     "nl2sql/generate.py": "bad94ef9a2e0bd43973ca83196ed4d6513146b0ebeb7fd5a8a4208cfb893e9b9",
@@ -148,13 +148,13 @@ RUNTIME_FILES = {
     "nl2sql/grouped_rank.py": "27fedb153948ab0d97c3041cbec5e830d7f7907d43ab03347178950691611d47",
     "nl2sql/llm.py": "a1c59ac86d2e287d5150e0923ff8d88cf763f7870d8d570b8d7b0f585dc06a1b",
     "nl2sql/metadata_policy.py": "1ce5b1bc56eb616c81fe96f5c2323745453228450db46e584efecf9633008905",
-    "nl2sql/pipeline.py": "c7a26ce62643948b05e8494067d6dc3470147591d332325ac2e678ae3687a42c",
+    "nl2sql/pipeline.py": "f5e43a6b73f2eb2ca933e773df6fde33b01dc549aa5825b16c6cbfe1860c5ff7",
     "nl2sql/presentation.py": "0460251cd7a98cbad9fbf04915efc63b99e4fcdbb0d78727f1077f957c5395e0",
     "nl2sql/provider_gemini.py": "b67b8753d2d02d9d5b0f938819eda41d68917fcf31f0d7d52dfcc2fed993578c",
     "nl2sql/provider_ollama.py": "60f43e0d7da81230fdf1df37a239823d85b1fc9a77eaf3f60f58e3d4647891b7",
     "nl2sql/query_service.py": "18f4fc74cdb471d2c3cc409c5d748e3eb6ae160e4cd2b758f5340fb93240dec6",
     "nl2sql/relations.py": "e071f45961d211ca56fb0a23447716e4d352061087933f68d3371f47726a406b",
-    "nl2sql/response.py": "fbea4df9e5b7506b2c6eb0d6e2da1f2f0542c8944779bb05a59f08aafaea3a18",
+    "nl2sql/response.py": "743bd86dfec4ba0c4dd3113af5d737a222f38a7e7581ce9edcb15a963f2f77f6",
     "nl2sql/result_metadata.py": "cc4f528195e7e2beb4b9ffd051e4df2942dc7ab150754f603c3633de53daecf5",
     "nl2sql/retrieval/__init__.py": "460ff5d0ef355c76275f9e8fa0d03404901eb77e49a9ce1314bc4b31081e8128",
     "nl2sql/retrieval/embed.py": "8bd830bb50bf19f64e94d073a2285b628b1e5c52db89e9f565c1d78b1e95fc5c",
