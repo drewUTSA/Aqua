@@ -70,6 +70,35 @@ DEFINITIONS = {
             "term_months": "12",
         },
     ),
+    "simple_interest_actual_days": (
+        "Simple interest for an explicit elapsed calendar-day count and supplied fixed basis. Ask for the basis when missing; do not convert days to months.",
+        {
+            "currency": CURRENCY,
+            "principal_usd": LOAN["principal_usd"],
+            "annual_rate_percent": LOAN["annual_rate_percent"],
+            "elapsed_days": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 5,
+                "pattern": exact_pattern(
+                    r"[1-9][0-9]{0,3}|1[0-7][0-9]{3}|18[0-2][0-9]{2}|18300"
+                ),
+                "description": "Actual elapsed calendar days from the employee, as a whole number from 1 through 18300.",
+            },
+            "day_count_basis": {
+                "type": "string",
+                "enum": ["Actual/360", "Actual/365 Fixed"],
+                "description": "Use only the fixed annual denominator explicitly supplied by the employee.",
+            },
+        },
+        {
+            "currency": "USD",
+            "principal_usd": "1800.00",
+            "annual_rate_percent": "4",
+            "elapsed_days": "30",
+            "day_count_basis": "Actual/360",
+        },
+    ),
     "amortizing_loan_payment": (
         "Fixed-rate, end-of-month payment illustration with ROUND_HALF_UP cents and an adjusted final payment; payments that cannot amortize after cent rounding are declined.",
         LOAN,
@@ -153,7 +182,8 @@ def with_finance_schema(schema):
     schema["properties"]["parameters"]["description"] = (
         "Supply a JSON object using the fields listed for the chosen operation. "
         "All values are strings. Supply currency exactly once on the request or inside parameters. "
-        "Use plain numbers for amounts, whole months for terms and percentage points for annual rates. "
+        "Use plain numbers for amounts and percentage points for annual rates. Whole-month simple_interest uses term_months. "
+        "For actual elapsed days use simple_interest_actual_days with elapsed_days and an explicit Actual/360 or Actual/365 Fixed basis. "
         f"When required, period is one of {', '.join(PERIODS)}.\n{fields}"
     )
     schema["properties"]["currency"] = deepcopy(CURRENCY)

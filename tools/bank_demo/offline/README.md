@@ -34,6 +34,10 @@ To use a local MCP host that accepts `mcpServers` entries, copy the entry printe
 
 For a financial illustration, call `calculate_finance` with the operation and its named parameters. Declare `"currency": "USD"` once, either beside `operation` or inside `parameters`. For instance, `{"operation":"simple_interest","currency":"USD","parameters":{"principal_usd":"1000","annual_rate_percent":"6","term_months":"12"}}` returns USD 60.00 in simple interest.
 
+For simple interest over actual elapsed calendar days, choose `simple_interest_actual_days`. Supply `principal_usd`, `annual_rate_percent`, `elapsed_days` and the employee’s explicit `day_count_basis`, either `Actual/360` or `Actual/365 Fixed`. Enter numeric values as strings and declare USD once. The result includes the exact year fraction used. If the basis is missing, ask the employee. Whole-month illustrations continue to use `simple_interest` and `term_months`. [ISDA day-count definitions](https://www.isda.org/a/HAxgE/ISDA-Response-to-ROC-CDEv3-Consultation-103122.pdf)
+
+When the calculator declines an input, read its message before trying again. An authorized employee receives guidance about the USD declaration, allowed period, numeric format, published operand names or a loan that cannot amortize after cent rounding. Confirm corrections against the employee's stated inputs. A different currency needs an appropriate calculator. A loan that still cannot amortize has no illustration under these terms. The protocol keeps its existing error flag, denied status and generic reason.
+
 ### Try another employee role
 
 Run the same walkthrough command with `--role teller` to check the fictional service queue and its cited complaint procedure. Use `--role manager` to read the held-wire amount and the separate service-incident count. Each invocation starts a fresh local server with that role’s grants. The default `analyst` walkthrough covers reconciliation, historical trends and a proposed action for human review.

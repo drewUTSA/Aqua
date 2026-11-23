@@ -24,6 +24,57 @@ class FinanceTests(unittest.TestCase):
     def result(self, operation, parameters):
         return calculate_finance(operation, parameters)["result"]
 
+    def test_elapsed_days_use_the_stated_fixed_denominator(self):
+        args = {
+            "currency": "USD",
+            "principal_usd": "3650",
+            "annual_rate_percent": "10",
+            "elapsed_days": "18",
+        }
+        for basis, interest, fraction in [
+            ("Actual/360", "18.25", "18/360"),
+            ("Actual/365 Fixed", "18.00", "18/365"),
+        ]:
+            with self.subTest(basis=basis):
+                result = self.result(
+                    "simple_interest_actual_days", {**args, "day_count_basis": basis}
+                )
+                self.assertEqual(result["interest_usd"], interest)
+                self.assertEqual(result["year_fraction"], fraction)
+                self.assertEqual(result["day_count_basis"], basis)
+                self.assertEqual(result["elapsed_days"], "18")
+                self.assertNotIn("term_months", result)
+
+    def test_day_calculation_requires_its_own_term_and_basis(self):
+        args = {
+            "currency": "USD",
+            "principal_usd": "18",
+            "annual_rate_percent": "10",
+            "elapsed_days": "1",
+            "day_count_basis": "Actual/360",
+        }
+        self.assertEqual(
+            self.result("simple_interest_actual_days", args)["interest_usd"], "0.01"
+        )
+        for bad in [
+            {"term_months": "1"},
+            {"day_count_basis": "Actual/Actual"},
+            {"day_count_basis": "30/360"},
+            {"elapsed_days": "0"},
+            {"elapsed_days": "18301"},
+            {"elapsed_days": "2.5"},
+            {"elapsed_days": True},
+        ]:
+            with self.subTest(bad=bad), self.assertRaises(FinanceDenied):
+                self.result("simple_interest_actual_days", {**args, **bad})
+        with self.assertRaises(FinanceDenied):
+            self.result(
+                "simple_interest_actual_days",
+                {k: v for k, v in args.items() if k != "day_count_basis"},
+            )
+        with self.assertRaises(FinanceDenied):
+            self.result("simple_interest", args)
+
     def test_repeating_monthly_rate_pays_exact_half_cents_up(self):
         # In each one-month example the true interest is exactly half a cent.
         for principal, annual, payment in [
