@@ -144,6 +144,18 @@ DEFINITIONS = {
 
 def with_finance_schema(schema):
     """Couple each operation to its exact closed parameter object in discovery."""
+    # Some tool-calling clients display only the immediate object properties.
+    # Keep the same field names visible there as in the full per-operation schema.
+    fields = "\n".join(
+        f"{operation}: {', '.join(properties)}"
+        for operation, (_, properties, _) in DEFINITIONS.items()
+    )
+    schema["properties"]["parameters"]["description"] = (
+        "Supply a JSON object using exactly the fields listed for the chosen operation. "
+        f"All values are strings. currency is {CURRENCY['const']}. "
+        "Use plain numbers for amounts, whole months for terms and percentage points for annual rates. "
+        f"When required, period is one of {', '.join(PERIODS)}.\n{fields}"
+    )
     schema["oneOf"] = [
         {
             "title": operation,

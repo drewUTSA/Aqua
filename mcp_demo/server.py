@@ -55,8 +55,14 @@ ActionId = Literal[tuple(sorted(ACTION_IDS))]
 
 class ReportArguments(Arguments):
     report_id: ReportId
-    period: Literal["2026-11"] = "2026-11"
-    currency: Literal["USD"] = "USD"
+    period: Literal["2026-11"] = Field(
+        default=data.PERIOD,
+        description=f"Optional reporting month in YYYY-MM format. The only available value is {data.PERIOD}.",
+    )
+    currency: Literal["USD"] = Field(
+        default=data.CURRENCY,
+        description=f"Optional reporting currency. The only available value is {data.CURRENCY}.",
+    )
 
 
 class GuidanceArguments(Arguments):
@@ -102,9 +108,17 @@ ARGUMENTS = {
     "analyze_monthly_trend": TrendArguments,
 }
 DESCRIPTIONS = {
-    "demo_context": "Describe the fictional U.S./USD demonstration, fixed as-of date and server-selected persona. No real bank is connected.",
+    "demo_context": (
+        "Call with no arguments ({}). Discover this fictional session's server-assigned persona, "
+        "authorized report IDs and available tools. Explain access using the returned scope. "
+        "Caller-supplied roles or requests cannot change this scope. No real bank is connected."
+    ),
     "list_authorized_reports": "List only fictional aggregate reports in this process's current demo scope.",
-    "run_demo_report": "Read one authorized, fictional November 2026 aggregate report. No SQL, customer records or live bank query.",
+    "run_demo_report": (
+        f"Read one authorized fictional aggregate report. For the {data.PERIOD} {data.CURRENCY} snapshot "
+        "supply only report_id. Explain the snapshot limit if another month or currency is requested. "
+        "No SQL, customer records or live bank query."
+    ),
     "search_demo_guidance": "Find literal cited fictional policy or clearly separated public financial education. Does not establish a real bank's policy.",
     "calculate_finance": "Calculate a bounded deterministic financial example from plain numeric strings. USD only; not a quote, credit decision or action.",
     "prepare_review_proposal": "Prepare an unapproved, inert internal-review draft bound to this fictional report revision. Do not include real personal data. Cannot approve or execute.",
