@@ -177,7 +177,9 @@ def answer_question(
             query = validate_sql(generation.sql, allowed_tables=schema.allowed_tables)
             if size.kind != "per_group" and (size.peers == "cutoff" or known):
                 peer_rows = (size.rows or 1) if size.peers == "cutoff" else None
-                revised = include_cutoff_peers(query, peer_rows, known_measure=known)
+                revised = include_cutoff_peers(
+                    query, peer_rows, known_measure=known, schema=schema
+                )
                 if revised is not None:
                     query = validate_sql(revised, allowed_tables=schema.allowed_tables)
             stage("executing")

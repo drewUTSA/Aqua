@@ -331,7 +331,7 @@ _KNOWN_MEASURE = re.compile(
     r"(?P<measure>amounts?|totals?|sums?|scores?|values?|balances?|rates?|prices?|costs?|weights?|durations?)\b"
 )
 _NULL_PREFERENCE = re.compile(
-    r"\b(?:nulls?|unknowns?|missing|unreported|undefined|unavailable|instead|replace|"
+    r"\b(?:nulls?|unknowns?|blanks?|empty|missing|unreported|undefined|unavailable|instead|replace|"
     r"impute|treat(?:ing)?|coalesce|regardless|not|never|except|otherwise|even if)\b"
 )
 

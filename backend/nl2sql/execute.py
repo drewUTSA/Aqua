@@ -20,6 +20,7 @@ from nl2sql.config import Settings
 from nl2sql.db import connect
 from nl2sql.errors import diagnostic, query_code
 from nl2sql.relations import physical_tables
+from nl2sql.schema import Schema
 from nl2sql.validate import UnsafeQueryError
 from nl2sql.control import CURRENT, remaining
 
@@ -64,7 +65,13 @@ class QueryResult:
     first_place_peers: bool = False
 
 
-def _exclude_unknown_score(query: exp.Select, requested: str) -> bool:
+def _exclude_unknown_score(
+    query: exp.Select, requested: str, schema: Schema | None
+) -> bool:
+    # A qualifier in the employee's question can belong to an inner population
+    # while the outer query sorts a different set of individual records.
+    if any(node is not query for node in query.find_all(exp.Query)):
+        return False
     score = query.args["order"].expressions[0].this
     if isinstance(score, exp.Column) and not score.table:
         fields = [
@@ -78,6 +85,19 @@ def _exclude_unknown_score(query: exp.Select, requested: str) -> bool:
     column = score.this if aggregate else score
     if not isinstance(column, exp.Column):
         return False
+    tables = list(query.find_all(exp.Table))
+    if len(tables) != 1:
+        if not aggregate or not schema or not tables:
+            return False
+        owners = []
+        for table in tables:
+            meta = schema.tables.get(table.name)
+            if not meta:
+                return False
+            if any(field.name == column.name for field in meta.columns):
+                owners.append(table.alias_or_name)
+        if len(owners) != 1 or (column.table and column.table != owners[0]):
+            return False
     terms = set(column.name.split("_"))
     if requested not in terms:
         generic_numeric = requested in {"score", "value"} and (
@@ -121,7 +141,11 @@ def _exclude_unknown_score(query: exp.Select, requested: str) -> bool:
 
 
 def include_cutoff_peers(
-    query: exp.Query, rows: int | None, *, known_measure: str | None = None
+    query: exp.Query,
+    rows: int | None,
+    *,
+    known_measure: str | None = None,
+    schema: Schema | None = None,
 ) -> str | None:
     """Preserve peers for a simple PostgreSQL ranking with an explicit row cutoff.
 
@@ -151,7 +175,9 @@ def include_cutoff_peers(
         ):
             return None
     rewritten = query.copy()
-    filtered = bool(known_measure and _exclude_unknown_score(rewritten, known_measure))
+    filtered = bool(
+        known_measure and _exclude_unknown_score(rewritten, known_measure, schema)
+    )
     if already_inclusive or rows is None or secondary:
         return rewritten.sql(dialect="postgres") if filtered else None
     rewritten.set(

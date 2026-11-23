@@ -4,6 +4,7 @@ import pytest
 from sqlglot import exp
 from nl2sql.answer_size import answer_size, known_rank_measure
 from nl2sql.execute import include_cutoff_peers
+from nl2sql.schema import Column, Schema, Table
 from nl2sql.validate import validate_sql
 
 
@@ -150,3 +151,52 @@ def test_known_primary_metric_preserves_all_sort_keys_and_original_membership(
         and fixed.args["limit"] == original.args["limit"]
     )
     assert fixed.args["where"].find(exp.Is).this.name == "weight"
+
+
+@pytest.mark.parametrize(
+    "clause",
+    [
+        "WHERE weight=(SELECT MAX(weight) FROM readings)",
+        "WHERE EXISTS (SELECT 1 FROM readings b WHERE b.device_id=a.device_id)",
+    ],
+)
+def test_nested_record_selection_can_refer_to_another_known_score(clause):
+    assert (
+        wrap(
+            "SELECT a.device_id,a.weight FROM readings a "
+            + clause
+            + " ORDER BY a.weight DESC FETCH FIRST 2 ROWS WITH TIES",
+            "weight",
+        )
+        is None
+    )
+
+
+@pytest.mark.parametrize("duplicate", [True, False])
+def test_multitable_aggregate_requires_single_catalog_owner_of_the_measure(duplicate):
+    def table(name, fields):
+        return Table(
+            name, tuple(Column(n, "integer", False) for n in fields), (), frozenset()
+        )
+
+    schema = Schema(
+        {
+            "readings": table("readings", ["device_id", "weight"]),
+            "devices": table(
+                "devices", ["device_id", "weight"] if duplicate else ["device_id"]
+            ),
+        }
+    )
+    q = validate_sql(
+        "SELECT d.device_id,SUM(r.weight) AS total FROM devices d LEFT JOIN readings r "
+        "ON d.device_id=r.device_id GROUP BY d.device_id ORDER BY total DESC LIMIT 2",
+        allowed_tables=schema.allowed_tables,
+    )
+    changed = include_cutoff_peers(q, None, known_measure="total", schema=schema)
+    assert bool(changed) is not duplicate
+    if changed:
+        assert (
+            validate_sql(changed, allowed_tables=schema.allowed_tables)
+            .args["having"]
+            .find(exp.Is)
+        )
