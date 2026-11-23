@@ -298,8 +298,8 @@ def _audit():
 DEFINITIONS = {
     "deposit_portfolio_summary": "Opening November1 deposit buckets plus posted deposits minus posted withdrawals; exception amounts are excluded. Accounts are fictional bucket counts.",
     "service_case_summary": "Fictional service cases grouped by status/priority; overdue means open and due before November16, not a legal deadline.",
-    "consumer_pipeline_summary": "Consumer loan fixture records by stage; requested amounts are applications, outstanding amounts are funded principal, not approvals inferred by a model.",
-    "commercial_exposure_summary": "Commercial loan fixture records by stage; only outstanding principal is exposure, while requested amounts may be unfunded.",
+    "consumer_pipeline_summary": "Consumer applications grouped by stage. Requested amounts were applied for. Outstanding amounts are the unpaid principal at the snapshot date. Original disbursements require a separate source.",
+    "commercial_exposure_summary": "Commercial loans grouped by stage. Outstanding amounts measure unpaid principal at the snapshot date. Requested amounts may be unfunded. Original disbursements require a separate source.",
     "credit_review_summary": "Manual fictional review labels across loan records; overdue review means non-current and due before November16. These are not credit ratings or lending decisions.",
     "servicing_exception_summary": "Fictional servicing cases grouped by status/priority, linked internally to loan records; no borrower or payment instruction is returned.",
     "payment_exception_summary": "Only unposted exception transactions by rail; held amounts do not change deposit closing balances and are not an instruction to resend payments.",
@@ -421,6 +421,16 @@ def run_report(actor, report_id, period=PERIOD, currency=CURRENCY):
     }
     if report_id == "reconciliation_summary":
         result["monthly_series"] = get_monthly_series(actor, "gl_operating_surplus")
+    if report_id in {
+        "consumer_pipeline_summary",
+        "commercial_exposure_summary",
+        "credit_review_summary",
+    }:
+        result["loan_amount_basis"] = {
+            "requested_usd": "amount_applied_for",
+            "outstanding_usd": "unpaid_principal_at_snapshot",
+            "original_disbursement_available": False,
+        }
     encode(result)
     return result
 
