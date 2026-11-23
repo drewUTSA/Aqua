@@ -7,6 +7,7 @@ from nl2sql.control import CURRENT, remaining
 from nl2sql.llm import (
     Completion,
     LLMError,
+    ModelResponseInvalid,
     ModelResponseTimeout,
     THINKING_OPTIONS,
     NON_THINKING_OPTIONS,
@@ -60,7 +61,9 @@ def complete(
                 for chunk in response.iter_bytes():
                     remaining(45)
                     if len(raw) + len(chunk) > 1048576:
-                        raise LLMError("Ollama response exceeds its budget.")
+                        raise ModelResponseInvalid(
+                            "Ollama response exceeds its budget."
+                        )
                     raw.extend(chunk)
                 data = json.loads(raw)
         else:
@@ -78,19 +81,36 @@ def complete(
     except httpx.RequestError:
         raise LLMError("Cannot connect to Ollama.") from None
     except ValueError as exc:
-        raise LLMError("Ollama returned a reply that is not JSON.") from exc
+        raise ModelResponseInvalid("Ollama returned a reply that is not JSON.") from exc
     finally:
         if owns_client:
             client.close()
 
-    message = data.get("message") or {}
-    text = (message.get("content") or "").strip()
+    if not isinstance(data, dict) or data.get("done", True) is not True:
+        raise ModelResponseInvalid("Ollama returned an incomplete reply.")
+    message = data.get("message")
+    if message is None:
+        raise ModelResponseInvalid("Ollama returned no answer.")
+    if not isinstance(message, dict):
+        raise ModelResponseInvalid("Ollama returned an invalid message.")
+    text = message.get("content")
+    if text is None:
+        raise ModelResponseInvalid("Ollama returned no answer.")
+    thinking = message.get("thinking")
+    model = data.get("model", settings.ollama_model)
+    if (
+        not isinstance(text, str)
+        or not isinstance(model, str)
+        or (thinking is not None and not isinstance(thinking, str))
+    ):
+        raise ModelResponseInvalid("Ollama returned invalid reply fields.")
+    text = text.strip()
     if CURRENT.get() and len(text.encode()) > 32768:
-        raise LLMError("Generated SQL exceeds its budget.")
+        raise ModelResponseInvalid("Generated SQL exceeds its budget.")
     if not text:
-        raise LLMError("Ollama returned no answer.")
+        raise ModelResponseInvalid("Ollama returned no answer.")
     return Completion(
         text=text,
-        thinking=(message.get("thinking") or "").strip(),
-        model=data.get("model", settings.ollama_model),
+        thinking=(thinking or "").strip(),
+        model=model,
     )

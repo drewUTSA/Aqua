@@ -11,7 +11,7 @@ import main
 from auth.security import UserSession, require_database_access
 from nl2sql.config import Settings
 from nl2sql.db import DatabaseError
-from nl2sql.llm import LLMError, ModelResponseTimeout
+from nl2sql.llm import LLMError, ModelResponseInvalid, ModelResponseTimeout
 from nl2sql.pipeline import Answer
 from nl2sql.schema import Schema
 from legacy_contract_fixture import install
@@ -126,6 +126,21 @@ def test_provider_response_timeout_returns_fixed_retryable_message(monkeypatch):
         "retryable": True,
     }
     assert "sensitive transport context" not in response.text
+
+
+def test_malformed_provider_response_has_safe_retryable_feedback(monkeypatch):
+    use_answer(monkeypatch, ModelResponseInvalid("private model payload SELECT 123"))
+    response = client.post("/api/query", json={"question": "q"})
+    assert response.status_code == 503
+    body = response.json()
+    assert body["error"] == {
+        "code": "model_invalid_response",
+        "message": "The language model returned an unusable answer. Try again or rephrase your question.",
+        "retryable": True,
+    }
+    assert body["sql"] == "" and body["tables"] == []
+    assert "private model payload" not in response.text
+    assert "SELECT 123" not in response.text
 
 
 @pytest.mark.parametrize(

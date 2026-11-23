@@ -16,6 +16,7 @@ from nl2sql.llm import (
     SEED,
     THINKING_OPTIONS,
     LLMError,
+    ModelResponseInvalid,
     ModelResponseTimeout,
     complete,
 )
@@ -130,8 +131,26 @@ def test_missing_thinking_becomes_empty_string() -> None:
 )
 def test_empty_answer_is_an_error(reply: dict) -> None:
     client, _ = mock_client(reply)
-    with pytest.raises(LLMError, match="no answer"):
+    with pytest.raises(ModelResponseInvalid, match="no answer"):
         complete("q", SETTINGS, client=client)
+
+
+@pytest.mark.parametrize(
+    "reply",
+    [
+        ["unexpected"],
+        {"message": "unexpected"},
+        {"message": {"content": 4}},
+        {"message": {"content": "answer", "thinking": []}},
+        {"model": {}, "message": {"content": "answer"}},
+        {"done": False, "message": {"content": "partial"}},
+    ],
+)
+def test_malformed_successful_response_is_distinct_from_an_outage(reply):
+    client, requests = mock_client(reply)
+    with pytest.raises(ModelResponseInvalid):
+        complete("q", SETTINGS, client=client)
+    assert len(requests) == 1
 
 
 # ---- failures ----
@@ -184,7 +203,7 @@ def test_non_json_reply_is_an_llm_error() -> None:
         return httpx.Response(200, text="<html>not json</html>")
 
     client = httpx.Client(transport=httpx.MockTransport(handler))
-    with pytest.raises(LLMError, match="not JSON"):
+    with pytest.raises(ModelResponseInvalid, match="not JSON"):
         complete("q", SETTINGS, client=client)
 
 
