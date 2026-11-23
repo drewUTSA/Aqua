@@ -49,6 +49,13 @@ class FinanceDiscoveryTests(unittest.TestCase):
                     for branch in schema["oneOf"]
                 }
                 self.assertEqual(set(branches), set(OPERATIONS))
+                parameter_help = schema["properties"]["parameters"]["description"]
+                for operation, branch in branches.items():
+                    required = branch["properties"]["parameters"]["required"]
+                    self.assertIn(
+                        f"{operation}: {', '.join(required)}",
+                        parameter_help.splitlines(),
+                    )
                 examples = {}
                 for operation, branch in branches.items():
                     with self.subTest(operation=operation):

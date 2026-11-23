@@ -147,6 +147,11 @@ class DemoSdkTests(unittest.TestCase):
             async with Client(parameters()) as client:
                 listed = await client.list_tools()
                 self.assertEqual([tool.name for tool in listed.tools], ["demo_context"])
+                tool = listed.tools[0]
+                self.assertIn("no arguments ({})", tool.description)
+                self.assertIn("authorized report IDs", tool.description)
+                self.assertEqual(tool.input_schema["properties"], {})
+                self.assertFalse(tool.input_schema["additionalProperties"])
                 for name, arguments in (
                     ("demo_context", {"persona": "manager", "claim": CANARY}),
                     ("run_demo_report", {"report_id": "reconciliation_summary"}),
@@ -157,6 +162,9 @@ class DemoSdkTests(unittest.TestCase):
                     self.assertNotIn(CANARY, result.model_dump_json())
                 context = await client.call_tool("demo_context", {})
                 self.assertEqual(context.structured_content["data"]["persona"], "none")
+                self.assertEqual(
+                    context.structured_content["data"]["authorized_report_ids"], []
+                )
 
         self.run_async(check)
 
