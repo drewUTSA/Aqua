@@ -26,9 +26,8 @@ def build(destination):
             info = zipfile.ZipInfo(name)
             info.create_system = 3
             info.external_attr = 0o100644 << 16
-            archive.writestr(
-                info, path.read_bytes(), compress_type=zipfile.ZIP_DEFLATED
-            )
+            text = path.read_bytes().replace(b"\r\n", b"\n")
+            archive.writestr(info, text, compress_type=zipfile.ZIP_DEFLATED)
 
 
 if __name__ == "__main__":
