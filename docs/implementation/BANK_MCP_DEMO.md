@@ -14,6 +14,11 @@ customer account, identity provider, model provider or production Aqua database.
 It is not a compliance certification, trained banking model, bank authorization
 system or durable human-approval workflow.
 
+When a host lists the tools, the report and proposal input schemas offer the
+same report IDs as the employee's authorized catalog. The fictional teller
+can choose two reports, the analyst four and the manager seventeen. The server
+also checks the employee's scope when a tool is called.
+
 The stdio module and SDK dependency lock remain separate from the application
 backend. The optional [report web increment](BANK_DEMO_WEB_CONTRACT.md) packages
 only the explicitly reviewed SDK-free report core; it does not run the MCP

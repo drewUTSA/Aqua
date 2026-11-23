@@ -99,6 +99,26 @@ class DemoSdkTests(unittest.TestCase):
 
         anyio.run(bounded)
 
+    def test_report_choices_match_the_personas_catalog_for_reads_and_proposals(self):
+        async def check():
+            counts = {}
+            for persona in ("manager", "teller", "analyst"):
+                async with Client(parameters(persona), mode="2026-07-28") as client:
+                    listed = await client.list_tools()
+                    catalog = await client.call_tool("list_authorized_reports", {})
+                    self.assertFalse(catalog.is_error)
+                    reports = catalog.structured_content["data"]["reports"]
+                    allowed = sorted(report["report_id"] for report in reports)
+                    counts[persona] = len(allowed)
+                    schemas = {tool.name: tool.input_schema for tool in listed.tools}
+                    for name in ("run_demo_report", "prepare_review_proposal"):
+                        choices = schemas[name]["properties"]["report_id"]["enum"]
+                        self.assertEqual(choices, allowed)
+            self.assertLess(counts["teller"], counts["analyst"])
+            self.assertLess(counts["analyst"], counts["manager"])
+
+        self.run_async(check)
+
     def test_modern_and_legacy_clients_discover_and_call_real_stdio_server(self):
         async def check():
             for mode in ("2026-07-28", "legacy"):

@@ -149,6 +149,15 @@ def _visible(actor):
     return names
 
 
+def _input_schema(name, actor):
+    arguments = ARGUMENTS[name]
+    schema = arguments.model_json_schema()
+    if issubclass(arguments, ReportArguments):
+        # A host may build its report picker or model tool definition from discovery.
+        schema["properties"]["report_id"]["enum"] = sorted(actor.scope.report_ids)
+    return schema
+
+
 def _dispatch(actor, name, values):
     if name == "demo_context":
         return {
@@ -228,7 +237,7 @@ def build_server(actor=None):
                 Tool(
                     name=name,
                     description=DESCRIPTIONS[name],
-                    input_schema=ARGUMENTS[name].model_json_schema(),
+                    input_schema=_input_schema(name, actor),
                     annotations=ToolAnnotations(
                         read_only_hint=True,
                         destructive_hint=False,
