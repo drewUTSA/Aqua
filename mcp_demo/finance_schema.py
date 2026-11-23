@@ -147,15 +147,22 @@ def with_finance_schema(schema):
     # Some tool-calling clients display only the immediate object properties.
     # Keep the same field names visible there as in the full per-operation schema.
     fields = "\n".join(
-        f"{operation}: {', '.join(properties)}"
+        f"{operation}: {', '.join(k for k in properties if k != 'currency')}"
         for operation, (_, properties, _) in DEFINITIONS.items()
     )
     schema["properties"]["parameters"]["description"] = (
-        "Supply a JSON object using exactly the fields listed for the chosen operation. "
-        f"All values are strings. currency is {CURRENCY['const']}. "
+        "Supply a JSON object using the fields listed for the chosen operation. "
+        "All values are strings. Supply currency exactly once on the request or inside parameters. "
         "Use plain numbers for amounts, whole months for terms and percentage points for annual rates. "
         f"When required, period is one of {', '.join(PERIODS)}.\n{fields}"
     )
+    schema["properties"]["currency"] = deepcopy(CURRENCY)
+    # Keep the original nested currency form for existing clients. Exactly one
+    # location must declare the unit before either request reaches the calculator.
+    nested_currency = {"properties": {"parameters": {"required": ["currency"]}}}
+    schema["if"] = {"required": ["currency"]}
+    schema["then"] = {"not": nested_currency}
+    schema["else"] = nested_currency
     schema["oneOf"] = [
         {
             "title": operation,
@@ -163,10 +170,11 @@ def with_finance_schema(schema):
             "type": "object",
             "properties": {
                 "operation": {"type": "string", "const": operation},
+                "currency": deepcopy(CURRENCY),
                 "parameters": {
                     "type": "object",
                     "properties": deepcopy(properties),
-                    "required": list(properties),
+                    "required": [field for field in properties if field != "currency"],
                     "additionalProperties": False,
                     "maxProperties": len(properties),
                 },

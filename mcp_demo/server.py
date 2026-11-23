@@ -20,7 +20,7 @@ from mcp_types import (
     ToolAnnotations,
 )
 from mcp_types.version import HANDSHAKE_PROTOCOL_VERSIONS, MODERN_PROTOCOL_VERSIONS
-from pydantic import BaseModel, ConfigDict, Field, ValidationError
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
 from eval.banking import BankingDenied, create_proposal
 from eval.banking.catalog import ACTION_IDS, REPORTS
@@ -84,6 +84,19 @@ class FinanceArguments(Arguments):
     ]
     # Keep numeric input types intact: the calculator rejects floats and bools.
     parameters: dict[str, Any] = Field(max_length=6)
+
+    @model_validator(mode="before")
+    @classmethod
+    def read_request_currency(cls, raw):
+        """Clients may put the USD unit on the request or in the operands, once."""
+        if not isinstance(raw, dict) or "currency" not in raw:
+            return raw
+        parameters = raw.get("parameters")
+        if not isinstance(parameters, dict) or "currency" in parameters:
+            raise ValueError("Supply the currency exactly once.")
+        request = raw.copy()
+        request["parameters"] = {**parameters, "currency": request.pop("currency")}
+        return request
 
 
 class ProposalArguments(ReportArguments):
