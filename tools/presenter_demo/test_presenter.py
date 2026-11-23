@@ -27,9 +27,9 @@ class PresenterTests(unittest.TestCase):
                 )
                 self.assertEqual(
                     component.read("bootstrap.psql"),
-                    (
-                        build.HERE.parents[1] / "backend/migrations/bootstrap.psql"
-                    ).read_bytes().replace(b"\r\n", b"\n"),
+                    (build.HERE.parents[1] / "backend/migrations/bootstrap.psql")
+                    .read_bytes()
+                    .replace(b"\r\n", b"\n"),
                 )
 
     def test_cleanup_selects_the_matching_label_and_only_expected_roles(self):
