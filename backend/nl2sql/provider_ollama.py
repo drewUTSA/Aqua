@@ -61,7 +61,9 @@ def complete(
                 for chunk in response.iter_bytes():
                     remaining(45)
                     if len(raw) + len(chunk) > 1048576:
-                        raise ModelResponseInvalid("Ollama response exceeds its budget.")
+                        raise ModelResponseInvalid(
+                            "Ollama response exceeds its budget."
+                        )
                     raw.extend(chunk)
                 data = json.loads(raw)
         else:
@@ -96,8 +98,10 @@ def complete(
         raise ModelResponseInvalid("Ollama returned no answer.")
     thinking = message.get("thinking")
     model = data.get("model", settings.ollama_model)
-    if not isinstance(text, str) or not isinstance(model, str) or (
-        thinking is not None and not isinstance(thinking, str)
+    if (
+        not isinstance(text, str)
+        or not isinstance(model, str)
+        or (thinking is not None and not isinstance(thinking, str))
     ):
         raise ModelResponseInvalid("Ollama returned invalid reply fields.")
     text = text.strip()
