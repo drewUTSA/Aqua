@@ -61,7 +61,8 @@ class FinanceDiscoveryTests(unittest.TestCase):
                     with self.subTest(operation=operation):
                         properties = branch["properties"]["parameters"]
                         self.assertEqual(
-                            set(properties["required"]), INPUT_FIELDS[operation]
+                            set(properties["required"]),
+                            INPUT_FIELDS[operation] - {"currency"},
                         )
                         self.assertEqual(
                             set(properties["properties"]), INPUT_FIELDS[operation]
@@ -73,6 +74,31 @@ class FinanceDiscoveryTests(unittest.TestCase):
                         self.assertEqual(
                             calculate_finance(**example)["status"], "calculated"
                         )
+                        outside = deepcopy(example)
+                        outside["currency"] = outside["parameters"].pop("currency")
+                        validator.validate(outside)
+                        installed = await client.call_tool("calculate_finance", outside)
+                        original = await client.call_tool("calculate_finance", example)
+                        self.assertFalse(installed.is_error)
+                        self.assertEqual(
+                            installed.structured_content, original.structured_content
+                        )
+                        duplicate = deepcopy(example)
+                        duplicate["currency"] = "USD"
+                        absent = deepcopy(outside)
+                        del absent["currency"]
+                        for denied in (
+                            duplicate,
+                            absent,
+                            outside | {"currency": "GBP"},
+                            outside | {"currency": None},
+                        ):
+                            self.assertFalse(validator.is_valid(denied))
+                            self.assertTrue(
+                                (
+                                    await client.call_tool("calculate_finance", denied)
+                                ).is_error
+                            )
                         for name in properties["required"]:
                             missing = deepcopy(example)
                             del missing["parameters"][name]

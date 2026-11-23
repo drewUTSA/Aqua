@@ -30,6 +30,10 @@ The official MCP client starts the server locally over standard input and output
 
 To use a local MCP host that accepts `mcpServers` entries, copy the entry printed by setup into its configuration. The command uses absolute paths and works from the host’s usual working directory. Keep the extraction in place. The host chooses the synthetic persona. A launcher without an explicit persona starts with no grants. Use this package with fictional data only.
 
+### Calculate a financial illustration
+
+For a financial illustration, call `calculate_finance` with the operation and its named parameters. Declare `"currency": "USD"` once, either beside `operation` or inside `parameters`. For instance, `{"operation":"simple_interest","currency":"USD","parameters":{"principal_usd":"1000","annual_rate_percent":"6","term_months":"12"}}` returns USD 60.00 in simple interest.
+
 ### Try another employee role
 
 Run the same walkthrough command with `--role teller` to check the fictional service queue and its cited complaint procedure. Use `--role manager` to read the held-wire amount and the separate service-incident count. Each invocation starts a fresh local server with that role’s grants. The default `analyst` walkthrough covers reconciliation, historical trends and a proposed action for human review.
