@@ -16,6 +16,34 @@ DENIALS = (BankingDenied, protocol.DemoDenied)
 
 
 class DemoContracts(unittest.TestCase):
+    def test_lending_reports_label_snapshot_amounts_and_original_disbursement_coverage(
+        self,
+    ):
+        actor = protocol.actor_for("manager")
+        loans = data.DATA["loans"]
+        self.assertTrue(
+            all("original_disbursement_cents" not in loan for loan in loans)
+        )
+        expected = {
+            "requested_usd": "amount_applied_for",
+            "outstanding_usd": "unpaid_principal_at_snapshot",
+            "original_disbursement_available": False,
+        }
+        for report_id in actor.scope.report_ids:
+            result = reports.run_report(actor, report_id)
+            if report_id in {
+                "consumer_pipeline_summary",
+                "commercial_exposure_summary",
+                "credit_review_summary",
+            }:
+                self.assertEqual(result["loan_amount_basis"], expected)
+                for row in result["rows"]:
+                    self.assertIn("outstanding_usd", row)
+                    self.assertIn("requested_usd", row)
+                    self.assertNotIn("original_disbursement_usd", row)
+            else:
+                self.assertNotIn("loan_amount_basis", result)
+
     def test_default_persona_has_no_authority_and_prompt_roles_cannot_supply_it(self):
         actor = protocol.actor_for()
         self.assertEqual(actor.persona, "none")
