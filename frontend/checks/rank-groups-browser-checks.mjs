@@ -90,6 +90,22 @@ export async function rankGroupsJourney({ navigate, signIn, viewport, click, fil
     ${query(box)}.value==='Rank groups: From readings, show the top 2 meters by row count, including ties.' && document.activeElement===${query(box)}`);
   assert.equal(fixture.queryCount(), 2, "opening_a_saved_rank_and_preparing_its_draft_must_not_submit");
   assert.ok(fixture.calls.slice(beforeReview).every(call => call.method === "GET"), "saved_review_never_writes");
+  fixture.querySql = "SELECT meter_id AS meter, SUM(rainfall) AS total FROM public.readings GROUP BY meter_id ORDER BY total ASC LIMIT 2";
+  await fill(box, "Which are the bottom two meters by total rainfall?");
+  await click('[aria-label="Send message"]');
+  await waitFor(`Boolean(${query("[data-rank-ties]")})`, "saved_grouped_total_review");
+  await click("[data-rank-ties]");
+  await waitFor(`document.activeElement===${query(scope + ' select[name="ties"]')}`, "saved_grouped_total_tie_focus");
+  await check("The saved ranking supplies physical fields, explains their source and leaves the tie rule empty", `
+    (()=>{const form=${query(scope)}, ties=form.elements.namedItem('ties');
+      return Object.entries({source:'readings',group:'meter_id',measure:'total',field:'rainfall',direction:'bottom',number:'2',ties:''})
+        .every(([key,value])=>form.elements.namedItem(key).value===value) && form.querySelector('button[type="submit"]').disabled
+        && document.getElementById(ties.getAttribute('aria-describedby'))?.textContent.includes('copied from your saved SQL');})()`);
+  await change("ties", "peers");
+  await click(scope + ' button[type="submit"]');
+  await check("Reviewing the saved fields prepares a new unsent draft with the selected cutoff policy", `
+    ${query(box)}.value==='Rank groups: From readings, show the bottom 2 meter_id by total rainfall, including ties.' && document.activeElement===${query(box)}`);
+  assert.equal(fixture.queryCount(), 3, "reviewing_recovered_fields_never_sends");
   fixture.canQuery = false;
   await navigate("/");
   await waitFor(`${query(box)}?.disabled===true`, "rank_restricted_workspace");

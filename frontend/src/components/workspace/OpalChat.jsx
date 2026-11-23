@@ -9,6 +9,7 @@ import { leaveMenuWithTab, useMenuSurface } from "../navigation/useMenuSurface.j
 import { useReducedMotion } from "../../hooks/useReducedMotion.js";
 import RankGroupsComposer from "./RankGroupsComposer.jsx";
 import { canStartGroupRank } from "./rankGroupsDraft.js";
+import { savedRankFields } from "./savedRankFields.js";
 
 export default function OpalChat({ chat, auth, inputRef, focusRequest, onOpenPrompts, preferences, shell = "opal", visible = true, scrollPositions, onShowVisual, onUnderstandResult, visualsHidden = false }) {
   const active = chat.messages.length > 0 || (chat.durable && chat.active.messageCount > 0);
@@ -24,7 +25,11 @@ export default function OpalChat({ chat, auth, inputRef, focusRequest, onOpenPro
     if (!visibility.current) return;
     const id = chat.startSavedRankDraft({ ownerId: owner, chatId: chat.activeConversationId, projectId: chat.active.projectId,
       replyId: reply.id, requestId: reply.requestId, status: reply.status });
-    if (id) setRankTarget({ owner, id, status: reply.status });
+    if (id) {
+      const question = chat.messages.find(message => message.id === reply.replyTo)?.content;
+      const fields = reply.status === "complete" ? savedRankFields(reply.response?.sql, question) : null;
+      setRankTarget({ owner, id, status: reply.status, fields });
+    }
   } } : null;
   useEffect(() => { if (rankTarget) setRankTarget(null); }, [rankTarget]);
   return <main className={`opal-chat${active ? " opal-chat--active" : ""}${visualsHidden ? " opal-chat--visual-hidden" : ""}`}>
@@ -41,7 +46,7 @@ export default function OpalChat({ chat, auth, inputRef, focusRequest, onOpenPro
       <button type="button" disabled={chat.pending || !auth.canQuery} onClick={chat.checkSaved}>Check saved request</button></div>}
     {chat.durable && !chat.submitting && <AnalysisStatus request={chat.analysis} connection={chat.analysisConnection} onReconnect={chat.reconnectAnalysis} />}
     <Composer chat={chat} auth={auth} preferences={preferences} inputRef={inputRef} focusRequest={focusRequest} active={active} visible={visible} onOpenPrompts={onOpenPrompts}
-      applyRank={applyRank} revealRank={rankTarget && rankTarget.owner === owner && rankTarget.id === chat.activeConversationId ? rankTarget.status : null} />
+      applyRank={applyRank} revealRank={rankTarget && rankTarget.owner === owner && rankTarget.id === chat.activeConversationId ? rankTarget : null} />
     <p className="opal-disclaimer">Check important figures against your source.</p>
   </main>;
 }

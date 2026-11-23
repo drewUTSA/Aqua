@@ -13,16 +13,21 @@ function NameField({ name, label, value, onChange, placeholder, inputRef, descri
 
 export default function RankGroupsComposer({ onApply, onBack, original, reveal = false }) {
   const [fields, setFields] = useState(initialRankFields);
-  const details = useRef(null), source = useRef(null);
+  const [copied, setCopied] = useState(false);
+  const details = useRef(null), source = useRef(null), ties = useRef(null);
   useLayoutEffect(() => {
     details.current.open = false;
     setFields(initialRankFields);
+    setCopied(false);
   }, [original]);
   useLayoutEffect(() => {
     if (reveal) {
-      if (reveal === "complete") setFields({ source: "", group: "", measure: "", field: "", direction: "", number: "", ties: "" });
+      if (reveal.status === "complete") {
+        setFields(reveal.fields || { source: "", group: "", measure: "", field: "", direction: "", number: "", ties: "" });
+        setCopied(Boolean(reveal.fields));
+      }
       details.current.open = true;
-      source.current.focus();
+      (reveal.fields ? ties : source).current.focus();
     }
   }, [reveal]);
   const nameHint = useId(), numberHint = useId(), invalidNumber = fields.number !== "" && !validRankNumber(fields.number);
@@ -37,7 +42,9 @@ export default function RankGroupsComposer({ onApply, onBack, original, reveal =
       if (draft) onApply(draft);
     }}>
       <p>{original ? "Choose ranking fields for a new draft. Your original question stays in Unsent drafts for this visit."
-        : "Rank the groups present in a source you can access."} <span id={nameHint}>If you have a saved ranking, open its SQL to find the source table and grouping column. Result headings may be aliases.</span></p>
+        : "Rank the groups present in a source you can access."} <span id={nameHint}>{copied
+          ? "Fields were copied from your saved SQL. Review them and choose how to handle ties."
+          : "If you have a saved ranking, open its SQL to find the source table and grouping column. Result headings may be aliases."}</span></p>
       <div className="rank-groups__fields">
         <NameField inputRef={source} name="source" label="Source" value={fields.source} placeholder="e.g. loans" description={nameHint} onChange={value => update("source", value)} />
         <NameField name="group" label="Group by" value={fields.group} placeholder="e.g. branches" description={nameHint} onChange={value => update("group", value)} />
@@ -53,7 +60,7 @@ export default function RankGroupsComposer({ onApply, onBack, original, reveal =
           aria-invalid={invalidNumber || undefined} aria-describedby={invalidNumber ? numberHint : undefined}
           onChange={event => update("number", event.target.value)} /></label>
           {invalidNumber && <small id={numberHint}>Enter a whole number from 1 to 1,000.</small>}</div>
-        <label>Ties<select name="ties" value={fields.ties} onChange={event => update("ties", event.target.value)}>
+        <label>Ties<select name="ties" ref={ties} value={fields.ties} aria-describedby={copied ? nameHint : undefined} onChange={event => update("ties", event.target.value)}>
           {!fields.ties && <option value="" disabled>Choose a tie rule</option>}
           <option value="peers">Include ties at the cutoff</option><option value="fixed">Exactly this many groups</option>
           <option value="levels">This many distinct scores</option></select></label>
