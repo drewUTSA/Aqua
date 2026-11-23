@@ -116,8 +116,9 @@ jobs:
           python -m unittest discover -s tools/checks -p 'test_banking_*.py'
           python tools/checks/test_portable_analytics.py
           python tools/checks/test_local_model.py
-          python -m black --check backend eval tools/checks ops
-          python -m ruff check backend eval tools/checks ops
+          python -m unittest discover -s tools/presenter_demo
+          python -m black --check backend eval tools/checks tools/presenter_demo ops
+          python -m ruff check backend eval tools/checks tools/presenter_demo ops
           python tools/checks/p05_browser_cleanup_test.py
           python tools/checks/p05_browser_startup_test.py
           python tools/checks/p06_browser_routes_test.py
