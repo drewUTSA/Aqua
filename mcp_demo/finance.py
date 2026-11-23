@@ -1,6 +1,7 @@
 """Deterministic USD illustrations; no quotes, decisions, transport or execution."""
 
 from decimal import Context, Decimal, DecimalException, ROUND_HALF_UP, localcontext
+from fractions import Fraction
 import re
 
 from eval.banking.data import BankingDenied, encode, fields, require
@@ -136,16 +137,27 @@ def simple_interest(parameters):
 
 def amortizing_loan_payment(parameters):
     principal, annual_rate, term = loan_inputs(parameters)
-    monthly_rate = annual_rate / Decimal(1200)
-    if monthly_rate == 0:
-        exact_payment = principal / term
+    # The monthly rate can repeat in decimal. Keep it exact until the
+    # scheduled payment is rounded to the nearest cent, including half cents.
+    monthly_rate = Fraction(annual_rate) / 1200
+    principal_cents = int(principal * 100)
+    if monthly_rate:
+        growth = (1 + monthly_rate) ** term
+        payment_cents = principal_cents * monthly_rate * growth / (growth - 1)
     else:
-        growth = (Decimal(1) + monthly_rate) ** term
-        exact_payment = principal * monthly_rate * growth / (growth - 1)
-    payment = exact_payment.quantize(CENT)
+        payment_cents = Fraction(principal_cents, term)
+    whole, remainder = divmod(payment_cents.numerator, payment_cents.denominator)
+    payment = Decimal(whole + int(2 * remainder >= payment_cents.denominator)).scaleb(
+        -2
+    )
+
+    def interest_due(balance):
+        # Multiply before dividing so an exact half cent stays on the boundary.
+        return (balance * annual_rate / Decimal(1200)).quantize(CENT)
+
     require(payment > 0, "finance_payment_below_cent")
     require(
-        payment > (principal * monthly_rate).quantize(CENT),
+        payment > interest_due(principal),
         "finance_rounding_prevents_amortization",
     )
     balance, interest_total, payment_total, principal_total = (
@@ -157,7 +169,7 @@ def amortizing_loan_payment(parameters):
     first_payment = final_payment = Decimal(0)
     elapsed = 0
     for elapsed in range(1, term + 1):
-        interest = (balance * monthly_rate).quantize(CENT)
+        interest = interest_due(balance)
         due = balance + interest
         actual = due if elapsed == term or due <= payment else payment
         principal_paid = actual - interest
