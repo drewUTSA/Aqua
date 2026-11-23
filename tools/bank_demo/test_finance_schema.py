@@ -108,6 +108,52 @@ class FinanceDiscoveryTests(unittest.TestCase):
 
         anyio.run(check)
 
+    def test_day_errors_request_the_employee_basis_and_elapsed_days(self):
+        daily = {
+            "currency": "USD",
+            "principal_usd": "1231.79",
+            "annual_rate_percent": "4.25",
+            "elapsed_days": "32",
+            "day_count_basis": "Actual/360",
+        }
+        cases = [
+            (
+                {k: v for k, v in daily.items() if k != "day_count_basis"},
+                "governing basis",
+            ),
+            ({**daily, "day_count_basis": "Actual/Actual ISDA"}, "governing basis"),
+            (
+                {k: v for k, v in daily.items() if k != "elapsed_days"},
+                "actual elapsed calendar days",
+            ),
+            (
+                {**daily, "elapsed_days": "calendar month"},
+                "actual elapsed calendar days",
+            ),
+        ]
+
+        async def check():
+            for persona in ("teller", "none"):
+                async with Client(build_server(actor_for(persona))) as client:
+                    for params, expected in cases:
+                        result = await client.call_tool(
+                            "calculate_finance",
+                            {
+                                "operation": "simple_interest_actual_days",
+                                "parameters": params,
+                            },
+                        )
+                        self.assertTrue(result.is_error)
+                        data = result.structured_content["data"]
+                        self.assertEqual(data["reason"], "demo_request_denied")
+                        self.assertNotIn("1231.79", result.model_dump_json())
+                        if persona == "none":
+                            self.assertNotIn(expected, data["message"])
+                        else:
+                            self.assertIn(expected, data["message"])
+
+        anyio.run(check)
+
     def test_official_sdk_lists_coupled_closed_finance_schemas_within_frame_budget(
         self,
     ):

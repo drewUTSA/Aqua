@@ -177,6 +177,15 @@ _FINANCE_LOAN = (
     "These terms cannot produce a valid cent-rounded loan schedule. Confirm the "
     "employee's principal, annual rate and term. If the terms are correct, withhold the illustration."
 )
+_FINANCE_DAY_BASIS = (
+    "Confirm the day-count convention specified for the illustration. The supported "
+    "fixed conventions are Actual/360 and Actual/365 Fixed. If the governing basis "
+    "is unavailable or different, withhold the day-based amount."
+)
+_FINANCE_ELAPSED_DAYS = (
+    "Confirm the actual elapsed calendar days. Supply a whole-number count from 1 "
+    "through 18300 as plain integer text. Keep days separate from whole months."
+)
 _FINANCE_HINTS = {
     "finance_currency": _FINANCE_CURRENCY,
     "finance_period": "Use the same stated period for the amounts. Choose day, month, quarter, year or statement only when it matches the employee's records.",
@@ -198,9 +207,20 @@ def _finance_fields_message(raw):
         return "Choose one of the operations in calculate_finance's published input schema and supply its named operands in parameters."
     operands = expected - {"currency"}
     params = raw.get("parameters")
-    if type(params) is dict and set(params) - {"currency"} == operands:
-        if ("currency" in raw) == ("currency" in params):
+    if type(params) is dict:
+        supplied = set(params) - {"currency"}
+        if supplied == operands and ("currency" in raw) == ("currency" in params):
             return _FINANCE_CURRENCY
+        if operation == "simple_interest_actual_days" and supplied <= operands:
+            missing = operands - supplied
+            basis = params.get("day_count_basis")
+            if missing == {"day_count_basis"} or (
+                not missing
+                and (type(basis) is not str or basis not in finance.DAY_BASES)
+            ):
+                return _FINANCE_DAY_BASIS
+            if missing == {"elapsed_days"}:
+                return _FINANCE_ELAPSED_DAYS
     return (
         "Use the published request shape and supply "
         + ", ".join(sorted(operands))
@@ -221,6 +241,11 @@ def _finance_call(actor, raw):
         category = error.args[0] if len(error.args) == 1 else None
         if category == "finance_parameters":
             return _error(message=_finance_fields_message(raw))
+        if (
+            category == "finance_term"
+            and values["operation"] == "simple_interest_actual_days"
+        ):
+            return _error(message=_FINANCE_ELAPSED_DAYS)
         # Unrecognized and internal failures retain the ordinary generic denial.
         return _error(message=_FINANCE_HINTS.get(category))
     return _result(calculation)
