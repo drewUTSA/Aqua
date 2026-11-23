@@ -2,6 +2,8 @@
 
 **14 minutes, three devices.** Count transactions, trace a chart to its saved rows, correct a private note and prepare a fictional month-end review. Screen-share the presenter's window. Each viewer uses their own account and history.
 
+For a one-PC screen share, the Windows presenter launcher creates a temporary HTTPS website, synthetic employee account and sales database from the private transfer. Guided rankings and the built-in analyst reports run offline. An optional local Ollama service supports regular chat using the selected Qwen 3 8B model. [Windows presenter instructions](../../tools/presenter_demo/README.md)
+
 ### Before the call
 
 | Seat | Set up and rehearse |
