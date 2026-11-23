@@ -386,8 +386,18 @@ def test_real_fetch_membership_order_projection_and_truncation(
     result = execute(validate_sql(sql, allowed_tables=set()), REAL, max_rows=cap)
     assert result.columns == ["label"] and result.rows == [(n,) for n in expected]
     assert result.truncated is truncated
+    assert result.first_place_peers is (ending == "FETCH FIRST ROW WITH TIES")
     replay = execute(validate_sql(result.sql, allowed_tables=set()), REAL, max_rows=cap)
     assert replay == result
+
+
+def test_real_multiple_sort_criteria_do_not_claim_a_single_scored_tie(live_database):
+    sql = (
+        "SELECT label FROM (VALUES (1,20),(2,20),(2,20)) AS s(label,score) "
+        "ORDER BY score DESC,label DESC FETCH FIRST ROW WITH TIES"
+    )
+    result = execute(validate_sql(sql, allowed_tables=set()), REAL)
+    assert result.rows == [(2,), (2,)] and not result.first_place_peers
 
 
 def test_real_query_returns_rows(live_database: str) -> None:

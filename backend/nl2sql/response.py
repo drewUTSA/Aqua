@@ -210,9 +210,8 @@ def _size_note(answer: Answer) -> str:
     """Say when the answer size came from a rule, not from the question.
 
     A plural question with no number gets the default list; a full list
-    may have been cut short, so say how to see more. A singular question
-    can return several rows when they tie, which would look like a bug
-    without a word of explanation.
+    may have been cut short, so say how to see more. Describe a first-place
+    tie only when the executed query established membership in that rank.
     """
     count = len(answer.rows)
     if answer.size.kind == "list" and count == answer.size.rows:
@@ -220,8 +219,8 @@ def _size_note(answer: Answer) -> str:
             f" Showing the top {count}. Ask for a number, such as "
             '"top 25", to see more.'
         )
-    if answer.size.kind == "single" and count > 1:
-        return f" {count} rows are tied for first place."
+    if answer.size.kind == "single" and count > 1 and answer.first_place_peers:
+        return f" The {count} displayed rows share first place in this query."
     return ""
 
 
