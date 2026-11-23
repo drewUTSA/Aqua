@@ -24,6 +24,31 @@ class FinanceTests(unittest.TestCase):
     def result(self, operation, parameters):
         return calculate_finance(operation, parameters)["result"]
 
+    def test_repeating_monthly_rate_pays_exact_half_cents_up(self):
+        # In each one-month example the true interest is exactly half a cent.
+        for principal, annual, payment in [
+            ("24", "0.25", "24.01"),
+            ("12", "0.5", "12.01"),
+        ]:
+            with self.subTest(annual=annual):
+                result = self.result(
+                    "amortizing_loan_payment", loan(principal, annual, "1")
+                )
+                for field in (
+                    "scheduled_monthly_payment_usd",
+                    "first_payment_usd",
+                    "final_payment_usd",
+                ):
+                    self.assertEqual(result[field], payment)
+                self.assertEqual(result["total_interest_usd"], "0.01")
+
+    def test_long_schedule_preserves_each_half_cent(self):
+        result = self.result("amortizing_loan_payment", loan("29170.01", "0.25", "360"))
+        self.assertEqual(result["scheduled_monthly_payment_usd"], "84.11")
+        self.assertEqual(result["final_payment_usd"], "85.16")
+        self.assertEqual(result["total_interest_usd"], "1110.64")
+        self.assertEqual(result["total_payments_usd"], "30280.65")
+
     def test_simple_interest_gold_and_exact_half_cent_rounding(self):
         self.assertEqual(
             self.result("simple_interest", loan("1000", "6", "6")),
