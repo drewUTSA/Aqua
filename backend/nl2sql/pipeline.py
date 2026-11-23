@@ -18,7 +18,7 @@ import logging
 from dataclasses import dataclass, field
 from typing import Any, Protocol
 
-from nl2sql.answer_size import AnswerSize, answer_size
+from nl2sql.answer_size import AnswerSize, answer_size, known_rank_measure
 from nl2sql.calendar_count import calendar_count_sql
 from nl2sql.config import Settings
 from nl2sql.errors import ContextDenied, RetrievalUnavailable, diagnostic
@@ -171,7 +171,9 @@ def answer_question(
             stage("validating")
             query = validate_sql(generation.sql, allowed_tables=schema.allowed_tables)
             if size.peers == "cutoff" and size.kind != "per_group":
-                revised = include_cutoff_peers(query, size.rows or 1)
+                revised = include_cutoff_peers(
+                    query, size.rows or 1, known_measure=known_rank_measure(question)
+                )
                 if revised is not None:
                     query = validate_sql(revised, allowed_tables=schema.allowed_tables)
             stage("executing")

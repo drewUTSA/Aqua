@@ -323,6 +323,32 @@ def explicit_row_count(token: str) -> int | None:
     return rows if 1 <= rows <= MAX_REQUESTED_ROWS else None
 
 
+_KNOWN_MEASURE = re.compile(
+    r"\b(?:highest|lowest|largest|smallest|greatest|least|maximum|minimum|top|bottom)\s+"
+    r"(?:(?:\d{1,3}|one|two|three|four|five|ten)\s+)?"
+    r"(?:known|non[- ]?null)\s+"
+    r"(?:(?!(?:and|or|by|in|on|of|for|per|with|from|among|then|whose|which)\b)[a-z]+\s+){0,2}"
+    r"(?P<measure>amounts?|totals?|sums?|scores?|values?|balances?|rates?|prices?|costs?|weights?|durations?)\b"
+)
+_NULL_PREFERENCE = re.compile(
+    r"\b(?:nulls?|unknowns?|missing|unreported|undefined|unavailable|instead|replace|"
+    r"impute|treat(?:ing)?|coalesce|regardless|not|never|except|otherwise|even if)\b"
+)
+
+
+def known_rank_measure(question: str) -> str | None:
+    """Read an explicit known-value requirement attached to the ranked measure."""
+    text = question.casefold()
+    matches = list(_KNOWN_MEASURE.finditer(text))
+    if len(matches) != 1:
+        return None
+    match = matches[0]
+    other = text[: match.start()] + " " + text[match.end() :]
+    if _NULL_PREFERENCE.search(other):
+        return None
+    return match["measure"].removesuffix("s")
+
+
 def _is_plural(word: str) -> bool:
     if word in _IRREGULAR_PLURALS:
         return True

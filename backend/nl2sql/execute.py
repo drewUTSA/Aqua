@@ -64,7 +64,43 @@ class QueryResult:
     first_place_peers: bool = False
 
 
-def include_cutoff_peers(query: exp.Query, rows: int) -> str | None:
+def _exclude_unknown_score(query: exp.Select, requested: str) -> bool:
+    score = query.args["order"].expressions[0].this
+    if isinstance(score, exp.Column) and not score.table:
+        fields = [
+            f.unalias() for f in query.expressions if f.alias_or_name == score.name
+        ]
+        if len(fields) > 1:
+            return False
+        if fields:
+            score = fields[0]
+    aggregate = isinstance(score, (exp.Sum, exp.Avg, exp.Min, exp.Max))
+    column = score.this if aggregate else score
+    if not isinstance(column, exp.Column):
+        return False
+    if requested not in column.name.split("_") and requested not in {"score", "value"}:
+        if requested not in {"sum", "total"} or not isinstance(score, exp.Sum):
+            return False
+    group = query.args.get("group")
+    if group and (
+        not aggregate or any(v for k, v in group.args.items() if k != "expressions")
+    ):
+        return False
+    if not aggregate and any(
+        isinstance(n, exp.AggFunc) for f in query.expressions for n in f.walk()
+    ):
+        return False
+    known = exp.Not(this=exp.Is(this=score.copy(), expression=exp.Null()))
+    if aggregate:
+        query.having(known, append=True, copy=False)
+    else:
+        query.where(known, append=True, copy=False)
+    return True
+
+
+def include_cutoff_peers(
+    query: exp.Query, rows: int, *, known_measure: str | None = None
+) -> str | None:
     """Preserve peers for a simple PostgreSQL ranking with an explicit row cutoff.
 
     A second sort key could be a requested ranking criterion or just a display
@@ -80,7 +116,7 @@ def include_cutoff_peers(query: exp.Query, rows: int) -> str | None:
     if not isinstance(limit, (exp.Limit, exp.Fetch)):
         return None
     count, already_inclusive = _requested_limit(query)
-    if already_inclusive or count != rows:
+    if (already_inclusive and not known_measure) or count != rows:
         return None
     for node in query.walk():
         if isinstance(node, (exp.Window, exp.Offset)) or (
@@ -88,6 +124,9 @@ def include_cutoff_peers(query: exp.Query, rows: int) -> str | None:
         ):
             return None
     rewritten = query.copy()
+    filtered = bool(known_measure and _exclude_unknown_score(rewritten, known_measure))
+    if already_inclusive:
+        return rewritten.sql(dialect="postgres") if filtered else None
     rewritten.set(
         "limit",
         exp.Fetch(
