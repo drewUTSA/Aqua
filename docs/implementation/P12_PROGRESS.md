@@ -25,9 +25,11 @@ Private follow-up admission keeps the same eight-turn window and prior-SQL limit
 
 ## Review a saved ranking
 
-The latest successful ordinary ranking with a table offers **Choose tie rules in a new chat**. This action opens an empty guided form in the same project. Choose every field, review the wording, select **Use this draft** and press **Send**. The original answer remains in its own chat. An employee can use this workflow to compare tie policies whether the original returned one row or several.
+The latest successful ordinary ranking with a table offers **Choose tie rules in a new chat**. For a supported single-table grouped count or sum with an explicit matching cutoff, the form carries forward the source, grouping field, measure, direction and number from the saved result and question. Focus starts on **Ties**, where the employee chooses the policy. A filter, join, window calculation or ambiguous cutoff opens the empty form with focus on **Source**. Review or edit the fields, select **Use this draft**, and press **Send** to submit. Either answer can be reopened in the same project.
 
-Classic and Opal each passed two signed-in private tests against a fictional PostgreSQL ledger. A controlled model reply returned either one of two tied accounts or both accounts. The manually reviewed query returned both at 500 transactions each in 1.34–1.36 seconds with zero additional model calls. Each original answer reopened unchanged.
+In the November 23 signed-in rehearsal, the original result showed one of two tied accounts. After manual submission both Opal and Classic displayed both accounts with 500 transactions each in 1.33–1.34 seconds. The filtered controls opened with all fields empty. Both comparisons preserved the original saved result. The guided submissions made zero additional model calls. Firefox and Orca also announced the copied-fields description, selected tie policy and prepared draft on both sites. [Saved-ranking change](https://github.com/drewUTSA/Aqua/pull/120)
+
+In the earlier November 20 rehearsal, Classic and Opal each passed two signed-in private tests against a fictional PostgreSQL ledger. A controlled model reply returned either one of two tied accounts or both accounts. The manually reviewed query returned both at 500 transactions each in 1.34–1.36 seconds with zero additional model calls. Each original answer reopened unchanged.
 
 ## Choose the tie rule before sending
 
