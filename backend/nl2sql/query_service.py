@@ -10,7 +10,7 @@ from nl2sql.db import DatabaseError
 from nl2sql.display import display_for
 from nl2sql.errors import ContextDenied
 from nl2sql.explicit_ranking import answer_ranking, feedback, is_ranking_request
-from nl2sql.llm import LLMError, ModelResponseTimeout
+from nl2sql.llm import LLMError, ModelResponseInvalid, ModelResponseTimeout
 from nl2sql.pipeline import Retriever, answer_question
 from nl2sql.response import outage_response, to_response
 from nl2sql.schema import get_schema
@@ -111,6 +111,14 @@ def run(
         return (
             outage_response(
                 "model_timeout", "The language model did not answer in time."
+            ),
+            503,
+        )
+    except ModelResponseInvalid:
+        return (
+            outage_response(
+                "model_invalid_response",
+                "The language model returned an unusable answer. Try again or rephrase your question.",
             ),
             503,
         )

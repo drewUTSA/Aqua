@@ -74,6 +74,10 @@ class ModelResponseTimeout(LLMError):
     """The provider response timed out locally or at an upstream gateway."""
 
 
+class ModelResponseInvalid(LLMError):
+    """The provider answered, but its response could not be used."""
+
+
 @dataclass(frozen=True)
 class Completion:
     """The model's reply.
