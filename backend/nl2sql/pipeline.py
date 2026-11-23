@@ -76,6 +76,8 @@ class Answer:
     # How many rows the question asked for (answer_size.py); the response
     # says so when the default list size or a tie decided the answer.
     size: AnswerSize = field(default_factory=lambda: AnswerSize("open"))
+    # Set only when the query's executed upper bound proves first-place peers.
+    first_place_peers: bool = False
 
 
 def full_context(schema: Schema) -> Context:
@@ -191,6 +193,7 @@ def answer_question(
                 columns=result.columns,
                 rows=result.rows,
                 truncated=result.truncated,
+                first_place_peers=result.first_place_peers,
                 **base,
             )
 

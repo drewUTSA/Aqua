@@ -332,8 +332,30 @@ def test_ties_for_first_place_are_explained() -> None:
     from nl2sql.answer_size import AnswerSize
 
     rows = [("A", 4), ("B", 4), ("C", 4)]
-    body = to_response(answer(["title", "rentals"], rows, size=AnswerSize("single")))
-    assert body["message"].endswith("3 rows are tied for first place.")
+    body = to_response(
+        answer(
+            ["title", "rentals"],
+            rows,
+            size=AnswerSize("single"),
+            first_place_peers=True,
+        )
+    )
+    assert body["message"].endswith(
+        "The 3 displayed rows share first place in this query."
+    )
+
+
+def test_requested_first_place_cannot_prove_which_returned_rows_are_tied():
+    from nl2sql.answer_size import AnswerSize
+
+    for columns, rows in [
+        (["account_id", "total"], [(18, 80), (19, 76)]),
+        (["account_id", "total"], [(18, 80), (19, 80)]),
+        (["account_id"], [(18,), (19,)]),
+    ]:
+        body = to_response(answer(columns, rows, size=AnswerSize("single")))
+        assert "first place" not in body["message"]
+        assert len(body["tables"][0]["rows"]) == 2
 
 
 def test_a_single_winner_gets_no_tie_note() -> None:

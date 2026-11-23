@@ -59,6 +59,9 @@ class QueryResult:
     columns: list[str]
     rows: list[tuple[Any, ...]]
     truncated: bool
+    # A native first-row cutoff with ties proves peer membership even when the
+    # sort value is absent from the displayed columns.
+    first_place_peers: bool = False
 
 
 def include_cutoff_peers(query: exp.Query, rows: int) -> str | None:
@@ -158,7 +161,7 @@ def execute(
         for table in physical_tables(query):
             if isinstance(table.this, exp.Identifier) and not table.db:
                 table.set("db", exp.to_identifier("public"))
-    _, ties = _requested_limit(query)
+    requested, ties = _requested_limit(query)
     if ties:
         if dialect != "postgres":
             raise UnsafeQueryError("FETCH WITH TIES requires PostgreSQL.")
@@ -203,4 +206,11 @@ def execute(
         columns=columns,
         rows=rows[:max_rows],
         truncated=len(rows) > max_rows,
+        first_place_peers=bool(
+            ties
+            and requested == 1
+            and not query.args.get("offset")
+            and query.args.get("order")
+            and len(query.args["order"].expressions) == 1
+        ),
     )
