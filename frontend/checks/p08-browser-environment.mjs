@@ -155,7 +155,8 @@ export async function openP08Browser(options) {
       ctx.deadline ??= setTimeout(() => ctx.cdp.fail("browser_suite_deadline"), Math.max(1, LIMITS.milliseconds - (performance.now() - ctx.started)));
       return ctx.cdp;
     }
-    if (passwordStartupRecovery) {
+    const signedDeletionFixture = personalDeletionFixture && ready.identity_fixture?.actual_independent_authority === true;
+    if (passwordStartupRecovery || signedDeletionFixture) {
       ctx.startupAttempts = [];
       // workspace_stats above is the single read-only bridge operation. No page exists
       // until the successful handshake below. Account operations never re-enter here.

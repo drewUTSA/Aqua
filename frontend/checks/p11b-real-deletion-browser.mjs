@@ -31,6 +31,7 @@ if (ctx && (ctx.external || ctx.runtimeErrors || ctx.consoleLeaks || ctx.errors.
 try { schemaVersion = confirmedDeletionSchema(ready, ctx?.cleanup?.backend); }
 catch { failure ||= 'deletion_fixture_evidence_unconfirmed'; }
 const report = { status: failure ? 'failed' : 'passed', failure, checked_utc: new Date().toISOString(), mode: 'two_database_signed_retirement_reserved_https_cdp',
+  ...(ctx?.startupAttempts ? { browser_startup_attempts: ctx.startupAttempts } : {}),
   expected_shell: process.env.AQUA_P05_EXPECTED_SHELL || 'opal',
   limits: LIMITS, workload, setup_diagnostic: setup, failure_diagnostic: diagnostic, checks: ctx?.results || [], screenshots: ctx?.screenshots || [], assets: ctx?.assets || [], cleanup: ctx?.cleanup || null,
   observations: ctx ? { requests: ctx.requests, api_requests: ctx.api, maximum_paused: ctx.maximumPending, external_attempts: ctx.external, runtime_errors: ctx.runtimeErrors, console_leaks: ctx.consoleLeaks, protocol_errors: ctx.errors } : null,
