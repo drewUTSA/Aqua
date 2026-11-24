@@ -3,6 +3,7 @@
 from fastapi import APIRouter, Request
 from pydantic import BaseModel, ConfigDict, Field, StrictInt, StrictStr, field_validator
 
+from bank_demo.calculations import CalculationRequest
 from bank_demo.policy import BankDemoPolicy
 from bank_demo.requirements import ReportRequirements
 from bank_demo.service import BankDemo
@@ -42,6 +43,8 @@ def read(request, session, workspace, body=None):
         demo = BankDemo(workspace, policy)
         if body is None:
             return demo.read(session)
+        if isinstance(body, CalculationRequest):
+            return demo.read(session, calculation=body)
         return demo.read(
             session,
             report_id=body.report_id,
@@ -60,4 +63,11 @@ def context(request: Request, session: Session, workspace: Service):
 
 @router.post("/reports")
 def report(body: ReportRequest, request: Request, session: Session, workspace: Service):
+    return perform(lambda: read(request, session, workspace, body))
+
+
+@router.post("/calculations")
+def illustration(
+    body: CalculationRequest, request: Request, session: Session, workspace: Service
+):
     return perform(lambda: read(request, session, workspace, body))

@@ -104,6 +104,7 @@ def dispatch(
                 in {
                     ("GET", "/api/v1/bank-demo/context"),
                     ("POST", "/api/v1/bank-demo/reports"),
+                    ("POST", "/api/v1/bank-demo/calculations"),
                     ("GET", "/api/v1/companion/capabilities"),
                 }
             )

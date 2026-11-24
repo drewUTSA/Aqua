@@ -70,6 +70,7 @@ class NormalGuards(unittest.TestCase):
             "companion/service.py",
             "bank_demo/__init__.py",
             "bank_demo/policy.py",
+            "bank_demo/calculations.py",
             "bank_demo/requirements.py",
             "bank_demo/router.py",
             "bank_demo/service.py",
@@ -88,6 +89,7 @@ class NormalGuards(unittest.TestCase):
             "eval/banking/scope.py",
             "mcp_demo/__init__.py",
             "mcp_demo/data.py",
+            "mcp_demo/finance.py",
             "mcp_demo/guidance.py",
             "mcp_demo/protocol.py",
             "mcp_demo/reports.py",
@@ -95,7 +97,7 @@ class NormalGuards(unittest.TestCase):
         }
         self.assertTrue(additions <= RUNTIME_FILES.keys())
         self.assertEqual(len(RUNTIME_FILES.keys() - additions), 191)
-        self.assertEqual(len(RUNTIME_FILES), 244)
+        self.assertEqual(len(RUNTIME_FILES), 246)
         self.assertEqual(len(MANIFEST_SHA256), 64)
         self.assertEqual(IMAGE, runner.IMAGE)
         self.assertIn("main.py", RUNTIME_FILES)
