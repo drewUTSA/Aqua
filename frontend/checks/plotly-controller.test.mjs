@@ -8,7 +8,7 @@ const deferred = () => { let resolve, reject; const promise = new Promise((yes, 
 const settle = async () => { await new Promise((resolve) => setImmediate(resolve)); };
 function harness(load) {
   let next = 0, resize, disconnected = 0; const frames = new Map(), calls = [], statuses = [];
-  const node = { isConnected: true, clientWidth: 800 };
+  const node = { isConnected: true, clientWidth: 800, remove() { this.isConnected = false; } };
   const engine = { react: async (...args) => { calls.push(["react", ...args]); }, purge: (...args) => calls.push(["purge", ...args]), relayout: async (...args) => { calls.push(["relayout", ...args]); } };
   const controller = createPlotlyController({ node, loadEngine: () => load ? load(engine) : Promise.resolve(engine), onStatus: (status) => statuses.push(status),
     requestFrame: (callback) => { frames.set(++next, callback); return next; }, cancelFrame: (id) => frames.delete(id),
@@ -38,12 +38,24 @@ test("unmount during a lazy import never draws a private result", async () => {
   assert.equal(h.calls.some(([kind]) => kind === "react"), false); assert.equal(h.statuses.includes("ready"), false); assert.equal(h.disconnected(), 1);
 });
 
-test("unmount during an async draw purges immediately and after late completion", async () => {
-  const gate = deferred(), h = harness(); h.engine.react = () => gate.promise;
+test("unmount removes a private plot immediately and purges after the active draw finishes", async () => {
+  const gate = deferred(), h = harness(); let surface;
+  h.engine.react = (node) => { surface = node; return gate.promise; };
   h.controller.update(figure()); await h.flush(); h.controller.dispose();
-  assert.equal(h.calls.filter(([kind]) => kind === "purge").length, 1);
-  gate.resolve(); await settle(); assert.equal(h.calls.filter(([kind]) => kind === "purge").length, 2);
+  assert.equal(surface.isConnected, false);
+  assert.equal(h.calls.filter(([kind]) => kind === "purge").length, 0);
+  gate.resolve(); await settle(); assert.equal(h.calls.filter(([kind]) => kind === "purge").length, 1);
   assert.equal(h.statuses.includes("ready"), false); assert.equal(h.frames.size, 0);
+});
+
+test("unmount during relayout detaches the graph and leaves the pending operation's layout intact", async () => {
+  const gate = deferred(), h = harness(); let surface;
+  h.controller.update(figure()); await h.flush();
+  h.engine.relayout = (node) => { surface = node; return gate.promise; };
+  const changed = h.controller.control("pan"); h.controller.dispose();
+  assert.equal(surface.isConnected, false); assert.equal(h.calls.some(([kind]) => kind === "purge"), false);
+  gate.resolve(); assert.equal(await changed, false);
+  assert.equal(h.calls.filter(([kind]) => kind === "purge").length, 1);
 });
 
 test("latest queued response replaces an older draw without parallel engine calls", async () => {

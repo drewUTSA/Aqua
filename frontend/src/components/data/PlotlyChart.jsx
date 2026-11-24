@@ -15,7 +15,11 @@ export default function PlotlyChart({ descriptor, table, theme = "opal", prefere
   const figure = useMemo(() => buildPlotlyFigure(descriptor, table, { theme, preferences, revisionKey, animate, textScale }), [descriptor, table, theme, preferences, revisionKey, animate, textScale]);
   useEffect(() => {
     if (!figure || !node.current) return;
-    const owner = createPlotlyController({ node: node.current, loadEngine: loadPlotlyEngine, onStatus: setStatus });
+    // Each engine owns one surface. An old draw can finish after its replacement mounts.
+    const surface = node.current.ownerDocument.createElement("div");
+    surface.className = "plotly-chart__surface";
+    node.current.appendChild(surface);
+    const owner = createPlotlyController({ node: surface, loadEngine: loadPlotlyEngine, onStatus: setStatus });
     controller.current = owner; setControlBusy(false);
     return () => { owner.dispose(); if (controller.current === owner) controller.current = null; };
   }, [Boolean(figure)]);
