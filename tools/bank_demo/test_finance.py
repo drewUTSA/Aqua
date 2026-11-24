@@ -276,6 +276,36 @@ class FinanceTests(unittest.TestCase):
             ("0.333333", "-2.00", False),
         )
 
+    def test_coverage_explains_the_cent_difference_when_the_ratio_rounds_to_one(self):
+        cases = (
+            (
+                "999999.99",
+                "-0.01",
+                False,
+                "falls short of the stated outflows by 0.01 USD",
+            ),
+            ("1000000.00", "0.00", True, "exactly matches the stated outflows"),
+            ("1000000.01", "0.01", True, "exceeds the stated outflows by 0.01 USD"),
+        )
+        for cash, difference, covered, explanation in cases:
+            with self.subTest(cash=cash):
+                reply = calculate_finance(
+                    "liquidity_coverage",
+                    {
+                        "currency": "USD",
+                        "period": "day",
+                        "available_liquidity_usd": cash,
+                        "projected_outflows_usd": "1000000",
+                    },
+                )
+                self.assertEqual(reply["result"]["coverage_ratio"], "1.000000")
+                self.assertEqual(
+                    reply["result"]["surplus_or_shortfall_usd"], difference
+                )
+                self.assertIs(reply["result"]["covers_stated_outflows"], covered)
+                self.assertIn(explanation, reply["explanation"])
+                self.assertIn("1.000000, rounded", reply["explanation"])
+
     def test_reconciliation_sign_convention_and_signed_opening_balance(self):
         parameters = {
             "currency": "USD",

@@ -9,6 +9,8 @@
 .opal-workspace[data-theme] .opal-chat { gap: 24px; padding: 24px clamp(8px, 2vw, 28px) 12px; }
 .opal-workspace[data-theme] .opal-welcome { flex: 0 0 auto; max-width: var(--reading-width); margin: 0; padding: 0; }
 .opal-workspace[data-theme] .opal-welcome h1 { margin: 0; }
+/* The route announces its heading on entry. Show keyboard focus on the next control. */
+.opal-workspace[data-theme] .opal-welcome h1:focus { outline: none; }
 .opal-workspace[data-theme] .opal-welcome p { margin-top: 12px; }
 .opal-workspace[data-theme] .opal-welcome > img { width: 32px; height: 40px; margin: 0 auto 16px; }
 .opal-workspace[data-ui-shell="legacy"] .opal-welcome > img { width: min(240px, 65%); height: 100px; }

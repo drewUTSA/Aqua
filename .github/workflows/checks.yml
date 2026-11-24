@@ -142,7 +142,7 @@ jobs:
           "${{ runner.temp }}/aqua-authority-opt-in/bin/python" -m pip install --no-deps --require-hashes -r tools/checks/requirements-runtime.lock
           "${{ runner.temp }}/aqua-authority-opt-in/bin/python" -m unittest discover -s ops/retirement/backup_client -p 'authority_budget_integration_test.py'
           "${{ runner.temp }}/aqua-authority-opt-in/bin/python" tools/checks/test_recovery_witness.py
-          PYTHONPATH=backend "${{ runner.temp }}/aqua-authority-opt-in/bin/python" -m unittest ops.recovery_witness.test_wal_store ops.recovery_witness.test_wal_checkpoint
+          PYTHONPATH=backend "${{ runner.temp }}/aqua-authority-opt-in/bin/python" -m unittest ops.recovery_witness.test_wal_store ops.recovery_witness.test_wal_checkpoint ops.recovery_witness.test_rotating_wal
       - name: Audit pinned runtime dependencies
         run: python -m pip_audit --no-deps --disable-pip -r tools/checks/requirements-runtime.lock
       - name: Prepare isolated test images
