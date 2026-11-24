@@ -20,6 +20,6 @@ export function useBankDemo({ ownerId, csrfToken, targetId, onClose, onAuthFailu
   const matches = () => control.current?.ownerId === ownerId && control.current?.csrfToken === csrfToken && control.current?.targetId === targetId;
   return { state: matches() ? state : initialBankDemoState(),
     load: () => { if (matches()) void control.current.controller.load(); },
-    read: () => { if (matches()) void control.current.controller.read(); },
+    read: requirements => { if (matches()) void control.current.controller.read(requirements); },
     select: id => { if (matches()) control.current.controller.select(id); } };
 }

@@ -2,6 +2,9 @@
 .bank-demo-panel :is(h3,h4,h5,p,dl,ul,ol) { margin-block: 0; }
 .bank-demo-panel :is(select,button,summary) { min-height: 44px; font: inherit; }
 .bank-demo__picker select { width: 100%; min-width: 0; padding: var(--space-3); color: var(--pref-text); background: var(--pref-raised); border: 1px solid var(--pref-border); border-radius: var(--radius-sm); }
+.bank-demo__dates { display: flex; flex-wrap: wrap; gap: var(--space-3); min-width: 0; border: 1px solid var(--pref-border); padding: var(--space-3); border-radius: var(--radius-sm); }
+.bank-demo__dates div { display: grid; flex: 1 1 10rem; gap: var(--space-1); min-width: 0; }
+.bank-demo__dates input { min-width: 0; min-height: 44px; padding-inline: var(--space-2); border: 1px solid var(--pref-border); border-radius: var(--radius-sm); color: var(--pref-text); background: var(--pref-raised); font: inherit; }
 .bank-demo__facts { display: grid; gap: var(--space-3); grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr)); }
 .bank-demo__facts dt { font-weight: 600; }
 .bank-demo__facts dd { margin: 0; overflow-wrap: anywhere; }

@@ -21,6 +21,85 @@ def body(**changes):
     }
 
 
+@pytest.mark.parametrize(
+    "source,start,end,reason",
+    [
+        ("fictional_snapshot", "2026-11-01", "2026-11-16", None),
+        ("fictional_snapshot", "2026-11-01", "2026-11-30", "period_unavailable"),
+        ("fictional_snapshot", "2026-11-11", "2026-11-16", "period_unavailable"),
+        ("fictional_snapshot", None, "2026-11-16", "period_required"),
+        (
+            "institution_record",
+            "2026-11-01",
+            "2026-11-16",
+            "institution_source_unavailable",
+        ),
+    ],
+)
+def test_requested_report_matches_source_and_full_range(
+    enabled, source, start, end, reason
+):
+    client, owner = enabled.client(grant=False)
+    request = {"source": source, "period_start": start, "period_end": end}
+    reply = client.post(BASE + "/reports", json=body(requirements=request))
+    assert reply.status_code == 200 and reply.json()["owner_id"] == owner
+    if reason is None:
+        assert reply.json() == client.post(BASE + "/reports", json=body()).json()
+    else:
+        assert reply.json() == {
+            "schemaVersion": 1,
+            "owner_id": owner,
+            "unavailable": {
+                "reason": reason,
+                "reportId": "deposit_portfolio_summary",
+                "sourceRevision": SOURCE_REVISION,
+                "periodStart": "2026-11-01",
+                "periodEnd": "2026-11-16",
+            },
+        }
+    assert enabled.calls == []
+
+
+def test_report_requirements_validate_shape_and_respect_existing_grants(
+    enabled, monkeypatch
+):
+    client, _ = enabled.client(grant=False)
+    base = {
+        "source": "fictional_snapshot",
+        "period_start": "2026-11-01",
+        "period_end": "2026-11-16",
+    }
+    for requirement in (
+        None,
+        {},
+        {**base, "source": "bank"},
+        {**base, "period_start": "2026-11-20"},
+        {**base, "period_start": "2026-02-31"},
+        {**base, "period_start": "20261101"},
+        {**base, "authority": "manager"},
+    ):
+        assert (
+            client.post(
+                BASE + "/reports", json=body(requirements=requirement)
+            ).status_code
+            == 422
+        )
+    monkeypatch.setattr(
+        main.app.state, "bank_demo_policy", BankDemoPolicy(True, "teller")
+    )
+    request = body(
+        report_id="liquidity_assumption_summary",
+        requirements={"source": "institution_record"},
+    )
+    reply = client.post(BASE + "/reports", json=request)
+    assert reply.status_code == 403 and "unavailable" not in reply.json()
+    stale = client.post(
+        BASE + "/reports",
+        json=body(expected_source_revision="a" * 64, requirements=base),
+    )
+    assert stale.status_code == 409 and enabled.calls == []
+
+
 @pytest.fixture
 def enabled(world, monkeypatch):
     monkeypatch.setattr(

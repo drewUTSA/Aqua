@@ -80,3 +80,40 @@ export function decodeBankReport(value, expectedOwner, reportId, context) {
   r.nextSteps.forEach((step, index) => require(keys(step, ["id", "text"]) && step.id === steps[index] && text(step.text, 2048)));
   return bound(r);
 }
+
+function calendarDate(value) {
+  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value) || value.startsWith("0000")) return false;
+  const date = new Date(value + "T00:00:00Z");
+  return Number.isFinite(date.getTime()) && date.toISOString().slice(0, 10) === value;
+}
+
+export function validReportRequirements(value) {
+  return keys(value, ["source", "period_start", "period_end"])
+    && ["fictional_snapshot", "institution_record"].includes(value.source)
+    && [value.period_start, value.period_end].every(day => day === null || calendarDate(day))
+    && (!value.period_start || !value.period_end || value.period_start <= value.period_end);
+}
+
+function unavailableReason(requirements, start, end) {
+  if (requirements.source === "institution_record") return "institution_source_unavailable";
+  if (!requirements.period_start || !requirements.period_end) return "period_required";
+  return requirements.period_start === start && requirements.period_end === end ? null : "period_unavailable";
+}
+
+export function decodeRequestedReport(value, expectedOwner, reportId, context, requirements) {
+  if (value && Object.hasOwn(value, "unavailable")) {
+    envelope(value, ["unavailable"], expectedOwner);
+    const limit = value.unavailable;
+    require(validReportRequirements(requirements) && context?.ownerId === expectedOwner && context.reports.some(item => item.id === reportId)
+      && keys(limit, ["reason", "reportId", "sourceRevision", "periodStart", "periodEnd"])
+      && limit.reportId === reportId && limit.sourceRevision === context.sourceRevision
+      && limit.periodStart === "2026-11-01" && limit.periodEnd === context.asOf
+      && typeof limit.reason === "string" && limit.reason === unavailableReason(requirements, limit.periodStart, limit.periodEnd));
+    return { unavailable: bound(limit) };
+  }
+  const report = decodeBankReport(value, expectedOwner, reportId, context);
+  if (requirements !== undefined) {
+    require(validReportRequirements(requirements) && unavailableReason(requirements, report.periodStart, report.periodEnd) === null);
+  }
+  return report;
+}
