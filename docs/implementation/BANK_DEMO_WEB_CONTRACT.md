@@ -8,6 +8,14 @@ alone selects `none|teller|analyst|manager`; request roles/tenants/personas cann
 change it. App `owner_id` is the authenticated Aqua account, separate from the
 immutable synthetic DemoActor. Analytical `bank` grants confer no demo role.
 
+For a shared installation, set `BANK_DEMO_ENABLED=true`, keep
+`BANK_DEMO_PERSONA=none` and set `BANK_DEMO_ACCOUNT_PERSONAS` in the private
+backend environment. Supply comma-separated `account-uuid=persona` entries
+using the canonical lowercase Aqua account IDs and one of the four roles above.
+The server accepts up to 64 distinct accounts. An empty setting gives every
+account the `none` role. A missing entry gives that account the same role.
+The backend validates assignments at startup. Restart it after changing assignments.
+
 `POST /api/v1/bank-demo/calculations` requires the same authenticated owner,
 Origin and CSRF checks as report reading. In **Help → Fictional bank
 demo → Banking calculator**, the employee reviews the terms and selects **Confirm
@@ -117,9 +125,8 @@ runtime inventory explicitly contains226 Python/SQL files,230 app files and one
 runtime lock. See [qualification](BANK_DEMO_WEB_QUALIFICATION_20261117.md) for
 the source bindings, failed-attempt dispositions and remaining limitations.
 
-To opt into a local demonstration, the operator must pass
-`BANK_DEMO_ENABLED=true` and one fixed `BANK_DEMO_PERSONA` in the backend process
-environment. The existing frontend is built with real-auth/mock flags disabled;
+For a single-role local demonstration, set `BANK_DEMO_ENABLED=true` and one
+fixed `BANK_DEMO_PERSONA`, and omit `BANK_DEMO_ACCOUNT_PERSONAS`. The existing frontend is built with real-auth/mock flags disabled;
 the report UI uses the authenticated API. No production configuration was
 changed by qualification. A process-level flag does not configure a bank
 connection or confer real-bank entitlements.
