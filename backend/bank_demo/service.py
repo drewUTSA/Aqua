@@ -5,7 +5,9 @@ import time
 from collections.abc import Callable
 
 from auth.security import UserSession
+from bank_demo.calculations import CalculationRequest, calculate
 from bank_demo.policy import BankDemoPolicy
+from bank_demo.requirements import ReportRequirements
 from bank_demo.source import SyntheticReportSource
 from workspace.database import guard
 from workspace.errors import WorkspaceError
@@ -28,6 +30,8 @@ class BankDemo:
         *,
         report_id: str | None = None,
         expected_source_revision: str | None = None,
+        requirements: ReportRequirements | None = None,
+        calculation: CalculationRequest | None = None,
     ) -> dict:
         if type(self.policy) is not BankDemoPolicy or not self.policy.enabled:
             raise WorkspaceError("not_found", 404)
@@ -44,12 +48,17 @@ class BankDemo:
             guard(conn, session, self.workspace.policy, data=False)
             check()
             source = SyntheticReportSource(self.policy.persona)
-            if report_id is None:
+            if calculation is not None:
+                payload = calculate(calculation, source, check)
+            elif report_id is None:
                 payload = source.context(check)
             else:
-                payload = {
-                    "result": source.report(report_id, expected_source_revision, check)
-                }
+                report = source.report(report_id, expected_source_revision, check)
+                payload = (
+                    {"result": report}
+                    if requirements is None
+                    else requirements.response(report)
+                )
             check()
             # Recheck current session/account/history before publishing the result.
             guard(conn, session, self.workspace.policy, data=False)

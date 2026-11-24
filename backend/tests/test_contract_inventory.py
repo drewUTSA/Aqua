@@ -26,6 +26,7 @@ def test_current_http_surface_is_explicit():
         ("/api/v1/companion/result-brief", "POST"),
         ("/api/v1/bank-demo/context", "GET"),
         ("/api/v1/bank-demo/reports", "POST"),
+        ("/api/v1/bank-demo/calculations", "POST"),
         ("/api/auth/config", "GET"),
         ("/api/auth/google", "POST"),
         ("/api/auth/google/redirect", "POST"),
