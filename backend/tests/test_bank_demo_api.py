@@ -6,7 +6,7 @@ from types import SimpleNamespace
 import pytest
 
 import main
-from bank_demo.policy import BankDemoPolicy
+from bank_demo.policy import BankDemoPolicy, load_policy
 from mcp_demo.web import SOURCE_REVISION
 
 BASE = "/api/v1/bank-demo"
@@ -108,6 +108,64 @@ def enabled(world, monkeypatch):
         main.app.state, "bank_demo_policy", BankDemoPolicy(True, "manager")
     )
     return world
+
+
+def test_one_instance_scopes_reports_and_calculations_to_the_signed_in_account(
+    world, monkeypatch
+):
+    teller, teller_id = world.client("A", grant=False)
+    analyst, analyst_id = world.client("B", grant=False)
+    visitor, visitor_id = world.client("C", grant=True)
+    policy = load_policy(
+        {
+            "BANK_DEMO_ENABLED": "true",
+            "BANK_DEMO_ACCOUNT_PERSONAS": f"{teller_id}=teller,{analyst_id}=analyst",
+        }
+    )
+    monkeypatch.setattr(main.app.state, "bank_demo_policy", policy)
+    calc = {
+        "schemaVersion": 1,
+        "confirmed": True,
+        "currency": "USD",
+        "operation": "simple_interest",
+        "parameters": {
+            "principal_usd": "4200",
+            "annual_rate_percent": "4",
+            "term_months": "5",
+        },
+        "expected_source_revision": SOURCE_REVISION,
+    }
+    for client, owner, persona in (
+        (teller, teller_id, "teller"),
+        (analyst, analyst_id, "analyst"),
+        (visitor, visitor_id, "none"),
+    ):
+        menu = client.get(BASE + "/context").json()
+        assert menu["owner_id"] == owner and menu["context"]["persona"] == persona
+    report = body(report_id="liquidity_assumption_summary")
+    assert analyst.post(BASE + "/reports", json=report).status_code == 200
+    assert teller.post(BASE + "/reports", json=report).status_code == 403
+    assert visitor.post(BASE + "/reports", json=body()).status_code == 403
+    assert visitor.post(BASE + "/calculations", json=calc).status_code == 403
+    for client in [teller, analyst]:
+        assert (
+            client.post(BASE + "/calculations", json=calc).json()["calculation"][
+                "result"
+            ]["interest_usd"]
+            == "70.00"
+        )
+    monkeypatch.setattr(
+        main.app.state,
+        "bank_demo_policy",
+        load_policy(
+            {
+                "BANK_DEMO_ENABLED": "true",
+                "BANK_DEMO_ACCOUNT_PERSONAS": "",
+            }
+        ),
+    )
+    assert analyst.post(BASE + "/reports", json=report).status_code == 403
+    assert world.calls == []
 
 
 def test_default_off_then_fictional_reports_need_no_analytical_grant_or_history(
