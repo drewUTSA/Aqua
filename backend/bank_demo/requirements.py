@@ -23,6 +23,8 @@ class ReportRequirements(BaseModel):
 
     @model_validator(mode="after")
     def ordered(self):
+        if (self.period_start is None) != (self.period_end is None):
+            raise ValueError("bank_demo_date_pair_required")
         if (
             self.period_start
             and self.period_end

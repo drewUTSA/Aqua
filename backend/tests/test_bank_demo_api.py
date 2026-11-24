@@ -27,7 +27,7 @@ def body(**changes):
         ("fictional_snapshot", "2026-11-01", "2026-11-16", None),
         ("fictional_snapshot", "2026-11-01", "2026-11-30", "period_unavailable"),
         ("fictional_snapshot", "2026-11-11", "2026-11-16", "period_unavailable"),
-        ("fictional_snapshot", None, "2026-11-16", "period_required"),
+        ("fictional_snapshot", None, None, "period_required"),
         (
             "institution_record",
             "2026-11-01",
@@ -76,6 +76,8 @@ def test_report_requirements_validate_shape_and_respect_existing_grants(
         {**base, "period_start": "2026-11-20"},
         {**base, "period_start": "2026-02-31"},
         {**base, "period_start": "20261101"},
+        {**base, "period_start": None},
+        {**base, "period_end": None},
         {**base, "authority": "manager"},
     ):
         assert (
