@@ -26,7 +26,7 @@ from eval.banking import BankingDenied, create_proposal
 from eval.banking.catalog import ACTION_IDS, REPORTS
 from eval.banking.data import encode as banking_encode
 from mcp_demo import data, finance, guidance, reports
-from mcp_demo.finance_schema import with_finance_schema
+from mcp_demo.finance_schema import transport_amount, with_finance_schema
 from mcp_demo.protocol import (
     HANDLER_SECONDS,
     MAX_FRAME_BYTES,
@@ -235,6 +235,15 @@ def _finance_call(actor, raw):
         values = FinanceArguments.model_validate(raw).model_dump()
     except ValidationError:
         return _error(message=_finance_fields_message(raw))
+    fields = finance.INPUT_FIELDS[values["operation"]]
+    values["parameters"] = {
+        name: (
+            transport_amount(value)
+            if name in fields and name.endswith("_usd")
+            else value
+        )
+        for name, value in values["parameters"].items()
+    }
     try:
         calculation = finance.calculate_finance(**values)
     except finance.FinanceDenied as error:

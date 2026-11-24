@@ -1,6 +1,7 @@
 """Discoverable calculator metadata; finance.py independently validates inputs."""
 
 from copy import deepcopy
+import re
 
 
 def exact_pattern(body):
@@ -9,24 +10,38 @@ def exact_pattern(body):
 
 
 AMOUNT = r"(?:0|[1-9][0-9]{0,11})(?:\.[0-9]{1,2})?|1000000000000(?:\.0{1,2})?"
+PADDING = r"[ \t]{0,4}"
+WIRE_MONEY = re.compile(PADDING + "(-?(?:" + AMOUNT + "))" + PADDING)
 RATE = r"(?:0|[1-9][0-9]?)(?:\.[0-9]{1,6})?|100(?:\.0{1,6})?"
 TERM = r"[1-9]|[1-9][0-9]|[1-5][0-9]{2}|600"
 PERIODS = ["day", "month", "quarter", "year", "statement"]
 
 
 def amount(description, *, positive=False, signed=False):
+    decimal = "-?(?:" + AMOUNT + ")" if signed else "(?:" + AMOUNT + ")"
     value = {
         "type": "string",
         "minLength": 1,
-        "maxLength": 17,
-        "pattern": exact_pattern(r"-?(?:" + AMOUNT + ")" if signed else AMOUNT),
+        "maxLength": 25,
+        "pattern": exact_pattern(PADDING + decimal + PADDING),
         "description": description
-        + " Plain USD decimal text, at most two fractional digits and an absolute maximum of 1000000000000.00; no exponent, separators or whitespace.",
+        + " Plain USD decimal text with at most two fractional digits and an absolute maximum of 1000000000000.00. Up to four surrounding ASCII spaces or tabs on each side are ignored. Internal whitespace, separators and exponents are invalid.",
     }
     if positive:
-        value["not"] = {"enum": ["0", "0.0", "0.00"]}
+        value["not"] = {"pattern": exact_pattern(PADDING + r"0(?:\.0{1,2})?" + PADDING)}
     elif signed:
-        value["not"] = {"enum": ["-0", "-0.0", "-0.00"]}
+        value["not"] = {
+            "pattern": exact_pattern(PADDING + r"-0(?:\.0{1,2})?" + PADDING)
+        }
+    return value
+
+
+def transport_amount(value):
+    """Remove only bounded horizontal padding around a valid decimal token."""
+    if type(value) is str and len(value) <= 25:
+        match = WIRE_MONEY.fullmatch(value)
+        if match:
+            return match.group(1)
     return value
 
 
