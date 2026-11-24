@@ -136,7 +136,7 @@ test("P08 Python offset timestamps normalize only projected coordinates to UTC",
 
 function controller(loadEngine) {
   const frames = new Map(), statuses = []; let next = 0, stopped = 0;
-  const owner = createPlotlyController({ node: { isConnected: true, clientWidth: 640 }, loadEngine, onStatus: (status) => statuses.push(status),
+  const owner = createPlotlyController({ node: { isConnected: true, clientWidth: 640, remove() { this.isConnected = false; } }, loadEngine, onStatus: (status) => statuses.push(status),
     requestFrame: (fn) => { frames.set(++next, fn); return next; }, cancelFrame: (id) => frames.delete(id), observeResize: () => () => { stopped += 1; } });
   const frame = () => { const [id, fn] = frames.entries().next().value || []; if (fn) { frames.delete(id); fn(); } };
   return { owner, frame, statuses, frames, stopped: () => stopped };

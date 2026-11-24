@@ -1,7 +1,7 @@
 """Pinned application image and compiled file digests for the native recovery rehearsal."""
 
-IMAGE = "sha256:8adf3681e1a0432c9627b3db6c68a5078966c5e4b99bb90bb7cad396a79221d4"
-MANIFEST_SHA256 = "f544b99f59b99bbf864481ce08c3116d13121ea0978cf2c50f26527f32d5e0bd"
+IMAGE = "sha256:70dc3339452494d58dcbbfde6434cccedfa60567ae99fb9b540cb3f4ff043325"
+MANIFEST_SHA256 = "2a8872b9b03bb5b5e191eb3ad2c1746ab4ec815a628bb6d7bae73e42c4d03edd"
 RUNTIME_FILES = {
     "account/__init__.py": "4d300929fcb6d0c0e3a6b92377bfd4648fc336a8ad2bfb3e962d810b3b6f55e0",
     "account/action_contracts.py": "be3becba0a54378a847efdaa76cc833e3b780df3658c90d30f86a7852232a397",
@@ -83,9 +83,11 @@ RUNTIME_FILES = {
     "auth/sessions.py": "1af1a3b2c58d651ba65d14eb790245cb87948ce91af9c7f226defa901af848a6",
     "auth/store.py": "93ff7c1e34caf4a1a8ddde445702bb71f5aae0cc18b6f8554ecdcade716cd7f6",
     "bank_demo/__init__.py": "5c8af141a4e035d06af3f434fbcba33fe7864a07564935996bd25fce351da968",
+    "bank_demo/calculations.py": "b74e1684c2a588aee4397db6826e0553b0095a2dba7d03d2de04bf3ca9d22a31",
     "bank_demo/policy.py": "a59a32d2df226d78455450b52f2aef2c82a4d83810febf862a5c8517366b4b58",
-    "bank_demo/router.py": "e583ae2ad7e201a1f7f3f4539b223ac293fe68f2c1f87ffb5902044f081fafc3",
-    "bank_demo/service.py": "7e39055b37970e6e5d8e251e2c2af39d30b4309ff8d97bafe679598e58e74115",
+    "bank_demo/requirements.py": "71b89cfa4e51540a8d405cd0e6a60a55e9c0b47fe85d95868735e4038c1e049c",
+    "bank_demo/router.py": "e07c83c50dc487d9c394718effd6b3094b3c580485d384ca3cb36d2352bf037d",
+    "bank_demo/service.py": "f36b1fb47d0ae03595df32d68b192d4888c70f5b3a0779eb55daf4e30ac41139",
     "bank_demo/source.py": "55cb6bf7ac5775ce2f9887d0064fa3a1265dab623ae5790e4eedf2b16a4f4e06",
     "companion/__init__.py": "31983077341a8a4228c0644060ddcb89ec1b4bfa0e29110685af8c7316110dd4",
     "companion/application.py": "cf4878d65ca1be714b8ba20ea9816e1488e2b8058ca9e6a5af974bd2f40cb46c",
@@ -115,6 +117,7 @@ RUNTIME_FILES = {
     "main.py": "bdeadd02fb1183aeaf3428bb3202502be76ef767f37116ae23e8e543671aadca",
     "mcp_demo/__init__.py": "10641412ed8d7dda80a2f7713cd9083d62acbd73c9de682b5d40ab1c582c0ce9",
     "mcp_demo/data.py": "0213446283991323991cf18019efc8f3d81e243ea79266677b3426a03bcf7150",
+    "mcp_demo/finance.py": "c53adc87d3f8c1d0d36aacfeb3743334ad721216ca7f137cfa8a8ca2b980e3d2",
     "mcp_demo/guidance.py": "9869fe6ad2ea1bdaaab091d7f73c77a7d3a3cd04b0e3556c138f939ab1a0f906",
     "mcp_demo/protocol.py": "053b5c59dc579ad2b19f8d4a1620165cd1bae20bcfca51767ce3d9ffefa454a0",
     "mcp_demo/reports.py": "cf6bef246cd29eeac50dd6a2669151e405829996c9a464632e9b57c3c9b74868",
@@ -219,7 +222,7 @@ RUNTIME_FILES = {
     "retirement/mail_physical.py": "247ce9111192724308ed292876e62913b26e5336157f0878c679ce639d425316",
     "retirement/original_manifest.py": "10e9256c6530f00c31c582f342a75d20c6289382c3c968926283f15b2bd66080",
     "retirement/pages.py": "2c34926be2a41f24d85c0788fb58a23f1ac99926a7432ad327a47e9911a602bd",
-    "retirement/publisher.py": "93fbfee96bbf8bf2f9fb7a9c990d2a666611b1184b8e4f751d1353434073e480",
+    "retirement/publisher.py": "4e191e26d847361beb7e2dea39434c95252fa43e210dfbce6275e8af976ccdb8",
     "retirement/recovery.py": "6eb4477006bd4064d978265f85ed3f4060e9cfabb5e8d67efa720c2667466580",
     "retirement/revision.py": "c1853545282b2aaf1de2e2ee1634dcd646e7eeae05414dfa148ef1e379e87425",
     "retirement/runtime.py": "30b87c0583f93064851aefee7be0f289673534bcde56e7aec72fe590ebc4ab9b",

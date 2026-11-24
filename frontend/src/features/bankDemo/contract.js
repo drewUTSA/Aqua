@@ -80,3 +80,90 @@ export function decodeBankReport(value, expectedOwner, reportId, context) {
   r.nextSteps.forEach((step, index) => require(keys(step, ["id", "text"]) && step.id === steps[index] && text(step.text, 2048)));
   return bound(r);
 }
+
+function calendarDate(value) {
+  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value) || value.startsWith("0000")) return false;
+  const date = new Date(value + "T00:00:00Z");
+  return Number.isFinite(date.getTime()) && date.toISOString().slice(0, 10) === value;
+}
+
+export function validReportRequirements(value) {
+  return keys(value, ["source", "period_start", "period_end"])
+    && ["fictional_snapshot", "institution_record"].includes(value.source)
+    && [value.period_start, value.period_end].every(day => day === null || calendarDate(day))
+    && (!value.period_start || !value.period_end || value.period_start <= value.period_end);
+}
+
+function unavailableReason(requirements, start, end) {
+  if (requirements.source === "institution_record") return "institution_source_unavailable";
+  if (!requirements.period_start || !requirements.period_end) return "period_required";
+  return requirements.period_start === start && requirements.period_end === end ? null : "period_unavailable";
+}
+
+export function decodeRequestedReport(value, expectedOwner, reportId, context, requirements) {
+  if (value && Object.hasOwn(value, "unavailable")) {
+    envelope(value, ["unavailable"], expectedOwner);
+    const limit = value.unavailable;
+    require(validReportRequirements(requirements) && context?.ownerId === expectedOwner && context.reports.some(item => item.id === reportId)
+      && keys(limit, ["reason", "reportId", "sourceRevision", "periodStart", "periodEnd"])
+      && limit.reportId === reportId && limit.sourceRevision === context.sourceRevision
+      && limit.periodStart === "2026-11-01" && limit.periodEnd === context.asOf
+      && typeof limit.reason === "string" && limit.reason === unavailableReason(requirements, limit.periodStart, limit.periodEnd));
+    return { unavailable: bound(limit) };
+  }
+  const report = decodeBankReport(value, expectedOwner, reportId, context);
+  if (requirements !== undefined) {
+    require(validReportRequirements(requirements) && unavailableReason(requirements, report.periodStart, report.periodEnd) === null);
+  }
+  return report;
+}
+
+const resultFields = {
+  simple_interest: ["interest_usd", "principal_plus_interest_usd", "term_months"],
+  simple_interest_actual_days: ["interest_usd", "principal_plus_interest_usd", "elapsed_days", "day_count_basis", "year_fraction"],
+  amortizing_loan_payment: ["scheduled_monthly_payment_usd", "first_payment_usd", "final_payment_usd", "total_principal_usd", "total_interest_usd",
+    "total_payments_usd", "remaining_balance_usd", "requested_term_months", "months_elapsed", "paid_off_early", "final_payment_adjusted"],
+  percent_change: ["difference_usd", "percent_change", "period"],
+  liquidity_coverage: ["coverage_ratio", "surplus_or_shortfall_usd", "covers_stated_outflows", "period"],
+  reconciliation: ["expected_closing_balance_usd", "reported_closing_balance_usd", "reported_less_expected_usd", "balanced", "period"],
+};
+function resultCell(key, value, inputs) {
+  if (["balanced", "covers_stated_outflows", "paid_off_early", "final_payment_adjusted"].includes(key)) return typeof value === "boolean";
+  if (typeof value !== "string" || value.length > 48) return false;
+  if (key.endsWith("_usd")) return /^-?(?:0|[1-9]\d*)\.\d{2}$/.test(value);
+  if (key === "coverage_ratio" || key === "percent_change") return /^-?(?:0|[1-9]\d*)\.\d{6}$/.test(value);
+  if (key === "year_fraction") return value === inputs.elapsed_days + "/" + (inputs.day_count_basis === "Actual/360" ? "360" : "365");
+  if (key === "requested_term_months") return value === inputs.term_months;
+  if (key === "months_elapsed") return /^[1-9]\d{0,2}$/.test(value) && Number(value) <= Number(inputs.term_months);
+  return Object.hasOwn(inputs, key) && value === inputs[key];
+}
+
+export function decodeCalculation(value, expectedOwner, context, draft) {
+  const operation = draft.operation;
+  require(context?.ownerId === expectedOwner && context.sourceRevision === draft.expected_source_revision);
+  if (Object.hasOwn(value, "unavailable")) {
+    envelope(value, ["unavailable"], expectedOwner);
+    const limit = value.unavailable;
+    require(keys(limit, ["operation", "reason"]) && limit.operation === operation && typeof limit.reason === "string"
+      && /^finance_[a-z_]{1,50}$/.test(limit.reason));
+    return { unavailable: limit.reason };
+  }
+  envelope(value, ["calculation"], expectedOwner);
+  const c = value.calculation;
+  require(keys(c, ["operation", "currency", "inputs", "result", "explanation", "assumptions", "source", "sourceRevision", "synthetic", "executionEnabled", "bankQuote", "approvalRecorded"])
+    && c.operation === operation && c.currency === "USD" && c.sourceRevision === draft.expected_source_revision && c.synthetic === true
+    && c.executionEnabled === false && c.bankQuote === false && c.approvalRecorded === false && text(c.explanation, 1500)
+    && list(c.assumptions, 1, 12) && c.assumptions.every(x => text(x, 1500))
+    && keys(c.inputs, Object.keys(draft.confirmedInputs)) && Object.entries(draft.confirmedInputs).every(([key, input]) => c.inputs[key] === input));
+  if (!draft.report) require(keys(c.source, ["kind"]) && c.source.kind === "employee_supplied");
+  else {
+    const r = draft.report, s = c.source;
+    require(keys(s, ["kind", "reportId", "title", "row", "rowLabels", "field", "periodStart", "periodEnd", "sourceRevision"])
+      && s.kind === "fictional_report" && s.reportId === r.report_id && s.row === r.row && s.field === r.field && s.periodStart === r.period_start
+      && s.periodEnd === r.period_end && s.sourceRevision === c.sourceRevision && s.title === draft.reportTitle
+      && keys(s.rowLabels, Object.keys(draft.rowLabels)) && Object.entries(draft.rowLabels).every(([key, cell]) => s.rowLabels[key] === cell));
+  }
+  require(Object.hasOwn(resultFields, operation) && keys(c.result, resultFields[operation])
+    && Object.entries(c.result).every(([key, cell]) => resultCell(key, cell, c.inputs)));
+  return bound(c);
+}

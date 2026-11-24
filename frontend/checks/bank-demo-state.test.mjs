@@ -13,6 +13,21 @@ function fixture() {
 }
 async function ready(f) { const job = f.controller.load(); f.calls.at(-1).task.resolve(context); await job; }
 
+test("unavailable evidence clears old figures and a changed request invalidates late reads", async () => {
+  const f = fixture(); await ready(f);
+  const id = context.reports[0].id;
+  f.controller.select(id);
+  const first = f.controller.read(); f.calls.at(-1).task.resolve({ reportId: id }); await first;
+  const requirements = { source: "institution_record", period_start: null, period_end: null };
+  const limited = f.controller.read(requirements), call = f.calls.at(-1);
+  assert.equal(f.controller.snapshot().result, null); assert.deepEqual(call.args.at(-1).requirements, requirements);
+  const unavailable = { reason: "institution_source_unavailable" }; call.task.resolve({ unavailable }); await limited;
+  assert.deepEqual(f.controller.snapshot().limitation, unavailable); assert.equal(f.controller.snapshot().result, null);
+  f.controller.select(id); assert.equal(f.controller.snapshot().limitation, null);
+  const late = f.controller.read(); f.controller.select(""); f.calls.at(-1).task.resolve({ reportId: id }); await late;
+  assert.equal(f.controller.snapshot().selected, ""); assert.equal(f.controller.snapshot().result, null);
+});
+
 test("report reading is explicit, authorized by current menu, single-flight and never submits or persists", async () => {
   const f = fixture(); await ready(f);
   await f.controller.read(); assert.equal(f.calls.length, 1);

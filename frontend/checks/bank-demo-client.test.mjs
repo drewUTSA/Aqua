@@ -1,13 +1,33 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { bankDemoContext, bankDemoReport } from "../src/features/bankDemo/api.js";
-import { decodeBankContext, decodeBankReport } from "../src/features/bankDemo/contract.js";
+import { decodeBankContext, decodeBankReport, decodeRequestedReport } from "../src/features/bankDemo/contract.js";
 import { activateSession, clearHistory } from "../src/services/historyAuthority.js";
 import { contextEnvelope, reportEnvelope, ownerId, option } from "./bank-demo-fixture.mjs";
 
 const context = () => decodeBankContext(contextEnvelope(), ownerId);
 const decode = value => decodeBankReport(value, ownerId, option.id, context());
 const json = value => new Response(JSON.stringify(value), { headers: { "Content-Type": "application/json" } });
+
+test("a matched period preserves the ordinary report and the client discards substitute rows", async t => {
+  const menu = context(), good = { source: "fictional_snapshot", period_start: "2026-11-01", period_end: "2026-11-16" };
+  const wrong = { ...good, period_end: "2026-11-30" };
+  let payload = reportEnvelope(), request;
+  t.mock.method(globalThis, "fetch", async (_url, init) => { request = JSON.parse(init.body); return json(payload); });
+  const read = requirements => bankDemoReport(option.id, menu, { ownerId, csrfToken: "csrf", requirements });
+  assert.deepEqual(await read(good), decode(reportEnvelope()));
+  assert.deepEqual(request.requirements, good);
+  await assert.rejects(read(wrong), { code: "invalid_response" });
+  await assert.rejects(read({ ...good, source: "institution_record" }), { code: "invalid_response" });
+  await assert.rejects(read({ ...good, period_end: "2026-11-32" }), { code: "invalid_input" });
+  payload = { schemaVersion: 1, owner_id: ownerId, unavailable: { reason: "period_unavailable", reportId: option.id,
+    sourceRevision: menu.sourceRevision, periodStart: "2026-11-01", periodEnd: menu.asOf } };
+  assert.deepEqual(await read(wrong), { unavailable: payload.unavailable });
+  assert.throws(() => decodeRequestedReport(payload, ownerId, option.id, menu, good));
+  assert.throws(() => decodeRequestedReport(payload, ownerId, option.id, menu, undefined));
+  payload.unavailable.rows = [["unexpected"]];
+  await assert.rejects(read(wrong), { code: "invalid_response" });
+});
 
 test("fixed private routes send only report ID and revision, never roles, composer text or authority", async t => {
   const calls = [];
