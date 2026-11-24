@@ -59,6 +59,7 @@ def load_host(source=HOST_SOURCE):
 
 def fake_dependencies(host, events, *, startup=lambda: None, close=lambda **_: None):
     settings = SimpleNamespace(
+        witness=None,
         public_key=b"synthetic",
         installation="synthetic",
         key_id="synthetic",
