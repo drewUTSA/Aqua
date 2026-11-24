@@ -52,6 +52,14 @@ export async function activeHomepageChecks(ctx) {
   await ctx.check('homepage first answer compacts the same textarea and shares the unframed canvas', "(()=>{const el=document.querySelector('.message__bubble--aqua'),s=el&&getComputedStyle(el);return document.querySelector('.opal-composer textarea')===window.__homepageComposer&&Boolean(s)&&s.backgroundColor==='rgba(0, 0, 0, 0)'&&parseFloat(s.borderTopWidth)===0&&parseFloat(s.borderRightWidth)===0&&s.boxShadow==='none'})()");
   await ctx.check('homepage New chat reveal has a short fade with a stable final visible state', "(()=>{const el=document.querySelector('.desktop-sidebar .refined-new-chat'),s=el&&getComputedStyle(el);return Boolean(s)&&s.animationName!=='none'&&parseFloat(s.animationDuration)>0&&parseFloat(s.animationDuration)<=.3})()");
   await ctx.check('homepage New chat uses a visible theme-colored plus mask and a reachable target', "(()=>{const button=document.querySelector('.desktop-sidebar .refined-new-chat'),icon=button?.querySelector('.icon-contrast'),r=button?.getBoundingClientRect(),i=icon?.getBoundingClientRect(),s=icon&&getComputedStyle(icon);return r&&i&&r.height>=43.9&&i.width>=15.9&&i.height>=15.9&&s.display!=='none'&&s.maskImage!=='none'&&s.backgroundColor!=='rgba(0, 0, 0, 0)'&&s.backgroundColor!==getComputedStyle(button).backgroundColor})()");
+  await ctx.evaluate(`document.querySelector('.desktop-sidebar [aria-label="Close navigation"]').focus()`);
+  await ctx.key('Tab');
+  await ctx.check('New chat shows keyboard focus against its button fill', `(() => {
+    const button = document.querySelector('.desktop-sidebar .refined-new-chat');
+    const style = getComputedStyle(button);
+    return button === document.activeElement && button.matches(':focus-visible')
+      && style.outlineStyle !== 'none' && style.outlineColor !== style.backgroundColor;
+  })()`);
 }
 
 export async function mobileHomepageChecks(ctx) {

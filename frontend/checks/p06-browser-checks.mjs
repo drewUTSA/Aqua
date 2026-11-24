@@ -2,8 +2,8 @@
 // concurrency and restart checks remain independent backend/browser gates.
 import { chatAction, projectAction, recentsAction, openDrafts, openPrompts, closePrompts, startBlankChat } from './homepage-browser-actions.mjs';
 import { assertNextSelectedModel, activeHomepageChecks } from './homepage-browser-checks.mjs';
-export async function workspaceJourneys({ check, click, clickText, fill, waitFor, evaluate, navigate, screenshot, fixture }) {
-  const ctx = { check, click, clickText, fill, waitFor, evaluate };
+export async function workspaceJourneys({ check, click, clickText, fill, key, waitFor, evaluate, navigate, screenshot, fixture }) {
+  const ctx = { check, click, clickText, fill, key, waitFor, evaluate };
   const start = fixture.queryCount();
   await check("homepage hides New chat until the current conversation has started", "![...document.querySelectorAll('.new-chat,[aria-label=\"New chat\"]')].some(el=>el.getClientRects().length&&!el.closest('[hidden],[inert]'))&&!document.querySelector('.conversation .message--user')");
   await click("[aria-label='New project']"); await waitFor("Boolean(document.querySelector('.workspace-editor[open]'))", "new_project_dialog");

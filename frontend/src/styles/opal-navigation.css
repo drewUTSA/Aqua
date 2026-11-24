@@ -122,6 +122,5 @@
   .opal-workspace[data-ui-shell="opal"] .refined-chat-row[data-active] > .refined-chat-row__main {
     border-inline-start-color: Highlight;
   }
-  .opal-workspace[data-ui-shell="opal"] .refined-sidebar button:focus-visible,
-  .opal-workspace[data-ui-shell="opal"] .refined-sidebar .refined-new-chat:focus-visible { outline-color: Highlight; }
+  .opal-workspace[data-ui-shell="opal"] .refined-sidebar button:focus-visible { outline-color: Highlight; }
 }

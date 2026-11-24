@@ -311,7 +311,7 @@ try {
   await check("password works during stalled Google configuration", "location.pathname==='/'&&Boolean(document.querySelector('.opal-workspace:not([hidden])'))");
   fixture.google = "ready"; await fixture.release("google");
   await initialHomepageChecks({check,evaluate,click,clickText,key,fill,waitFor,cdp,screenshot},fixture);
-  await workspaceJourneys({ check, click, clickText, fill, waitFor, evaluate, navigate, screenshot, fixture });
+  await workspaceJourneys({ check, click, clickText, fill, key, waitFor, evaluate, navigate, screenshot, fixture });
   await analysisJourneys({ check, click, clickText, fill, waitFor, evaluate, navigate, screenshot, fixture, viewport });
   await check("chat-only entry has complete composer and no empty visuals", "Boolean(document.querySelector('.opal-composer textarea'))&&Boolean(document.querySelector('[aria-label=\"Send message\"]'))&&!document.querySelector('[role=separator],.visual-pane,[aria-label=Visuals]')");
   await viewport(1440, 980); await screenshot("home-desktop-1440x980"); await captureFonts("workspace");
