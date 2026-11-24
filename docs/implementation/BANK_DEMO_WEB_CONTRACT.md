@@ -1,12 +1,23 @@
-# Bank demo web contract — first reports increment
+# Bank demo web contract
 
-Version1, optional and default off. Two authenticated private JSON routes expose
-the original fictional report truth through a least-data web projection. No
+Version 1, optional and default off. Three authenticated private JSON routes expose
+fictional reports and employee-confirmed USD illustrations. No
 model, SQL, new database, stored conversation, proposal/approval or executor.
 `BANK_DEMO_ENABLED=false` and `BANK_DEMO_PERSONA=none` are the defaults. The host
 alone selects `none|teller|analyst|manager`; request roles/tenants/personas cannot
 change it. App `owner_id` is the authenticated Aqua account, separate from the
 immutable synthetic DemoActor. Analytical `bank` grants confer no demo role.
+
+`POST /api/v1/bank-demo/calculations` requires the same authenticated owner,
+Origin and CSRF checks as report reading. In **Companion tools → Fictional bank
+demo → Bank calculator**, the employee reviews the terms and selects **Confirm
+and calculate**. The request includes `confirmed: true`, the current source
+revision, one USD declaration and the operation’s explicitly named string terms.
+Tellers, analysts and managers can use the six public illustrations. The `none`
+persona cannot calculate. An eligible fictional lending or reconciliation report
+can supply operands by row, field and both dates. The server rereads that row
+under the current employee scope. Changing the report or terms clears the review
+and previous result. Illustrations carry their source, assumptions and amounts.
 
 | Host persona | Context / picker | Report reads |
 |---|---|---|
