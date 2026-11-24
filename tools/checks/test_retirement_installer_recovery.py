@@ -620,6 +620,10 @@ class ControllerOrderingTests(unittest.TestCase):
             ),
             patch.object(controller, "checked_head", return_value=HEAD),
             patch.object(controller, "checked_archive", return_value={"modeled": True}),
+            patch(
+                "retirement_fixture.forward_enrollment.check",
+                side_effect=lambda *_: events.append("forward") or {"modeled": True},
+            ),
             patch.object(
                 controller.os,
                 "write",
@@ -636,11 +640,20 @@ class ControllerOrderingTests(unittest.TestCase):
     def test_actual_CLI_dispatch_follows_keeper_release_and_final_receipt(self):
         events, rc, report = self.exercise(recovery())
         self.assertEqual(
-            events, ["install.py", "release", "keeper_final", "profile", "recover.py"]
+            events,
+            [
+                "install.py",
+                "release",
+                "keeper_final",
+                "profile",
+                "recover.py",
+                "forward",
+            ],
         )
         self.assertEqual(rc, 0)
         self.assertTrue(report["cleanup"])
         self.assertEqual(report["genesis_recovery_cli"], recovery())
+        self.assertEqual(report["forward_enrollment_cli"], {"modeled": True})
 
     def test_unready_recovery_stays_red_and_still_cleans_exact_fixture(self):
         events, rc, report = self.exercise(recovery(ready=False))
@@ -648,6 +661,7 @@ class ControllerOrderingTests(unittest.TestCase):
         self.assertTrue(report["cleanup"])
         self.assertEqual(report["status"], "failed")
         self.assertNotIn("genesis_recovery_cli", report)
+        self.assertNotIn("forward", events)
 
 
 if __name__ == "__main__":

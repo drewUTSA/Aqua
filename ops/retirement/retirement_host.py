@@ -7,6 +7,7 @@ Backend receives checkpoint-dir RO and never receives host config/signing key.
 """
 
 from dataclasses import dataclass, field
+import hashlib
 import hmac
 import json
 import math
@@ -18,7 +19,10 @@ import stat
 import sys
 import time
 
-from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+from cryptography.hazmat.primitives.asymmetric.ed25519 import (
+    Ed25519PrivateKey,
+    Ed25519PublicKey,
+)
 from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat
 
 _source = Path(__file__).resolve()
@@ -61,6 +65,7 @@ class HostSettings:
     commitment: bytes
     public_key: bytes
     dsn: str = field(repr=False)
+    witness: tuple | None = None
 
 
 def _pairs(items):
@@ -79,8 +84,8 @@ def parse_settings(raw):
         values = json.loads(raw, object_pairs_hook=_pairs)
         if (
             type(values) is not dict
-            or set(values) != FIELDS
-            or any(type(value) is not str for value in values.values())
+            or set(values) not in (FIELDS, FIELDS | {"witness"})
+            or any(type(values[name]) is not str for name in FIELDS)
             or not DSN.fullmatch(values["checkpoint_dsn"])
             or any(
                 not re.fullmatch("[a-f0-9]{64}", values[name])
@@ -90,12 +95,42 @@ def parse_settings(raw):
             raise HostUnavailable()
         canonical_uuid(values["installation_id"])
         canonical_uuid(values["identity_key_id"])
+        witness = None
+        if "witness" in values:
+            row = values["witness"]
+            if (
+                type(row) is not dict
+                or set(row)
+                != {"generation", "service_public_key", "witness_public_key"}
+                or type(row["generation"]) is not int
+                or not 0 < row["generation"] < 2**63 - 1
+                or any(
+                    type(row[name]) is not str
+                    or not re.fullmatch("[a-f0-9]{64}", row[name])
+                    for name in ("service_public_key", "witness_public_key")
+                )
+                or len(
+                    {
+                        values["public_key"],
+                        row["service_public_key"],
+                        row["witness_public_key"],
+                    }
+                )
+                != 3
+            ):
+                raise HostUnavailable()
+            witness = (
+                row["generation"],
+                bytes.fromhex(row["service_public_key"]),
+                bytes.fromhex(row["witness_public_key"]),
+            )
         return HostSettings(
             values["installation_id"],
             values["identity_key_id"],
             bytes.fromhex(values["key_commitment"]),
             bytes.fromhex(values["public_key"]),
             values["checkpoint_dsn"],
+            witness,
         )
     except (ValueError, TypeError, UnicodeError):
         raise HostUnavailable() from None
@@ -283,7 +318,26 @@ def tick_loop(
     return {"status": "checked" if last is not None else "idle", "steps": steps}
 
 
-def execute(*, deadline=None):
+def witness_profile_pin(settings):
+    generation, service_public, witness_public = settings.witness
+    return hashlib.sha256(
+        json.dumps(
+            {
+                "installation_id": settings.installation,
+                "identity_key_id": settings.key_id,
+                "key_commitment": settings.commitment.hex(),
+                "public_key": settings.public_key.hex(),
+                "generation": generation,
+                "service_public_key": service_public.hex(),
+                "witness_public_key": witness_public.hex(),
+            },
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode()
+    ).hexdigest()
+
+
+def execute(*, deadline=None, witness_pin=None):
     now = time.monotonic()
     if deadline is None:
         deadline = now + MAX_SECONDS
@@ -301,7 +355,29 @@ def execute(*, deadline=None):
     # an earlier deadline, leaving room for pool close and owned Docker cleanup.
     signal.setitimer(signal.ITIMER_REAL, deadline - now)
     try:
-        settings = parse_settings(read_private(HOST_DIRECTORY / "host.json", 4096))
+        forward_directory = HOST_DIRECTORY / "forward-v1"
+        forward_path = forward_directory / "host-v2.json"
+        if witness_pin is None and (
+            forward_directory.exists() or forward_directory.is_symlink()
+        ):
+            raise HostUnavailable()
+        settings = parse_settings(
+            read_private(
+                (
+                    forward_path
+                    if witness_pin is not None
+                    else HOST_DIRECTORY / "host.json"
+                ),
+                4096,
+            )
+        )
+        if settings.witness is not None or witness_pin is not None:
+            if (
+                settings.witness is None
+                or type(witness_pin) is not str
+                or not hmac.compare_digest(witness_profile_pin(settings), witness_pin)
+            ):
+                raise HostUnavailable()
         key = signing_key(HOST_DIRECTORY / "signing.key", settings.public_key)
         protected = ProtectedFile(
             CHECKPOINT_DIRECTORY / "checkpoints.bin",
@@ -313,7 +389,22 @@ def execute(*, deadline=None):
         )
         pool = pool_for(settings)
         pool.open(wait=False)
-        publisher = HostPublisher(pool, protected, key)
+        if settings.witness is None:
+            publisher = HostPublisher(pool, protected, key)
+        else:
+            from retirement.publisher import witness_sender
+
+            generation, service_public, witness_public = settings.witness
+            service_key = signing_key(
+                forward_directory / "publication.key", service_public
+            )
+            submit = witness_sender(
+                forward_directory / "witness.sock",
+                generation,
+                service_key,
+                Ed25519PublicKey.from_public_bytes(witness_public),
+            )
+            publisher = HostPublisher(pool, protected, key, witness=submit)
         publisher.startup()
         return tick_loop(publisher, deadline=deadline, cleanup_reserve=2)
     finally:
@@ -340,11 +431,14 @@ if __name__ == "__main__":
             )
         )
     elif sys.argv[1:] == ["--execute"] or (
-        len(sys.argv) == 4 and sys.argv[1:3] == ["--execute", "--deadline"]
+        len(sys.argv) in (4, 6)
+        and sys.argv[1:3] == ["--execute", "--deadline"]
+        and (len(sys.argv) == 4 or sys.argv[4] == "--witness-sha256")
     ):
         try:
             outcome = execute(
-                deadline=float(sys.argv[3]) if len(sys.argv) == 4 else None
+                deadline=float(sys.argv[3]) if len(sys.argv) >= 4 else None,
+                witness_pin=sys.argv[5] if len(sys.argv) == 6 else None,
             )
         except BaseException:
             print(json.dumps({"status": "unavailable"}))

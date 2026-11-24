@@ -19,7 +19,7 @@ else:
     from operator_deadline import deadline
 
 
-def _app_only(
+def _repair(
     storage,
     conn,
     protected,
@@ -61,14 +61,12 @@ def _app_only(
         storage, conn, protected, purge_guard=purge_guard, batch_limit=batch_limit
     )
     return {
-        "mode": "retained_authority_app_only",
         "protected_sha256": digest.hexdigest(),
-        "total_host_authority_restore_supported": False,
         **asdict(result),
     }
 
 
-def app_only(
+def reconcile_exact(
     storage,
     conn,
     protected,
@@ -77,7 +75,12 @@ def app_only(
     purge_guard: Callable,
     batch_limit: int = 128,
 ) -> dict:
-    """Keep the exact-chain check and repair behind the same authority gate."""
+    """Offline repair primitive for a controller which has established recency.
+
+    This function cannot attest freshness, restore either DB or resume writers.
+    Both the retained-authority and independently fenced controllers must first
+    establish their separate custody and maintenance preconditions.
+    """
     from retirement.interlock import LOCK, NAMESPACE, RetirementUnavailable
 
     with deadline():
@@ -90,7 +93,7 @@ def app_only(
         try:
             # reconcile takes/releases its own nested session lock. This outer
             # count remains held until the exact expected chain and repair end.
-            return _app_only(
+            return _repair(
                 storage,
                 conn,
                 protected,
@@ -111,6 +114,30 @@ def app_only(
             except Exception:
                 conn.close()
                 raise RetirementUnavailable() from None
+
+
+def app_only(
+    storage,
+    conn,
+    protected,
+    *,
+    expected_protected_sha256: str,
+    purge_guard: Callable,
+    batch_limit: int = 128,
+) -> dict:
+    result = reconcile_exact(
+        storage,
+        conn,
+        protected,
+        expected_protected_sha256=expected_protected_sha256,
+        purge_guard=purge_guard,
+        batch_limit=batch_limit,
+    )
+    return {
+        "mode": "retained_authority_app_only",
+        "total_host_authority_restore_supported": False,
+        **result,
+    }
 
 
 def total_host(*args, **kwargs) -> None:

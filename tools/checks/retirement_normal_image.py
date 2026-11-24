@@ -1,7 +1,7 @@
 """Pinned application image and compiled file digests for the native recovery rehearsal."""
 
-IMAGE = "sha256:70dc3339452494d58dcbbfde6434cccedfa60567ae99fb9b540cb3f4ff043325"
-MANIFEST_SHA256 = "2a8872b9b03bb5b5e191eb3ad2c1746ab4ec815a628bb6d7bae73e42c4d03edd"
+IMAGE = "sha256:b6d5afe49e15f9d927a266d21b793b6c546b57cc6fac64dd207f1e2bea318292"
+MANIFEST_SHA256 = "c95794a635790a25de242110963a954989552926cc13895bafd2a03aaa04e6fb"
 RUNTIME_FILES = {
     "account/__init__.py": "4d300929fcb6d0c0e3a6b92377bfd4648fc336a8ad2bfb3e962d810b3b6f55e0",
     "account/action_contracts.py": "be3becba0a54378a847efdaa76cc833e3b780df3658c90d30f86a7852232a397",
@@ -222,7 +222,7 @@ RUNTIME_FILES = {
     "retirement/mail_physical.py": "247ce9111192724308ed292876e62913b26e5336157f0878c679ce639d425316",
     "retirement/original_manifest.py": "10e9256c6530f00c31c582f342a75d20c6289382c3c968926283f15b2bd66080",
     "retirement/pages.py": "2c34926be2a41f24d85c0788fb58a23f1ac99926a7432ad327a47e9911a602bd",
-    "retirement/publisher.py": "4e191e26d847361beb7e2dea39434c95252fa43e210dfbce6275e8af976ccdb8",
+    "retirement/publisher.py": "93fbfee96bbf8bf2f9fb7a9c990d2a666611b1184b8e4f751d1353434073e480",
     "retirement/recovery.py": "6eb4477006bd4064d978265f85ed3f4060e9cfabb5e8d67efa720c2667466580",
     "retirement/revision.py": "c1853545282b2aaf1de2e2ee1634dcd646e7eeae05414dfa148ef1e379e87425",
     "retirement/runtime.py": "30b87c0583f93064851aefee7be0f289673534bcde56e7aec72fe590ebc4ab9b",
