@@ -97,7 +97,11 @@ class IdentityStore:
         # post-verification stage adds a canonical-account budget that persists
         # across cookies, browser headers, worker restarts and session-cap errors.
         with self.storage.transaction() as conn:
-            owner = resolve_account(conn, identity)
+            owner = resolve_account(
+                conn,
+                identity,
+                registration_invites=self.policy.google_registration_invites,
+            )
         with self.storage.transaction() as conn:
             admit(conn, self.policy, "account", account_id=owner)
 

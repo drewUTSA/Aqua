@@ -43,6 +43,7 @@ class AuthPolicy:
     action_account_limit: int = 5
     max_admission_keys: int = 2048
     cleanup_batch: int = 64
+    google_registration_invites: frozenset[str] | None = field(default=None, repr=False)
 
     def __post_init__(self) -> None:
         limits = (
@@ -79,12 +80,27 @@ def load_auth_policy(
     """Only bounded operator choices; browser preferences never set limits."""
     env = os.environ if environ is None else environ
     try:
+        invites = None
+        if "AUTH_GOOGLE_REGISTRATION_INVITES" in env:
+            from auth.password_policy import normalize_email
+
+            raw = env["AUTH_GOOGLE_REGISTRATION_INVITES"]
+            if not isinstance(raw, str) or "*" in raw:
+                raise ValueError
+            invites = (
+                frozenset(
+                    normalize_email(address.strip()) for address in raw.split(",")
+                )
+                if raw.strip()
+                else frozenset()
+            )
         return AuthPolicy(
             dataset_key=dataset_key(settings) if settings.database_url else "",
             allowed_emails=settings.auth_allowed_emails,
             allowed_google_subs=settings.auth_allowed_google_subs,
+            google_registration_invites=invites,
             max_sessions=int(env.get("AUTH_MAX_SESSIONS", "5")),
             idle_seconds=int(env.get("AUTH_IDLE_SECONDS", "1800")),
         )
-    except (TypeError, ValueError):
+    except (AuthDenied, TypeError, ValueError):
         raise ValueError("authentication_configuration_invalid") from None
