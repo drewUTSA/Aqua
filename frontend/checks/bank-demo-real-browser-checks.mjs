@@ -123,6 +123,22 @@ export async function runRealBankDemoChecks(ctx) {
   await check("real no-dataset account receives only the fixed teller catalog", "document.querySelector('.opal-composer textarea').disabled&&document.querySelector('[data-bank-report-picker]').options.length===3&&document.querySelector('[data-bank-demo]').textContent.includes('teller — fictional scope')");
   await read(); await waitFor("Boolean(document.querySelector('[data-bank-report]'))", "real_bank_report_visible");
   await check("real report preserves all original deposit cell strings", `JSON.stringify([...document.querySelectorAll('[data-bank-report] tbody tr')].map(row=>[...row.cells].map(cell=>cell.textContent)))===${quote(JSON.stringify(gold.rows))}`);
+  const setEvidence = async mode => {
+    await evaluate(`(()=>{const el=document.querySelector('[data-bank-evidence]');el.value=${quote(mode)};el.dispatchEvent(new Event("change",{bubbles:true}));return true;})()`);
+    await waitFor("!document.querySelector('[data-bank-report]')", "real_bank_new_requirements_clear_old_figures");
+  };
+  const setDay = (index, day) => evaluate(`(()=>{const el=document.querySelectorAll('.bank-demo__dates input')[${index}];Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(el,${quote(day)});el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}));return true;})()`);
+  await setEvidence("institution");
+  await click("[data-bank-read]");
+  await waitFor("document.querySelector('[data-bank-demo] [role=status]')?.textContent.includes('approved record')", "real_bank_official_source_unavailable");
+  await check("institutional request withholds every synthetic figure", "!document.querySelector('[data-bank-report]')");
+  await setEvidence("dates");
+  await setDay(0, gold.periodStart); await setDay(1, "2026-11-30"); await click("[data-bank-read]");
+  await waitFor("document.querySelector('[data-bank-demo] [role=status]')?.textContent.includes('requested period is unavailable')", "real_bank_full_month_unavailable");
+  await check("a partial month never fills a complete-month request", "!document.querySelector('[data-bank-report]')");
+  await setDay(1, gold.periodEnd); await click("[data-bank-read]");
+  await waitFor("Boolean(document.querySelector('[data-bank-report]'))", "real_bank_exact_period_visible");
+  await check("an exact date correction restores the original authorized rows", `JSON.stringify([...document.querySelectorAll('[data-bank-report] tbody tr')].map(row=>[...row.cells].map(cell=>cell.textContent)))===${quote(JSON.stringify(gold.rows))}`);
   await check("real report exposes trusted units source snapshot and partial period", `(()=>{const p=document.querySelector('[data-bank-demo]');return p.textContent.includes('2026-11-16')&&p.textContent.includes('Fictional · Partial period')&&p.querySelector('[title=${quote(gold.sourceRevision)}]')!==null&&JSON.stringify([...p.querySelectorAll('th')].map(cell=>cell.textContent))===${quote(JSON.stringify(gold.columns.map(column => column.label + (column.unit === "text" ? "" : ` (${column.unit})`))))}})()`);
   await evaluate("document.querySelector('.bank-demo__procedure summary').focus();true"); await key("Enter");
   await waitFor("document.querySelector('.bank-demo__procedure')?.open===true", "real_bank_procedure");

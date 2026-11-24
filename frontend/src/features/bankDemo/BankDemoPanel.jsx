@@ -1,9 +1,54 @@
-import React, { useId } from "react";
+import React, { useId, useState } from "react";
 import { useBankDemo } from "./useBankDemo.js";
 import "./bank-demo.css";
 
+function ReportPicker({ context, selected, reading, onSelect, onRead }) {
+  const picker = useId(), evidence = useId(), startId = useId(), endId = useId();
+  const [mode, setMode] = useState("snapshot");
+  const [start, setStart] = useState(""), [end, setEnd] = useState("");
+  function clearRead(set, value) {
+    set(value);
+    onSelect(selected);
+  }
+  function submit(event) {
+    event.preventDefault();
+    if (mode === "snapshot") { onRead(); return; }
+    onRead({ source: mode === "dates" ? "fictional_snapshot" : "institution_record",
+      period_start: mode === "dates" ? start || null : null, period_end: mode === "dates" ? end || null : null });
+  }
+  return <form onSubmit={submit} className="bank-demo__picker">
+    <label htmlFor={evidence}>Evidence needed</label>
+    <select id={evidence} value={mode} onChange={event => clearRead(setMode, event.target.value)} disabled={reading} data-bank-evidence>
+      <option value="snapshot">Available fictional snapshot</option>
+      <option value="dates">Fictional figures for specific dates</option>
+      <option value="institution">Institution-approved record</option>
+    </select>
+    {mode === "dates" && <fieldset className="bank-demo__dates" disabled={reading}>
+      <legend>Reporting period, inclusive</legend>
+      <div><label htmlFor={startId}>Start date</label>
+        <input id={startId} type="date" value={start} max={end || undefined} required onChange={e => clearRead(setStart, e.target.value)} /></div>
+      <div><label htmlFor={endId}>End date</label>
+        <input id={endId} type="date" value={end} min={start || undefined} required onChange={e => clearRead(setEnd, e.target.value)} /></div>
+    </fieldset>}
+    <label htmlFor={picker}>Choose an available fictional report</label>
+    <select id={picker} value={selected} onChange={event => onSelect(event.target.value)} disabled={reading} data-bank-report-picker>
+      <option value="">Choose a report</option>
+      {context.reports.map(item => <option key={item.id} value={item.id}>{item.label}</option>)}
+    </select>
+    <button type="submit" disabled={!selected || reading} data-bank-read>{reading ? "Reading report…" : mode === "snapshot" ? "Read fictional report" : "Check report availability"}</button>
+  </form>;
+}
+
+function ReportLimitation({ limit }) {
+  if (limit.reason === "institution_source_unavailable") {
+    return <p role="status">This report uses fictional data. For an institution-approved figure or filing, request the approved record from your reporting team.</p>;
+  }
+  if (limit.reason === "period_required") return <p role="status">Enter both dates of the reporting period to check this report.</p>;
+  return <p role="status">The requested period is unavailable. This report covers <time dateTime={limit.periodStart}>{limit.periodStart}</time> through <time dateTime={limit.periodEnd}>{limit.periodEnd}</time>.</p>;
+}
+
 export function BankDemoContent({ state, onSelect, onRead, onReload }) {
-  const picker = useId(), table = useId();
+  const table = useId();
   const context = state.context, report = state.result;
   const loading = ["idle", "loading"].includes(state.phase), reading = state.phase === "reading";
   return <section className="bank-demo-panel" aria-label="Fictional bank reports" data-bank-demo>
@@ -19,16 +64,11 @@ export function BankDemoContent({ state, onSelect, onRead, onReload }) {
         <div><dt>Source version</dt><dd><span title={context.sourceRevision}>{context.sourceRevision.slice(0, 12)}</span></dd></div></dl>
       <p>{context.notice}</p>
       {state.phase === "empty" ? <p role="status">No fictional reports are assigned to this demo scope. Ask the operator to configure a demonstration scope; your app role does not grant bank access.</p>
-        : <form onSubmit={event => { event.preventDefault(); onRead(); }} className="bank-demo__picker">
-          <label htmlFor={picker}>Choose an available fictional report</label>
-          <select id={picker} value={state.selected} onChange={event => onSelect(event.target.value)} disabled={reading} data-bank-report-picker>
-            <option value="">Choose a report</option>
-            {context.reports.map(item => <option key={item.id} value={item.id}>{item.label}</option>)}
-          </select>
-          <button type="submit" disabled={!state.selected || reading} data-bank-read>{reading ? "Reading report…" : "Read fictional report"}</button>
-        </form>}
+        : <ReportPicker key={context.ownerId + context.sourceRevision} context={context} selected={state.selected}
+            reading={reading} onSelect={onSelect} onRead={onRead} />}
     </>}
     {reading && <p role="status">Reading the selected fictional report…</p>}
+    {state.limitation && <ReportLimitation limit={state.limitation} />}
     {report && <article className="bank-demo__report" data-bank-report aria-labelledby={table}>
       <h4 id={table}>{report.title}</h4>
       <p><strong>Fictional · Partial period</strong> · <time dateTime={report.periodStart}>{report.periodStart}</time> through <time dateTime={report.periodEnd}>{report.periodEnd}</time> · monetary amounts in USD</p>
