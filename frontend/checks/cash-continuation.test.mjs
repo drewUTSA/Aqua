@@ -19,9 +19,13 @@ test("mismatched windows, missing or signed figures and currencies cannot open a
     "Today's cash is $11; outflows are awaiting the forecast.",
     "Cash today is CAD 96.40 and outflows are USD 61.",
     "Today cash is USD -98 and outflows are USD 60.",
+    "Cash today is -USD 31.78 and outflows USD 11.88.",
+    "Our overdrawn cash balance today is $63.27; expected outflows are $40.",
+    "Cash is $31.78- today and expected outflows are $11.88.",
     "Today's cash is $.71 and outflows are $1.30.",
     "Today's cash is $2.5 million and outflows are $2.3 million.",
   ]) assert.equal(cashContinuation(question)?.amounts, undefined, question);
   assert.equal(cashContinuation("Show the report of cash and projected outflows for the month"), null);
   assert.equal(cashContinuation("Chart the count of transactions by account"), null);
+  assert.equal(cashContinuation("Compare the USD 26.71 cash outflows today against previous cash outflows of USD 25.28."), null);
 });

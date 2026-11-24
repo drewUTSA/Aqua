@@ -9,7 +9,8 @@ const periods = {
 // the two quoted amounts after opening the existing scoped calculator.
 export function cashContinuation(question) {
   if (typeof question !== "string" || !question.trim() || question.length > 2000) return null;
-  if (!/\b(?:cash|liquidity|liquid funds|funds available|available to (?:cover|meet))\b/i.test(question)
+  const cashSubject = question.replace(/\b(?:cash|liquidity)\s+(?:outflows?|payments?|disbursements?|needs?)\b/gi, "outflows");
+  if (!/\b(?:cash|liquidity|liquid funds|funds available|available to (?:cover|meet)|on hand|available funds)\b/i.test(cashSubject)
       || !/\b(?:outflows?|outgoing|going out|payables?|payments?|disbursements?|cash needs?)\b/i.test(question)) return null;
   if (/\b(?:report|snapshot|regulatory|official|filing|LCR|balance sheet|retrieve|lookup|transactions?)\b/i.test(question)) return null;
   if (!/\d/.test(question)) return null;
@@ -24,8 +25,9 @@ export function cashContinuation(question) {
   if (windows.length !== 1 || timeMarkers.size > 1 || qualifiers.size > 1
       || /\b(?:week|weekly|days|weeks|months|quarters|years|ytd|year.to.date|different periods?)\b/i.test(question))
     return { hint: "Which single day, month, quarter or year do both cash and forecast outflows cover?" };
-  if (/\b(?:unknown|missing|pending|unavailable|awaiting|unsure|estimated elsewhere|million|billion|thousand|cents|negative|minus)\b|[()−–]/i.test(question)
-      || /[-+]\s*\$?\s*\d|(?:^|[^\d])\.\d|\b(?:only one|partial total|other account|different account)\b/i.test(question))
+  const unsignedText = question.replace(/(?<=[a-z])-(?=[a-z])/gi, "");
+  if (/[+\-−–()]/.test(unsignedText) || /\b(?:unknown|missing|pending|unavailable|awaiting|unsure|estimated elsewhere|million|billion|thousand|cents|negative|minus|overdraft|overdrawn|below zero|in the red)\b/i.test(question)
+      || /(?:^|[^\d])\.\d|\b(?:only one|partial total|other account|different account)\b/i.test(question))
     return { hint: "Supply the full available cash and projected outflows in USD for that same period." };
   const matches = [...question.matchAll(/\d[\d,.]*(?:[a-z]+)?/gi)];
   if (matches.length !== 2) return { hint: "Supply one available cash amount and one projected outflow for the same period." };
