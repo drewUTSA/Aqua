@@ -59,7 +59,7 @@ export function BankDemoContent({ state, onSelect, onRead, onReload, onCalculate
   const loading = ["idle", "loading"].includes(state.phase), reading = state.phase === "reading";
   return <section className="bank-demo-panel" aria-label="Fictional bank reports and calculator" data-bank-demo>
     <h3>Bank reports and calculator</h3>
-    <p>Read fictional report figures and their cited procedure, or calculate a USD illustration. This demo cannot approve or execute actions.</p>
+    <p>No real bank is connected. Read fictional reports and their cited procedures, or calculate a USD illustration. This demo cannot approve or execute actions.</p>
     {loading && <div role="status" aria-live="polite"><p>Checking the available fictional reports…</p><div className="bank-demo__skeleton" aria-hidden="true" /></div>}
     {state.error && <p role="alert" className="bank-demo__error">{state.error}</p>}
     {!loading && !context && <button type="button" onClick={onReload} data-bank-reload>Check demo availability</button>}

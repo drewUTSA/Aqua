@@ -9,8 +9,8 @@ change it. App `owner_id` is the authenticated Aqua account, separate from the
 immutable synthetic DemoActor. Analytical `bank` grants confer no demo role.
 
 `POST /api/v1/bank-demo/calculations` requires the same authenticated owner,
-Origin and CSRF checks as report reading. In **Companion tools → Fictional bank
-demo → Bank calculator**, the employee reviews the terms and selects **Confirm
+Origin and CSRF checks as report reading. In **Help → Fictional bank
+demo → Banking calculator**, the employee reviews the terms and selects **Confirm
 and calculate**. The request includes `confirmed: true`, the current source
 revision, one USD declaration and the operation’s explicitly named string terms.
 Tellers, analysts and managers can use the six public illustrations. The `none`
