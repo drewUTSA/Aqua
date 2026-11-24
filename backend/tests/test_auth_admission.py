@@ -207,3 +207,12 @@ def test_google_config_is_not_part_of_storage_auth_policy():
     assert policy.idle_seconds == 1800
     with pytest.raises(ValueError, match="authentication_configuration_invalid"):
         load_auth_policy(Settings(), {"AUTH_MAX_SESSIONS": "unbounded"})
+
+
+def test_previous_history_requires_a_distinct_explicit_dataset():
+    settings = Settings(database_url="fixture-current")
+    current = load_auth_policy(settings, {}).dataset_key
+    for invalid in ("*", "unconfigured-source", current):
+        with pytest.raises(ValueError, match="authentication_configuration_invalid"):
+            load_auth_policy(settings, {"AUTH_PREVIOUS_HISTORY_DATASET_KEY": invalid})
+    assert load_auth_policy(settings, {}).previous_history_dataset_key == ""

@@ -1,10 +1,53 @@
 """Direct real-session red/blue checks over disposable private PostgreSQL."""
 
 from uuid import uuid4
+from dataclasses import replace
 
 import pytest
+import main
+from auth.config import load_auth_policy
 
 from workspace_fixtures import GOOD
+
+
+def test_retired_source_history_requires_its_original_owner_and_grant(
+    world, monkeypatch
+):
+    owner_client, owner = world.client()
+    other_client, _ = world.client("B")
+    saved = world.submit(owner_client)
+    chat_id = saved["chat"]["id"]
+    message_id = saved["assistant_message"]["id"]
+    messages = f"/api/v1/chats/{chat_id}/messages"
+    path = f"{messages}/{message_id}/previous-source"
+    assert owner_client.get(path).status_code == 404
+    new_settings = replace(world.settings, database_url="new-demo-source")
+    monkeypatch.setattr(main.app.state, "settings", new_settings)
+    assert owner_client.get(path).status_code == 404
+    monkeypatch.setenv("AUTH_PREVIOUS_HISTORY_DATASET_KEY", world.policy.dataset_key)
+    monkeypatch.setattr(world.analysis, "settings", new_settings)
+    monkeypatch.setattr(world.analysis, "policy", load_auth_policy(new_settings))
+    page = owner_client.get(messages)
+    reply = page.json()["items"][-1]
+    assert reply["previous_source_available"] and reply["result_unavailable"]
+    assert reply["response"] is None and GOOD["sql"] not in page.text
+    archive = owner_client.get(path)
+    assert archive.status_code == 200 and GOOD["message"] in archive.text
+    assert GOOD["sql"] in archive.text and "<td>7</td>" in archive.text
+    assert "no-store" in archive.headers["cache-control"]
+    assert "default-src 'none'" in archive.headers["content-security-policy"]
+    assert other_client.get(path).status_code == 404
+    assert owner_client.post("/api/v1/chats", json=world.body()).status_code == 403
+    with world.storage.transaction() as conn:
+        conn.execute(
+            "UPDATE app.dataset_grants SET revoked_at=now() WHERE user_id=%s", (owner,)
+        )
+    assert owner_client.get(path).status_code == 404
+    assert (
+        "previous_source_available"
+        not in owner_client.get(messages).json()["items"][-1]
+    )
+    assert len(world.calls) == 1
 
 
 def test_atomic_first_submit_replay_conflict_and_restart_history(world):

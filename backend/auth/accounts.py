@@ -158,17 +158,22 @@ def preserve_approved_grant(
 
 
 def grant_state(
-    conn: psycopg.Connection, owner: str, policy: AuthPolicy
+    conn: psycopg.Connection,
+    owner: str,
+    policy: AuthPolicy,
+    *,
+    dataset: str | None = None,
 ) -> tuple[bool, int]:
     """Current config and current durable grant are both authoritative inputs."""
-    if not policy.dataset_key:
+    key = policy.dataset_key if dataset is None else dataset
+    if not key:
         return False, 0
     row = conn.execute(
         "SELECT g.version,g.revoked_at,g.approval_kind,g.approval_evidence,"
         "e.subject,e.observed_email_key,e.email_authoritative,e.is_active FROM app.dataset_grants g "
         "LEFT JOIN app.external_identities e ON e.id=g.approval_identity_id AND e.user_id=g.user_id "
         "WHERE g.user_id=%s AND g.dataset_key=%s",
-        (owner, policy.dataset_key),
+        (owner, key),
     ).fetchone()
     if row is None:
         return False, 0

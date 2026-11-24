@@ -65,7 +65,10 @@ export default function AquaMessage({ message, hidden = false, onRetry, onRankAc
       <article className={`message message--aqua${hidden ? " message--forming" : ""}`} data-message-id={message.id} aria-hidden={hidden || undefined} inert={hidden || undefined}>
         <div className="message__bubble message__bubble--aqua error-card">
           <span className="status-mark" aria-hidden="true">AQUA</span>
-          <p>{response.error?.message || "AQUA couldn't complete that request. Please try again."}</p>
+          {message.previousSourceAvailable ? (
+            <p><a href={`/api/v1/chats/${message.conversationId}/messages/${message.id}/previous-source`}
+              target="_blank" rel="noopener noreferrer">Open saved answer from the previous data source</a></p>
+          ) : <p>{response.error?.message || "AQUA couldn't complete that request. Please try again."}</p>}
           <SqlBlock sql={response.sql} label="SQL that was not run" />
           {response.error?.retryable && (
             <button type="button" className="text-action" onClick={() => onRetry(message.id)}>
