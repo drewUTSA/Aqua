@@ -105,6 +105,10 @@
   outline-offset: -3px;
 }
 
+.opal-workspace[data-ui-shell="opal"] .refined-sidebar .refined-new-chat:focus-visible {
+  outline-color: var(--pref-on-accent);
+}
+
 @media (max-width: 900px), (pointer: coarse) {
   .opal-workspace[data-ui-shell="opal"] .refined-sidebar :is(.refined-section-action, .refined-row-actions, .refined-row-menu) {
     flex-basis: 44px;
@@ -118,5 +122,6 @@
   .opal-workspace[data-ui-shell="opal"] .refined-chat-row[data-active] > .refined-chat-row__main {
     border-inline-start-color: Highlight;
   }
-  .opal-workspace[data-ui-shell="opal"] .refined-sidebar button:focus-visible { outline-color: Highlight; }
+  .opal-workspace[data-ui-shell="opal"] .refined-sidebar button:focus-visible,
+  .opal-workspace[data-ui-shell="opal"] .refined-sidebar .refined-new-chat:focus-visible { outline-color: Highlight; }
 }
