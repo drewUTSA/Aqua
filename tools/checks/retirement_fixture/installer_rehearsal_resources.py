@@ -41,8 +41,9 @@ DOCKER = [
 ENV = {"PATH": "/usr/bin:/bin", "DOCKER_CONFIG": "/proc/self/fd"}
 PURPOSE = "retirement-installer-rehearsal"
 LINEAGE_PINS = {
-    "ops/retirement/export_resources.py": "a0be58f687330a439c20737b36e6838070f1535118eb09adb016f758a8089518",
-    "ops/retirement/install_resources.py": "f6a5e715ce5bb8bef16ce5b378d03231917d6333cf79f1c3724095d9c0339932",
+    "ops/retirement/export_resources.py": "6aca075209019101e922f432d2e513e4ed6f9e6bd640fcfb49a2b514ea245ca8",
+    "ops/retirement/install_resources.py": "c72ca4d2936f4b4b754e88120b5cefd382c7684cbfea0b8fde13ade0fb739fdb",
+    "ops/retirement/operator_scope.py": "829abf0b1ab0fa9b7828a6243745d33d31989891cedcd1cf341b1106e0157412",
 }
 ASSETS = {
     "auth/password_blocklist_LICENSE.txt",
