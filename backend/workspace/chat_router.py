@@ -1,12 +1,14 @@
 """Owned chats and server-authored synchronous submissions."""
 
 from typing import Annotated
+from html import escape
+import json
 from uuid import UUID
 from typing import Any
 from pydantic import BaseModel
 from fastapi import APIRouter, Query, Request, Response
 from fastapi.encoders import jsonable_encoder
-from fastapi.responses import JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from auth.security import UserSession, get_settings
 from workspace import history
 from workspace.contracts import (
@@ -109,6 +111,89 @@ def messages(
                 secret=service.secret,
             ),
         )
+    )
+
+
+@router.get("/chats/{chat_id}/messages/{message_id}/previous-source")
+def previous_source_result(
+    chat_id: UUID, message_id: UUID, session: Session, service: Service
+) -> Response:
+    result = perform(
+        lambda: service.apply(
+            session,
+            lambda conn, current: history.previous_result(
+                conn, current.user["id"], str(chat_id), str(message_id), service.policy
+            ),
+        )
+    )
+    if isinstance(result, Response):
+        return result
+    title = "Saved answer from a previous data source"
+    summary = escape(str(result.get("message") or ""))
+    tables = []
+    for table in result.get("tables") or []:
+        if not isinstance(table, dict):
+            continue
+        columns = table.get("columns")
+        rows = table.get("rows")
+        if not isinstance(columns, list) or not isinstance(rows, list):
+            continue
+        clipped = len(columns) > 32 or len(rows) > 100
+        columns = columns[:32]
+        if not all(
+            isinstance(col, dict) and isinstance(col.get("key"), str) for col in columns
+        ):
+            continue
+        headings = "".join(
+            f'<th scope="col">{escape(str(col.get("label") or col["key"]))}</th>'
+            for col in columns
+        )
+        body = []
+        for row in rows[:100]:
+            if not isinstance(row, dict):
+                continue
+            cells = [row.get(col["key"]) for col in columns]
+            body.append(
+                "<tr>"
+                + "".join(
+                    "<td>" + ("—" if value is None else escape(str(value))) + "</td>"
+                    for value in cells
+                )
+                + "</tr>"
+            )
+        tables.append(
+            "<table><caption>"
+            + escape(str(table.get("title") or "Results"))
+            + "</caption><thead><tr>"
+            + headings
+            + "</tr></thead><tbody>"
+            + "".join(body)
+            + "</tbody></table>"
+        )
+        if clipped:
+            tables.append(
+                "<p>The table preview shows up to 100 rows and 32 columns. The full saved response follows.</p>"
+            )
+    details = escape(json.dumps(result, ensure_ascii=False, indent=2))
+    return HTMLResponse(
+        '<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" '
+        'content="width=device-width, initial-scale=1"><title>'
+        + title
+        + "</title><main><h1>"
+        + title
+        + "</h1><p>"
+        + summary
+        + "</p>"
+        + "".join(tables)
+        + "<details><summary>Full saved response</summary><pre>"
+        + details
+        + "</pre></details></main></html>",
+        headers={
+            "Cache-Control": "private, no-store",
+            "Referrer-Policy": "no-referrer",
+            "Content-Security-Policy": "default-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'",
+            "X-Content-Type-Options": "nosniff",
+        },
     )
 
 

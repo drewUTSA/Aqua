@@ -47,6 +47,7 @@ def test_current_http_surface_is_explicit():
         ("/api/v1/chats/{chat_id}", "PATCH"),
         ("/api/v1/chats/{chat_id}", "DELETE"),
         ("/api/v1/chats/{chat_id}/messages", "GET"),
+        ("/api/v1/chats/{chat_id}/messages/{message_id}/previous-source", "GET"),
         ("/api/v1/chats/{chat_id}/messages", "POST"),
         ("/api/v1/chats/{chat_id}/messages/{input_id}/retries", "POST"),
         ("/api/v1/projects", "GET"),

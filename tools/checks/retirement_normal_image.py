@@ -1,7 +1,7 @@
 """Pinned application image and compiled file digests for the native recovery rehearsal."""
 
-IMAGE = "sha256:533bd1eb94126060765ac3cc19f194cd729230f9b7c19fba7b8f3de38d7fa62d"
-MANIFEST_SHA256 = "ea5d29d160b7f64782649cb04e0a4ccbe8f140c9b7806a4e61277f182a629522"
+IMAGE = "sha256:731141f5b1c4c08ef21d04ca0207b7de82907d81e1232d8806a40396bd7637a4"
+MANIFEST_SHA256 = "a1dee4ca7abe47d8d69aab87f695d1850ef426d4042883633ece4ffe29f07df9"
 RUNTIME_FILES = {
     "account/__init__.py": "4d300929fcb6d0c0e3a6b92377bfd4648fc336a8ad2bfb3e962d810b3b6f55e0",
     "account/action_contracts.py": "be3becba0a54378a847efdaa76cc833e3b780df3658c90d30f86a7852232a397",
@@ -49,9 +49,9 @@ RUNTIME_FILES = {
     "analysis/settlement.py": "1868582143dd8a88c65d54b26e4fb13d12814c7e7fe3d3e5bc409107e237056a",
     "analysis/streams.py": "af92e53dc0f87eeef1d305884222f049aee0b4b90e6574c84a2a1214c5fa8732",
     "auth/__init__.py": "6b04c7bc22cb311c88fcd9e769cc0648a63af9e6177d7b3b7483f2834d8b57dc",
-    "auth/accounts.py": "246e18ce0c19e008a500e7f92800330740e476de458da71d402062fa2517c9b4",
+    "auth/accounts.py": "9934991c182d8236ef2f968558938dd4845390e9308578170ba22d25de1ecaf2",
     "auth/admission.py": "888fb1a0c707eb3d070d3dd7342d60a50f551843fec0a66c99a10f6143e1b4f5",
-    "auth/config.py": "58e7c5d140358723f733f8ee7a192a497f240531180b34a9886864b0202ec932",
+    "auth/config.py": "4d848438a9c1ad5fdd827146480c0e884085a742509679c4d67a55f1f09bcb11",
     "auth/google.py": "a842ed1e30ea8405846d711950ad806ef2a26e24350b1c3a6aee81858e988975",
     "auth/google_redirect.py": "7beb85452d272e988cfe613a978f52d7653afa27d50b4c94e732cfc3963675a7",
     "auth/google_redirect_bridge.py": "800c54fa7925188c854728b29e67530c747bc990637745a120b2ed9e8d584329",
@@ -238,14 +238,14 @@ RUNTIME_FILES = {
     "workspace/boundary.py": "8dc1d158ec9ae600d8438952680850d86df09b25cf350e410364af01b0b93fd7",
     "workspace/catalog.py": "fd5332b6c2dce52c04aa5c430f0b97d5334ff75f24b2a00c94aaf9dede3b7523",
     "workspace/catalog_router.py": "60c380071eb414dfbe58549d71db7d4846acb4127f3cb0d038224031d9217bee",
-    "workspace/chat_router.py": "1992630c5730119e331c8915dd0debe369be0894951867d9603c0d9b79431937",
+    "workspace/chat_router.py": "86a609c9ab2310fc310f90759f66c59fb57f58d8ba2cda9337d464f38cb3aa88",
     "workspace/completion.py": "cc9c96ef14e568e4c451d810a497671ee6fc060eab8c5d2feead5f5926edb19b",
     "workspace/contracts.py": "3ab26734c5a69117380eaaa407b7c2f8aeabe8fde0bdcab8ae382eb0fec62c75",
     "workspace/cursors.py": "81f79e882267e00e9b340fdbc9000cd7d11c6ec3f24bdb640c64185cc1aff8d9",
     "workspace/database.py": "a354ac0942e27db43c5c16a21ae3664eaeee9edd22609069b48d67813326ac9e",
     "workspace/dependencies.py": "0195ab365dfd3f48260d32fa87ea5ac210e8ebbbeeb23e6f87e6aec7f75ee309",
     "workspace/errors.py": "8c5e144d5e9d7455ae44be159d4c706ae29dc20c31c5dca7a070833c66cd1b07",
-    "workspace/history.py": "3bca945309c344c82c371a17bcb301040488890498957a341f66b4161e4382a8",
+    "workspace/history.py": "27953727287d1380c2bdd863b1a5d0a121737df171dc9692a67b2c255450e89d",
     "workspace/router.py": "8659eb09fcd35b8e03dd38a79b837c226145bdd42aeb5b1a946899255ad4061e",
     "workspace/service.py": "8f6436c7b3a1c424a8187b9bae301d94aa48cbca3af80827b0ee2024b9920d34",
     "workspace/submissions.py": "da19bc7eaf4128498f953d727aa27d2c5e0b035eea84fbf789f944596d2540e4",

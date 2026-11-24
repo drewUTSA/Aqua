@@ -44,6 +44,7 @@ class AuthPolicy:
     max_admission_keys: int = 2048
     cleanup_batch: int = 64
     google_registration_invites: frozenset[str] | None = field(default=None, repr=False)
+    previous_history_dataset_key: str = field(default="", repr=False)
 
     def __post_init__(self) -> None:
         limits = (
@@ -67,9 +68,14 @@ class AuthPolicy:
             raise ValueError("authentication_policy_invalid")
         if any(type(v) is not int or not 1 <= v <= 300 for v in rates):
             raise ValueError("authentication_policy_invalid")
-        if self.dataset_key and (
-            len(self.dataset_key) != 64
-            or any(char not in "0123456789abcdef" for char in self.dataset_key)
+        for key in (self.dataset_key, self.previous_history_dataset_key):
+            if key and (
+                len(key) != 64 or any(char not in "0123456789abcdef" for char in key)
+            ):
+                raise ValueError("authentication_dataset_invalid")
+        if self.previous_history_dataset_key and (
+            not self.dataset_key
+            or self.previous_history_dataset_key == self.dataset_key
         ):
             raise ValueError("authentication_dataset_invalid")
 
@@ -99,6 +105,9 @@ def load_auth_policy(
             allowed_emails=settings.auth_allowed_emails,
             allowed_google_subs=settings.auth_allowed_google_subs,
             google_registration_invites=invites,
+            previous_history_dataset_key=env.get(
+                "AUTH_PREVIOUS_HISTORY_DATASET_KEY", ""
+            ),
             max_sessions=int(env.get("AUTH_MAX_SESSIONS", "5")),
             idle_seconds=int(env.get("AUTH_IDLE_SECONDS", "1800")),
         )
