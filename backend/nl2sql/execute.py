@@ -20,6 +20,7 @@ from nl2sql.config import Settings
 from nl2sql.db import connect
 from nl2sql.errors import diagnostic, query_code
 from nl2sql.relations import physical_tables
+from nl2sql.schema import Schema
 from nl2sql.validate import UnsafeQueryError
 from nl2sql.control import CURRENT, remaining
 
@@ -64,23 +65,109 @@ class QueryResult:
     first_place_peers: bool = False
 
 
-def include_cutoff_peers(query: exp.Query, rows: int) -> str | None:
+def _exclude_unknown_score(
+    query: exp.Select, requested: str, schema: Schema | None
+) -> bool:
+    # A qualifier in the employee's question can belong to an inner population
+    # while the outer query sorts a different set of individual records.
+    if any(node is not query for node in query.find_all(exp.Query)):
+        return False
+    score = query.args["order"].expressions[0].this
+    if isinstance(score, exp.Column) and not score.table:
+        fields = [
+            f.unalias() for f in query.expressions if f.alias_or_name == score.name
+        ]
+        if len(fields) > 1:
+            return False
+        if fields:
+            score = fields[0]
+    aggregate = isinstance(score, (exp.Sum, exp.Avg, exp.Min, exp.Max))
+    column = score.this if aggregate else score
+    if not isinstance(column, exp.Column):
+        return False
+    tables = list(query.find_all(exp.Table))
+    if len(tables) != 1:
+        if not aggregate or not schema or not tables:
+            return False
+        owners = []
+        for table in tables:
+            meta = schema.tables.get(table.name)
+            if not meta:
+                return False
+            if any(field.name == column.name for field in meta.columns):
+                owners.append(table.alias_or_name)
+        if len(owners) != 1 or (column.table and column.table != owners[0]):
+            return False
+    terms = set(column.name.split("_"))
+    if requested not in terms:
+        generic_numeric = requested in {"score", "value"} and (
+            isinstance(score, (exp.Sum, exp.Avg))
+            or bool(
+                terms
+                & {
+                    "amount",
+                    "total",
+                    "sum",
+                    "score",
+                    "value",
+                    "balance",
+                    "rate",
+                    "price",
+                    "cost",
+                    "weight",
+                    "duration",
+                }
+            )
+        )
+        if not generic_numeric and not (
+            requested in {"sum", "total"} and isinstance(score, exp.Sum)
+        ):
+            return False
+    group = query.args.get("group")
+    if group and (
+        not aggregate or any(v for k, v in group.args.items() if k != "expressions")
+    ):
+        return False
+    if not aggregate and any(
+        isinstance(n, exp.AggFunc) for f in query.expressions for n in f.walk()
+    ):
+        return False
+    known = exp.Not(this=exp.Is(this=score.copy(), expression=exp.Null()))
+    if aggregate:
+        query.having(known, append=True, copy=False)
+    else:
+        query.where(known, append=True, copy=False)
+    return True
+
+
+def include_cutoff_peers(
+    query: exp.Query,
+    rows: int | None,
+    *,
+    known_measure: str | None = None,
+    schema: Schema | None = None,
+) -> str | None:
     """Preserve peers for a simple PostgreSQL ranking with an explicit row cutoff.
 
-    A second sort key could be a requested ranking criterion or just a display
-    order. Nested cutoffs, windows and offsets may have separate meanings. In
-    those shapes leave the model SQL alone rather than guessing their meaning.
+    A secondary sort key can determine membership, so preserve its original
+    order and cutoff. An explicit known-value request can still exclude NULLs
+    from the primary measure. Nested cutoffs, windows and offsets are delegated.
     """
     if not isinstance(query, exp.Select):
         return None
     order = query.args.get("order")
-    if not order or len(order.expressions) != 1 or query.args.get("offset"):
+    if not order or not order.expressions or query.args.get("offset"):
+        return None
+    secondary = len(order.expressions) > 1
+    if secondary and not known_measure:
         return None
     limit = query.args.get("limit")
     if not isinstance(limit, (exp.Limit, exp.Fetch)):
         return None
     count, already_inclusive = _requested_limit(query)
-    if already_inclusive or count != rows:
+    if count is None or (rows is not None and count != rows):
+        return None
+    if (already_inclusive or rows is None) and not known_measure:
         return None
     for node in query.walk():
         if isinstance(node, (exp.Window, exp.Offset)) or (
@@ -88,6 +175,11 @@ def include_cutoff_peers(query: exp.Query, rows: int) -> str | None:
         ):
             return None
     rewritten = query.copy()
+    filtered = bool(
+        known_measure and _exclude_unknown_score(rewritten, known_measure, schema)
+    )
+    if already_inclusive or rows is None or secondary:
+        return rewritten.sql(dialect="postgres") if filtered else None
     rewritten.set(
         "limit",
         exp.Fetch(
