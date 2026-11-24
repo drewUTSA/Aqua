@@ -109,7 +109,13 @@ def check(fixture, head, receipt):
     witness.enroll(raw, service_public_key=service)
     endpoint = target / "witness.sock"
     with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as listener:
-        listener.bind(str(endpoint))
+        # Linux sun_path is 108 bytes. The exclusive QA scope name can exceed
+        # that bound. Address the same owned directory by its held descriptor.
+        fd = os.open(target, os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC)
+        try:
+            listener.bind(f"/proc/self/fd/{fd}/witness.sock")
+        finally:
+            os.close(fd)
         inode = endpoint.lstat()
         try:
             os.chmod(endpoint, 0o600)
