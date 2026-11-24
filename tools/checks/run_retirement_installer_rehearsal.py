@@ -20,7 +20,7 @@ import tarfile
 import time
 
 ROOT = Path(__file__).resolve().parents[2]
-IMAGE = "sha256:83953a04d8ff550dba5016f4e49a1cc5123c2deb186042a2e59ce287acc402aa"
+IMAGE = "sha256:6e53150f635e92979fc270a125d4f47b6c1007ed648a650b631cb89be69be180"
 RUN = re.compile(r"aqua-retirement-host-[a-f0-9]{24}\Z")
 HEX = re.compile(r"[a-f0-9]{64}\Z")
 MAX_ARCHIVE = 193 * 1024 * 1024
