@@ -56,7 +56,12 @@ def provider_observation(identity: dict[str, Any]) -> tuple[str, bool]:
     return email, email.rsplit("@", 1)[-1] == "gmail.com" or workspace
 
 
-def resolve_account(conn: psycopg.Connection, identity: dict[str, Any]) -> str:
+def resolve_account(
+    conn: psycopg.Connection,
+    identity: dict[str, Any],
+    *,
+    registration_invites: frozenset[str] | None = None,
+) -> str:
     """One subject lock plus DB uniqueness resolves first-login races safely.
 
     Email collisions are a conflict, never evidence for linking accounts. A
@@ -81,7 +86,12 @@ def resolve_account(conn: psycopg.Connection, identity: dict[str, Any]) -> str:
     name = identity.get("name", "")
     name = name[:120] if isinstance(name, str) else ""
     picture = _picture(identity.get("picture", ""))
+    email, authoritative = provider_observation(identity)
     if owner is None:
+        if registration_invites is not None and (
+            not authoritative or email not in registration_invites
+        ):
+            raise AuthDenied("registration_unavailable")
         address = conn.execute(
             "SELECT user_id FROM app.user_emails WHERE email_key=%s", (email,)
         ).fetchone()
@@ -103,7 +113,6 @@ def resolve_account(conn: psycopg.Connection, identity: dict[str, Any]) -> str:
     # A known verified subject owns the existing canonical account. Provider
     # metadata is observation, never permission to replace the app profile or
     # primary mailbox, even when the new observed email belongs to another user.
-    email, authoritative = provider_observation(identity)
     conn.execute(
         "INSERT INTO app.external_identities(user_id,provider,issuer,subject,last_login_at,observed_email_key,email_authoritative) "
         "VALUES (%s,'google',%s,%s,now(),%s,%s) ON CONFLICT(issuer,subject) DO UPDATE "
