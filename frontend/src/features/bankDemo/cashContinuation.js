@@ -20,10 +20,10 @@ export function cashContinuation(question) {
   // “May we” and “cash may be” do not designate a calendar month.
   const calendar = question.replace(/\bmay\s+(?=we\b|i\b|you\b|it\b|they\b|the\b|be\b|need\b|have\b|not\b|cover\b|fall\b)/gi, "");
   const windows = Object.entries(periods).filter(([,pattern]) => pattern.test(calendar));
-  const timeMarkers = new Set(calendar.toLowerCase().match(/\b(?:today|tomorrow|yesterday|january|february|march|april|may|june|july|august|september|october|november|december)\b/g) || []);
+  const timeMarkers = new Set(calendar.toLowerCase().match(/\b(?:today|tomorrow|yesterday|monday|tuesday|wednesday|thursday|friday|saturday|sunday|january|february|march|april|may|june|july|august|september|october|november|december)\b/g) || []);
   const qualifiers = new Set((question.toLowerCase().match(/\b(?:last|this|next|prior|previous|current)\s+(?:day|month|quarter|year)\b/g) || []));
   if (windows.length !== 1 || timeMarkers.size > 1 || qualifiers.size > 1
-      || /\b(?:week|weekly|days|weeks|months|quarters|years|ytd|year.to.date|different periods?)\b/i.test(question))
+      || /\b(?:week|weekly|days|weeks|months|quarters|years|ytd|year.to.date|different periods?|(?:previous|prior|next) (?:cycle|period))\b/i.test(question))
     return { hint: "Which single day, month, quarter or year do both cash and forecast outflows cover?" };
   const unsignedText = question.replace(/(?<=[a-z])-(?=[a-z])/gi, "");
   if (/[+\-−–()]/.test(unsignedText) || /\b(?:unknown|missing|pending|unavailable|awaiting|unsure|estimated elsewhere|million|billion|thousand|cents|negative|minus|overdraft|overdrawn|below zero|in the red)\b/i.test(question)

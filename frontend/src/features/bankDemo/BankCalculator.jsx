@@ -19,7 +19,7 @@ export default function BankCalculator({ context, report, onCalculate, cash }) {
   const prefix = useId(), reviewHeading = useRef(null), request = useRef(null);
   const [fromQuestion, setFromQuestion] = useState(Boolean(cash));
   const [operation, setOperation] = useState(cash ? "liquidity_coverage" : ""), [useReport, setUseReport] = useState(false);
-  const [row, setRow] = useState(""), [field, setField] = useState(""), [values, setValues] = useState(cash ? {period: cash.period} : {});
+  const [row, setRow] = useState(""), [field, setField] = useState(""), [values, setValues] = useState({});
   const [draft, setDraft] = useState(null), [result, setResult] = useState(null), [busy, setBusy] = useState(false), [error, setError] = useState("");
   useEffect(() => () => request.current?.abort(), []);
   useEffect(() => { if (draft) reviewHeading.current?.focus(); }, [draft]);
@@ -73,7 +73,7 @@ export default function BankCalculator({ context, report, onCalculate, cash }) {
   return <details className="bank-demo__procedure bank-calculator" data-bank-calculator open={cash ? true : undefined}>
     <summary>Banking calculator</summary>
     <p>Review the amounts and assumptions before calculating a fictional USD illustration.</p>
-    {fromQuestion && <><p>Your question</p><blockquote>{cash.question}</blockquote><p>Choose which amount is available cash and which is projected outflows. The figures come from your question.</p></>}
+    {fromQuestion && <><p>Your question</p><blockquote>{cash.question}</blockquote><p>Choose the available cash and projected outflows from your question. Select the shared period only if both figures cover that same {cash.period}.</p></>}
     {!fromQuestion && !report && context.reports.some(r => ["consumer_pipeline_summary", "commercial_exposure_summary", "reconciliation_summary"].includes(r.id)) &&
       <p>To use figures from a lending or reconciliation report, read that report above.</p>}
     <form onSubmit={review} className="bank-calculator__form">

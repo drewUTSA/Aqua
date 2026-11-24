@@ -15,6 +15,7 @@ test("mismatched windows, missing or signed figures and currencies cannot open a
   for (const question of [
     "Tomorrow USD 57.36 in cash is available; outgoing cash this month is USD 49.35.",
     "Cash in May is USD 300 and outflows in July are USD 296.",
+    "Today's available cash was USD 543.81. Last Tuesday's outflows were USD 30.89.",
     "May we cover cash outflows of USD 62 with USD 75?",
     "Today's cash is $11; outflows are awaiting the forecast.",
     "Cash today is CAD 96.40 and outflows are USD 61.",
