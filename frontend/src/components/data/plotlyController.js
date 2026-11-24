@@ -76,7 +76,11 @@ export function createPlotlyController({ node, loadEngine, onStatus = () => {},
       controlTask?.resolve(false); controlTask = undefined;
       if (drawFrame !== undefined) cancelFrame(drawFrame);
       if (resizeFrame !== undefined) cancelFrame(resizeFrame);
-      stopResize(); purge();
+      stopResize();
+      // Remove private chart contents immediately. Purge mutates the same layout
+      // that an active draw or relayout still needs, so its finally block owns cleanup.
+      node.remove();
+      if (!busy) purge();
     }
   };
 }

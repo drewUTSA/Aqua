@@ -25,6 +25,7 @@ SHARED_PYTHON = {
     "eval/banking/scope.py",
     "mcp_demo/__init__.py",
     "mcp_demo/data.py",
+    "mcp_demo/finance.py",
     "mcp_demo/guidance.py",
     "mcp_demo/protocol.py",
     "mcp_demo/reports.py",
@@ -78,8 +79,8 @@ class RuntimePins(unittest.TestCase):
             manifest[name] = {"sha256": digest, "bytes": len(raw)}
             if name in normal.RUNTIME_FILES:
                 self.assertEqual(digest, normal.RUNTIME_FILES[name], name)
-        self.assertEqual(len(names), 244)
-        self.assertEqual(len(manifest), 248)
+        self.assertEqual(len(names), 246)
+        self.assertEqual(len(manifest), 250)
         digest = hashlib.sha256(
             json.dumps(manifest, sort_keys=True, separators=(",", ":")).encode()
         ).hexdigest()

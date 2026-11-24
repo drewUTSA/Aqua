@@ -299,15 +299,26 @@ for leaf in ('fingerprints','checkpoint','interlock','publisher'):
  name='retirement.'+leaf;relative='backend-sources/retirement/'+leaf+'.py';path=str(root/relative)
  module=types.ModuleType(name);module.__file__=path;module.__package__='retirement';sys.modules[name]=module
  exec(compile(sources[relative],path,'exec'),module.__dict__)
-entry=str(root/'host-sources/retirement_host.py');deadline=sys.argv[2];sys.argv=[entry,'--execute','--deadline',deadline];exec(compile(sources['host-sources/retirement_host.py'],entry,'exec'),{'__name__':'__main__','__file__':entry})
+entry=str(root/'host-sources/retirement_host.py');deadline=sys.argv[2];pin=sys.argv[3:];sys.argv=[entry,'--execute','--deadline',deadline]+(['--witness-sha256']+pin if pin else []);exec(compile(sources['host-sources/retirement_host.py'],entry,'exec'),{'__name__':'__main__','__file__':entry})
 """
 
 
-def launch(root=None, expected=REVIEWED_CODE_SHA256, *, image=IMAGE, scope=PRODUCTION):
+def launch(
+    root=None,
+    expected=REVIEWED_CODE_SHA256,
+    *,
+    image=IMAGE,
+    scope=PRODUCTION,
+    witness_pin=None,
+):
     root, name, socket, qa = scoped(scope, root)
     if not re.fullmatch("[a-f0-9]{64}", expected):
         return "disabled"
     if not re.fullmatch("sha256:[a-f0-9]{64}", image):
+        raise Unavailable()
+    if witness_pin is not None and (
+        type(witness_pin) is not str or not IDENT.fullmatch(witness_pin)
+    ):
         raise Unavailable()
     if os.name != "posix" or os.geteuid() != 1000:
         raise Unavailable()
@@ -398,6 +409,7 @@ def launch(root=None, expected=REVIEWED_CODE_SHA256, *, image=IMAGE, scope=PRODU
                 VERIFY_CODE,
                 expected,
                 str(docker.work_deadline - 2),
+                *([witness_pin] if witness_pin is not None else []),
             )
             if not IDENT.fullmatch(identifier):
                 identifier = None

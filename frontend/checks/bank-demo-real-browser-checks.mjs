@@ -121,7 +121,18 @@ export async function runRealBankDemoChecks(ctx) {
   assert.equal(menu.context.persona, "teller"); assert.equal(menu.context.sourceRevision, gold.sourceRevision);
   await open();
   await check("real no-dataset account receives only the fixed teller catalog", "document.querySelector('.opal-composer textarea').disabled&&document.querySelector('[data-bank-report-picker]').options.length===3&&document.querySelector('[data-bank-demo]').textContent.includes('teller — fictional scope')");
+  await click("[data-bank-calculator] > summary");
+  await evaluate("(()=>{const select=document.querySelector('[data-calc-operation]');select.value='simple_interest';select.dispatchEvent(new Event('change',{bubbles:true}));return true;})()");
+  for (const [field, value] of Object.entries({ principal_usd: "1200", annual_rate_percent: "3", term_months: "2" })) {
+    await evaluate("(()=>{const el=document.querySelector('[data-calc-input=" + field + "]');Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(el," + quote(value) + ");el.dispatchEvent(new Event('input',{bubbles:true}));return true;})()");
+  }
+  await click("[data-calc-review]");
+  await waitFor("Boolean(document.querySelector('[data-calc-confirm]'))","real_bank_employee_review");
+  await check("review holds calculation before employee confirmation","!document.querySelector('.bank-calculator__result')");
+  await click("[data-calc-confirm]");
+  await waitFor("document.querySelector('.bank-calculator__result')?.textContent.includes('6.00 USD')","real_bank_confirmed_illustration");
   await read(); await waitFor("Boolean(document.querySelector('[data-bank-report]'))", "real_bank_report_visible");
+  await check("reading a new source clears old confirmed amounts","!document.querySelector('.bank-calculator__result')&&document.querySelector('[data-calc-operation]').value===''");
   await check("real report preserves all original deposit cell strings", `JSON.stringify([...document.querySelectorAll('[data-bank-report] tbody tr')].map(row=>[...row.cells].map(cell=>cell.textContent)))===${quote(JSON.stringify(gold.rows))}`);
   const setEvidence = async mode => {
     await evaluate(`(()=>{const el=document.querySelector('[data-bank-evidence]');el.value=${quote(mode)};el.dispatchEvent(new Event("change",{bubbles:true}));return true;})()`);
@@ -140,9 +151,9 @@ export async function runRealBankDemoChecks(ctx) {
   await waitFor("Boolean(document.querySelector('[data-bank-report]'))", "real_bank_exact_period_visible");
   await check("an exact date correction restores the original authorized rows", `JSON.stringify([...document.querySelectorAll('[data-bank-report] tbody tr')].map(row=>[...row.cells].map(cell=>cell.textContent)))===${quote(JSON.stringify(gold.rows))}`);
   await check("real report exposes trusted units source snapshot and partial period", `(()=>{const p=document.querySelector('[data-bank-demo]');return p.textContent.includes('2026-11-16')&&p.textContent.includes('Fictional · Partial period')&&p.querySelector('[title=${quote(gold.sourceRevision)}]')!==null&&JSON.stringify([...p.querySelectorAll('th')].map(cell=>cell.textContent))===${quote(JSON.stringify(gold.columns.map(column => column.label + (column.unit === "text" ? "" : ` (${column.unit})`))))}})()`);
-  await evaluate("document.querySelector('.bank-demo__procedure summary').focus();true"); await key("Enter");
-  await waitFor("document.querySelector('.bank-demo__procedure')?.open===true", "real_bank_procedure");
-  await check("real cited fictional procedure and human suggestions are source-bound inert text", `(()=>{const p=document.querySelector('.bank-demo__procedure');return p.textContent.includes(${quote(gold.procedure.text)})&&p.textContent.includes(${quote(gold.procedure.sourceId)})&&p.textContent.includes(${quote(gold.procedure.version)})&&p.querySelector('[title=${quote(gold.procedure.contentSha256)}]')!==null&&JSON.stringify([...p.querySelectorAll('ol li')].map(el=>el.textContent))===${quote(JSON.stringify(gold.nextSteps.map(item => item.text)))}&&!p.querySelector('button,a,input')&&p.textContent.includes('No approval has been recorded')})()`);
+  await evaluate("document.querySelector('[data-bank-report] .bank-demo__procedure summary').focus();true"); await key("Enter");
+  await waitFor("document.querySelector('[data-bank-report] .bank-demo__procedure')?.open===true", "real_bank_procedure");
+  await check("real cited fictional procedure and human suggestions are source-bound inert text", `(()=>{const p=document.querySelector('[data-bank-report] .bank-demo__procedure');return p.textContent.includes(${quote(gold.procedure.text)})&&p.textContent.includes(${quote(gold.procedure.sourceId)})&&p.textContent.includes(${quote(gold.procedure.version)})&&p.querySelector('[title=${quote(gold.procedure.contentSha256)}]')!==null&&JSON.stringify([...p.querySelectorAll('ol li')].map(el=>el.textContent))===${quote(JSON.stringify(gold.nextSteps.map(item => item.text)))}&&!p.querySelector('button,a,input')&&p.textContent.includes('No approval has been recorded')})()`);
   await check("real report reading keeps the same unsent composer", "document.querySelector('.opal-composer textarea')===window.__realBankComposer&&window.__realBankComposer.value===window.__realBankDraft");
   await screenshot("real-bank-deposit-report"); await key("Escape");
   await waitFor("!document.querySelector('dialog[open]')", "real_bank_closed");

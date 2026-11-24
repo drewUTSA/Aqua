@@ -4,7 +4,13 @@ Only a separately reviewed host adapter may supply the signing key and the
 checkpoint-only DB role. The backend package must never copy this module/key.
 """
 
+import hashlib
+import hmac
 import os
+import secrets
+import socket
+import stat
+import struct
 import time
 
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
@@ -18,6 +24,70 @@ from retirement.checkpoint import (
 )
 from retirement.interlock import LOCK, NAMESPACE, PHYSICAL, RetirementUnavailable
 
+REQUEST = b"AQUA:independent-checkpoint:publish:v1\0"
+RECEIPT = b"AQUA:independent-checkpoint:committed:v1\0"
+FRAME_BYTES = 8 + 32 + RECORD_BYTES + 64
+
+
+def service_request(generation, record, service_key, pinned_witness):
+    """Fresh, separately signed service challenge for exactly one signed record."""
+    if (
+        type(record) is not bytes
+        or len(record) != RECORD_BYTES
+        or type(generation) is not int
+        or not 0 < generation < 2**63 - 1
+    ):
+        raise ValueError("checkpoint_witness_request")
+    body = struct.pack("!Q", generation) + secrets.token_bytes(32) + record
+    request = body + service_key.sign(REQUEST + body)
+    expected = hashlib.sha256(request).digest()
+
+    def verify(signed_receipt):
+        if type(signed_receipt) is not bytes or len(signed_receipt) != 64:
+            raise ValueError("checkpoint_witness_receipt")
+        pinned_witness.verify(signed_receipt, RECEIPT + expected)
+        return hashlib.sha256(record).digest()
+
+    return request, verify
+
+
+def witness_sender(path, generation, service_key, pinned_witness):
+    """Use the fixed owner relay in the read-only host-only directory."""
+
+    def submit(record):
+        parent, node = path.parent.lstat(), path.lstat()
+        if (
+            parent.st_uid != 1000
+            or stat.S_IMODE(parent.st_mode) != 0o700
+            or not stat.S_ISDIR(parent.st_mode)
+            or path.resolve(strict=True) != path
+            or not stat.S_ISSOCK(node.st_mode)
+            or node.st_uid != 1000
+            or node.st_nlink != 1
+            or stat.S_IMODE(node.st_mode) != 0o600
+        ):
+            raise CheckpointUnavailable()
+        request, verify = service_request(
+            generation, record, service_key, pinned_witness
+        )
+        stop = time.monotonic() + 2
+        with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as peer:
+            peer.settimeout(2)
+            peer.connect(str(path))
+            peer.settimeout(max(0, stop - time.monotonic()))
+            peer.sendall(request)
+            peer.shutdown(socket.SHUT_WR)
+            reply = bytearray()
+            while len(reply) <= 64:
+                peer.settimeout(max(0, stop - time.monotonic()))
+                part = peer.recv(65 - len(reply))
+                if not part:
+                    break
+                reply.extend(part)
+        return verify(bytes(reply))
+
+    return submit
+
 
 def signed_record(
     private_key, *, installation, key_id, sequence, digest, previous, commitment
@@ -30,7 +100,7 @@ def signed_record(
     return message + private_key.sign(DOMAIN + message)
 
 
-def publish(protected, conn, private_key):
+def publish(protected, conn, private_key, *, witness=None):
     """Fsync a single exact next record before host-only DB acknowledgement.
 
     Caller owns session advisory gate through this function and actual COMMIT.
@@ -105,6 +175,26 @@ def publish(protected, conn, private_key):
         head = protected.head()
         if head.sequence != row[3] or head.event_digest != row[4]:
             raise CheckpointUnavailable()
+    if witness is not None:
+        # An earlier attempt may have fsynced locally and lost its remote
+        # response. Resend the exact bytes, never re-sign the same sequence.
+        fd, before = protected._open()
+        try:
+            raw = os.pread(fd, RECORD_BYTES, head.sequence * RECORD_BYTES)
+            protected._unchanged(fd, before)
+        finally:
+            os.close(fd)
+        if (
+            len(raw) != RECORD_BYTES
+            or before.st_size != (head.sequence + 1) * RECORD_BYTES
+            or not hmac.compare_digest(hashlib.sha256(raw).digest(), head.record_digest)
+        ):
+            raise CheckpointUnavailable()
+        receipt = witness(raw)
+        if type(receipt) is not bytes or not hmac.compare_digest(
+            receipt, head.record_digest
+        ):
+            raise CheckpointUnavailable()
     conn.execute(
         "SELECT retirement.acknowledge_checkpoint(%s,%s,%s)",
         (head.installation, head.sequence, head.event_digest),
@@ -122,8 +212,9 @@ class HostPublisher:
     Pool and exact-role checks remain required in the actual fixture/deployment.
     """
 
-    def __init__(self, pool, protected, private_key):
+    def __init__(self, pool, protected, private_key, *, witness=None):
         self.pool, self.protected, self.private_key = pool, protected, private_key
+        self.witness = witness
         self.poisoned = False
 
     def startup(self):
@@ -155,7 +246,9 @@ class HostPublisher:
                         conn.execute(
                             "SET LOCAL idle_in_transaction_session_timeout='10s'"
                         )
-                        result = publish(self.protected, conn, self.private_key)
+                        result = publish(
+                            self.protected, conn, self.private_key, witness=self.witness
+                        )
                         if conn.info.transaction_status != 2:
                             raise RetirementUnavailable()
                         conn.execute("SET LOCAL synchronous_commit='on'")

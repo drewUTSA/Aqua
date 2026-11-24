@@ -23,7 +23,7 @@ COPY --chown=1000:1000 backend/bank_demo/*.py ./bank_demo/
 COPY --chown=1000:1000 backend/result_companion/*.py ./result_companion/
 COPY --chown=1000:1000 backend/context_notes/*.py ./context_notes/
 # Exact SDK-free fictional report core; no MCP transport, eval runner or corpus.
-COPY --chown=1000:1000 mcp_demo/__init__.py mcp_demo/data.py mcp_demo/protocol.py mcp_demo/reports.py mcp_demo/guidance.py mcp_demo/web.py ./mcp_demo/
+COPY --chown=1000:1000 mcp_demo/__init__.py mcp_demo/data.py mcp_demo/finance.py mcp_demo/protocol.py mcp_demo/reports.py mcp_demo/guidance.py mcp_demo/web.py ./mcp_demo/
 COPY --chown=1000:1000 mcp_demo/fixtures/bank.json ./mcp_demo/fixtures/
 COPY --chown=1000:1000 eval/__init__.py ./eval/
 COPY --chown=1000:1000 eval/banking/__init__.py eval/banking/catalog.py eval/banking/data.py eval/banking/knowledge.py eval/banking/proposals.py eval/banking/reports.py eval/banking/scope.py ./eval/banking/

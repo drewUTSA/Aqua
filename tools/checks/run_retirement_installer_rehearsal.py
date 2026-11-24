@@ -20,7 +20,7 @@ import tarfile
 import time
 
 ROOT = Path(__file__).resolve().parents[2]
-IMAGE = "sha256:92ed9a0a7d1f6d155ab1d3db91db7f99edfce2b90bab0ba8997889613059ac6d"
+IMAGE = "sha256:b6d5afe49e15f9d927a266d21b793b6c546b57cc6fac64dd207f1e2bea318292"
 RUN = re.compile(r"aqua-retirement-host-[a-f0-9]{24}\Z")
 HEX = re.compile(r"[a-f0-9]{64}\Z")
 MAX_ARCHIVE = 193 * 1024 * 1024
@@ -546,6 +546,10 @@ def execute(root, run, image, expected):
                 decoded(output.getvalue()),
                 head,
             )
+        from retirement_fixture.forward_enrollment import check as check_forward
+
+        report["phase"] = "forward_enrollment_CLI"
+        report["forward_enrollment_cli"] = check_forward(fixture, head, receipt)
         report["status"] = "passed"
     except (Exception, KeyboardInterrupt) as error:
         # Never stringify exceptions: child/SQL errors can contain credentials.

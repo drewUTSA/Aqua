@@ -18,7 +18,15 @@ import unittest
 ROOT = Path(__file__).resolve().parents[2]
 MCP_FILES = frozenset(
     f"mcp_demo/{name}.py"
-    for name in ("__init__", "data", "protocol", "reports", "guidance", "web")
+    for name in (
+        "__init__",
+        "data",
+        "finance",
+        "protocol",
+        "reports",
+        "guidance",
+        "web",
+    )
 )
 BANK_FILES = frozenset(
     f"eval/banking/{name}.py"
@@ -43,6 +51,7 @@ PURE_STDLIB = {
     "dataclasses",
     "datetime",
     "decimal",
+    "fractions",
     "hashlib",
     "json",
     "pathlib",
@@ -257,12 +266,12 @@ import importlib.util
 import sys
 sys.path.insert(0, '.')
 for name in ('eval.banking', 'mcp_demo.data', 'mcp_demo.protocol',
-             'mcp_demo.reports', 'mcp_demo.guidance', 'mcp_demo.web'):
+             'mcp_demo.finance', 'mcp_demo.reports', 'mcp_demo.guidance', 'mcp_demo.web'):
     importlib.import_module(name)
 from mcp_demo.data import SOURCE_REVISION
 assert SOURCE_REVISION == '8c27aa965ae4087fc965f66957ab08dde9b18de1cf6abdd321102afb6f8cdd37'
 for name in ('mcp', 'mcp_types', 'mcp_demo.server', 'mcp_demo.__main__',
-             'mcp_demo.finance', 'mcp_demo.finance_schema', 'mcp_demo.trends',
+             'mcp_demo.finance_schema', 'mcp_demo.trends',
              'eval.run_eval', 'eval.monthly_trend', 'eval.datasets'):
     assert importlib.util.find_spec(name) is None, 'unexpected package in closure'
 assert not any(name == 'mcp' or name.startswith('mcp.') for name in sys.modules)

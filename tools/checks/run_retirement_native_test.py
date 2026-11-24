@@ -178,7 +178,7 @@ class NativeTests(unittest.TestCase):
         for name in (
             "mcp_demo/server.py",
             "mcp_demo/__main__.py",
-            "mcp_demo/finance.py",
+            "mcp_demo/trends.py",
             "mcp_demo/fixtures/other.json",
             "mcp_demo/fixtures/bank.json/extra.py",
             "mcp_demo/fixtures/../data.py",

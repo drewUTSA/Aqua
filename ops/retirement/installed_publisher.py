@@ -25,25 +25,32 @@ def _execute(expected: str, check_cancelled, *, scope=None) -> str:
         else:
             from publisher_launcher import scoped
         root, _, _, _ = scoped(scope)
-    value = pinned(root / "host/publisher.json", expected)
+    # A forward enrollment adds a separate, create-only profile. Its presence
+    # fences old version-1 launch pins instead of replacing either old file.
+    forward_directory = root / "host/forward-v1"
+    forward = forward_directory / "publisher-v2.json"
+    selected = (
+        forward
+        if forward_directory.exists() or forward_directory.is_symlink()
+        else root / "host/publisher.json"
+    )
+    value = pinned(selected, expected)
+    fields = {
+        "schemaVersion",
+        "runtime_image",
+        "source_sha256",
+        "code_manifest_sha256",
+        "host_code_manifest_sha256",
+    }
+    if value.get("schemaVersion") == 2:
+        fields.add("witness_sha256")
     if (
-        set(value)
-        != {
-            "schemaVersion",
-            "runtime_image",
-            "source_sha256",
-            "code_manifest_sha256",
-            "host_code_manifest_sha256",
-        }
+        set(value) != fields
         or type(value["schemaVersion"]) is not int
-        or value["schemaVersion"] != 1
+        or value["schemaVersion"] != (2 if selected == forward else 1)
         or any(
             type(value[key]) is not str or not re.fullmatch(r"[a-f0-9]{64}", value[key])
-            for key in (
-                "source_sha256",
-                "code_manifest_sha256",
-                "host_code_manifest_sha256",
-            )
+            for key in fields - {"schemaVersion", "runtime_image"}
         )
         or type(value["runtime_image"]) is not str
         or not re.fullmatch(r"sha256:[a-f0-9]{64}", value["runtime_image"])
@@ -55,12 +62,22 @@ def _execute(expected: str, check_cancelled, *, scope=None) -> str:
         from install import sources
     sources(value["host_code_manifest_sha256"])
     check_cancelled()
+    witness = (
+        {"witness_pin": value["witness_sha256"]} if value["schemaVersion"] == 2 else {}
+    )
     if scope is None:
         return launch(
-            PRIVATE, value["code_manifest_sha256"], image=value["runtime_image"]
+            PRIVATE,
+            value["code_manifest_sha256"],
+            image=value["runtime_image"],
+            **witness,
         )
     return launch(
-        root, value["code_manifest_sha256"], image=value["runtime_image"], scope=scope
+        root,
+        value["code_manifest_sha256"],
+        image=value["runtime_image"],
+        scope=scope,
+        **witness,
     )
 
 
