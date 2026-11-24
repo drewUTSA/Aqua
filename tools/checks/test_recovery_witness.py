@@ -249,6 +249,11 @@ class WitnessTests(unittest.TestCase):
             conn.commit()
         with self.assertRaises(WitnessUnavailable):
             self.witness.fence(1, self.fence_id)
+        with closing(sqlite3.connect(self.path)) as conn:
+            self.assertEqual(
+                conn.execute("SELECT fence FROM state WHERE singleton=1").fetchone(),
+                (self.fence_id,),
+            )
         with self.assertRaises(WitnessUnavailable):
             self.witness.append(1, self.first)
 

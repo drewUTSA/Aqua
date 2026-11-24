@@ -237,9 +237,10 @@ class Witness:
             current_fence = self._state(conn, generation)
             if current_fence not in (None, fence_id):
                 raise WitnessUnavailable("checkpoint_witness_different_fence")
-            cut = self._scan(conn, generation, fence_id)
             conn.execute("UPDATE state SET fence=? WHERE singleton=1", (fence_id,))
-        return cut
+        # Close publication durably first. Even a corrupt history or interrupted
+        # scan must leave this generation fenced for the owner's investigation.
+        return self.frozen_head(generation, fence_id)
 
     def frozen_head(self, generation: int, fence_id: str):
         """Read the current fence from the independent store on every recovery."""
