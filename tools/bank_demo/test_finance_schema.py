@@ -24,6 +24,63 @@ from tools.bank_demo.test_demo_sdk import parameters  # noqa: E402
 
 
 class FinanceDiscoveryTests(unittest.TestCase):
+    def test_only_outer_horizontal_padding_is_accepted_on_wire_money(self):
+        async def check():
+            async with Client(parameters("teller")) as client:
+                tools = (await client.list_tools()).tools
+                schema = next(
+                    t.input_schema for t in tools if t.name == "calculate_finance"
+                )
+                validator = Draft202012Validator(schema)
+                for branch in schema["oneOf"]:
+                    original = branch["examples"][0]
+                    expected = await client.call_tool("calculate_finance", original)
+                    padded = deepcopy(original)
+                    for field, value in original["parameters"].items():
+                        if field.endswith("_usd"):
+                            padded["parameters"][field] = "\t   " + value + " \t"
+                    self.assertTrue(validator.is_valid(padded))
+                    result = await client.call_tool("calculate_finance", padded)
+                    self.assertFalse(result.is_error)
+                    self.assertEqual(
+                        result.structured_content, expected.structured_content
+                    )
+                    with self.assertRaises(FinanceDenied):
+                        calculate_finance(**padded)
+                sample = next(
+                    b["examples"][0]
+                    for b in schema["oneOf"]
+                    if b["examples"][0]["operation"] == "reconciliation"
+                )
+                for bad in [
+                    " - 9.05",
+                    "9. 05",
+                    "9,050",
+                    "9e2",
+                    "9.05\n",
+                    "\r9.05",
+                    "\u00a09.05",
+                    "     9.05",
+                    " -0.00",
+                    True,
+                    9.05,
+                ]:
+                    invalid = deepcopy(sample)
+                    invalid["parameters"]["opening_balance_usd"] = bad
+                    self.assertFalse(validator.is_valid(invalid))
+                    self.assertTrue(
+                        (await client.call_tool("calculate_finance", invalid)).is_error
+                    )
+                for field, value in [("currency", " USD "), ("period", " statement ")]:
+                    request = deepcopy(sample)
+                    request["parameters"][field] = value
+                    self.assertFalse(validator.is_valid(request))
+                    self.assertTrue(
+                        (await client.call_tool("calculate_finance", request)).is_error
+                    )
+
+        anyio.run(check)
+
     def test_correctable_errors_give_public_guidance_only_after_scope(self):
         loan = {
             "currency": "USD",
