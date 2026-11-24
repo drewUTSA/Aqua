@@ -20,7 +20,7 @@ import sys
 import time
 
 if __package__:
-    from .operator_scope import PRODUCTION, Scope
+    from .operator_scope import PRODUCTION, selected_scope
     from .operator_files import (
         PRIVATE,
         MAIL,
@@ -31,7 +31,7 @@ if __package__:
         write_once,
     )
 else:
-    from operator_scope import PRODUCTION, Scope
+    from operator_scope import PRODUCTION, selected_scope
     from operator_files import (
         PRIVATE,
         MAIL,
@@ -177,6 +177,8 @@ def stopped(
         True,
     ]:
         raise RuntimeError("retirement_maintenance_database_changed")
+    if scope.private_preview:
+        check_preview_participants(probe, scope, value)
     if scope.qa_run is not None:
         owned = probe(
             [
@@ -241,6 +243,81 @@ def stopped(
         )
         if result.strip() != str(schema).encode():
             raise RuntimeError("retirement_maintenance_schema_mismatch")
+
+
+def check_preview_participants(probe, scope, value):
+    """Bind the pause to the exact private service, socket volume and database clients."""
+    labels = {"aqua.purpose": "restricted-preview-v2"}
+    for identifier, expected_name in (
+        (value["backend_id"], "aqua-preview-backend-v2"),
+        (value["database_id"], "aqua-preview-appdb-v2"),
+    ):
+        raw = probe(
+            [
+                *DOCKER,
+                "inspect",
+                identifier,
+                "--format={{json .Name}}\n{{json .Config.Labels}}\n{{json .Mounts}}",
+            ]
+        )
+        name, actual, mounts = map(json.loads, raw.splitlines())
+        if name != "/" + expected_name or not all(
+            actual.get(k) == v for k, v in labels.items()
+        ):
+            raise RuntimeError("retirement_preview_container_identity")
+        selected = [m for m in mounts if m.get("Destination") == "/run/aqua-app-db"]
+        if (
+            len(selected) != 1
+            or selected[0].get("Type") != "volume"
+            or selected[0].get("Name") != scope.socket
+            or selected[0].get("RW") is not (expected_name == "aqua-preview-appdb-v2")
+        ):
+            raise RuntimeError("retirement_preview_socket_mount")
+    volume = probe(
+        [
+            *DOCKER,
+            "volume",
+            "inspect",
+            scope.socket,
+            "--format={{json .Name}}\n{{json .Labels}}",
+        ]
+    )
+    name, owner = map(json.loads, volume.splitlines())
+    if name != scope.socket or owner.get("aqua.purpose") != "restricted-preview-v2":
+        raise RuntimeError("retirement_preview_socket_identity")
+    holders = (
+        probe(
+            [
+                *DOCKER,
+                "ps",
+                "--no-trunc",
+                "--quiet",
+                "--filter",
+                "volume=" + scope.socket,
+            ]
+        )
+        .decode()
+        .splitlines()
+    )
+    if holders != [value["database_id"]]:
+        raise RuntimeError("retirement_preview_other_socket_holder")
+    boundary = probe(
+        [
+            *DOCKER,
+            "exec",
+            value["database_id"],
+            "psql",
+            "-XqAtw",
+            "-U",
+            "postgres",
+            "-d",
+            "postgres",
+            "-c",
+            "SELECT current_setting('listen_addresses')='', current_setting('unix_socket_directories')='/var/run/postgresql,/run/aqua-app-db', NOT EXISTS(SELECT FROM pg_stat_activity WHERE backend_type='client backend' AND datname IN ('aqua_app','aqua_retirement') AND pid <> pg_backend_pid())",
+        ]
+    )
+    if boundary.strip() != b"t|t|t":
+        raise RuntimeError("retirement_preview_database_still_exposed_or_busy")
 
 
 def launcher_lock(directory: Path) -> Path:
@@ -439,6 +516,7 @@ def main() -> None:
     parser.add_argument("--hold", action="store_true")
     parser.add_argument("--plan-sha256", default="")
     parser.add_argument("--qa-run")
+    parser.add_argument("--private-preview", action="store_true")
     args = parser.parse_args()
     if not args.hold:
         print(
@@ -461,7 +539,7 @@ def main() -> None:
     signal.alarm(300)
     with Hold(
         args.plan_sha256,
-        scope=Scope(args.qa_run) if args.qa_run is not None else PRODUCTION,
+        scope=selected_scope(args.qa_run, args.private_preview),
     ) as held:
         print(json.dumps({"status": "held", **held.record}), flush=True)
         if sys.stdin.readline().strip() != "release":

@@ -15,7 +15,7 @@ if not __package__ and Path(__file__).with_name("installation-sources.json").is_
     import operator_files as files
     from export_resources import Owned
     from installed_publisher import _deferred_cancellation
-    from operator_scope import PRODUCTION, Scope
+    from operator_scope import PRODUCTION, selected_scope
 else:
     if not __package__:
         sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
@@ -23,7 +23,7 @@ else:
     from ops.retirement import operator_files as files
     from ops.retirement.export_resources import Owned
     from ops.retirement.installed_publisher import _deferred_cancellation
-    from ops.retirement.operator_scope import PRODUCTION, Scope
+    from ops.retirement.operator_scope import PRODUCTION, selected_scope
 
 
 class Participant(Owned):
@@ -63,11 +63,7 @@ class Participant(Owned):
                 "--name=" + self.name + "-" + role,
                 "--label=io.aqua.run=" + self.name,
                 "--label=io.aqua.purpose=" + self.purpose,
-                *(
-                    ["--label=io.aqua.qa-run=" + self.scope.qa_run]
-                    if self.scope.qa_run is not None
-                    else []
-                ),
+                *self.scope.child_labels(),
                 "--network=none",
                 "--read-only",
                 "--cap-drop=ALL",
@@ -251,11 +247,12 @@ def main():
     parser.add_argument("--execute", action="store_true")
     parser.add_argument("--envelope-sha256")
     parser.add_argument("--qa-run")
+    parser.add_argument("--private-preview", action="store_true")
     args = parser.parse_args()
     if not args.execute:
         print('{"status":"prepared_only","writes":0,"private_reads":0}')
         return
-    scope = Scope(args.qa_run) if args.qa_run else PRODUCTION
+    scope = selected_scope(args.qa_run, args.private_preview)
     try:
         print(json.dumps(execute(args.mode, args.envelope_sha256, scope)))
     except Exception:

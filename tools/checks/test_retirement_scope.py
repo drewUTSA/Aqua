@@ -22,6 +22,90 @@ IMAGE = "sha256:" + "2" * 64
 
 
 class ScopeGuards(unittest.TestCase):
+    def test_preview_fence_requires_exact_socket_database_and_stopped_clients(self):
+        from ops.retirement.operator_scope import PRIVATE_PREVIEW
+
+        scope = PRIVATE_PREVIEW
+        ids = {"backend_id": "b" * 64, "database_id": "d" * 64}
+        labels = {"aqua.purpose": "restricted-preview-v2"}
+
+        def probe_with(*, socket=scope.socket, peer=False, busy=False, label=labels):
+            def run(argv):
+                if "psql" in argv:
+                    return b"t|t|f" if busy else b"t|t|t"
+                if "ps" in argv:
+                    return (ids["database_id"] + ("\nforeign" if peer else "")).encode()
+                if "volume" in argv:
+                    values = [scope.socket, label]
+                else:
+                    db = ids["database_id"] in argv
+                    values = [
+                        "/aqua-preview-" + ("appdb-v2" if db else "backend-v2"),
+                        label,
+                        [
+                            {
+                                "Type": "volume",
+                                "Destination": "/run/aqua-app-db",
+                                "Name": socket,
+                                "RW": db,
+                            }
+                        ],
+                    ]
+                return "\n".join(map(json.dumps, values)).encode()
+
+            return run
+
+        maintenance.check_preview_participants(probe_with(), scope, ids)
+        for change in (
+            {"socket": "aqua_app_sockets"},
+            {"peer": True},
+            {"busy": True},
+            {"label": {"aqua.purpose": "restricted-preview-v1"}},
+        ):
+            with self.subTest(change=change), self.assertRaises(RuntimeError):
+                maintenance.check_preview_participants(probe_with(**change), scope, ids)
+
+    def test_private_preview_selects_only_its_fixed_shadow_resources(self):
+        from ops.retirement.operator_scope import PRIVATE_PREVIEW, selected_scope
+
+        scope = selected_scope(None, True)
+        self.assertIs(scope, PRIVATE_PREVIEW)
+        self.assertIs(selected_scope(None, False), PRODUCTION)
+        with self.assertRaises(ValueError):
+            selected_scope(RUN, True)
+        self.assertEqual(
+            str(scope.private),
+            "/home/ben2004/.aqua-runtime/synthetic-preview-v2/retirement",
+        )
+        self.assertEqual(scope.socket, "aqua-preview-app-sockets-v2")
+        self.assertIn("name=^/aqua-preview-backend-v2$", scope.backend_filters())
+        self.assertTrue(
+            scope.child_matches({"io.aqua.deployment": "restricted-preview-v2"})
+        )
+        for labels in (
+            {},
+            {"io.aqua.qa-run": RUN},
+            {"io.aqua.deployment": "restricted-preview-v1"},
+        ):
+            self.assertFalse(scope.child_matches(labels))
+
+    def test_private_preview_pause_checks_real_crontab_and_excludes_its_worker(self):
+        from ops.retirement.operator_scope import PRIVATE_PREVIEW
+
+        def observe(rows):
+            def actual(argv):
+                self.assertEqual(argv, ["/usr/bin/crontab", "-l"])
+                return rows
+
+            return PRIVATE_PREVIEW.schedule(
+                actual, lambda _: self.fail("used a fixture attestation")
+            )
+
+        pinned = b"# aqua-preview-v2-publisher deliberately paused\n"
+        self.assertEqual(observe(pinned), pinned)
+        with self.assertRaises(RuntimeError):
+            observe(b"* * * * * /usr/bin/example-synthetic-preview-v2\n")
+
     def test_production_cannot_infer_QA_from_ambient_environment(self):
         with patch.dict(
             "os.environ",

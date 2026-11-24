@@ -18,7 +18,7 @@ from pathlib import Path
 from types import SimpleNamespace
 
 SOURCE = Path(__file__).resolve().parents[2] / "ops/retirement/install.py"
-SOURCE_SHA256 = "809192b2f249437cc48c02a4f0109d076758bd69701e9c655628fba1ed4f68cf"
+SOURCE_SHA256 = "8d4b2fd9c797c1d50bb2536536d2e820d8b296a542129d516bef13491e0b9bb3"
 PUBLIC_BASE = Path(tempfile.gettempdir()).resolve()
 PUBLISHER_FILES = (
     "host-sources/retirement_host.py",

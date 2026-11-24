@@ -45,11 +45,7 @@ class Installer(Owned):
             "--name=" + self.name + "-" + role,
             "--label=io.aqua.run=" + self.name,
             "--label=io.aqua.purpose=" + self.purpose,
-            *(
-                ["--label=io.aqua.qa-run=" + self.scope.qa_run]
-                if self.scope.qa_run is not None
-                else []
-            ),
+            *self.scope.child_labels(),
             "--network=none",
             "--read-only",
             "--cap-drop=ALL",

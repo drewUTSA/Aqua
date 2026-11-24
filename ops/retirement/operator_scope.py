@@ -12,13 +12,23 @@ import stat
 
 BASE = Path("/srv/bank-ai/.check-results")
 PRODUCTION_PRIVATE = Path("/home/ben2004/.aqua-runtime/retirement")
+PREVIEW_PARENT = Path("/home/ben2004/.aqua-runtime/synthetic-preview-v2")
+PREVIEW_LABEL = "restricted-preview-v2"
+PREVIEW_SOCKET = "aqua-preview-app-sockets-v2"
 
 
 @dataclass(frozen=True)
 class Scope:
     qa_run: str | None = None
+    private_preview: bool = False
 
     def __post_init__(self):
+        if (
+            type(self.private_preview) is not bool
+            or self.private_preview
+            and self.qa_run is not None
+        ):
+            raise ValueError("retirement_conflicting_deployment_scopes")
         if self.qa_run is not None and (
             type(self.qa_run) is not str
             or not re.fullmatch(r"aqua-retirement-host-[a-f0-9]{24}", self.qa_run)
@@ -27,10 +37,14 @@ class Scope:
 
     @property
     def parent(self):
+        if self.private_preview:
+            return PREVIEW_PARENT
         return PRODUCTION_PRIVATE.parent if self.qa_run is None else BASE / self.qa_run
 
     @property
     def private(self):
+        if self.private_preview:
+            return self.parent / "retirement"
         return PRODUCTION_PRIVATE if self.qa_run is None else self.parent / "installed"
 
     @property
@@ -39,6 +53,8 @@ class Scope:
 
     @property
     def socket(self):
+        if self.private_preview:
+            return PREVIEW_SOCKET
         return "aqua_app_sockets" if self.qa_run is None else self.qa_run + "-socket"
 
     @property
@@ -58,7 +74,7 @@ class Scope:
         return self.parent / "retirement-install.json"
 
     def validate(self):
-        if self.qa_run is None:
+        if self.qa_run is None and not self.private_preview:
             return
         value = self.parent.lstat()
         if (
@@ -71,6 +87,13 @@ class Scope:
             raise RuntimeError("retirement_QA_root_not_owned")
 
     def backend_filters(self):
+        if self.private_preview:
+            return [
+                "--filter",
+                "name=^/aqua-preview-backend-v2$",
+                "--filter",
+                "label=aqua.purpose=" + PREVIEW_LABEL,
+            ]
         return (
             [
                 "--filter",
@@ -88,6 +111,8 @@ class Scope:
         )
 
     def holder_filters(self):
+        if self.private_preview:
+            return ["--filter", "label=io.aqua.deployment=" + PREVIEW_LABEL]
         return (
             []
             if self.qa_run is None
@@ -95,9 +120,29 @@ class Scope:
         )
 
     def holder_name(self, name):
+        if self.private_preview:
+            return "aqua-preview-v2-" + name
         return name if self.qa_run is None else self.qa_run + "-" + name
 
+    def child_labels(self):
+        if self.private_preview:
+            return ["--label=io.aqua.deployment=" + PREVIEW_LABEL]
+        return ["--label=io.aqua.qa-run=" + self.qa_run] if self.qa_run else []
+
+    def child_matches(self, labels):
+        return labels.get("io.aqua.qa-run") == self.qa_run and labels.get(
+            "io.aqua.deployment"
+        ) == (PREVIEW_LABEL if self.private_preview else None)
+
     def schedule(self, run, read):
+        if self.private_preview:
+            current = run(["/usr/bin/crontab", "-l"])
+            for line in current.splitlines():
+                if not line.lstrip().startswith(b"#") and (
+                    b"synthetic-preview-v2" in line or b"aqua-preview-v2-" in line
+                ):
+                    raise RuntimeError("retirement_preview_schedule_still_active")
+            return current
         if self.qa_run is None:
             return run(["/usr/bin/crontab", "-l"])
         # This is a fresh fixture with no scheduler. Do not inspect or alter the
@@ -109,3 +154,12 @@ class Scope:
 
 
 PRODUCTION = Scope()
+PRIVATE_PREVIEW = Scope(private_preview=True)
+
+
+def selected_scope(qa_run, private_preview):
+    if qa_run is None and not private_preview:
+        return PRODUCTION
+    if qa_run is None and private_preview is True:
+        return PRIVATE_PREVIEW
+    return Scope(qa_run, private_preview)

@@ -63,6 +63,12 @@ def scoped(scope, root=None):
     expected_root = PRIVATE if qa is None else BASE / qa / "installed"
     name = NAME if qa is None else qa + "-" + NAME
     socket = SOCKET_VOLUME if qa is None else qa + "-socket"
+    if scope.private_preview:
+        expected_root = Path(
+            "/home/ben2004/.aqua-runtime/synthetic-preview-v2/retirement"
+        )
+        name = "aqua-preview-v2-aqua-retirement-publisher"
+        socket = "aqua-preview-app-sockets-v2"
     if (
         scope.private != expected_root
         or scope.parent != expected_root.parent
@@ -178,6 +184,7 @@ def append_flag(path):
 class Docker:
     def __init__(self, *, scope=PRODUCTION):
         _, self.name, self.socket, self.qa_run = scoped(scope)
+        self.scope = scope
         self.started = time.monotonic()
         self.work_deadline = self.started + 50
         self.deadline = self.started + 55
@@ -239,6 +246,7 @@ class Docker:
             or lines[:2] != [values[0], "/" + self.name]
             or json.loads(lines[2]).get("io.aqua.purpose") != PURPOSE
             or json.loads(lines[2]).get("io.aqua.run") != nonce
+            or not self.scope.child_matches(json.loads(lines[2]))
             or self.qa_run is not None
             and (
                 not re.fullmatch(r"[a-f0-9]{32}", nonce)
@@ -353,6 +361,8 @@ def launch(
         filters = ["label=io.aqua.purpose=" + PURPOSE]
         if qa is not None:
             filters.append("label=io.aqua.qa-run=" + qa)
+        if scope.private_preview:
+            filters.append("label=io.aqua.deployment=restricted-preview-v2")
         if docker.ids(*filters) or docker.ids("name=^/" + name + "$"):
             raise Unavailable()
         if docker.call("image", "inspect", "--format", "{{.Id}}", image) != image:
@@ -371,7 +381,11 @@ def launch(
                 "io.aqua.purpose=" + PURPOSE,
                 "--label",
                 "io.aqua.run=" + nonce,
-                *(["--label", "io.aqua.qa-run=" + qa] if qa is not None else []),
+                *(
+                    ["--label", "io.aqua.qa-run=" + qa]
+                    if qa is not None
+                    else scope.child_labels()
+                ),
                 "--network=none",
                 "--read-only",
                 "--cap-drop=ALL",

@@ -144,6 +144,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--execute", action="store_true")
     parser.add_argument("--profile-sha256", default="")
+    parser.add_argument("--private-preview", action="store_true")
     args = parser.parse_args()
     if not args.execute:
         print(
@@ -156,7 +157,16 @@ def main() -> None:
     try:
         with _deferred_cancellation() as check_cancelled:
             try:
-                status = _checked_execute(args.profile_sha256, check_cancelled)
+                if args.private_preview:
+                    if __package__:
+                        from .operator_scope import PRIVATE_PREVIEW
+                    else:
+                        from operator_scope import PRIVATE_PREVIEW
+                    status = _checked_execute(
+                        args.profile_sha256, check_cancelled, scope=PRIVATE_PREVIEW
+                    )
+                else:
+                    status = _checked_execute(args.profile_sha256, check_cancelled)
             except BaseException:
                 failed, status = True, "unavailable"
             print(json.dumps({"status": status}))

@@ -14,14 +14,14 @@ import sys
 
 if __package__:
     from . import maintenance
-    from .operator_scope import PRODUCTION, Scope
+    from .operator_scope import PRODUCTION, selected_scope
     from .export_code import verify
     from .export_protocol import Channel, MAX_DUMP, archive
     from .export_resources import Owned
     from .operator_files import PRIVATE, read, pinned
 else:
     import maintenance
-    from operator_scope import PRODUCTION, Scope
+    from operator_scope import PRODUCTION, selected_scope
     from export_code import verify
     from export_protocol import Channel, MAX_DUMP, archive
     from export_resources import Owned
@@ -216,6 +216,7 @@ def main() -> None:
     parser.add_argument("--action", choices=("head", "export"))
     parser.add_argument("--profile-sha256", default="")
     parser.add_argument("--qa-run")
+    parser.add_argument("--private-preview", action="store_true")
     args = parser.parse_args()
     if args.action is None:
         print(
@@ -233,7 +234,7 @@ def main() -> None:
     result = execute(
         args.action,
         args.profile_sha256,
-        scope=Scope(args.qa_run) if args.qa_run is not None else PRODUCTION,
+        scope=selected_scope(args.qa_run, args.private_preview),
     )
     if result is not None:
         print(json.dumps(result, sort_keys=True))

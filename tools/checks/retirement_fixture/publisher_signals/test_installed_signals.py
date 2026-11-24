@@ -155,7 +155,7 @@ def main():
     launcher = args.launcher.resolve(strict=True)
     assert (
         hashlib.sha256(launcher.read_bytes()).hexdigest()
-        == "c4428ca8950f2ea744003557f0d809515d1c22c21ae3fd0cefa400f9ce14d31e"
+        == "e0ad98d33f383d6d20057d21574da0f50e904c9d374f4fd0d2439f876b79c4f7"
     )
     child = Path(__file__).with_name("signal_child.py")
     cases = list(FOCUSED_BASELINE if args.focused_baseline else CASES)
