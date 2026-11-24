@@ -15,15 +15,21 @@ function Terms({ values }) {
     .map(([name, value]) => <div key={name}><dt>{labels[name]}</dt><dd>{value}</dd></div>)}</dl>;
 }
 
-export default function BankCalculator({ context, report, onCalculate }) {
+export default function BankCalculator({ context, report, onCalculate, cash }) {
   const prefix = useId(), reviewHeading = useRef(null), request = useRef(null);
-  const [operation, setOperation] = useState(""), [useReport, setUseReport] = useState(false);
-  const [row, setRow] = useState(""), [field, setField] = useState(""), [values, setValues] = useState({});
+  const [fromQuestion, setFromQuestion] = useState(Boolean(cash));
+  const [operation, setOperation] = useState(cash ? "liquidity_coverage" : ""), [useReport, setUseReport] = useState(false);
+  const [row, setRow] = useState(""), [field, setField] = useState(""), [values, setValues] = useState(cash ? {period: cash.period} : {});
   const [draft, setDraft] = useState(null), [result, setResult] = useState(null), [busy, setBusy] = useState(false), [error, setError] = useState("");
   useEffect(() => () => request.current?.abort(), []);
   useEffect(() => { if (draft) reviewHeading.current?.focus(); }, [draft]);
   const fields = operations[operation]?.[1] ?? [], sources = operation ? fieldsFromReport(operation, report) : [];
   const filled = useReport && row !== "" && field ? reportValues(report, Number(row), field) : {};
+  const quoted = fromQuestion ? [...new Map(cash.amounts.map(a => [a.value, a])).values()] : [];
+  function quotedOptions(name) {
+    const otherField = name === "available_liquidity_usd" ? "projected_outflows_usd" : "available_liquidity_usd";
+    return quoted.filter(a => quoted.length === 1 || a.value !== values[otherField]);
+  }
   function resetAnswer() {
     request.current?.abort(); request.current = null;
     setDraft(null); setResult(null); setBusy(false); setError("");
@@ -34,6 +40,10 @@ export default function BankCalculator({ context, report, onCalculate }) {
   function review(event) {
     event.preventDefault();
     if (!fields.length || (useReport && (row === "" || !field))) return;
+    if (fromQuestion && (!["available_liquidity_usd", "projected_outflows_usd"].every(name => quotedOptions(name).some(a => a.value === values[name]))
+        || values.period !== cash.period || Number(values.projected_outflows_usd) === 0)) {
+      resetAnswer(); setError("Choose both amounts from the question. Projected outflows must be positive."); return;
+    }
     resetAnswer();
     const params = Object.fromEntries(fields.filter(name => !Object.hasOwn(filled, name)).map(name => [name, values[name]]));
     const reference = useReport ? {report_id: report.reportId, row: Number(row), field, period_start: report.periodStart, period_end: report.periodEnd} : null;
@@ -60,14 +70,15 @@ export default function BankCalculator({ context, report, onCalculate }) {
       if (request.current === current) { request.current = null; setBusy(false); }
     }
   }
-  return <details className="bank-demo__procedure bank-calculator" data-bank-calculator>
+  return <details className="bank-demo__procedure bank-calculator" data-bank-calculator open={cash ? true : undefined}>
     <summary>Banking calculator</summary>
     <p>Review the amounts and assumptions before calculating a fictional USD illustration.</p>
-    {!report && context.reports.some(r => ["consumer_pipeline_summary", "commercial_exposure_summary", "reconciliation_summary"].includes(r.id)) &&
+    {fromQuestion && <><p>Your question</p><blockquote>{cash.question}</blockquote><p>Choose which amount is available cash and which is projected outflows. The figures come from your question.</p></>}
+    {!fromQuestion && !report && context.reports.some(r => ["consumer_pipeline_summary", "commercial_exposure_summary", "reconciliation_summary"].includes(r.id)) &&
       <p>To use figures from a lending or reconciliation report, read that report above.</p>}
     <form onSubmit={review} className="bank-calculator__form">
       <label htmlFor={prefix + "operation"}>Calculation</label>
-      <select id={prefix + "operation"} data-calc-operation value={operation} required onChange={e => { resetSource(); setUseReport(false); setOperation(e.target.value); }}>
+      <select id={prefix + "operation"} data-calc-operation value={operation} required onChange={e => { resetSource(); setFromQuestion(false); setUseReport(false); setOperation(e.target.value); }}>
         <option value="">Choose a calculation</option>{Object.entries(operations).map(([key, [label]]) => <option key={key} value={key}>{label}</option>)}
       </select>
       {!!sources.length && <><label htmlFor={prefix + "source"}>Amount source</label>
@@ -89,8 +100,11 @@ export default function BankCalculator({ context, report, onCalculate }) {
         <p>Enter full dollar amounts without commas. Use up to two decimal places for money.</p>
         {fields.map(name => <div key={name}><label htmlFor={prefix + name}>{labels[name]}</label>
           {Object.hasOwn(filled, name) ? <input id={prefix + name} value={filled[name]} readOnly />
-            : choices[name] ? <select id={prefix + name} value={values[name] ?? ""} required onChange={e => { resetAnswer(); setValues({...values, [name]: e.target.value}); }}>
-              <option value="">Choose {labels[name].toLowerCase()}</option>{(useReport && operation === "reconciliation" && name === "period" ? ["statement"] : choices[name]).map(x => <option key={x}>{x}</option>)}
+            : fromQuestion && name.endsWith("_usd") ? <select id={prefix + name} data-quoted-cash={name} value={values[name] ?? ""} required onChange={e => { resetAnswer(); setValues({...values, [name]: e.target.value}); }}>
+              <option value="">Choose an amount from your question</option>
+              {quotedOptions(name).map(a => <option key={a.value} value={a.value}>{a.literal} USD</option>)}
+            </select> : choices[name] ? <select id={prefix + name} value={values[name] ?? ""} required onChange={e => { resetAnswer(); setValues({...values, [name]: e.target.value}); }}>
+              <option value="">Choose {labels[name].toLowerCase()}</option>{(useReport && operation === "reconciliation" && name === "period" ? ["statement"] : fromQuestion && name === "period" ? [cash.period] : choices[name]).map(x => <option key={x}>{x}</option>)}
             </select> : <input id={prefix + name} data-calc-input={name} value={values[name] ?? ""} required inputMode={["term_months", "elapsed_days"].includes(name) ? "numeric" : "decimal"}
               pattern={inputPattern(name)} maxLength={18} onChange={e => { resetAnswer(); setValues({...values, [name]: e.target.value}); }} />}
         </div>)}
