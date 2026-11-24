@@ -36,11 +36,12 @@ SUITES = {
 }
 HBA = "ops/appdb/pg_hba.conf"
 CLIENT_MANIFEST = "ops/retirement/backup_client/vendor-manifest.json"
-# Only these SDK-free report inputs extend the original native source roots.
+# Only the SDK-free report and calculator inputs extend the native source roots.
 MCP_SOURCE_NAMES = frozenset(
     {
         "mcp_demo/__init__.py",
         "mcp_demo/data.py",
+        "mcp_demo/finance.py",
         "mcp_demo/guidance.py",
         "mcp_demo/protocol.py",
         "mcp_demo/reports.py",
