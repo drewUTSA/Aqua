@@ -6,6 +6,7 @@
 .plotly-chart__controls button:focus-visible { outline: 2px solid var(--color-aqua); outline-offset: 3px; }
 .plotly-chart__controls button:disabled { opacity: .55; cursor: default; }
 .plotly-chart__canvas { height: 320px; width: 100%; min-width: 0; overflow: hidden; }
+.plotly-chart__surface { width: 100%; height: 100%; }
 .plotly-chart__canvas .modebar { display: none !important; }
 @media (prefers-reduced-motion: reduce) { .plotly-chart *, .plotly-chart *::before, .plotly-chart *::after { animation: none !important; transition: none !important; } }
 @media (forced-colors: active) { .plotly-chart__canvas { border: 1px solid CanvasText; } }
