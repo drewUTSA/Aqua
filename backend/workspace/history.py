@@ -1,6 +1,7 @@
 """Indexed owner-scoped recents/title search and bounded historical delivery."""
 
 from psycopg import Connection
+from auth.accounts import grant_state
 from auth.security import UserSession
 from auth.config import AuthPolicy
 from pydantic import BaseModel
@@ -126,10 +127,53 @@ def message_rows(
     )
     page = found[:limit]
     following = token.encode([page[-1]["sequence"]]) if len(found) > limit else None
+    previous = policy.previous_history_dataset_key
+    items = [message_public(item, session) for item in reversed(page)]
+    candidates = [
+        public_item
+        for item, public_item in zip(reversed(page), items)
+        if previous
+        and item["role"] == "aqua"
+        and item["dataset_key"] == previous
+        and item["response"] is not None
+    ]
+    if candidates and previous_history_allowed(conn, owner, policy):
+        for item in candidates:
+            item["previous_source_available"] = True
     return {
-        "items": [message_public(item, session) for item in reversed(page)],
+        "items": items,
         "older_cursor": following,
     }
+
+
+def previous_history_allowed(conn: Connection, owner: str, policy: AuthPolicy) -> bool:
+    key = policy.previous_history_dataset_key
+    if not key:
+        return False
+    conn.execute(
+        "SELECT user_id FROM app.dataset_grants WHERE user_id=%s AND dataset_key=%s FOR SHARE",
+        (owner, key),
+    )
+    return grant_state(conn, owner, policy, dataset=key)[0]
+
+
+def previous_result(
+    conn: Connection, owner: str, chat_id: str, message_id: str, policy: AuthPolicy
+) -> dict:
+    chat_row(conn, owner, chat_id)
+    if not previous_history_allowed(conn, owner, policy):
+        raise WorkspaceError("not_found")
+    row = one(
+        conn,
+        "SELECT v.response FROM app.messages m JOIN app.analysis_requests r "
+        "ON (r.user_id,r.chat_id,r.reply_message_id)=(m.user_id,m.chat_id,m.id) "
+        "JOIN app.visual_results v ON (v.user_id,v.chat_id,v.request_id)=(r.user_id,r.chat_id,r.id) "
+        "WHERE m.user_id=%s AND m.chat_id=%s AND m.id=%s AND m.role='aqua' AND r.dataset_key=%s",
+        (owner, chat_id, message_id, policy.previous_history_dataset_key),
+    )
+    if row is None:
+        raise WorkspaceError("not_found")
+    return row["response"]
 
 
 def message_public(item: dict, session: UserSession) -> dict:

@@ -11,6 +11,15 @@ const assistant = { ...input, id: C, sequence: 2, role: "aqua", content: "", rep
 const submission = { chat, request: { id: D, client_request_id: D, state: "complete", input_message_id: B, reply_message_id: C }, input_message: input, assistant_message: assistant, response };
 const json = (body, status = 200, headers = {}) => new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json", ...headers } });
 
+test("previous-source links belong only to server-authorized unavailable answers", () => {
+  const previous = messageRecord({ ...assistant, result_unavailable: true, previous_source_available: true });
+  assert.equal(previous.previousSourceAvailable, true);
+  assert.equal(previous.response.sql, "");
+  assert.equal(previous.response.tables.length, 0);
+  assert.equal(messageRecord({ ...input, previous_source_available: true }).previousSourceAvailable, undefined);
+  assert.equal(messageRecord({ ...assistant, previous_source_available: true }).previousSourceAvailable, undefined);
+});
+
 test("only short analysis submissions use the retry interval as employee-facing copy", async (t) => {
   let header = "3";
   const fetch = t.mock.method(globalThis, "fetch", async () => json({}, 429, { "Retry-After": header }));

@@ -40,6 +40,8 @@ export function messageRecord(value) {
             : "This request did not finish. You can ask a new question.", retryable: !value.result_unavailable && ["cancelled", "interrupted", "expired"].includes(value.status) } };
   return { id: value.id, conversationId: value.chat_id, sequence: value.sequence, role: value.role, content: value.role === "aqua" && value.result_unavailable ? "" : value.content,
     requestId: value.request_id, replyTo: value.reply_to, modelId: value.model_id || "", status: value.status,
+    ...(value.role === "aqua" && value.result_unavailable && value.previous_source_available === true
+      ? { previousSourceAvailable: true } : {}),
     response, resultUnavailable: value.result_unavailable, historical: true };
 }
 export function pageRecord(body, normalize, cursorName = "next_cursor") {
