@@ -47,7 +47,9 @@ class BankDemo:
         with self.workspace.storage.transaction() as conn:
             guard(conn, session, self.workspace.policy, data=False)
             check()
-            source = SyntheticReportSource(self.policy.persona)
+            source = SyntheticReportSource(
+                self.policy.for_account(str(session.user["id"]))
+            )
             if calculation is not None:
                 payload = calculate(calculation, source, check)
             elif report_id is None:

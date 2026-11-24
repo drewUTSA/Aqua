@@ -58,6 +58,28 @@ def test_disabled_policy_performs_no_admission_or_source_read():
     assert error.value.status == 404 and workspace.reservations == 0
 
 
+def test_account_policy_rejects_ambiguous_and_malformed_operator_configuration():
+    owner = "abcdefaa-1111-4444-9999-222222222222"
+    field = "BANK_DEMO_ACCOUNT_PERSONAS"
+    for raw in (
+        "*=manager",
+        "email@example.test=teller",
+        f"{owner}=admin",
+        f"{owner}=teller,",
+        f"{owner}=teller,{owner}=manager",
+        f"{owner.upper()}=manager",
+        "x" * 4097,
+        ",".join(f"00000000-0000-0000-0000-{i:012d}=teller" for i in range(65)),
+    ):
+        with pytest.raises(ValueError, match="^bank_demo_policy_invalid$"):
+            load_policy({field: raw})
+    with pytest.raises(ValueError, match="^bank_demo_policy_invalid$"):
+        load_policy({field: "", "BANK_DEMO_PERSONA": "analyst"})
+    assert load_policy({field: ""}).for_account(owner) == "none"
+    policy = load_policy({field: f"{owner}=teller"})
+    assert policy.for_account(owner) == "teller" and owner not in repr(policy)
+
+
 def test_owner_is_fresh_app_session_and_guard_runs_before_and_after_source(monkeypatch):
     workspace, guards = FakeWorkspace(), []
     monkeypatch.setattr(
