@@ -546,6 +546,10 @@ def execute(root, run, image, expected):
                 decoded(output.getvalue()),
                 head,
             )
+        from retirement_fixture.forward_enrollment import check as check_forward
+
+        report["phase"] = "forward_enrollment_CLI"
+        report["forward_enrollment_cli"] = check_forward(fixture, head, receipt)
         report["status"] = "passed"
     except (Exception, KeyboardInterrupt) as error:
         # Never stringify exceptions: child/SQL errors can contain credentials.

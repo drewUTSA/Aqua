@@ -25,7 +25,16 @@ def _execute(expected: str, check_cancelled, *, scope=None) -> str:
         else:
             from publisher_launcher import scoped
         root, _, _, _ = scoped(scope)
-    value = pinned(root / "host/publisher.json", expected)
+    # A forward enrollment adds a separate, create-only profile. Its presence
+    # fences old version-1 launch pins instead of replacing either old file.
+    forward_directory = root / "host/forward-v1"
+    forward = forward_directory / "publisher-v2.json"
+    selected = (
+        forward
+        if forward_directory.exists() or forward_directory.is_symlink()
+        else root / "host/publisher.json"
+    )
+    value = pinned(selected, expected)
     fields = {
         "schemaVersion",
         "runtime_image",
@@ -38,7 +47,7 @@ def _execute(expected: str, check_cancelled, *, scope=None) -> str:
     if (
         set(value) != fields
         or type(value["schemaVersion"]) is not int
-        or value["schemaVersion"] not in (1, 2)
+        or value["schemaVersion"] != (2 if selected == forward else 1)
         or any(
             type(value[key]) is not str or not re.fullmatch(r"[a-f0-9]{64}", value[key])
             for key in fields - {"schemaVersion", "runtime_image"}

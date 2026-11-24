@@ -339,6 +339,72 @@ class WitnessTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 load_station_key(self.identity, self.identity.public_key)
 
+    def test_forward_key_creation_is_exclusive_even_after_interruption(self):
+        from ops.recovery_witness.forward_station import create_once
+
+        path = self.path.parent / "synthetic-sealed-key"
+        private = Ed25519PrivateKey.from_private_bytes(b"w" * 32)
+        opaque = b"synthetic encrypted test bytes"
+        self.assertEqual(
+            create_once(path, lambda: private, lambda _: opaque),
+            private.public_key().public_bytes_raw(),
+        )
+        with self.assertRaises(FileExistsError):
+            create_once(path, lambda: self.fail("key regenerated"), lambda _: opaque)
+        self.assertEqual(path.read_bytes(), opaque)
+        incomplete = self.path.parent / "interrupted-fixture"
+
+        def fail(_value):
+            raise RuntimeError("interrupted before protection")
+
+        with self.assertRaises(RuntimeError):
+            create_once(incomplete, lambda: private, fail)
+        with self.assertRaises(FileExistsError):
+            create_once(
+                incomplete,
+                lambda: self.fail("overwrote interrupted key"),
+                lambda _: opaque,
+            )
+
+    @unittest.skipUnless(sys.platform.startswith("linux"), "Linux source operator")
+    def test_new_forward_directory_prevents_legacy_publisher_before_key_or_db_open(
+        self,
+    ):
+        from ops.retirement import retirement_host as host
+
+        base = self.path.parent
+        (base / "forward-v1").mkdir()
+        with (
+            patch.object(host, "HOST_DIRECTORY", base),
+            patch.object(host, "read_private") as private_read,
+            patch.object(host, "pool_for") as pool,
+        ):
+            with self.assertRaises(host.HostUnavailable):
+                host.execute()
+            private_read.assert_not_called()
+            pool.assert_not_called()
+
+    def test_forward_installation_keeps_matching_files_and_rejects_conflicts(self):
+        from ops.recovery_witness.forward_source import write_new_or_match
+
+        path = self.path.parent / "example"
+
+        def write(dest, raw):
+            with dest.open("xb") as output:
+                output.write(raw)
+
+        def read(dest, limit):
+            with dest.open("rb") as data:
+                return data.read(limit + 1)
+
+        write_new_or_match(path, b"example", read, write)
+        write_new_or_match(
+            path, b"example", read, lambda *_: self.fail("existing file replaced")
+        )
+        with self.assertRaises(ValueError):
+            write_new_or_match(path, b"other", read, write)
+        self.assertEqual(path.read_bytes(), b"example")
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -355,7 +355,22 @@ def execute(*, deadline=None, witness_pin=None):
     # an earlier deadline, leaving room for pool close and owned Docker cleanup.
     signal.setitimer(signal.ITIMER_REAL, deadline - now)
     try:
-        settings = parse_settings(read_private(HOST_DIRECTORY / "host.json", 4096))
+        forward_directory = HOST_DIRECTORY / "forward-v1"
+        forward_path = forward_directory / "host-v2.json"
+        if witness_pin is None and (
+            forward_directory.exists() or forward_directory.is_symlink()
+        ):
+            raise HostUnavailable()
+        settings = parse_settings(
+            read_private(
+                (
+                    forward_path
+                    if witness_pin is not None
+                    else HOST_DIRECTORY / "host.json"
+                ),
+                4096,
+            )
+        )
         if settings.witness is not None or witness_pin is not None:
             if (
                 settings.witness is None
@@ -381,10 +396,10 @@ def execute(*, deadline=None, witness_pin=None):
 
             generation, service_public, witness_public = settings.witness
             service_key = signing_key(
-                HOST_DIRECTORY / "publication.key", service_public
+                forward_directory / "publication.key", service_public
             )
             submit = witness_sender(
-                HOST_DIRECTORY / "witness.sock",
+                forward_directory / "witness.sock",
                 generation,
                 service_key,
                 Ed25519PublicKey.from_public_bytes(witness_public),
