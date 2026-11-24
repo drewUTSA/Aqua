@@ -17,6 +17,7 @@ import "../../styles/legacy-workspace.css";
 import "../../styles/workspace-library.css";
 import "../../styles/preferences.css";
 import "../../styles/homepage.css";
+import "../../styles/opal-navigation.css";
 
 const SettingsShell = lazy(() => import(/* webpackChunkName: "SettingsShell" */ "../../pages/SettingsShell.jsx"));
 const PromptLibraryDialog = lazy(() => import(/* webpackChunkName: "PromptLibraryDialog" */ "./PromptLibraryDialog.jsx"));

@@ -1,0 +1,122 @@
+.opal-workspace[data-ui-shell="opal"] .opal-sidebar.refined-sidebar {
+  --rail-line: var(--pref-border);
+  --rail-selected: var(--pref-raised);
+  border: 1px solid var(--rail-line);
+  border-radius: 18px;
+  background: var(--pref-panel);
+  gap: 14px;
+}
+
+@supports (color: color-mix(in srgb, white, black)) {
+  .opal-workspace[data-ui-shell="opal"] .opal-sidebar.refined-sidebar {
+    --rail-line: color-mix(in srgb, var(--pref-border) 40%, var(--pref-panel));
+    --rail-selected: color-mix(in srgb, var(--pref-accent) 15%, var(--pref-panel));
+    background: linear-gradient(160deg, var(--rail-selected), var(--pref-panel) 115px);
+  }
+}
+
+.opal-workspace[data-ui-shell="opal"] .refined-sidebar__top {
+  align-items: center;
+  position: relative;
+  padding: 0 2px 8px 8px;
+  border-bottom: 1px solid var(--rail-line);
+}
+
+.opal-workspace[data-ui-shell="opal"] .refined-sidebar__top::before {
+  content: "";
+  width: 24px;
+  height: 29px;
+  flex: 0 0 24px;
+  background: var(--pref-accent);
+  -webkit-mask: url("../assets/opal/workspace/imgAquaConceptMark1.svg") center / contain no-repeat;
+  mask: url("../assets/opal/workspace/imgAquaConceptMark1.svg") center / contain no-repeat;
+}
+
+.opal-workspace[data-ui-shell="opal"] .refined-sidebar__top::after {
+  content: "AQUA";
+  margin-inline: 10px auto;
+  font-size: calc(.94rem * var(--pref-text-scale, 1));
+  font-weight: 650;
+  line-height: 1.4;
+  letter-spacing: .17em;
+  color: var(--pref-text);
+}
+
+.opal-workspace[data-ui-shell="opal"] .refined-sidebar__top .icon-button {
+  order: 1;
+  flex-shrink: 0;
+  opacity: 1;
+}
+
+.opal-workspace[data-ui-shell="opal"] .refined-section-heading h2 button {
+  font-weight: 700;
+  letter-spacing: .03em;
+  color: var(--pref-text);
+}
+
+.opal-workspace[data-ui-shell="opal"] .refined-nav-section + .refined-nav-section {
+  border-top: 1px solid var(--rail-line);
+  padding-block-start: 8px;
+}
+
+.opal-workspace[data-ui-shell="opal"] .refined-sidebar .refined-new-chat {
+  background: var(--pref-accent);
+  color: var(--pref-on-accent);
+  font-weight: 650;
+}
+
+.opal-workspace[data-ui-shell="opal"] .refined-chat-row__main {
+  border-inline-start: 3px solid transparent;
+}
+
+.opal-workspace[data-ui-shell="opal"] .refined-chat-select::before {
+  content: "";
+  flex: 0 0 16px;
+  height: 16px;
+  background: var(--pref-muted);
+  -webkit-mask: url("../assets/opal/workspace/imgIconChat.svg") center / contain no-repeat;
+  mask: url("../assets/opal/workspace/imgIconChat.svg") center / contain no-repeat;
+}
+
+.opal-workspace[data-ui-shell="opal"] .refined-chat-row[data-active] > .refined-chat-row__main {
+  border-inline-start-color: var(--pref-accent);
+  background: var(--rail-selected);
+}
+
+.opal-workspace[data-ui-shell="opal"] .refined-chat-select[aria-current="page"],
+.opal-workspace[data-ui-shell="opal"] .refined-project-select[aria-expanded="true"] {
+  font-weight: 700;
+}
+
+.opal-workspace[data-ui-shell="opal"] .refined-sidebar__account {
+  border-top: 1px solid var(--rail-line);
+  padding-inline: 4px;
+}
+
+.opal-workspace[data-ui-shell="opal"] .refined-account-avatar {
+  background: var(--rail-selected);
+  color: var(--pref-text);
+  border: 1px solid var(--rail-line);
+  font-weight: 700;
+}
+
+.opal-workspace[data-ui-shell="opal"] .refined-sidebar button:focus-visible {
+  outline: 3px solid var(--pref-accent);
+  outline-offset: -3px;
+}
+
+@media (max-width: 900px), (pointer: coarse) {
+  .opal-workspace[data-ui-shell="opal"] .refined-sidebar :is(.refined-section-action, .refined-row-actions, .refined-row-menu) {
+    flex-basis: 44px;
+    min-width: 44px;
+    width: 44px;
+  }
+}
+
+@media (forced-colors: active) {
+  .opal-workspace[data-ui-shell="opal"] .opal-sidebar.refined-sidebar { --rail-line: ButtonText; }
+  .opal-workspace[data-ui-shell="opal"] .refined-chat-row[data-active] > .refined-chat-row__main {
+    border-inline-start-color: Highlight;
+  }
+  .opal-workspace[data-ui-shell="opal"] .refined-sidebar button:focus-visible { outline-color: Highlight; }
+}
