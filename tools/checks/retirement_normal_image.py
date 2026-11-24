@@ -1,7 +1,7 @@
 """Pinned application image and compiled file digests for the native recovery rehearsal."""
 
-IMAGE = "sha256:731141f5b1c4c08ef21d04ca0207b7de82907d81e1232d8806a40396bd7637a4"
-MANIFEST_SHA256 = "a1dee4ca7abe47d8d69aab87f695d1850ef426d4042883633ece4ffe29f07df9"
+IMAGE = "sha256:0f277c8afbe2d9f17e486ce441e245f608728d195cc799ce7a7aaf4521c3cd88"
+MANIFEST_SHA256 = "e917e7d0a168d8d111513c5054627c8e1d3d7497d8515bc3a0eb39e533d614a6"
 RUNTIME_FILES = {
     "account/__init__.py": "4d300929fcb6d0c0e3a6b92377bfd4648fc336a8ad2bfb3e962d810b3b6f55e0",
     "account/action_contracts.py": "be3becba0a54378a847efdaa76cc833e3b780df3658c90d30f86a7852232a397",
@@ -117,7 +117,7 @@ RUNTIME_FILES = {
     "main.py": "bdeadd02fb1183aeaf3428bb3202502be76ef767f37116ae23e8e543671aadca",
     "mcp_demo/__init__.py": "10641412ed8d7dda80a2f7713cd9083d62acbd73c9de682b5d40ab1c582c0ce9",
     "mcp_demo/data.py": "0213446283991323991cf18019efc8f3d81e243ea79266677b3426a03bcf7150",
-    "mcp_demo/finance.py": "c53adc87d3f8c1d0d36aacfeb3743334ad721216ca7f137cfa8a8ca2b980e3d2",
+    "mcp_demo/finance.py": "ba39e5383b650db76911f9b0a926b6ef8743af7c1ce67a11abcf35ea496d3548",
     "mcp_demo/guidance.py": "9869fe6ad2ea1bdaaab091d7f73c77a7d3a3cd04b0e3556c138f939ab1a0f906",
     "mcp_demo/protocol.py": "053b5c59dc579ad2b19f8d4a1620165cd1bae20bcfca51767ce3d9ffefa454a0",
     "mcp_demo/reports.py": "cf6bef246cd29eeac50dd6a2669151e405829996c9a464632e9b57c3c9b74868",
