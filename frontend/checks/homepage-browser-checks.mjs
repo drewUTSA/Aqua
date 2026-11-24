@@ -6,6 +6,9 @@ export const NEXT_MODEL='fixture-model-next';
 export async function initialHomepageChecks(ctx, fixture) {
   const {check,evaluate,click,key,fill,waitFor}=ctx;
   await ctx.cdp.send('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-motion',value:'no-preference'}]});
+  await check('workspace welcome heading has no selection outline on arrival', "document.activeElement === document.querySelector('.opal-welcome h1') && getComputedStyle(document.activeElement).outlineStyle === 'none'");
+  await key('Tab');
+  await check('Tab from the welcome heading visibly focuses the composer', "document.activeElement.matches('.opal-composer textarea:focus-visible') && getComputedStyle(document.activeElement).outlineStyle !== 'none'");
   await check('homepage initial sidebar contains only Projects and Recents sections', "(()=>{const labels=[...document.querySelectorAll('.desktop-sidebar .opal-sidebar__scroll h2')].map(el=>el.textContent.replace(/[⌄›]/g,'').trim());return JSON.stringify(labels)===JSON.stringify(['Projects','Recents'])&&!document.querySelector('.desktop-sidebar [aria-label=\"Private saved prompts\"]')})()");
   await check('homepage has one bottom account entry and no header account duplicate', `document.querySelectorAll('.workspace-header [aria-label="Account menu"]').length===0&&[...document.querySelectorAll('.opal-account [aria-label="Account menu"]')].filter(${visible}).length===1`);
   await check('homepage has exactly one model chooser across welcome and mobile layouts', `document.querySelectorAll('.model-selector__trigger').length===1&&!document.querySelector('select.mobile-model')`);
