@@ -25,6 +25,7 @@ SHARED_PYTHON = {
     "eval/banking/scope.py",
     "mcp_demo/__init__.py",
     "mcp_demo/data.py",
+    "mcp_demo/finance.py",
     "mcp_demo/guidance.py",
     "mcp_demo/protocol.py",
     "mcp_demo/reports.py",

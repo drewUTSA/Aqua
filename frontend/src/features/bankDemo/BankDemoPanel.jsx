@@ -1,5 +1,6 @@
 import React, { useId, useState } from "react";
 import { useBankDemo } from "./useBankDemo.js";
+import BankCalculator from "./BankCalculator.jsx";
 import "./bank-demo.css";
 
 function ReportPicker({ context, selected, reading, onSelect, onRead }) {
@@ -47,13 +48,18 @@ function ReportLimitation({ limit }) {
   return <p role="status">The requested period is unavailable. This report covers <time dateTime={limit.periodStart}>{limit.periodStart}</time> through <time dateTime={limit.periodEnd}>{limit.periodEnd}</time>.</p>;
 }
 
-export function BankDemoContent({ state, onSelect, onRead, onReload }) {
+export function BankDemoContent({ state, onSelect, onRead, onReload, onCalculate }) {
   const table = useId();
+  const [calculatorVersion, setCalculatorVersion] = useState(0);
+  function resetCalculator(callback, value) {
+    setCalculatorVersion(version => version + 1);
+    callback(value);
+  }
   const context = state.context, report = state.result;
   const loading = ["idle", "loading"].includes(state.phase), reading = state.phase === "reading";
-  return <section className="bank-demo-panel" aria-label="Fictional bank reports" data-bank-demo>
-    <h3>Explore a fictional bank report</h3>
-    <p>Read original demonstration figures and their cited fictional procedure. No real bank is connected, no model is called, and nothing here can approve or execute an action.</p>
+  return <section className="bank-demo-panel" aria-label="Fictional bank reports and calculator" data-bank-demo>
+    <h3>Bank reports and calculator</h3>
+    <p>Read fictional report figures and their cited procedure, or calculate a USD illustration. This demo cannot approve or execute actions.</p>
     {loading && <div role="status" aria-live="polite"><p>Checking the available fictional reports…</p><div className="bank-demo__skeleton" aria-hidden="true" /></div>}
     {state.error && <p role="alert" className="bank-demo__error">{state.error}</p>}
     {!loading && !context && <button type="button" onClick={onReload} data-bank-reload>Check demo availability</button>}
@@ -65,8 +71,10 @@ export function BankDemoContent({ state, onSelect, onRead, onReload }) {
       <p>{context.notice}</p>
       {state.phase === "empty" ? <p role="status">No fictional reports are assigned to this demo scope. Ask the operator to configure a demonstration scope; your app role does not grant bank access.</p>
         : <ReportPicker key={context.ownerId + context.sourceRevision} context={context} selected={state.selected}
-            reading={reading} onSelect={onSelect} onRead={onRead} />}
+            reading={reading} onSelect={value => resetCalculator(onSelect, value)} onRead={value => resetCalculator(onRead, value)} />}
     </>}
+    {context && context.persona !== "none" && onCalculate && <BankCalculator key={context.ownerId + context.sourceRevision + calculatorVersion + (report?.reportId ?? "")}
+      context={context} report={report} onCalculate={onCalculate} />}
     {reading && <p role="status">Reading the selected fictional report…</p>}
     {state.limitation && <ReportLimitation limit={state.limitation} />}
     {report && <article className="bank-demo__report" data-bank-report aria-labelledby={table}>
@@ -95,5 +103,5 @@ export function BankDemoContent({ state, onSelect, onRead, onReload }) {
 
 export default function BankDemoPanel({ auth, targetId, onClose }) {
   const bank = useBankDemo({ ownerId: auth.user?.id, csrfToken: auth.csrfToken, targetId, onClose, onAuthFailure: auth.refresh });
-  return <BankDemoContent state={bank.state} onSelect={bank.select} onRead={bank.read} onReload={bank.load} />;
+  return <BankDemoContent state={bank.state} onSelect={bank.select} onRead={bank.read} onReload={bank.load} onCalculate={bank.calculate} />;
 }
