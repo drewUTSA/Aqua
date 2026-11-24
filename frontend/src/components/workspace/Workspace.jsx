@@ -89,8 +89,16 @@ function WorkspaceView({ auth, hidden, path, onNavigate, chat }) {
     } catch { closeResult(); }
   };
   const openCompanion = (cash = null) => {
-    try { companionScope.current = captureHistory(auth.csrfToken); closeResult(); setCompanionOpen(cash || true); } catch { setCompanionOpen(false); }
+    try {
+      companionScope.current = captureHistory(auth.csrfToken); closeResult();
+      setCompanionOpen(cash ? { cash, owner: auth.user?.id, chatId: chat.activeConversationId, csrf: auth.csrfToken } : true);
+    } catch { setCompanionOpen(false); }
   };
+  const currentCash = companionOpen && companionOpen !== true && companionOpen.owner === auth.user?.id
+    && companionOpen.chatId === chat.activeConversationId && companionOpen.csrf === auth.csrfToken
+    && auth.canQuery && auth.session?.can_query === true && !chat.pending && !chat.uncertain && !chat.active?.archived
+    && companionOpen.cash.question === (chat.draft.trim() || chat.messages.findLast(message => message.role === "user")?.content)
+    ? companionOpen.cash : null;
   const applyCompanionDraft = (value, expected) => {
     try { assertHistory(companionScope.current); } catch { return false; }
     if (hidden || settings || !auth.canQuery || expected.targetId !== chat.activeConversationId || expected.draft !== chat.draft) return false;
@@ -164,10 +172,10 @@ function WorkspaceView({ auth, hidden, path, onNavigate, chat }) {
       <ResultCompanionHost reference={selectedResult} scope={resultScope.current} chat={chat} auth={auth} onClose={closeResult} onApplied={focusComposer} />
       </Suspense></QuickSwitcherBoundary>}
     {quickOpen && !hidden && <QuickSwitcherBoundary onClose={() => setQuickOpen(false)}><Suspense fallback={<p role="status">Opening workspace shortcuts…</p>}><QuickSwitcher chat={chat} onClose={() => setQuickOpen(false)} onSelect={select} onAction={quickAction} /></Suspense></QuickSwitcherBoundary>}
-    {companionOpen && !hidden && !settings && !auth.demoMode && <QuickSwitcherBoundary title="Aqua tools unavailable"
+    {(companionOpen === true || currentCash) && !hidden && !settings && !auth.demoMode && <QuickSwitcherBoundary title="Aqua tools unavailable"
       message="The optional help window could not open. Your conversation and composer are still available."
       closeLabel="Close Aqua tools" onClose={() => setCompanionOpen(false)}><Suspense fallback={<OptionalDialogLoading title="Aqua tools" closeLabel="Close Aqua tools" onClose={() => setCompanionOpen(false)} />}>
-      <CompanionToolsDialog key={`${auth.user?.id}:${chat.activeConversationId}`} auth={auth} targetId={chat.activeConversationId} draft={chat.draft} cash={companionOpen === true ? null : companionOpen}
+      <CompanionToolsDialog key={`${auth.user?.id}:${chat.activeConversationId}`} auth={auth} targetId={chat.activeConversationId} draft={chat.draft} cash={currentCash}
         onApply={applyCompanionDraft} onClose={() => setCompanionOpen(false)} /></Suspense></QuickSwitcherBoundary>}
     {searchOpen && !hidden && <SidebarSearchDialog chat={chat} onSelect={select} onClose={() => setSearchOpen(false)} />}
     {promptsOpen && !hidden && !settings && <QuickSwitcherBoundary kind="prompts" onClose={() => setPromptsOpen(false)}><Suspense fallback={<p role="status">Opening saved prompts…</p>}><PromptLibraryDialog chat={chat} suggestions={account.suggestions} onClose={() => setPromptsOpen(false)} onPrompt={(value) => { prompt(value); setPromptsOpen(false); }} /></Suspense></QuickSwitcherBoundary>}
