@@ -12,6 +12,19 @@ function explicitDollars(question, match) {
     || /^\s*(?:USD|US dollars?|U\.S\. dollars?)\b/i.test(question.slice(match.index + match[0].length));
 }
 
+function hasForeignCurrency(question) {
+  for (const token of question.matchAll(/(?<![a-z])[a-z]{3}(?![a-z])/gi)) {
+    const code = token[0].toUpperCase();
+    if (code === "USD" || !currencyCodes.has(code)) continue;
+    // In prose, “Bob” can be a name and “all” a quantifier. Beside a figure,
+    // the same spelling may identify Bolivian bolivianos or Albanian lek.
+    if (token[0] === code
+        || /\d(?:\s+in)?\s*$/i.test(question.slice(0, token.index))
+        || /^\s*[:=]?\s*\$?\s*\d/.test(question.slice(token.index + token[0].length))) return true;
+  }
+  return false;
+}
+
 // This invitation never assigns a figure to an operand. The employee chooses
 // the two quoted amounts after opening the existing scoped calculator.
 export function cashContinuation(question) {
@@ -23,8 +36,7 @@ export function cashContinuation(question) {
       || /(?:^|\b(?:please|can you|could you|go ahead and)\s+)(?:pay|move|send|release)\b/i.test(question)) return null;
   if (!/\d/.test(question)) return null;
   const usd = /\b(?:USD|US dollars?|U\.S\. dollars?)\b|\$/i.test(question);
-  const foreignCode = (question.match(/\b[A-Z]{3}\b/g) || []).some(word => word !== "USD" && currencyCodes.has(word));
-  if (!usd || foreignCode || [...question].some(c => c !== "$" && /\p{Sc}/u.test(c))
+  if (!usd || !currencyCodes.size || hasForeignCurrency(question) || [...question].some(c => c !== "$" && /\p{Sc}/u.test(c))
       || /%|\b(?:pesos?|euros?|pounds?|yen|yuan|rupees?|francs?|kroner|kronor|Canadian|Australian|exchange rate)\b/i.test(question))
     return { hint: currencyHint };
   // “May we” and “cash may be” do not designate a calendar month.

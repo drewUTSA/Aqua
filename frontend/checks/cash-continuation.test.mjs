@@ -12,6 +12,16 @@ test("a cash worksheet keeps the exact source and the two amounts unassigned", (
   assert.equal(cashContinuation("Quarterly USD worksheet: available cash 130 and outflows 34.")?.period, "quarter");
 });
 
+test("a shared USD label cannot override the currency quoted next to an amount", () => {
+  for (const quote of ["cad 750", "750 cad", "EuR 750", "750 in eur", "cHf750", "750chf", "bob 750", "750 BOB"]) {
+    const result = cashContinuation(`On our monthly USD worksheet, available cash is USD 540 and projected outflows are ${quote}.`);
+    assert.match(result?.hint ?? "", /verified USD/, quote);
+    assert.equal(result?.amounts, undefined, quote);
+  }
+  const prose = "Bob reviewed all figures on our monthly USD worksheet. Available cash is USD 540 and outflows are 750 usd.";
+  assert.deepEqual(cashContinuation(prose)?.amounts.map(amount => amount.value), ["540", "750"]);
+});
+
 test("mismatched windows, missing or signed figures and currencies cannot open a quoted calculation", () => {
   for (const question of [
     "Tomorrow USD 57.36 in cash is available; outgoing cash this month is USD 49.35.",
