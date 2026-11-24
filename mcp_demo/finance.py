@@ -283,15 +283,24 @@ def percent_change(parameters):
 def liquidity_coverage(parameters):
     available = money(parameters["available_liquidity_usd"])
     outflows = money(parameters["projected_outflows_usd"], positive=True)
-    ratio = available / outflows
+    difference = available - outflows
+    ratio = six(available / outflows)
+    if difference < 0:
+        coverage = f"Available cash falls short of the stated outflows by {usd(-difference)} USD."
+    elif difference > 0:
+        coverage = (
+            f"Available cash exceeds the stated outflows by {usd(difference)} USD."
+        )
+    else:
+        coverage = "Available cash exactly matches the stated outflows."
     return (
         {
-            "coverage_ratio": six(ratio),
-            "surplus_or_shortfall_usd": usd(available - outflows),
-            "covers_stated_outflows": available >= outflows,
+            "coverage_ratio": ratio,
+            "surplus_or_shortfall_usd": usd(difference),
+            "covers_stated_outflows": difference >= 0,
             "period": parameters["period"],
         },
-        f"Available liquidity covers {six(ratio)} times the stated outflows for the supplied {parameters['period']} period.",
+        f"{coverage} The cash-to-outflows ratio for the supplied {parameters['period']} period is {ratio}, rounded to six decimal places.",
         [
             "Coverage is supplied available liquidity / supplied projected outflows for the same period.",
             "No eligibility, regulatory weighting, stress assumptions or approved bank liquidity limit is supplied.",
