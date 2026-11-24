@@ -1,7 +1,7 @@
 """Pinned application image and compiled file digests for the native recovery rehearsal."""
 
-IMAGE = "sha256:6e53150f635e92979fc270a125d4f47b6c1007ed648a650b631cb89be69be180"
-MANIFEST_SHA256 = "36846d15cf95d2332e2b1a5744fcf63de387cdcdfca8dd0407837389b8fa6d55"
+IMAGE = "sha256:8e6db433f85d3feb274c647c261e4018ff718f26e003564d206889190778fd93"
+MANIFEST_SHA256 = "78000bdb2eb6b6ecf999b7bb959a94ebe6d4e12d7d42889658ca564283d5938c"
 RUNTIME_FILES = {
     "account/__init__.py": "4d300929fcb6d0c0e3a6b92377bfd4648fc336a8ad2bfb3e962d810b3b6f55e0",
     "account/action_contracts.py": "be3becba0a54378a847efdaa76cc833e3b780df3658c90d30f86a7852232a397",
@@ -84,8 +84,9 @@ RUNTIME_FILES = {
     "auth/store.py": "93ff7c1e34caf4a1a8ddde445702bb71f5aae0cc18b6f8554ecdcade716cd7f6",
     "bank_demo/__init__.py": "5c8af141a4e035d06af3f434fbcba33fe7864a07564935996bd25fce351da968",
     "bank_demo/policy.py": "a59a32d2df226d78455450b52f2aef2c82a4d83810febf862a5c8517366b4b58",
-    "bank_demo/router.py": "e583ae2ad7e201a1f7f3f4539b223ac293fe68f2c1f87ffb5902044f081fafc3",
-    "bank_demo/service.py": "7e39055b37970e6e5d8e251e2c2af39d30b4309ff8d97bafe679598e58e74115",
+    "bank_demo/requirements.py": "71b89cfa4e51540a8d405cd0e6a60a55e9c0b47fe85d95868735e4038c1e049c",
+    "bank_demo/router.py": "19062643ffce6f4e4723b0374d7186857a003f024cf663b9c505dab90283f873",
+    "bank_demo/service.py": "e0edcd08157794f6dc400cfc23c63bfb0720dc4256950525bad43816fb63fd67",
     "bank_demo/source.py": "55cb6bf7ac5775ce2f9887d0064fa3a1265dab623ae5790e4eedf2b16a4f4e06",
     "companion/__init__.py": "31983077341a8a4228c0644060ddcb89ec1b4bfa0e29110685af8c7316110dd4",
     "companion/application.py": "cf4878d65ca1be714b8ba20ea9816e1488e2b8058ca9e6a5af974bd2f40cb46c",
