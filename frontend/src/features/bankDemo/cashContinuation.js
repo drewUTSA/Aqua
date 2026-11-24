@@ -4,6 +4,13 @@ const periods = {
   quarter: /\b(quarter|quarterly)\b/i,
   year: /\b(year|annual|annually|yearly)\b/i,
 };
+const currencyCodes = new Set(Intl.supportedValuesOf?.("currency") || []);
+const currencyHint = "Supply the verified USD amounts for both available cash and projected outflows.";
+
+function explicitDollars(question, match) {
+  return /(?:\bUSD|\bUS\$|\bU\.S\.\s*dollars?)\s*$/i.test(question.slice(0, match.index))
+    || /^\s*(?:USD|US dollars?|U\.S\. dollars?)\b/i.test(question.slice(match.index + match[0].length));
+}
 
 // This invitation never assigns a figure to an operand. The employee chooses
 // the two quoted amounts after opening the existing scoped calculator.
@@ -12,11 +19,14 @@ export function cashContinuation(question) {
   const cashSubject = question.replace(/\b(?:cash|liquidity)\s+(?:outflows?|payments?|disbursements?|needs?)\b/gi, "outflows");
   if (!/\b(?:cash|liquidity|liquid funds|funds available|available to (?:cover|meet)|on hand|available funds)\b/i.test(cashSubject)
       || !/\b(?:outflows?|outgoing|going out|payables?|payments?|disbursements?|cash needs?)\b/i.test(question)) return null;
-  if (/\b(?:report|snapshot|regulatory|official|filing|LCR|balance sheet|retrieve|lookup|transactions?)\b/i.test(question)) return null;
+  if (/\b(?:report|snapshot|regulatory|official|filing|LCR|balance sheet|retrieve|lookup|transactions?|approve|authorize|execute|wire|transfer|move funds|send money|post a payment)\b/i.test(question)
+      || /(?:^|\b(?:please|can you|could you|go ahead and)\s+)(?:pay|move|send|release)\b/i.test(question)) return null;
   if (!/\d/.test(question)) return null;
   const usd = /\b(?:USD|US dollars?|U\.S\. dollars?)\b|\$/i.test(question);
-  if (!usd || /[€£¥%]|\b(?:CAD|EUR|GBP|MXN|JPY|AUD|NZD|CHF|CNY|pesos?|euros?|pounds?|Canadian|Australian|exchange rate)\b/i.test(question))
-    return { hint: "Supply the verified USD amounts for both available cash and projected outflows." };
+  const foreignCode = (question.match(/\b[A-Z]{3}\b/g) || []).some(word => word !== "USD" && currencyCodes.has(word));
+  if (!usd || foreignCode || [...question].some(c => c !== "$" && /\p{Sc}/u.test(c))
+      || /%|\b(?:pesos?|euros?|pounds?|yen|yuan|rupees?|francs?|kroner|kronor|Canadian|Australian|exchange rate)\b/i.test(question))
+    return { hint: currencyHint };
   // “May we” and “cash may be” do not designate a calendar month.
   const calendar = question.replace(/\bmay\s+(?=we\b|i\b|you\b|it\b|they\b|the\b|be\b|need\b|have\b|not\b|cover\b|fall\b)/gi, "");
   const windows = Object.entries(periods).filter(([,pattern]) => pattern.test(calendar));
@@ -31,6 +41,8 @@ export function cashContinuation(question) {
     return { hint: "Supply the full available cash and projected outflows in USD for that same period." };
   const matches = [...question.matchAll(/\d[\d,.]*(?:[a-z]+)?/gi)];
   if (matches.length !== 2) return { hint: "Supply one available cash amount and one projected outflow for the same period." };
+  const sharedDollars = /\b(?:both|all) (?:amounts |figures |values |sums )?(?:(?:are in|are|in) )?USD\b|\b(?:USD|US dollar) (?:cash )?(?:worksheet|ledger|figures|amounts|close sheet)\b/i.test(question);
+  if (!sharedDollars && !matches.every(match => explicitDollars(question, match))) return { hint: currencyHint };
   const amounts = [];
   for (const match of matches) {
     const literal = match[0].replace(/[.,]$/, "");

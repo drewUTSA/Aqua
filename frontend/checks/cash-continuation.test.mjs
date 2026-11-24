@@ -9,6 +9,7 @@ test("a cash worksheet keeps the exact source and the two amounts unassigned", (
     amounts: [{literal: "4,097.32", value: "4097.32"}, {literal: "3,295.08", value: "3295.08"}],
   });
   assert.deepEqual(cashContinuation("Today cash is USD 39.12 and outflows are USD 39.12.")?.amounts.map(a => a.value), ["39.12", "39.12"]);
+  assert.equal(cashContinuation("Quarterly USD worksheet: available cash 130 and outflows 34.")?.period, "quarter");
 });
 
 test("mismatched windows, missing or signed figures and currencies cannot open a quoted calculation", () => {
@@ -21,6 +22,10 @@ test("mismatched windows, missing or signed figures and currencies cannot open a
     "Cash today is CAD 96.40 and outflows are USD 61.",
     "Today cash is USD -98 and outflows are USD 60.",
     "Cash today is -USD 31.78 and outflows USD 11.88.",
+    "Will our daily cash of USD 50 cover outflows of NOK 40?",
+    "Can cash of USD 40 today cover 28 in yen of outflows?",
+    "Our cash is USD 81, and the daily outflows are 75 in another unit.",
+    "Daily available cash is USD 79 and expected outflows are ₹45.",
     "Our overdrawn cash balance today is $63.27; expected outflows are $40.",
     "Cash is $31.78- today and expected outflows are $11.88.",
     "Today's cash is $.71 and outflows are $1.30.",
@@ -28,5 +33,6 @@ test("mismatched windows, missing or signed figures and currencies cannot open a
   ]) assert.equal(cashContinuation(question)?.amounts, undefined, question);
   assert.equal(cashContinuation("Show the report of cash and projected outflows for the month"), null);
   assert.equal(cashContinuation("Chart the count of transactions by account"), null);
+  assert.equal(cashContinuation("Please wire USD 49 from available cash today to cover outflows of USD 35."), null);
   assert.equal(cashContinuation("Compare the USD 26.71 cash outflows today against previous cash outflows of USD 25.28."), null);
 });
