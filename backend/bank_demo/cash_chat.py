@@ -10,7 +10,7 @@ CONFIRM = "Confirm cash comparison for "
 CASH = r"(?:available (?:cash|liquidity|funds)|cash(?: (?:available|on hand))?|funds on hand|liquidity on hand)"
 OUT = r"(?:(?:forecast(?:ed)?|expected|projected|net|outgoing|scheduled)\s+)*(?:outflows?|payments?|disbursements?|payables?)"
 COMPARISON = re.compile(
-    r"\b(?:cover(?:age|ed)?|compare|comparison|enough|sufficient|short(?:fall)?|surplus|cushion|difference|left over|leftover|meet|gap|headroom)\b",
+    r"\b(?:cover(?:age|ed|s|ing)?|compare|comparison|enough|suffic(?:ient|e|es)|short(?:fall)?|surplus|cushion|difference|left over|leftover|meet|gap|headroom)\b",
     re.I,
 )
 OTHER_SOURCE = re.compile(
@@ -39,34 +39,78 @@ TIME = re.compile(
 WINDOW_HINT = "Which single day, month, quarter or year do both the available cash and the projected outflows cover? Please give both USD figures for that same window."
 AMOUNT_HINT = "Please label the available cash amount and the projected outflows amount in USD for the same period. Which figure goes with each?"
 CURRENCY_HINT = "What are the verified USD amounts for available cash and projected outflows for the same period?"
+ADJUSTED_HINT = "What final USD amount is available to spend, and what is the full projected outflow for that same period? Include any reserves, fees or other adjustments in the appropriate figure."
+
+# All meaningful words must belong to the two supported operands, their
+# common calendar window or the requested comparison. Remaining words can
+# only connect those clauses. This prevents an amount/condition being lost
+# merely because the question happens to contain two valid USD figures.
+CONNECTORS = frozenset("""
+    a an the s i we our my us you it they that these those them this both all
+    in on of to by at against versus for during over with as and while
+    are is be was were will would should can could do does has have had
+    how what much whether please check calculate tell me show work out
+    available on hand above below zero exactly more than do now amount amounts
+    figures values worksheet desk branch same period total totals comes stands
+    equals equal make fully by respectively
+""".split())
+
+
+def _simple_comparison(text):
+    residual = re.sub(
+        r"\b(?:surplus or shortfall|shortfall or surplus|check if|tell me if)\b",
+        " ",
+        text,
+    )
+    for part in (rf"\b{USD}\b", r"\bus\$", rf"\b{OUT}\b", rf"\b{CASH}\b"):
+        residual = re.sub(part, " ", residual, flags=re.I)
+    for pattern in (TIME, NUMBER, COMPARISON):
+        residual = pattern.sub(" ", residual)
+    if re.search(r"[^a-z\s.,;:!?$'’]", residual):
+        return False
+    return set(re.findall(r"[a-z]+", residual)) <= CONNECTORS
 
 
 def _window(text):
     text = re.sub(r"\bmay (?=we |i |you |be |not )", "", text)
     labels = {match.group().removeprefix("the ") for match in TIME.finditer(text)}
-    if len(labels) != 1 or re.search(
+    classes = {
+        name
+        for label in labels
+        for name, pattern in WINDOWS.items()
+        if re.fullmatch(pattern, label.split()[-1])
+    }
+    if len(classes) != 1 or re.search(
         r"\b(?:week(?:s|ly)?|days|months|years|quarters|ytd|periods|different|another period|prior period|next period)\b",
         text,
     ):
         return None
-    label = labels.pop()
-    word = label.split()[-1]
-    period = next(
-        key for key, pattern in WINDOWS.items() if re.fullmatch(pattern, word)
-    )
-    return period, label
+    period = classes.pop()
+    conventional = {
+        "day": {"day", "daily"},
+        "month": {"month", "monthly"},
+        "quarter": {"quarter", "quarterly"},
+        "year": {"year", "annual", "annually", "yearly"},
+    }[period]
+    specific = {
+        label for label in labels if label.removeprefix("same ") not in conventional
+    }
+    if len(specific) > 1:
+        return None
+    return period, next(iter(specific), period)
 
 
 def _label(text, match):
     """Match a local label on either side, without crossing another operand."""
-    before = text[: match.start()]
-    after = text[match.end() :]
+    before = TIME.sub("~", text[: match.start()])
+    after = TIME.sub("~", text[match.end() :])
     marker = before + "#" + after
     names = set()
     for key, noun in (("cash", CASH), ("outflows", OUT)):
-        if re.search(rf"\b{noun}\b{BETWEEN}{MONEY}", marker, re.I) or re.search(
-            rf"{MONEY}{AFTER}{noun}\b", marker, re.I
-        ):
+        calendar = r"(?:\s+(?:(?:for|during|over)\s+)?(?:the\s+)?~(?:['’]s)?)?"
+        if re.search(
+            rf"\b{noun}\b{calendar}{BETWEEN}{MONEY}", marker, re.I
+        ) or re.search(rf"{MONEY}{AFTER}{noun}\b", marker, re.I):
             names.add(key)
     return names.pop() if len(names) == 1 else None
 
@@ -151,6 +195,8 @@ def _terms(question):
             )
         except FinanceDenied:
             return AMOUNT_HINT
+    if not _simple_comparison(text):
+        return ADJUSTED_HINT
     return {
         "cash": roles["cash"],
         "outflows": roles["outflows"],

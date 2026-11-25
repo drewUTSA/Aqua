@@ -2,7 +2,13 @@
 
 import pytest
 
-from bank_demo.cash_chat import AMOUNT_HINT, CURRENCY_HINT, WINDOW_HINT, _terms
+from bank_demo.cash_chat import (
+    ADJUSTED_HINT,
+    AMOUNT_HINT,
+    CURRENCY_HINT,
+    WINDOW_HINT,
+    _terms,
+)
 from bank_demo.policy import BankDemoPolicy
 
 QUESTION = "For this quarter, will available cash of USD 3,027.00 cover expected outflows of USD 3,092.28?"
@@ -119,3 +125,31 @@ def test_owned_saved_confirmation_and_current_grant(world, monkeypatch):
     assert second.status_code == 202 and world.analysis.tick()
     assert "bank_calculation" not in alice.get(path).json()["items"][-1]["response"]
     assert len(calls) == 1 and len(world.calls) == 1
+
+
+@pytest.mark.parametrize(
+    "clause",
+    [
+        "plus the unposted processing fee",
+        "after reserving half the cash",
+        "once our buffer is ring-fenced",
+        "provided a third of the cash stays in escrow",
+        "only if our undrawn line comes through",
+        "assuming the vendor waives the surcharge",
+        "adjusted for any conditional pledges",
+    ],
+)
+def test_extra_qualifications_do_not_get_discarded(clause):
+    question = f"Today our available cash is USD 809 and projected outflows are USD 698. Do we have enough {clause}?"
+    assert _terms(question) == ADJUSTED_HINT
+
+
+def test_named_period_references_and_earlier_or_later_windows():
+    single = "For September our available cash is USD 300.51 and projected outflows for the same month are USD 373.41. Are we short?"
+    assert _terms(single) == {
+        "cash": "300.51",
+        "outflows": "373.41",
+        "period": "month",
+        "window": "september",
+    }
+    assert _terms(single.replace("the same month", "August")) == WINDOW_HINT
