@@ -13,4 +13,4 @@ PACK = b"""{"schemaVersion":1,"records":[
 {"id":"privacy","topic":"privacy","title":"Help and private information","terms":["privacy","private","stored","memory","learning","learn","personal","delete","export"],"text":"This help searches only the reviewed guidance shipped with Aqua. It does not read result rows, saved conversations, company documents or arbitrary files, and it does not update model weights. Do not include secrets or private records in your question. Available export or deletion actions depend on the server's advertised capabilities; help cannot perform them.","status":"active","reviewed":true,"supersedes":[]}
 ]}"""
 
-REVIEWED_SHA256 = "9fd2a20c173b2359e45452375c845e925a3891b2dbc7f11ab709756b8f0f524d"
+REVIEWED_SHA256 = "97a54d346aacc40e481791457c6f6a6dcf26fe0fad17d44b71050611340f0864"

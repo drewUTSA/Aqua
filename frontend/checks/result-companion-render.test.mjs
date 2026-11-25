@@ -60,7 +60,7 @@ test("follow-up reuses editable guide fields and explicit prepare/apply without 
   const html = render({}, { guide });
   assert.match(html, /data-companion-guide-prepare/); assert.match(html, /data-result-draft/); assert.match(html, /Grouping: Not specified/);
   assert.match(html.match(/<button[^>]*data-result-apply[^>]*>/)?.[0] || "", /disabled/); assert.doesNotMatch(html, /<form|type="submit"/);
-  assert.match(html, /not anchored to this saved answer/); assert.match(html, /Nothing is sent/);
+  assert.match(html, /does not automatically reuse this saved answer/); assert.match(html, /Nothing is sent/);
   const edited = render({}, { guide: { ...guide, dirty: false, edited: true, draft: "My explicit edited question" } });
   assert.match(edited, /Your edited draft is what will be applied/);
   const conflict = render({}, { guide: { ...guide, dirty: false, conflict: true } }); assert.match(conflict, /text was preserved/);

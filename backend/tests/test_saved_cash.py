@@ -103,10 +103,8 @@ def test_owned_saved_confirmation_and_current_grant(world, monkeypatch):
     assert (
         "bank_cash_review" not in denied and "does not have access" in denied["message"]
     )
-    assert (
-        world.submit(unscoped, "Count our dataset rows")["response"]["sql"]
-        == "SELECT 7"
-    )
+    ordinary = world.submit(unscoped, "Count our dataset rows")["response"]
+    assert ordinary["sql"] == "" and ordinary["tables"][0]["rows"] == [{"value": 7}]
     assert not calls
     body = world.body(offer["confirmation"])
     sent = alice.post(path, json=body)
@@ -303,7 +301,8 @@ def test_unspecified_private_worksheet_never_reaches_the_analytical_engine(
     ordinary = world.submit(employee, "Count the transaction records above USD 814.22")[
         "response"
     ]
-    assert ordinary["sql"] == "SELECT 7" and len(world.calls) == 1
+    assert ordinary["sql"] == "" and ordinary["tables"][0]["rows"] == [{"value": 7}]
+    assert len(world.calls) == 1
 
 
 @pytest.mark.parametrize(
