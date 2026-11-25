@@ -5,6 +5,7 @@ from fastapi.testclient import TestClient
 from fastapi.routing import iter_route_contexts
 
 import main
+from nl2sql.config import Settings
 
 
 def test_current_http_surface_is_explicit():
@@ -102,10 +103,18 @@ def test_current_http_surface_is_explicit():
     assert actual == expected
 
 
-@pytest.mark.parametrize("path", ["/api/health", "/api/models"])
-def test_public_metadata_remains_uncacheable_without_provider_calls(path):
+@pytest.mark.parametrize("path,status", [("/api/health", 200), ("/api/models", 503)])
+def test_metadata_remains_uncacheable_without_provider_calls(monkeypatch, path, status):
+    # Liveness remains public during configuration failure; model enumeration
+    # must fail closed. Configured anonymous/session cases use the auth fixture.
+    monkeypatch.setattr(main.app.state, "settings", Settings(session_secret=""))
+
+    def forbidden():
+        raise AssertionError("Metadata must not enumerate models without a session")
+
+    monkeypatch.setattr(main, "available_models", forbidden)
     response = TestClient(main.app).get(path)
-    assert response.status_code == 200
+    assert response.status_code == status
     assert response.headers["cache-control"] == "no-store"
     assert "cookie" in response.headers["vary"].lower()
 
