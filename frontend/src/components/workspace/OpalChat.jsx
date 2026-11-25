@@ -20,11 +20,13 @@ export default function OpalChat({ chat, auth, inputRef, focusRequest, onOpenPro
   const visibility = useRef(visible); visibility.current = visible;
   const owner = auth.user?.id;
   const last = chat.messages.at(-1);
-  const confirmCash = visible && chat.durable && owner && !auth.demoMode && auth.canQuery
+  const allowSavedCash = visible && chat.durable && owner && !auth.demoMode && auth.canQuery
     && auth.session?.can_query === true && !chat.pending && !chat.uncertain
-    && !chat.active?.archived && !chat.draft.trim() && last?.role === "aqua"
-    && last.response?.cashConfirmation
-    ? { replyId: last.id, run: () => chat.confirmSavedCash(owner, chat.activeConversationId, last.id) } : null;
+    && !chat.active?.archived && !chat.draft.trim() && last?.role === "aqua";
+  const input = allowSavedCash && last.response?.cashManual && chat.messages.find(message => message.id === last.replyTo && message.role === "user");
+  const confirmCash = allowSavedCash && last.response?.cashConfirmation
+    ? { replyId: last.id, run: () => chat.confirmSavedCash(owner, chat.activeConversationId, last.id) }
+    : input && onOpenCash ? { replyId: last.id, openBlank: () => onOpenCash({ question: input.content, manual: true }) } : null;
   const reply = visible && owner && !auth.demoMode && auth.canQuery && auth.session?.can_query === true && chat.rankReply;
   const applyRank = value => visibility.current && chat.applyRankDraft({
     ownerId: owner, chatId: chat.activeConversationId, projectId: chat.active.projectId, original: chat.draft,

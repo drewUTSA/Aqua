@@ -32,7 +32,7 @@ export function messageRecord(value) {
     && typeof value.result_unavailable === "boolean");
   let response = value.result_unavailable || value.response === null ? null : workspacePresentation(workspaceResultMetadata(normalizeResponse(value.response), value.response?.result_metadata), value.response?.presentation);
   if (response?.status === "success" && value.role === "aqua" && value.response.bank_cash_reply === true) {
-    response = { ...response, cashReply: true };
+    response = { ...response, cashReply: true, ...(value.response.bank_cash_manual === true ? { cashManual: true } : {}) };
   }
   const offer = value.response?.bank_cash_review;
   if (response?.status === "success" && value.role === "aqua" && isRecord(offer)

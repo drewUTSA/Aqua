@@ -32,7 +32,7 @@ function SqlBlock({ sql, label = "SQL" }) {
   );
 }
 
-export default function AquaMessage({ message, hidden = false, onRetry, onRankAction, onConfirmCash, onShowVisual, onUnderstandResult, preferences }) {
+export default function AquaMessage({ message, hidden = false, onRetry, onRankAction, onConfirmCash, onOpenCash, onShowVisual, onUnderstandResult, preferences }) {
   const [copyStatus, setCopyStatus] = useState("");
   const copyTimer = useRef(null);
   useEffect(() => () => window.clearTimeout(copyTimer.current), []);
@@ -102,6 +102,7 @@ export default function AquaMessage({ message, hidden = false, onRetry, onRankAc
           {onUnderstandResult && isSavedResultCandidate(message) && <button type="button" className="text-action" data-understand-result onClick={() => onUnderstandResult(message.id)}>Understand this result</button>}
           {onRankAction && <button type="button" className="text-action" data-rank-ties onClick={onRankAction}>Choose tie rules in a new chat</button>}
           {onConfirmCash && <button type="button" className="text-action" data-confirm-cash onClick={onConfirmCash}>Confirm and calculate</button>}
+            {onOpenCash && <button type="button" className="text-action" data-open-blank-cash aria-haspopup="dialog" onClick={onOpenCash}>Open cash calculator</button>}
           <button type="button" className="text-action" onClick={copyResponse}>
             {copyStatus === "Response copied" ? "Copied" : "Copy response"}
           </button>

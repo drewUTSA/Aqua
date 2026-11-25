@@ -85,6 +85,7 @@ export default function Conversation({ messages, pending, waiting, preferences, 
                 onRetry={onRetry}
                 onRankAction={message.id === rankAction?.replyId ? rankAction.open : undefined}
                 onConfirmCash={message.id === confirmCash?.replyId ? confirmCash.run : undefined}
+                onOpenCash={message.id === confirmCash?.replyId ? confirmCash.openBlank : undefined}
                 onShowVisual={onShowVisual}
                 onUnderstandResult={onUnderstandResult}
               />)}

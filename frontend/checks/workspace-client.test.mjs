@@ -16,6 +16,12 @@ test("only an available saved reply can offer the validated employee cash confir
   const offer = { confirmation, source_revision: "c".repeat(64) };
   const saved = { ...assistant, response: { ...response, bank_cash_review: offer } };
   assert.equal(messageRecord(saved).response.cashConfirmation, confirmation);
+  const manual = { ...assistant, response: { ...response, bank_cash_reply: true, bank_cash_manual: true } };
+  assert.equal(messageRecord(manual).response.cashManual, true);
+  for (const changed of [{ ...manual, role: "user" }, { ...manual, result_unavailable: true },
+    { ...manual, response: { ...response, bank_cash_manual: true } }]) {
+    assert.equal(messageRecord(changed).response?.cashManual, undefined);
+  }
   for (const record of [{ ...saved, role: "user" }, { ...saved, result_unavailable: true },
     { ...saved, response: { ...response, bank_cash_review: { ...offer, confirmation: "Approve a transfer" } } },
     { ...saved, response: { ...response, bank_cash_review: { ...offer, source_revision: "" } } }]) {

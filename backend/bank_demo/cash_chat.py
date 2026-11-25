@@ -42,6 +42,7 @@ CURRENCY_HINT = "What are the verified USD amounts for available cash and projec
 ADJUSTED_HINT = "What final USD amount is available to spend, and what is the full projected outflow for that same period? Include any reserves, fees or other adjustments in the appropriate figure."
 EXACT_HINT = "What exact USD amount should I use for available cash and for projected outflows in that period? A range, estimate or limit cannot determine an exact surplus or shortfall."
 AVAILABLE_HINT = "How much unrestricted USD cash is available to spend in that period? Expected receipts, outgoing payments and money held for someone else do not establish an available balance."
+TASK_HINT = "What would you like to determine from the cash and outflow figures you supplied? To compare them, open the cash calculator and enter the spendable balance, full projected outflows and shared period."
 INEXACT = re.compile(
     r"\b(?:at (?:least|most)|(?:no |not )?(?:more|less|greater|fewer) than|up to|"
     r"approximately|approx|about|around|nearly|roughly|minimum|maximum|range|"
@@ -189,12 +190,28 @@ def _terms(question):
         r"\1available cash",
         text,
     )
-    if not (
-        re.search(rf"\b{OUT}\b", text)
-        and COMPARISON.search(text)
-        and re.search(r"\d", text)
-    ) or OTHER_SOURCE.search(text):
+    if (
+        not re.search(rf"\b{OUT}\b", text)
+        or not re.search(r"\d", text)
+        or OTHER_SOURCE.search(text)
+    ):
         return None
+    if not COMPARISON.search(text):
+        # A clearly supplied pair is a private worksheet even when the
+        # employee has not requested a specific operation. No model needs
+        # these amounts merely to ask which task they want to perform.
+        explicit_balance = re.search(
+            r"\b(?:available (?:cash|liquidity|funds)|cash (?:available|on hand)|funds on hand)\b",
+            text,
+        )
+        supplied_amount = re.search(
+            rf"(?:\b{USD}\s*\$?|\$)\s*\d", text, re.I
+        ) or re.search(rf"\d\s*{USD}\b", text, re.I)
+        return (
+            TASK_HINT
+            if explicit_balance and supplied_amount and len(NUMBER.findall(text)) >= 2
+            else None
+        )
     subjects = re.sub(rf"\b{OUT}\b", " ", text)
     if not re.search(rf"\b{CASH}\b", subjects):
         if re.search(
@@ -332,7 +349,11 @@ def saved_cash_response(conn, job, sequence, question, policy):
         return _answer("This account does not have access to the banking calculator.")
     if not confirm:
         if isinstance(terms, str):
-            return _answer(terms)
+            return (
+                _answer(terms, bank_cash_manual=True)
+                if terms == TASK_HINT
+                else _answer(terms)
+            )
         confirmation = _confirmation(terms)
         return _answer(
             f"For {terms['window']}, I read USD {terms['cash']} as available cash and "

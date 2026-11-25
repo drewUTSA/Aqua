@@ -7,6 +7,7 @@ from bank_demo.cash_chat import (
     AMOUNT_HINT,
     CURRENCY_HINT,
     EXACT_HINT,
+    TASK_HINT,
     WINDOW_HINT,
     _terms,
 )
@@ -271,3 +272,35 @@ def test_a_separate_result_clause_cannot_hide_an_adjustment():
     assert not isinstance(
         _terms(text + " How much money will remain after the dividend?"), dict
     )
+
+
+def test_unspecified_private_worksheet_never_reaches_the_analytical_engine(
+    world, monkeypatch
+):
+    employee, owner = world.client()
+    monkeypatch.setattr(
+        world.analysis,
+        "bank_policy",
+        BankDemoPolicy(True, "none", ((owner, "analyst"),)),
+    )
+    source = "This year's available funds are USD 814.22 and projected outflows are USD 719.46. Any thoughts?"
+    hidden = world.submit(employee, source)["response"]
+    assert hidden["message"] == TASK_HINT and hidden["bank_cash_manual"] is True
+    assert (
+        "bank_cash_review" not in hidden
+        and "bank_calculation" not in hidden
+        and not world.calls
+    )
+
+    unscoped, _ = world.client("B")
+    denied = world.submit(unscoped, source)["response"]
+    assert (
+        "access" in denied["message"]
+        and "bank_cash_manual" not in denied
+        and not world.calls
+    )
+
+    ordinary = world.submit(employee, "Count the transaction records above USD 814.22")[
+        "response"
+    ]
+    assert ordinary["sql"] == "SELECT 7" and len(world.calls) == 1
