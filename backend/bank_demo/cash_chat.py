@@ -8,7 +8,7 @@ from workspace.database import one
 
 CONFIRM = "Confirm cash comparison for "
 CASH = r"(?:available (?:cash|liquidity|funds)|cash(?: (?:available|on hand))?|funds on hand|liquidity on hand)"
-OUT = r"(?:(?:forecast(?:ed)?|expected|projected|net|outgoing|scheduled)\s+)*(?:outflows?|payments?|disbursements?|payables?)"
+OUT = r"(?:(?:forecast(?:ed)?|expected|projected|net|outgoing|planned|scheduled)\s+)*(?:cash\s+)?(?:outflows?|payments?|disbursements?|payables?)"
 COMPARISON = re.compile(
     r"\b(?:cover(?:age|ed|s|ing)?|compare|comparison|enough|suffic(?:ient|e|es)|short(?:fall)?|surplus|cushion|difference|left over|leftover|meet|gap|headroom)\b",
     re.I,
@@ -52,15 +52,23 @@ CONNECTORS = frozenset("""
     how what much whether please check calculate tell me show work out
     available on hand above below zero exactly more than do now amount amounts
     figures values worksheet desk branch same period total totals comes stands
-    equals equal make fully by respectively
+    equals equal make fully by respectively remaining
 """.split())
 
 
 def _simple_comparison(text):
+    # A stated worksheet is the employee's source for both quoted amounts.
+    # The source prefix admits only a short noun phrase and a reporting verb.
+    residual = re.sub(
+        r"^(?:(?:the|our|my)\s+)?(?:(?:daily|monthly|quarterly|annual|treasury|cash|liquidity|funding|maturity|branch|desk)\s+){0,3}"
+        r"(?:worksheet|ledger|close sheet)\s+(?:shows|lists|states|records)\s+",
+        "",
+        text,
+    )
     residual = re.sub(
         r"\b(?:surplus or shortfall|shortfall or surplus|check if|tell me if)\b",
         " ",
-        text,
+        residual,
     )
     for part in (rf"\b{USD}\b", r"\bus\$", rf"\b{OUT}\b", rf"\b{CASH}\b"):
         residual = re.sub(part, " ", residual, flags=re.I)
@@ -104,13 +112,16 @@ def _label(text, match):
     """Match a local label on either side, without crossing another operand."""
     before = TIME.sub("~", text[: match.start()])
     after = TIME.sub("~", text[match.end() :])
-    marker = before + "#" + after
+    # Classify the whole noun first. The word "cash" inside "cash payments"
+    # describes an outgoing amount and cannot supply a second operand.
+    marker = re.sub(rf"\b{OUT}\b", "@O@", before + "#" + after)
+    marker = re.sub(rf"\b{CASH}\b", "@C@", marker)
     names = set()
-    for key, noun in (("cash", CASH), ("outflows", OUT)):
+    for key, noun in (("cash", "@C@"), ("outflows", "@O@")):
         calendar = r"(?:\s+(?:(?:for|during|over)\s+)?(?:the\s+)?~(?:['’]s)?)?"
-        if re.search(
-            rf"\b{noun}\b{calendar}{BETWEEN}{MONEY}", marker, re.I
-        ) or re.search(rf"{MONEY}{AFTER}{noun}\b", marker, re.I):
+        if re.search(rf"{noun}{calendar}{BETWEEN}{MONEY}", marker, re.I) or re.search(
+            rf"{MONEY}{AFTER}{noun}", marker, re.I
+        ):
             names.add(key)
     return names.pop() if len(names) == 1 else None
 
@@ -120,12 +131,25 @@ def _terms(question):
     from mcp_demo.finance import FinanceDenied, money
 
     text = " ".join(question.lower().split())
+    # A verified denomination can make “USD ... available” an explicit
+    # balance. A bare "available" elsewhere cannot grant that role.
+    text = re.sub(
+        r"(\b(?:usd\s*\$?\s*\d[\d,.]*|\d[\d,.]*\s*usd)\s+)available(?=\s+(?:and|for|today|against|while)\b|[.,;!?]|$)",
+        r"\1available cash",
+        text,
+    )
     if not (
-        re.search(rf"\b{CASH}\b", text)
-        and re.search(rf"\b{OUT}\b", text)
+        re.search(rf"\b{OUT}\b", text)
         and COMPARISON.search(text)
         and re.search(r"\d", text)
     ) or OTHER_SOURCE.search(text):
+        return None
+    subjects = re.sub(rf"\b{OUT}\b", " ", text)
+    if not re.search(rf"\b{CASH}\b", subjects):
+        if re.search(
+            r"\bcash\s+(?:outflows?|payments?|disbursements?|payables?)\b", text
+        ):
+            return "What cash is available for the same period? The outgoing figures alone cannot establish cash coverage."
         return None
     amounts = list(NUMBER.finditer(text))
     if not re.search(rf"\b{USD}|\$", text, re.I) or re.search(

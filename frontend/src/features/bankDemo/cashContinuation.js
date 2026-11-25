@@ -26,11 +26,12 @@ const worksheetWords = new Set(`
   year annual annually yearly january february march april may june july august
   september october november december monday tuesday wednesday thursday friday
   saturday sunday dollars dollar usd us desk branch company full note comes
-  stands total totals equals see plain reviewed checked verified
+  stands total totals equals see plain reviewed checked verified remaining
 `.trim().split(/\s+/));
 
 function plainWorksheet(question) {
   const words = question.toLowerCase()
+    .replace(/^(?:(?:the|our|my)\s+)?(?:(?:daily|monthly|quarterly|annual|treasury|cash|liquidity|funding|maturity|branch|desk)\s+){0,3}(?:worksheet|ledger|close sheet)\s+(?:shows|lists|states|records)\s+/, "")
     .replace(/^\p{L}+\s+(?=(?:reviewed|checked|verified)\s+(?:all|these|the)\s+(?:figures|amounts)\b)/u, "")
     .replace(/\b(?:surplus or shortfall|shortfall or (?:surplus|excess)|check if|tell me if)\b/g, " ")
     .replace(/\bu\.s\./g, "us").replace(/['’]s\b/g, "").replace(/\bwe['’]ll\b/g, "we will")

@@ -30,6 +30,7 @@ def select(
             JOIN app.analysis_requests r ON r.user_id=m.user_id AND r.chat_id=m.chat_id AND r.id=m.request_id
             LEFT JOIN app.visual_results v ON v.user_id=r.user_id AND v.chat_id=r.chat_id AND v.request_id=r.id
             WHERE m.user_id=%s AND m.chat_id=%s AND m.role='user' AND m.sequence<%s
+              AND (v.response->'bank_cash_reply') IS DISTINCT FROM 'true'::jsonb
             ORDER BY m.sequence DESC LIMIT 8
         )
         SELECT id, sequence, content,

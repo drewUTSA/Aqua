@@ -125,6 +125,41 @@ def test_owned_saved_confirmation_and_current_grant(world, monkeypatch):
     assert second.status_code == 202 and world.analysis.tick()
     assert "bank_calculation" not in alice.get(path).json()["items"][-1]["response"]
     assert len(calls) == 1 and len(world.calls) == 1
+    # These locally handled banking numbers must never become prompt context
+    # for an unrelated analytical provider on the next turn.
+    payloads = []
+    original_run = world.analysis.engine.run
+
+    def observe_payload(payload, control):
+        payloads.append(payload)
+        return original_run(payload, control)
+
+    monkeypatch.setattr(world.analysis.engine, "run", observe_payload)
+    next_turn = alice.post(path, json=world.body("Count the dataset rows"))
+    assert next_turn.status_code == 202 and world.analysis.tick()
+    assert len(payloads) == 1 and payloads[0]["context"] == []
+
+
+def test_role_removed_between_offer_and_confirmation(world, monkeypatch):
+    employee, owner = world.client()
+    monkeypatch.setattr(
+        world.analysis,
+        "bank_policy",
+        BankDemoPolicy(True, "none", ((owner, "manager"),)),
+    )
+    first = world.submit(employee, QUESTION)
+    ack = first["response"]["bank_cash_review"]["confirmation"]
+    path = f"/api/v1/chats/{first['chat']['id']}/messages"
+    monkeypatch.setattr(world.analysis, "bank_policy", BankDemoPolicy(True, "none", ()))
+    assert employee.post(path, json=world.body(ack)).status_code == 202
+    assert world.analysis.tick()
+    denied = employee.get(path).json()["items"][-1]["response"]
+    assert (
+        denied["bank_cash_reply"]
+        and "access" in denied["message"]
+        and "bank_calculation" not in denied
+    )
+    assert not world.calls
 
 
 @pytest.mark.parametrize(
@@ -153,3 +188,32 @@ def test_named_period_references_and_earlier_or_later_windows():
         "window": "september",
     }
     assert _terms(single.replace("the same month", "August")) == WINDOW_HINT
+
+
+@pytest.mark.parametrize(
+    "outgoing",
+    ["cash outflows", "cash payments", "cash payables", "cash disbursements"],
+)
+def test_an_outgoing_noun_cannot_provide_the_available_cash_operand(outgoing):
+    text = f"Can USD 119 in {outgoing} cover USD 63 of expected payments today?"
+    assert _terms(text).startswith("What cash is available")
+    fully_labelled = (
+        f"Can USD 119 in available cash cover USD 63 of projected {outgoing} today?"
+    )
+    assert _terms(fully_labelled) == {
+        "cash": "119.00",
+        "outflows": "63.00",
+        "period": "day",
+        "window": "today",
+    }
+
+
+def test_stated_worksheet_keeps_labels_without_swallowing_adjustments():
+    text = "Our daily funding worksheet lists USD 811 of projected cash outflows and USD 715 in available cash today. Can we cover them?"
+    assert _terms(text) == {
+        "cash": "715.00",
+        "outflows": "811.00",
+        "period": "day",
+        "window": "today",
+    }
+    assert _terms(text + " Account for the unposted dividend.") == ADJUSTED_HINT
