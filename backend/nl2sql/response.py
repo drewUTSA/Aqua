@@ -19,7 +19,7 @@ from decimal import Decimal
 from typing import Any
 
 from nl2sql.display import Display
-from nl2sql.errors import public_query_error
+from nl2sql.errors import missing_source_message, public_query_error
 from nl2sql.pipeline import Answer
 from nl2sql.summarize import summarize
 from nl2sql.visualize import suggest_chart
@@ -159,7 +159,11 @@ def to_response(answer: Answer, display: Display | None = None) -> dict[str, Any
             "kpis": [],
             "error": {
                 "code": answer.error_code,
-                "message": public_query_error(answer.error_code, answer.error),
+                "message": (
+                    missing_source_message(answer.question, answer.missing_input)
+                    if answer.error_code == "missing_source" and not answer.sql
+                    else public_query_error(answer.error_code, answer.error)
+                ),
                 "retryable": False,
             },
         }

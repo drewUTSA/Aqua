@@ -26,6 +26,7 @@ from nl2sql.execute import DEFAULT_MAX_ROWS, QueryError, execute, include_cutoff
 from nl2sql.generate import Attempt, Example, Generation, generate_sql
 from nl2sql.scalar_count import scalar_count_sql
 from nl2sql.schema import Schema
+from nl2sql.source_fields import unavailable_named_field
 from nl2sql.validate import UnsafeQueryError, validate_sql
 from nl2sql.control import CURRENT, stage
 
@@ -78,6 +79,7 @@ class Answer:
     size: AnswerSize = field(default_factory=lambda: AnswerSize("open"))
     # Set only when the query's executed upper bound proves first-place peers.
     first_place_peers: bool = False
+    missing_input: str | None = None
 
 
 def full_context(schema: Schema) -> Context:
@@ -149,6 +151,17 @@ def answer_question(
     # Previous turns can carry filters absent from the latest question.
     direct = None
     if not (budget and budget.context):
+        if missing := unavailable_named_field(question, schema):
+            return Answer(
+                question=question,
+                sql="",
+                attempts=0,
+                used_retrieval=used_retrieval,
+                size=size,
+                error=diagnostic("missing_source").message,
+                error_code="missing_source",
+                missing_input=missing,
+            )
         if sql := calendar_count_sql(question, schema, context.tables):
             direct = Generation(sql, thinking="", model="Aqua calendar count")
         elif sql := scalar_count_sql(question, schema, context.tables):
