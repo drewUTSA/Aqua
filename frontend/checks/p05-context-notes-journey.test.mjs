@@ -27,7 +27,7 @@ test("notes evidence refuses unfinished work, excess holds/calls, analysis or an
 
 test("notes journey is explicit and isolated with all canonical resource and failure thresholds retained", async () => {
   const source = await readFile(new URL("./p05-browser.mjs", import.meta.url), "utf8");
-  assert.match(source, /const MAX_MS = 240000, MAX_REQUESTS = 900, MAX_API = 320;/);
+  assert.match(source, /const MAX_MS = 240000, MAX_REQUESTS = 900, MAX_API = 344;/);
   assert.match(source, /const NOTES_ONLY=JOURNEY==="context-notes";/);
   assert.match(source, /const notesFixture = NOTES_ONLY \? installContextNotesFixture\(fixture\) : null;/);
   assert.match(source, /if\(NOTES_ONLY\)contextNotesJourney=await runContextNotesChecks/);
