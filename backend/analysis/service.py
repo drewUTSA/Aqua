@@ -15,6 +15,7 @@ from auth.config import AuthPolicy
 from storage.pool import Storage
 from nl2sql.config import Settings
 from analysis.engine import Engine
+from bank_demo.policy import BankDemoPolicy
 
 
 class Analysis:
@@ -26,6 +27,7 @@ class Analysis:
         settings: Settings,
         *,
         engine: Engine | None = None,
+        bank_policy: BankDemoPolicy | None = None,
         start: bool = False,
     ) -> None:
         from analysis.process import ProcessEngine
@@ -38,6 +40,7 @@ class Analysis:
             settings,
         )
         self.engine = engine or ProcessEngine()
+        self.bank_policy = bank_policy or BankDemoPolicy()
         self.dispatch = Dispatcher(self)
         self.stopped = threading.Event()
         self.threads = []
@@ -83,6 +86,7 @@ class Analysis:
                     saved["sequence"],
                     current.dataset_key,
                     current.grant_version,
+                    exclude_bank_inputs=self.bank_policy.enabled,
                 )
                 records.insert(
                     conn,

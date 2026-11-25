@@ -148,6 +148,15 @@ export function useWorkspace({ canQuery, canReadResults = canQuery, csrfToken, o
     cancelAnalysis: analysis?.cancellable && !analysis.cancelRequested && analysis.state !== "cancelling" ? () => lifecycle.cancel(analysis.id) : null,
     models, selectedModelId, setModelId, faqs: library.starters, submit, retry, startConversation, selectConversation,
     deleteProject: removeProject,
+    confirmSavedCash: (owner, chatId, replyId) => {
+      const state = current.current, record = state.records[chatId], accessNow = access.current;
+      if (!alive.current || state.activeId !== chatId || !record || !accessNow.canQuery || !accessNow.canReadResults
+          || accessNow.suspended || record.archived || record.draft || record.operation || requests.current.has(chatId)) return null;
+      try { if (assertHistory(mountedHistory.current).owner !== owner) return null; } catch { return null; }
+      const reply = record.messages.at(-1);
+      if (reply?.id !== replyId || reply.status !== "complete" || reply.conversationId !== chatId || !reply.response?.cashConfirmation) return null;
+      return submit(reply.response.cashConfirmation);
+    },
     drafts: Object.values(state.records).filter((item) => item.draft.trim()),
     recoverableDrafts: Object.values(state.records).filter((item) => item.draft.trim() || item.operation),
     stop: () => requests.current.get(current.current.activeId)?.abort(),
