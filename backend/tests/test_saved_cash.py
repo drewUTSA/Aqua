@@ -6,6 +6,7 @@ from bank_demo.cash_chat import (
     ADJUSTED_HINT,
     AMOUNT_HINT,
     CURRENCY_HINT,
+    EXACT_HINT,
     WINDOW_HINT,
     _terms,
 )
@@ -127,10 +128,14 @@ def test_owned_saved_confirmation_and_current_grant(world, monkeypatch):
     assert len(calls) == 1 and len(world.calls) == 1
 
 
-def test_locally_handled_numbers_are_excluded_from_analytical_context(world, monkeypatch):
+def test_locally_handled_numbers_are_excluded_from_analytical_context(
+    world, monkeypatch
+):
     alice, owner = world.client()
     monkeypatch.setattr(
-        world.analysis, "bank_policy", BankDemoPolicy(True, "none", ((owner, "analyst"),))
+        world.analysis,
+        "bank_policy",
+        BankDemoPolicy(True, "none", ((owner, "analyst"),)),
     )
     review = world.submit(alice, QUESTION)
     path = f"/api/v1/chats/{review['chat']['id']}/messages"
@@ -228,3 +233,16 @@ def test_stated_worksheet_keeps_labels_without_swallowing_adjustments():
         "window": "today",
     }
     assert _terms(text + " Account for the unposted dividend.") == ADJUSTED_HINT
+
+
+@pytest.mark.parametrize(
+    "qualifier", ["more than", "over", "at most", "roughly", "up to"]
+)
+def test_bounds_cannot_produce_an_exact_difference(qualifier):
+    question = f"For today, compare {qualifier} USD 480 of available cash with USD 386 in projected outflows."
+    assert _terms(question) == EXACT_HINT
+
+
+def test_cash_receivable_does_not_supply_a_spendable_balance():
+    question = "Can USD 609 cash in trust cover USD 804 of forecast payments today?"
+    assert "unrestricted" in _terms(question)

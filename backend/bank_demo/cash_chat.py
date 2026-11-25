@@ -40,6 +40,19 @@ WINDOW_HINT = "Which single day, month, quarter or year do both the available ca
 AMOUNT_HINT = "Please label the available cash amount and the projected outflows amount in USD for the same period. Which figure goes with each?"
 CURRENCY_HINT = "What are the verified USD amounts for available cash and projected outflows for the same period?"
 ADJUSTED_HINT = "What final USD amount is available to spend, and what is the full projected outflow for that same period? Include any reserves, fees or other adjustments in the appropriate figure."
+EXACT_HINT = "What exact USD amount should I use for available cash and for projected outflows in that period? A range, estimate or limit cannot determine an exact surplus or shortfall."
+AVAILABLE_HINT = "How much unrestricted USD cash is available to spend in that period? Expected receipts, outgoing payments and money held for someone else do not establish an available balance."
+INEXACT = re.compile(
+    r"\b(?:at (?:least|most)|(?:no |not )?(?:more|less|greater|fewer) than|up to|"
+    r"approximately|approx|about|around|nearly|roughly|minimum|maximum|range|"
+    r"estimated (?:cash|balance|amount))\b|\b(?:above|below|under|over)\s+(?=usd\b|us dollars?\b|\$|\d)",
+    re.I,
+)
+RESTRICTED = re.compile(
+    r"\b(?:receivables?|receipts?|incoming|in trust|on behalf of|custodial|earmarked|"
+    r"restricted|encumbered|belongs? to)\b",
+    re.I,
+)
 
 # All meaningful words must belong to the two supported operands, their
 # common calendar window or the requested comparison. Remaining words can
@@ -50,7 +63,7 @@ CONNECTORS = frozenset("""
     in on of to by at against versus for during over with as and while
     are is be was were will would should can could do does has have had
     how what much whether please check calculate tell me show work out
-    available on hand above below zero exactly more than do now amount amounts
+    available on hand zero exactly do now amount amounts
     figures values worksheet desk branch same period total totals comes stands
     equals equal make fully by respectively remaining
 """.split())
@@ -66,7 +79,8 @@ def _simple_comparison(text):
         text,
     )
     residual = re.sub(
-        r"\b(?:surplus or shortfall|shortfall or surplus|check if|tell me if)\b",
+        r"\b(?:surplus or shortfall|shortfall or surplus|check if|tell me if|"
+        r"is there (?:any|anything) (?:left(?: over)?|remaining)|(?:anything|what) remains)\b",
         " ",
         residual,
     )
@@ -160,6 +174,10 @@ def _terms(question):
     window = _window(text)
     if window is None:
         return WINDOW_HINT
+    if INEXACT.search(text):
+        return EXACT_HINT
+    if RESTRICTED.search(text):
+        return AVAILABLE_HINT
     if re.search(
         r"[+−–()#%]|\s-\s*\d|-\s*(?:usd|\$|\d)|\b(?:minus|negative|overdraft|overdrawn|below zero|million|billion|thousand|cents|double|triple|multiply|subtract|instead of|superseded|revised from)\b",
         text,
@@ -178,7 +196,10 @@ def _terms(question):
         text,
     )
     roles = {}
-    for match in amounts:
+    labels = [_label(text, match) for match in amounts]
+    if "cash" not in labels and "outflows" in labels:
+        return AVAILABLE_HINT
+    for match, role in zip(amounts, labels):
         # An adjacent three-letter unit can qualify even a shared "both USD"
         # preface. Only familiar English connectors and the supported unit
         # may sit beside an operand; an unknown code needs verification.
@@ -209,7 +230,6 @@ def _terms(question):
             or re.match(rf"\s*{USD}\b", text[match.end() :], re.I)
         ):
             return CURRENCY_HINT
-        role = _label(text, match)
         if role is None or role in roles:
             return AMOUNT_HINT
         try:

@@ -7,6 +7,7 @@ const periods = {
 const currencyCodes = new Set(Intl.supportedValuesOf?.("currency") || []);
 const currencyHint = "Supply the verified USD amounts for both available cash and projected outflows.";
 const adjustedHint = "Use final available cash and the full projected outflows for the same period, including any reserves, fees or other adjustments.";
+const boundedAmount = /\b(?:at (?:least|most)|(?:no |not )?(?:more|less|greater|fewer) than|up to|approximately|approx|about|around|nearly|roughly|minimum|maximum|range|estimated (?:cash|balance|amount))\b|\b(?:above|below|under|over)\s+(?=usd\b|us dollars?\b|\$|\d)/i;
 // Employees assign the two quoted numbers themselves in this form. Accept
 // ordinary worksheet language, but never discard an unexplained adjustment.
 const worksheetWords = new Set(`
@@ -16,7 +17,7 @@ const worksheetWords = new Set(`
   how what whether please check calculate tell me show work out want much now
   cash liquidity liquid funds fund available spend on hand worksheet
   ledger close sheet amount amounts figures values sums balance surplus excess
-  short shortfall cushion difference gap room headroom exactly equal above zero
+  short shortfall cushion difference gap room headroom exactly equal zero
   projected project projecting projections forecast forecasted estimated estimate
   expected expect outgoing going net outflow outflows disbursements disbursement
   payment payments payable payables needs enough sufficient suffice suffices
@@ -80,6 +81,8 @@ export function cashContinuation(question) {
   if (windows.length !== 1 || timeMarkers.size > 1 || qualifiers.size > 1
       || /\b(?:week|weekly|days|weeks|months|quarters|years|ytd|year.to.date|different periods?|(?:previous|prior|next) (?:cycle|period))\b/i.test(question))
     return { hint: "Which single day, month, quarter or year do both cash and forecast outflows cover?" };
+  if (boundedAmount.test(question))
+    return { hint: "Supply exact USD figures for available cash and projected outflows. A range, estimate or limit cannot determine the exact difference." };
   const unsignedText = question.replace(/(?<=[a-z])-(?=[a-z])/gi, "");
   if (/[+\-−–()]/.test(unsignedText) || /\b(?:unknown|missing|pending|unavailable|awaiting|unsure|estimated elsewhere|million|billion|thousand|cents|negative|minus|overdraft|overdrawn|below zero|in the red)\b/i.test(question)
       || /(?:^|[^\d])\.\d|\b(?:only one|partial total|other account|different account)\b/i.test(question))

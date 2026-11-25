@@ -2,6 +2,14 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { cashContinuation } from "../src/features/bankDemo/cashContinuation.js";
 
+test("a cash estimate cannot be offered as an exact input", () => {
+  for (const phrase of ["more than", "above", "at most", "approximately"]) {
+    const result = cashContinuation(`For this day compare ${phrase} USD 412 in available funds with USD 526 in projected payments.`);
+    assert.equal(result?.amounts, undefined);
+    assert.match(result.hint, /exact/);
+  }
+});
+
 test("a worksheet must include all material conditions in its two final figures", () => {
   const plain = "For this quarter, compare USD 510 in available cash with USD 429 in projected outflows.";
   assert.equal(cashContinuation(plain).amounts.length, 2);
