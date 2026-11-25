@@ -178,7 +178,13 @@ def test_storage_outage_never_hashes_or_leaks_driver_details(
     assert PASSWORD not in response.text + caplog.text
 
 
-def test_known_and_unknown_email_requests_share_bounded_timing_floor(password_browser):
+@pytest.mark.parametrize(
+    "action,path",
+    [("registration", "/registrations"), ("reset-request", "/password-reset-requests")],
+)
+def test_known_and_unknown_email_requests_share_bounded_timing_floor(
+    password_browser, action, path
+):
     browser = password_browser
     browser.register()
     observed = {"known": [], "unknown": []}
@@ -189,16 +195,16 @@ def test_known_and_unknown_email_requests_share_bounded_timing_floor(password_br
             ("known", EMAIL),
             ("unknown", f"timing.reader.{index}@example.test"),
         ):
-            pending, _ = browser.bootstrap("registration")
+            pending, _ = browser.bootstrap(action)
             started = time.monotonic()
             response = browser.client.post(
-                ROOT + "/registrations",
+                ROOT + path,
                 json={"email": address},
                 headers={"Origin": ORIGIN, "X-CSRF-Token": pending["csrf_token"]},
             )
             observed[kind].append(time.monotonic() - started)
             assert response.status_code == 202
-    assert all(elapsed >= 0.045 for samples in observed.values() for elapsed in samples)
+    assert all(elapsed >= 0.495 for samples in observed.values() for elapsed in samples)
     assert abs(median(observed["known"]) - median(observed["unknown"])) < 0.05
 
 
