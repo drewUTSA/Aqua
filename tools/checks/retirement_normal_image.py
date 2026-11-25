@@ -1,7 +1,7 @@
 """Pinned application image and compiled file digests for the native recovery rehearsal."""
 
-IMAGE = "sha256:a0bb03090f6bef57ded6be174335a6581807e2cad3fcde0f74d4e32e30311e3f"
-MANIFEST_SHA256 = "1e768b6efa1a8efe721213bd941d8b77cf3529aa0e6a0fb46f1dc975abe418bf"
+IMAGE = "sha256:34de2b2b420cadd25d7a4d200b1c0ba2a7f99ddf4cf148bef6d2aaafbeac44e9"
+MANIFEST_SHA256 = "8faaeaf928e735670702aa52b4605ebabfa3f7538771c0f15599d4c77a05c11f"
 RUNTIME_FILES = {
     "account/__init__.py": "4d300929fcb6d0c0e3a6b92377bfd4648fc336a8ad2bfb3e962d810b3b6f55e0",
     "account/action_contracts.py": "be3becba0a54378a847efdaa76cc833e3b780df3658c90d30f86a7852232a397",
@@ -33,7 +33,7 @@ RUNTIME_FILES = {
     "analysis/admission.py": "5fe6d6b1f483d6d8a973bd2fefed68212a56bbe6c263bafc028d10b67c68ba3e",
     "analysis/child.py": "85ceefcbd280ca24b166a5a7635ab31878e70653086439cff354b7c4bb5cd4ec",
     "analysis/child_payload.py": "8eb7372fae6e810f80d1bf9797eb29bae105742d2294aad696ee60f7b155ea16",
-    "analysis/context.py": "b5f7e3478c53bbe6035493377e27f141cbaa1a715179ac88e3d1d5e959aeb416",
+    "analysis/context.py": "a985b5de6d44a9e34d8383cfa964681da89fcbdec0d410a2e37f36539443e91f",
     "analysis/dependencies.py": "ff1e32d581e22ba1d86a203fedb58c9f6a4e7550f884f7121b9e9888917832a6",
     "analysis/dispatch.py": "31b252afb6e715387b01b8ff9971629fd5e2a05cf47775c0343a30b646df4ce5",
     "analysis/engine.py": "df8977a4ce2d12699ae5f62cb4513924dd375216d4a5746548055c633f98a2dc",
@@ -45,7 +45,7 @@ RUNTIME_FILES = {
     "analysis/queue.py": "c2569fed5ecfc2e0e7844745e9db375a915fb74e2863a5b42b98fb5f21ea716d",
     "analysis/records.py": "2637482129aeee51675871f82e8c0d6d33f14879becbb6e5a180b0351704b99a",
     "analysis/router.py": "e574e70d0347bc55f5b625340a6bbad3f2349b5c34f8f3e70af1fd84514c4d2f",
-    "analysis/service.py": "d25db037f88651526a4579e5f5088bbb7510b7015de39bfb879922027fd1705a",
+    "analysis/service.py": "49e56864459abc6e180b50da5d8a95443e1407176d59fda354c0770cb92ace7c",
     "analysis/settlement.py": "1868582143dd8a88c65d54b26e4fb13d12814c7e7fe3d3e5bc409107e237056a",
     "analysis/streams.py": "af92e53dc0f87eeef1d305884222f049aee0b4b90e6574c84a2a1214c5fa8732",
     "auth/__init__.py": "6b04c7bc22cb311c88fcd9e769cc0648a63af9e6177d7b3b7483f2834d8b57dc",
@@ -84,7 +84,7 @@ RUNTIME_FILES = {
     "auth/store.py": "c03948eef3ca7a47de192d450e18be1aafde40a8faf49a73ad5cdada37460ec6",
     "bank_demo/__init__.py": "5c8af141a4e035d06af3f434fbcba33fe7864a07564935996bd25fce351da968",
     "bank_demo/calculations.py": "b74e1684c2a588aee4397db6826e0553b0095a2dba7d03d2de04bf3ca9d22a31",
-    "bank_demo/cash_chat.py": "d0b9e83f64eb0e54f17193f4e49bacebf094657b89a66629023320ef9c687d20",
+    "bank_demo/cash_chat.py": "d1a355e7385564db18449c7a2d49ccd382423646cd76a56abaea8fc6a08d9607",
     "bank_demo/policy.py": "8d5dd8dd57758eaf6b2fe4aff04cb79c0654e194d388100ba0b67cb0798df5d6",
     "bank_demo/requirements.py": "71b89cfa4e51540a8d405cd0e6a60a55e9c0b47fe85d95868735e4038c1e049c",
     "bank_demo/router.py": "e07c83c50dc487d9c394718effd6b3094b3c580485d384ca3cb36d2352bf037d",
