@@ -31,24 +31,31 @@ class DocumentCsp(unittest.TestCase):
             re.M,
         )
 
-    def test_policies_are_document_only_and_no_transport_policy_is_activated(self):
-        self.assertEqual(len(self.headers), 4)
+    def test_document_csp_is_separate_from_global_response_headers(self):
+        self.assertEqual(len(self.headers), 2)
         prefix = self.nginx.split("    # Restricted launch:")[0]
         self.assertNotIn("Content-Security-Policy", prefix)
-        for name in (
-            "Strict-Transport-Security",
-            "Cross-Origin-Opener-Policy",
-            "Cross-Origin-Embedder-Policy",
-        ):
-            self.assertNotIn("add_header " + name, self.nginx)
-        self.assertEqual(self.headers[:2], self.headers[2:])
-        self.assertEqual(len(probe.document_policy(Response(self.headers[:2]))), 64)
+        self.assertNotIn("add_header Cross-Origin-Embedder-Policy", self.nginx)
+        self.assertIn(
+            'add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;',
+            self.nginx,
+        )
+        self.assertIn(
+            'add_header Cross-Origin-Opener-Policy "same-origin-allow-popups" always;',
+            self.nginx,
+        )
+        self.assertEqual(self.headers[:1], self.headers[1:])
+        self.assertEqual(len(probe.document_policy(Response(self.headers[:1]))), 64)
 
     def test_actual_header_guard_rejects_missing_weakened_duplicate_and_reporting_authority(
         self,
     ):
-        original = self.headers[:2]
-        changed = [original[:1], original + original[:1]]
+        original = self.headers[:1]
+        changed = [
+            [],
+            original + original,
+            [("Content-Security-Policy-Report-Only", original[0][1])],
+        ]
         for before, after in (
             ("script-src 'self'", "script-src 'self' 'unsafe-eval'"),
             ("manifest-src 'self'", "manifest-src 'self'; report-uri /collect"),

@@ -108,34 +108,34 @@ configuration; the backend container/image was unchanged. The operator ran the
 root-owned tunnel update, and the agent independently verified its hash, active
 process and public behavior. See [P01 ingress](../implementation/P01_INGRESS.md).
 
-The installed nginx configuration listens on loopback and keys limits on the
-socket peer. It never trusts `CF-Connecting-IP`, `X-Forwarded-For`, `Forwarded` or
-cookies to create budget identities. Behind the current local tunnel, this is
-deliberately a **shared aggregate budget**: query 10/minute + burst 5; Google
-verification 5/minute + burst 3. Paths and trailing-slash variants share the
-appropriate zone, with a conservative 12-second Retry-After and no-store 429.
-Logout and health are not charged against the expensive-operation buckets.
-Nginx's shared-memory accounting spans its workers; it is not durable across a
-full restart and is not the later account/global limiter.
+The origin binds to 127.0.0.1:5173 and trusts `CF-Connecting-IP` only from
+the exact loopback address used by the tunnel. Both public hostnames share
+visitor budgets by normalized address, including IPv6. All other socket peers
+use their own address. nginx overwrites `X-Forwarded-For` with that one value and
+removes inbound `Forwarded` and `CF-Connecting-IP`. Uvicorn listens on loopback,
+trusts only 127.0.0.1, and supplies the normalized peer to both authentication
+routers. The host's local processes are in this trust boundary. Keep both tunnel
+routes pointed at nginx and prevent untrusted workloads from accessing the
+loopback listeners when deploying the change.
 
-The two-worker isolated exercise proves forged-header/cookie churn does not
-refresh the budget, route variants do not bypass it, rejected calls do not reach
-the fake upstream, auth/query budgets are separate, oversized bodies are refused,
-logout/health remain available, a bounded concurrent wave is accounted for, and
-ordinary requests recover after cooldown. It tests nginx plus a synthetic
-upstream, not Google login correctness or production throughput.
+The edge's shared-memory limits apply across workers and both hostnames.
+An original question has a limit of ten per minute plus a burst of five.
+Google verification and password login allow five per minute plus a burst
+of three, with separate quotas for registration, recovery and verification.
+Aliases share the applicable quota. The backend also retains independent
+per-peer, per-account and service-wide limits across sessions and workers.
 
-**Ingress gate resolved October 20:** both public hostnames now enter the
-installed enforcement path at `http://127.0.0.1:5173`. Each returned healthy
-no-store API responses and rejected a 17,000-byte request with nginx's 413 limit.
-The exact live base image passed the same isolated 31-request limiter exercise;
-no public rate flood or provider call was performed. Full P01 backend changes
-are still local/uncommitted. Later releases must preserve this routing and verify
-their exact configuration/images; do not enable public signup before durable
-identity, admission and other applicable release gates pass.
-Per-visitor real-IP parsing requires a verified exclusive trusted hop (for example
-a dedicated socket/network ingress) and Cloudflare header overwrite behavior;
-never trust all addresses or arbitrary loopback callers as distinct public users.
+For the three-seat demo, simultaneous single attempts fit within 60 Google
+challenges and 30 verification attempts per minute. Retain 60 and 30 for that
+workload. Before increasing enrollment, measure peak legitimate challenges
+and proofs per minute, include the expected retry volume and verify database
+and password-hashing headroom under that workload. The service-wide limits
+still apply at peak demand and shared NAT users can share a per-address budget.
+
+The isolated two-worker checks cover distinct visitors, an untrusted socket
+peer, both hostnames, the peer seen by Uvicorn, normalized route aliases and
+cooldown recovery. Real tunnel configuration and header overwrite behavior
+remain deployment prerequisites. [Cloudflare visitor headers](https://developers.cloudflare.com/fundamentals/reference/http-request-headers/#cf-connecting-ip)
 
 ## Durable throttling design for the following phases
 

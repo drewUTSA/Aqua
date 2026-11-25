@@ -14,7 +14,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from auth.router import router as auth_router
 from auth.password_router import router as password_router
-from auth.security import UserSession, require_database_access
+from auth.security import UserSession, require_database_access, require_user
 from nl2sql.cache import AnswerCache
 from nl2sql.config import Settings, load_settings
 from nl2sql.pipeline import Retriever, answer_question
@@ -247,15 +247,10 @@ def available_models() -> list[dict[str, str]]:
 def health():
     """Liveness for the Docker healthcheck. Never touches the database or
     model, so a slow dependency cannot mark the container unhealthy."""
-    return {
-        "status": "ok",
-        "database_configured": bool(SETTINGS.database_url),
-        "model": _model_name(SETTINGS.llm_provider),
-        "retrieval": SETTINGS.retrieval,
-    }
+    return {"status": "ok"}
 
 
-@app.get("/api/models")
+@app.get("/api/models", dependencies=[Depends(require_user)])
 def models():
     """The model choices for the frontend's dropdown."""
     return {"models": available_models()}

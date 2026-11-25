@@ -13,6 +13,7 @@ FIELDS = {
     "saved_prompts": "id,label,prompt,pinned,use_count,last_used_at,revision,created_at,updated_at",
 }
 ENVELOPE = {"projects": "project", "saved_prompts": "saved_prompt"}
+GLOBAL_ACTIVE_ROW_CAP = 50_000
 STARTERS = [
     {
         "id": "loans-in-debt",
@@ -110,7 +111,10 @@ def create(conn: Connection, table: str, owner: str, body: BaseModel) -> dict:
     allocate(conn, owner, 0)
     bounded_count(conn, table, owner, 20 if table == "projects" else 100, active=True)
     bounded_count(conn, table, owner, 1000)
-    if conn.execute(f"SELECT count(*) FROM app.{table}").fetchone()[0] >= 50000:
+    active_rows = conn.execute(
+        f"SELECT count(*) FROM app.{table} WHERE deleted_at IS NULL"
+    ).fetchone()[0]
+    if active_rows >= GLOBAL_ACTIVE_ROW_CAP:
         raise WorkspaceError("capacity_reached", 429)
     allocate(
         conn,

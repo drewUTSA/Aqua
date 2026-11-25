@@ -5,6 +5,42 @@
 
 How to build the Aqua database on Tiger Cloud from an empty service. A human runs these as `tsdbadmin`; the app and coding agents never do.
 
+## Owner migration for existing analytical readers
+
+New reader sessions use a 4 MB base memory budget per sort or hash operation
+and a 64 MB temporary-file limit per PostgreSQL process. Several operations
+can consume memory in one query, and hash operations can use
+`hash_mem_multiplier`. The existing statement timeout still applies.
+
+For an existing installation, the database owner should use an administrator
+authorized to alter the reader and set `temp_file_limit`. Record any existing
+role and per-database overrides before applying the matching block below.
+Use these statements in one transaction during the approved maintenance window.
+
+For the Pagila/Tiger reader:
+
+```sql
+BEGIN;
+ALTER ROLE nl2sql_reader SET work_mem = '4MB';
+ALTER ROLE nl2sql_reader SET temp_file_limit = '64MB';
+COMMIT;
+```
+
+For the dedicated sales demo:
+
+```sql
+BEGIN;
+ALTER ROLE aqua_sales_demo_reader IN DATABASE aqua_sales_demo SET work_mem = '4MB';
+ALTER ROLE aqua_sales_demo_reader IN DATABASE aqua_sales_demo SET temp_file_limit = '64MB';
+COMMIT;
+```
+
+Recycle reader connections and verify `SHOW work_mem` and `SHOW temp_file_limit`
+in a fresh reader login to the intended database. Expected values are `4MB`
+and `64MB`. Restore previous overrides at the same scope to roll back, using
+`ALTER ROLE … RESET` for settings that were previously inherited. Apply just
+these settings on existing installations to preserve grants and credentials.
+
 ## Before you start
 
 - `psql` installed (`sudo apt install -y postgresql-client` on Ubuntu)

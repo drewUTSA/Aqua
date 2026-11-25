@@ -8,7 +8,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 import main
-from auth.security import UserSession, require_database_access
+from auth.security import UserSession, require_database_access, require_user
 from nl2sql.config import Settings
 from nl2sql.db import DatabaseError
 from nl2sql.llm import LLMError, ModelResponseInvalid, ModelResponseTimeout
@@ -179,10 +179,10 @@ def test_schema_outage_is_a_503(monkeypatch: pytest.MonkeyPatch) -> None:
     assert "db.internal" not in response.text
 
 
-def test_health_is_cheap_and_reports_configuration() -> None:
+def test_health_is_cheap_and_reports_only_liveness() -> None:
     body = client.get("/api/health").json()
     assert body["status"] == "ok"
-    assert set(body) == {"status", "database_configured", "model", "retrieval"}
+    assert set(body) == {"status"}
 
 
 def test_starter_chat_routes_are_gone() -> None:
@@ -241,7 +241,18 @@ def test_unknown_model_is_422(monkeypatch: pytest.MonkeyPatch) -> None:
     assert seen == []
 
 
-def test_models_lists_gemini_only_with_a_key(monkeypatch: pytest.MonkeyPatch) -> None:
+@pytest.fixture
+def authenticated_models_contract():
+    main.app.dependency_overrides[require_user] = main.app.dependency_overrides[
+        require_database_access
+    ]
+    yield
+    main.app.dependency_overrides.pop(require_user, None)
+
+
+def test_models_lists_gemini_only_with_a_key(
+    monkeypatch: pytest.MonkeyPatch, authenticated_models_contract
+) -> None:
     set_settings(monkeypatch, Settings())
     assert [m["id"] for m in client.get("/api/models").json()["models"]] == ["ollama"]
 
@@ -252,7 +263,9 @@ def test_models_lists_gemini_only_with_a_key(monkeypatch: pytest.MonkeyPatch) ->
     assert set(models[0]) == {"id", "name", "description"}
 
 
-def test_models_puts_the_server_default_first(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_models_puts_the_server_default_first(
+    monkeypatch: pytest.MonkeyPatch, authenticated_models_contract
+) -> None:
     set_settings(monkeypatch, Settings(gemini_api_key="k", llm_provider="gemini"))
     assert [m["id"] for m in client.get("/api/models").json()["models"]] == [
         "gemini",

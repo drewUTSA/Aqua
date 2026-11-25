@@ -507,11 +507,36 @@ def test_hidden_staff_columns_are_rejected(sql: str, reason: str) -> None:
 @pytest.mark.parametrize(
     "sql",
     [
+        "SELECT 1 FROM staff AS s(staff_id)",
+        "SELECT 1 FROM film JOIN public.staff s(staff_id) ON TRUE",
+        "WITH visible AS (SELECT 1 FROM staff AS s(staff_id)) SELECT 1 FROM visible",
+        "SELECT 1 FROM (staff JOIN film ON TRUE) AS combined(staff_id)",
+        "SELECT 1 FROM (film JOIN public.staff ON TRUE) AS combined(film_id)",
+        "SELECT 1 FROM ((staff JOIN film ON TRUE)) AS combined(staff_id)",
+        "WITH staff AS (SELECT film_id FROM film) "
+        "SELECT 1 FROM (public.staff JOIN film ON TRUE) AS combined(staff_id)",
+    ],
+)
+def test_physical_staff_column_alias_lists_are_rejected(sql: str) -> None:
+    with pytest.raises(UnsafeQueryError, match="column alias list"):
+        validate_sql(sql, allowed_tables=WITH_STAFF)
+
+
+@pytest.mark.parametrize(
+    "sql",
+    [
         "SELECT first_name, last_name, email FROM staff",
         "SELECT count(*) FROM staff",  # a star inside COUNT is not a column list
         "SELECT s.first_name, count(*) AS n FROM staff s JOIN payment p ON p.staff_id = s.staff_id GROUP BY s.first_name",
         "SELECT * FROM film",  # stars are fine when staff is not involved
         "SELECT title FROM film WHERE title = 'password'",  # the word as data
+        "SELECT 1 FROM film AS f(film_id)",
+        "WITH staff AS (SELECT film_id FROM film) SELECT 1 FROM staff AS s(id)",
+        "SELECT visible.id FROM (SELECT staff_id FROM staff) AS visible(id)",
+        "WITH staff AS (SELECT film_id FROM film) "
+        "SELECT 1 FROM (staff JOIN film ON TRUE) AS combined(id)",
+        "SELECT 1 FROM (film JOIN (SELECT staff_id FROM staff) AS p ON TRUE) AS combined(id)",
+        "SELECT 1 FROM film AS f(film_id) JOIN staff AS s ON TRUE",
     ],
 )
 def test_ordinary_staff_queries_pass(sql: str) -> None:

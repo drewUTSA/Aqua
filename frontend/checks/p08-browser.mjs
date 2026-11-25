@@ -13,7 +13,16 @@ let ctx, failure = null, stats = null, workload = null, failureState = null, fai
 try {
   ctx = await openP08Browser({ cspEnforcedFixture: true }); ctx.secrets.add(PASSWORD);
   ctx.runtimePhase = "authentication";
-  await ctx.navigate("/register"); await ctx.fill("#auth-email", EMAIL); await ctx.click("[data-testid=password-auth-submit]");
+  await ctx.navigate("/register");
+  await ctx.check("document_permissions_deny_unused_preserve_copy_and_identity", `(() => {
+    const policy = document.featurePolicy;
+    const supported = new Set(policy.features());
+    const unused = ["accelerometer", "autoplay", "bluetooth", "browsing-topics", "camera", "captured-surface-control", "clipboard-read", "compute-pressure", "deferred-fetch", "deferred-fetch-minimal", "digital-credentials-create", "digital-credentials-get", "display-capture", "encrypted-media", "fullscreen", "gamepad", "geolocation", "gyroscope", "hid", "idle-detection", "interest-cohort", "keyboard-map", "language-detector", "language-model", "local-fonts", "local-network", "local-network-access", "loopback-network", "magnetometer", "media-playback-while-not-visible", "microphone", "midi", "on-device-speech-recognition", "otp-credentials", "payment", "picture-in-picture", "private-state-token-issuance", "private-state-token-redemption", "publickey-credentials-create", "publickey-credentials-get", "screen-wake-lock", "serial", "speaker-selection", "summarizer", "sync-xhr", "translator", "usb", "web-app-installation", "window-management", "xr-spatial-tracking"];
+    return supported.has('camera') && supported.has('clipboard-write') && policy.allowsFeature('clipboard-write')
+      && (!supported.has('identity-credentials-get') || policy.allowsFeature('identity-credentials-get'))
+      && unused.every(name => !supported.has(name) || !policy.allowsFeature(name));
+  })()`);
+  await ctx.fill("#auth-email", EMAIL); await ctx.click("[data-testid=password-auth-submit]");
   await ctx.waitFor("location.pathname==='/registration-sent'", "registration_acknowledged");
   const mail = await ctx.bridge.send("mailbox", { purpose: "verify_email" });
   const proof = mail.proof; if (mail.found !== true || typeof proof !== "string" || !/^[A-Za-z0-9_-]{43}$/.test(proof)) throw Error("synthetic_proof_invalid"); ctx.secrets.add(proof);
@@ -51,7 +60,7 @@ const report = { status: failure ? "failed" : "passed", failure, failure_categor
   content_security_policy: ctx?.csp || null,
   runtime_diagnostics: ctx?.runtimeDiagnostics?.snapshot() || null,
   limitations: ["All accounts, rows, grants and analysis are disposable synthetic fixtures; no live provider or business SQL.", "Clipboard and CSV Blob output are captured in memory through real UI callbacks; OS clipboard/download storage is not accessed.",
-    "Full CSP enforcement is fixture-only. The source subresource policy remains report-only; Google SDK/provider and real TLS/HSTS acceptance are not established."] };
+    "This browser enforces the checked-in nginx document policy. Provider credentials and deployment TLS are outside this disposable fixture."] };
 const directory = process.env.AQUA_P08_ARTIFACT_DIR;
 if (directory && path.isAbsolute(directory)) { await mkdir(directory, { recursive: true }); await writeFile(path.join(directory, "p08-browser-report.json"), JSON.stringify(report, null, 2) + "\n"); }
 process.stdout.write(JSON.stringify({ status: report.status, failure, failure_category: report.failure_category, failure_stage: report.failure_stage, checks: report.checks.length, cleanup: report.cleanup?.backend_resources_removed === true }) + "\n");

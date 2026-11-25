@@ -1,7 +1,7 @@
 """Pinned application image and compiled file digests for the native recovery rehearsal."""
 
-IMAGE = "sha256:34de2b2b420cadd25d7a4d200b1c0ba2a7f99ddf4cf148bef6d2aaafbeac44e9"
-MANIFEST_SHA256 = "8faaeaf928e735670702aa52b4605ebabfa3f7538771c0f15599d4c77a05c11f"
+IMAGE = "sha256:e9b1c3ee5a6ac60a4d076bc79d2ce06012db561f5f0794de275b395e98b80bae"
+MANIFEST_SHA256 = "f6bef96456eacbf32485bcf6830a036832e4b624a2e023078daf15da180b1c05"
 RUNTIME_FILES = {
     "account/__init__.py": "4d300929fcb6d0c0e3a6b92377bfd4648fc336a8ad2bfb3e962d810b3b6f55e0",
     "account/action_contracts.py": "be3becba0a54378a847efdaa76cc833e3b780df3658c90d30f86a7852232a397",
@@ -16,7 +16,7 @@ RUNTIME_FILES = {
     "account/identity_contracts.py": "92eb98e490277acd521f7a5fe30a922baa1ec364545a312a0d75980571346b59",
     "account/identity_router.py": "feca4240498e5d63ed7d16b7ee3f73e514e3144668f03d34e1cd8cd1afd9c2d5",
     "account/identity_runtime.py": "3bf508fbd30a6a05554c418529cf7bd5c7c29be47b21f89c44916e0956c820a8",
-    "account/mail_actions.py": "330c072d5a652324ee9fb0de079858cc82464e3bc7d080437bfeab6ac0cc6bde",
+    "account/mail_actions.py": "5b91eb659e62acf8abb9d5f0e7d9e1da32fc91fdc67bb1b7a1e2cdd7a8926136",
     "account/notifications.py": "ad2d7dd48e33b9481085f5a93c02632f02a14e152483bcd86afde72fbde1c283",
     "account/policy.py": "65127bf167df616d9387f6559bbc8f7ac98eb990a3ce1839ccf2aafb7104b40d",
     "account/proof_consumption.py": "28e8c635ad47a09e67861e3fdc3457eea928623ab9eb359eced5956e77a7e3a2",
@@ -77,8 +77,8 @@ RUNTIME_FILES = {
     "auth/password_router.py": "e09b665256a2f25adf9f2fbd29d5be04d1020f351695f0efaa3af656f1cc1a79",
     "auth/password_sessions.py": "1b56ae442f9d7e2fdaf29e67ec63aaae1e4ab133e0209fe344b1967c597e63de",
     "auth/password_settings.py": "5e112c9b894096721576d926eea7b51af914375e1d5ed846c09b11c305c3868d",
-    "auth/passwords.py": "e034fa19103ac71079c6314330e2bd1c8042516c2cf82857bc913401c7f38c3c",
-    "auth/router.py": "ee6620211fa5359d0d7d8140edc8eefa8a7c614c96b752dc77a8bae5758e4976",
+    "auth/passwords.py": "65f4a862fe8b80df42da95ef0740e3eadac5a40f71fe702348b75d6d9b6e4e08",
+    "auth/router.py": "f973173bf2a778bf92d3622070122830cb86b36e51e3d2929a2273ce4c2ffdd4",
     "auth/security.py": "434fbdcccfd93cda6b8f0440c072a9ee12a027f7defe1d73a3be03d3e3d27dc1",
     "auth/sessions.py": "1af1a3b2c58d651ba65d14eb790245cb87948ce91af9c7f226defa901af848a6",
     "auth/store.py": "c03948eef3ca7a47de192d450e18be1aafde40a8faf49a73ad5cdada37460ec6",
@@ -115,7 +115,7 @@ RUNTIME_FILES = {
     "eval/banking/proposals.py": "36691853c59240fa86ca955e1d7d4051f056a20f23af8416560ebbb16d635b6c",
     "eval/banking/reports.py": "89f8595f2ccbdb13d280b92c77ae52448149a1ad173f42aafa9b98ecf3bc1bc1",
     "eval/banking/scope.py": "d04351dab5a397ffe161ad47e7322f329e1517510a250d71ec3b9b25014d888c",
-    "main.py": "8ecec604332d13415fc377b43946cfe6b5bf95a636569536164d31523db73474",
+    "main.py": "936a9c91b35bde8e828de532e6757c208667cc5ed4f2bc9d52bd3a2c3123fb0c",
     "mcp_demo/__init__.py": "10641412ed8d7dda80a2f7713cd9083d62acbd73c9de682b5d40ab1c582c0ce9",
     "mcp_demo/data.py": "0213446283991323991cf18019efc8f3d81e243ea79266677b3426a03bcf7150",
     "mcp_demo/finance.py": "ba39e5383b650db76911f9b0a926b6ef8743af7c1ce67a11abcf35ea496d3548",
@@ -157,7 +157,7 @@ RUNTIME_FILES = {
     "nl2sql/provider_gemini.py": "b67b8753d2d02d9d5b0f938819eda41d68917fcf31f0d7d52dfcc2fed993578c",
     "nl2sql/provider_ollama.py": "116affd448e9a0ac2d2c743f191ea6920f0848c74b758efbad863fedaeb04d41",
     "nl2sql/query_service.py": "6fa51f55ee62a58093a1e3db8b227859c595d8cf04347b4d88434b7eb5f43e9f",
-    "nl2sql/relations.py": "e071f45961d211ca56fb0a23447716e4d352061087933f68d3371f47726a406b",
+    "nl2sql/relations.py": "9f7a29357dd35201f7e0b7ccd4002de84d02ecc8112c5d1ffb81e501a8a21694",
     "nl2sql/response.py": "76523d8b9d2a7a18175afe58df8461812a0b30277bc9c0bc78d40c260b8d8dcf",
     "nl2sql/result_metadata.py": "cc4f528195e7e2beb4b9ffd051e4df2942dc7ab150754f603c3633de53daecf5",
     "nl2sql/retrieval/__init__.py": "460ff5d0ef355c76275f9e8fa0d03404901eb77e49a9ce1314bc4b31081e8128",
@@ -172,7 +172,7 @@ RUNTIME_FILES = {
     "nl2sql/schema_loader.py": "c4871bb3547ab8d8b4302d376412b43f04029a8eff1481bce1d286d1140cc354",
     "nl2sql/source_fields.py": "6b2911d504e102ffb460cf8f06ea04c6287d737df9fc1b6cd361a9141ce22a27",
     "nl2sql/summarize.py": "67600cab975a753455886803505d5acd20f29e17659a5d27c266903e5487ec58",
-    "nl2sql/validate.py": "7f25f44a24678e521547f1a7733cdd073f0af2a71ff4c543cc052044ee7465f5",
+    "nl2sql/validate.py": "fc8709d14e79277b0308b84b93387276c7f3f6a1c69fe676ee706ed4267c6a89",
     "nl2sql/visual_axes.py": "7df561553e4ea33b8244953fd4416f32a10d215befef75eda72620979df04158",
     "nl2sql/visual_intent.py": "f59c2394bc20b24979721ca634fff2c8db8e19fadf0b9b91af2bbf4026b86d11",
     "nl2sql/visual_units.py": "f6a86e64803902996595febbe2f02a36b703b7f2a1787fef46eb2e0d370489d8",
@@ -238,7 +238,7 @@ RUNTIME_FILES = {
     "workspace/__init__.py": "5345f48f0def68707134328341da1f65967ec693868e28a4fb59faf9d7652bc1",
     "workspace/access_logging.py": "da3fa37f93b02c925dc3d2a29f47d660bfd804a668fed7d9aa59597753ffdbb5",
     "workspace/boundary.py": "8dc1d158ec9ae600d8438952680850d86df09b25cf350e410364af01b0b93fd7",
-    "workspace/catalog.py": "fd5332b6c2dce52c04aa5c430f0b97d5334ff75f24b2a00c94aaf9dede3b7523",
+    "workspace/catalog.py": "f939c0b08aefe8fad8488764e700bea098a9639a5e5b8791fb2e2380a734679b",
     "workspace/catalog_router.py": "60c380071eb414dfbe58549d71db7d4846acb4127f3cb0d038224031d9217bee",
     "workspace/chat_router.py": "86a609c9ab2310fc310f90759f66c59fb57f58d8ba2cda9337d464f38cb3aa88",
     "workspace/completion.py": "cc9c96ef14e568e4c451d810a497671ee6fc060eab8c5d2feead5f5926edb19b",

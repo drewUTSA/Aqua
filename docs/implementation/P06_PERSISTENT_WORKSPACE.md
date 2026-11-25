@@ -102,8 +102,8 @@ cleanup.
 | Chat messages | 200 per chat |
 | Chats | 100 nondeleted / 1,000 retained per account; 10,000 global |
 | Analysis requests | 10,000 per account; 100,000 global |
-| Projects | 20 nondeleted / 1,000 retained per account; 50,000 global |
-| Saved prompts | 100 nondeleted / 1,000 retained per account; 50,000 global |
+| Projects | 20 nondeleted / 1,000 retained per account; 50,000 nondeleted globally |
+| Saved prompts | 100 nondeleted / 1,000 retained per account; 50,000 nondeleted globally |
 | Prompt use records | 10,000 per account |
 | Logical stored content | 16 MiB per account; 200 MiB global |
 | Workspace mutations | 60 per account/minute, including rejected item/revision attempts |
@@ -112,6 +112,13 @@ Short advisory-lock bookkeeping serializes global reservations. A fixed singleto
 counter avoids a history scan for global byte admission. These are logical-content
 and row caps, not physical PostgreSQL disk-size or production performance claims.
 P07/P12 still own broader job admission and capacity work.
+
+**Dataset grant proposal for owner review.** Keep private project and prompt
+creation available to signed-in employees before a dataset is assigned. Creating
+either item consumes workspace quota and gives the employee no analytical access.
+Requiring a dataset grant on creation would limit enrollment-time storage demand
+but would prevent employees from organizing their workspace during onboarding.
+Any such change requires a separate access-policy decision.
 
 Lists use bounded keyset pages and owner indexes. Signed cursors bind the account,
 list filters and stable sort position; offset pagination and arbitrary message

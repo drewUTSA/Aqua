@@ -3,6 +3,7 @@
 from http.client import HTTPConnection
 import hashlib
 import json
+import re
 import sys
 import time
 
@@ -17,8 +18,8 @@ def document_policy(response):
     names = [name.lower() for name, _ in headers]
     assert names.count("content-security-policy") == 1, "document_csp_missing"
     assert (
-        names.count("content-security-policy-report-only") == 1
-    ), "document_csp_report_missing"
+        names.count("content-security-policy-report-only") == 0
+    ), "unexpected_report_only_policy"
 
     def directives(name):
         parts = [part.strip().split() for part in response.getheader(name).split(";")]
@@ -32,9 +33,6 @@ def document_policy(response):
         "base-uri": "'none'",
         "frame-ancestors": "'none'",
     }
-    assert (
-        directives("Content-Security-Policy") == baseline
-    ), "document_csp_enforcement_changed"
     candidate = {
         **baseline,
         "default-src": "'none'",
@@ -51,13 +49,10 @@ def document_policy(response):
         "manifest-src": "'self'",
     }
     assert (
-        directives("Content-Security-Policy-Report-Only") == candidate
+        directives("Content-Security-Policy") == candidate
     ), "document_csp_candidate_changed"
     encoded = json.dumps(
-        [
-            response.getheader("Content-Security-Policy"),
-            response.getheader("Content-Security-Policy-Report-Only"),
-        ],
+        [response.getheader("Content-Security-Policy")],
         separators=(",", ":"),
     ).encode()
     return hashlib.sha256(encoded).hexdigest()
@@ -68,7 +63,7 @@ def probe(paths, recovery_sha256):
     policy_hashes = set()
     policy_responses = 0
 
-    def get(path, *, document=False, isolated=False):
+    def get(path, *, document=False, isolated=False, hostname=None):
         nonlocal last, count, policy_responses
         time.sleep(max(0, 0.21 - (time.monotonic() - last)))
         if count >= MAX_REQUESTS or time.monotonic() - started >= MAX_SECONDS:
@@ -77,18 +72,85 @@ def probe(paths, recovery_sha256):
         last = time.monotonic()
         connection = HTTPConnection("127.0.0.1", 5173, timeout=2)
         try:
-            connection.request("GET", path)
+            connection.request(
+                "GET", path, headers={"Host": hostname} if hostname else {}
+            )
             response = connection.getresponse()
+            if path == "/api":
+                assert response.getheader("Location") is None, "bare_api_redirect"
             body = response.read(MAX_BODY + 1)
             assert len(body) <= MAX_BODY, "delivery_body_budget"
+            headers = {name.lower(): value for name, value in response.getheaders()}
+            for name, expected in (
+                ("strict-transport-security", "max-age=31536000; includeSubDomains"),
+                ("cross-origin-opener-policy", "same-origin-allow-popups"),
+                ("cross-origin-resource-policy", "same-origin"),
+            ):
+                assert headers.get(name) == expected, "response_security_header_changed"
+            permissions = headers.get("permissions-policy", "").split(", ")
             assert all(
-                response.getheader(name) is None
-                for name in (
-                    "Strict-Transport-Security",
-                    "Cross-Origin-Opener-Policy",
-                    "Cross-Origin-Embedder-Policy",
-                )
-            ), "unqualified_transport_policy"
+                item.endswith("=()") for item in permissions
+            ), "permissions_policy_open"
+            disabled = {
+                "accelerometer",
+                "autoplay",
+                "bluetooth",
+                "browsing-topics",
+                "camera",
+                "captured-surface-control",
+                "clipboard-read",
+                "compute-pressure",
+                "deferred-fetch",
+                "deferred-fetch-minimal",
+                "digital-credentials-create",
+                "digital-credentials-get",
+                "display-capture",
+                "encrypted-media",
+                "fullscreen",
+                "gamepad",
+                "geolocation",
+                "gyroscope",
+                "hid",
+                "idle-detection",
+                "interest-cohort",
+                "keyboard-map",
+                "language-detector",
+                "language-model",
+                "local-fonts",
+                "local-network",
+                "local-network-access",
+                "loopback-network",
+                "magnetometer",
+                "media-playback-while-not-visible",
+                "microphone",
+                "midi",
+                "on-device-speech-recognition",
+                "otp-credentials",
+                "payment",
+                "picture-in-picture",
+                "private-state-token-issuance",
+                "private-state-token-redemption",
+                "publickey-credentials-create",
+                "publickey-credentials-get",
+                "screen-wake-lock",
+                "serial",
+                "speaker-selection",
+                "summarizer",
+                "sync-xhr",
+                "translator",
+                "usb",
+                "web-app-installation",
+                "window-management",
+                "xr-spatial-tracking",
+            }
+            assert {f"{feature}=()" for feature in disabled} <= set(permissions)
+            assert (
+                "clipboard-write=()" not in permissions
+                and "identity-credentials-get=()" not in permissions
+            )
+            assert (
+                "cross-origin-embedder-policy" not in headers
+            ), "unexpected_embedder_policy"
             if document:
                 policy_hashes.add(document_policy(response))
                 policy_responses += 1
@@ -139,6 +201,17 @@ def probe(paths, recovery_sha256):
             assert (
                 hashlib.sha256(body).hexdigest() == recovery_sha256
             ), "missing_document_recovery"
+    for hostname in ("aqua-ai.us", "api.aqua-ai.us"):
+        status, kind, body = get("/.well-known/security.txt", hostname=hostname)
+        assert status == 200 and kind.startswith("text/plain"), "security_contact_type"
+        lines = body.decode("utf-8").splitlines()
+        assert any(
+            re.fullmatch(r"Contact: (?:mailto:|https://)\S+", line) for line in lines
+        )
+        assert any(
+            re.fullmatch(r"Expires: \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z", line)
+            for line in lines
+        )
     status, kind, body = get("/robots.txt")
     assert status == 200 and kind.startswith("text/plain"), "robots_type"
     assert body == b"User-agent: *\nDisallow: /\n", "robots_policy"
@@ -149,6 +222,10 @@ def probe(paths, recovery_sha256):
     assert status == 200 and body == b"/* synthetic asset */", "asset_delivery"
     status, _, body = get("/fixture-icon.svg", document=True)
     assert status == 200 and body == b"<svg/>", "public_file_delivery"
+    for hostname in ("aqua-ai.us", "api.aqua-ai.us"):
+        status, kind, body = get("/api", isolated=True, hostname=hostname)
+        assert status == 404 and kind.startswith("application/json"), "bare_api_exposed"
+        assert body == b'{"detail":"Not found"}', "bare_api_body_changed"
     status, kind, body = get("/api/ready", isolated=True)
     assert status == 404 and kind.startswith("application/json"), "readiness_exposed"
     assert body == b'{"detail":"Not found"}', "readiness_body_changed"

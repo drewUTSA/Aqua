@@ -69,8 +69,7 @@ def _limited(error: AuthLimited) -> HTTPException:
 
 
 def _peer(request: Request) -> str:
-    # Forged forwarding headers never create a budget. The current tunnel peer
-    # is intentionally aggregate until a separately reviewed ingress trust chain.
+    # Uvicorn normalizes the socket peer supplied by the trusted loopback proxy.
     return request.client.host if request.client else "unknown"
 
 

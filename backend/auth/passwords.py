@@ -24,6 +24,8 @@ from auth.store import IdentityStore, StoredSession
 from nl2sql.config import Settings
 from storage.pool import Storage
 
+EMAIL_RESPONSE_FLOOR_SECONDS = 0.5
+
 
 class PasswordStore:
     def __init__(
@@ -56,9 +58,11 @@ class PasswordStore:
         reserve(self.storage, self.policy, "mail", peer_key, email)
         started = time.monotonic()
         request_email(self.storage, self.policy, self.mail_policy, email, purpose)
-        # Admission bounds accepted work to 30/min globally. Pad only generic
-        # success after releasing the DB lease; rejected floods never sleep.
-        remaining = 0.05 - (time.monotonic() - started)
+        # Admission bounds accepted work to 30/min globally. Apply the same
+        # half-second floor to eligible, absent and suppressed mailboxes after
+        # releasing the DB lease; rejected floods never sleep. Work exceeding
+        # the floor is not constant-time and must be monitored operationally.
+        remaining = EMAIL_RESPONSE_FLOOR_SECONDS - (time.monotonic() - started)
         if remaining > 0:
             time.sleep(remaining)
 

@@ -99,16 +99,21 @@ class MailActions:
                 proof,
                 method="google" if operation == "password_add" else None,
             )
+            deliver_mail = True
             if operation == "password_add":
                 password_absent(conn, session.user["id"])
-            elif target == source[1]:
-                raise WorkspaceError("identity_conflict", 409)
             else:
                 found = conn.execute(
                     "SELECT user_id FROM app.user_emails WHERE email_key=%s", (target,)
                 ).fetchone()
-                if found and str(found[0]) != session.user["id"]:
-                    raise WorkspaceError("identity_conflict", 409)
+                # Keep the same bounded pending request and accepted response
+                # without disclosing whether somebody else owns the mailbox.
+                # No confirmation tickets means this request cannot complete.
+                # An existing nonprimary address owned by this account remains
+                # eligible for the established two-mailbox change workflow.
+                deliver_mail = target != source[1] and (
+                    found is None or str(found[0]) == session.user["id"]
+                )
             proof_identity = conn.execute(
                 "SELECT external_identity_id,external_identity_revision FROM app.account_action_proofs WHERE secret_digest=%s",
                 (proof,),
@@ -128,6 +133,8 @@ class MailActions:
                 if operation == "password_add"
                 else [("email_change_new", target), ("email_change_old", source[1])]
             )
+            if not deliver_mail:
+                mails = []
             for purpose, recipient in mails:
                 token = secrets.token_urlsafe(32)
                 ticket = conn.execute(

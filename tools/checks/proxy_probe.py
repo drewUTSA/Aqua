@@ -56,10 +56,26 @@ def probe(baseline: bool = False) -> dict:
                 raise RuntimeError("exercise budget exceeded")
             sent += 1
             last = time.monotonic()
-        conn = HTTPConnection("127.0.0.1", 5173, timeout=2)
+        # Exercise an ordinary socket peer outside the tunnel's exact address.
+        conn = HTTPConnection(
+            "127.0.0.1", 5173, timeout=2, source_address=("127.0.0.2", 0)
+        )
         try:
             conn.request(method, path, body=body, headers=headers or {})
             reply = conn.getresponse()
+            if not baseline:
+                assert (
+                    reply.getheader("Strict-Transport-Security")
+                    == "max-age=31536000; includeSubDomains"
+                )
+                assert (
+                    reply.getheader("Cross-Origin-Opener-Policy")
+                    == "same-origin-allow-popups"
+                )
+                assert reply.getheader("Cross-Origin-Resource-Policy") == "same-origin"
+                assert "microphone=()" in (
+                    reply.getheader("Permissions-Policy") or ""
+                ).split(", ")
             result = {
                 "status": reply.status,
                 "retry_after": reply.getheader("Retry-After"),
