@@ -5,7 +5,7 @@ import "../../styles/auth.css";
 export default function SignInPanel({ auth, dedicated = false }) {
   const buttonRef = useRef(null);
   const [googleStatus, setGoogleStatus] = useState("loading");
-  const config = auth.config;
+  const config = auth.config?.capabilities?.google_login === false ? null : auth.config;
   const generatedTitleId = useId();
   const titleId = dedicated ? "signin-heading" : generatedTitleId;
   const Heading = dedicated ? "h1" : "h2";

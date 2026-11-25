@@ -30,7 +30,16 @@ test("login configuration and restored identity use the relative private API", a
   assert.deepEqual(await fetchAuthConfig({ signal: controller.signal }), CONFIG);
   assert.deepEqual(await fetchSession({ signal: controller.signal }), SESSION);
   assert.deepEqual(requests.map(({ url }) => url), ["/api/auth/config", "/api/auth/me"]);
+  assert.equal(requests[0].init.headers["X-Aqua-Login-Options"], "1");
   for (const { init } of requests) checkRequest(init, "GET", controller.signal);
+});
+
+test("password-only workspaces can advertise closed registration without a Google challenge", async (t) => {
+  const capabilities = {google_login:false,password_login:true,password_registration:false,durable_sessions:true};
+  t.mock.method(globalThis, "fetch", async () => jsonResponse({capabilities}));
+  assert.deepEqual(await fetchAuthConfig(), {capabilities});
+  globalThis.fetch.mock.mockImplementation(async () => jsonResponse({capabilities:{...capabilities,google_login:true}}));
+  await assert.rejects(fetchAuthConfig(), error => error.status === 502);
 });
 
 test("a missing browser session returns null without exposing server detail", async (t) => {

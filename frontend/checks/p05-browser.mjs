@@ -383,6 +383,7 @@ try {
 
   fixture.email = null; fixture.canQuery = true; fixture.google = "error"; await navigate();
   await waitFor("document.body.textContent.includes('Google sign-in is temporarily unavailable')", "google_failed");
+  await check("an unavailable login policy keeps registration closed and password recovery available", `!document.querySelector('a[href="/register"]') && Boolean(document.querySelector('a[href="/forgot-password"]'))`);
   fixture.holdLogin = true; await fill("#auth-email", EMAIL_A); await fill("#auth-password", PASSWORD);
   const loginBefore = fixture.count("/api/v1/auth/password-login");
   await evaluate("(()=>{const button=document.querySelector('[data-testid=password-auth-submit]');button.click();button.click();return true})()");
@@ -391,7 +392,15 @@ try {
   fixture.holdLogin = false; await fixture.release("login"); await waitFor("Boolean(document.querySelector('.opal-workspace:not([hidden])'))", "password_after_google_failure");
   results.push({ check: "Google failure does not block password and duplicate submit makes one POST", passed: true });
 
-  fixture.email = null; fixture.google = "ready"; await navigate("/register");
+  fixture.email = null; fixture.google = "ready"; fixture.registrationEnabled = false;
+  await navigate("/signin");
+  await waitFor("document.body.textContent.includes('contact your administrator')", "closed_signup_config_applied");
+  await check("closed registration keeps sign-in and recovery available", "Boolean(document.querySelector('#auth-email') && document.querySelector('a[href=\"/forgot-password\"]')) && !document.querySelector('a[href=\"/register\"]')");
+  await navigate("/register");
+  await waitFor("document.body.textContent.includes('Contact your workspace administrator')", "closed_signup_deep_link");
+  await check("a closed registration link explains access and offers sign-in without collecting an address", "!document.querySelector('#auth-email') && Boolean(document.querySelector('a[href=\"/signin\"]'))");
+  fixture.registrationEnabled = true; await navigate("/register");
+  await waitFor("Boolean(document.querySelector('#auth-email'))", "open_registration_ready");
   await check("registration asks only for email before ownership proof", "Boolean(document.querySelector('#auth-email'))&&!document.querySelector('#auth-password')");
   await fill("#auth-email", "new-reader@example.test"); fixture.nextError = { path: "/api/v1/auth/registrations", status: 403 };
   const registrations = fixture.count("/api/v1/auth/registrations"); const challenges = fixture.sequence;

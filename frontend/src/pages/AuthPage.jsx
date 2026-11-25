@@ -67,8 +67,12 @@ function AuthContent({ path, proof, onNavigate, onProofConsumed, auth }) {
   const retrySeconds = Math.max(0, Math.ceil((retryAt - now) / 1000));
   const authBusy = ["loading", "signingin", "signingout"].includes(auth.status);
   const busy = pending || auth.passwordPending || authBusy;
+  const registrationClosed = auth.config?.capabilities?.password_registration === false;
+  const checkingOptions = !auth.config && !auth.googleError && (auth.status === "loading" || auth.status === "signedout");
+  const optionsUnavailable = !auth.config && Boolean(auth.googleError);
+  const canOfferRegistration = Boolean(auth.config) && !registrationClosed;
   const disabledByPolicy = isSignIn && auth.config?.capabilities?.password_login === false;
-  const disabled = busy || retrySeconds > 0 || unavailable || disabledByPolicy;
+  const disabled = busy || retrySeconds > 0 || unavailable || disabledByPolicy || (isRegistration && !canOfferRegistration);
   useEffect(() => { mounted.current = true; heading.current?.focus({ preventScroll: true }); return () => { mounted.current = false; active.current?.abort(); }; }, []);
   useEffect(() => {
     const remaining = retryAt - Date.now();
@@ -124,18 +128,27 @@ function AuthContent({ path, proof, onNavigate, onProofConsumed, auth }) {
   let title = "Welcome back";
   let description = "Sign in to your AQUA workspace.";
   if (isRegistration) { title = "Create your workspace"; description = "Start with your email. You’ll create a password after verifying it."; }
+  if (isRegistration && !canOfferRegistration) {
+    title = "Account access";
+    description = checkingOptions ? "Checking available sign-in options…" : "Contact your workspace administrator for access, or sign in with an existing account.";
+    if (optionsUnavailable) description = "We couldn’t check whether registration is open. Try again later or contact your workspace administrator.";
+  }
   if (isRequest) { title = "Reset your password"; description = "Enter your email address and we’ll send a link if your account is eligible for password recovery."; }
   if (path === "/check-email") { title = "Check your inbox"; description = "If this address is eligible, you’ll receive password-reset instructions shortly."; }
   if (path === "/registration-sent") { title = "Verify your email"; description = "If this address is eligible, you’ll receive a link to finish setting up your account."; }
   if (isVerification) { title = "Create your password"; description = "Choose a unique password to finish verifying your email."; }
   if (isReset) { title = "Choose a new password"; description = "Set a new password for your AQUA account."; }
   if (invalidProof) { title = "Request a new link"; description = "This link is missing, invalid, expired or already used. Request a new email to continue."; }
+  if (isVerification && invalidProof && (registrationClosed || optionsUnavailable)) {
+    title = "Verification link unavailable";
+    description = "Contact your workspace administrator for access.";
+  }
   if (complete) { title = isVerification ? "Your account is ready" : "Password updated"; description = isVerification ? "Your email is verified. Sign in with your new password to continue. Data access is managed by your AQUA administrator." : "Your password has been changed and existing sessions have been signed out. Sign in again to continue."; }
   if (signingOut) { title = "Signing you out…"; description = "Your workspace is locked while AQUA confirms sign-out."; }
   if (logoutFailed) { title = "Sign-out could not be confirmed"; description = "Your workspace is locked. Try signing out again to finish securely."; }
   if (identityUnavailable) { title = "Account access unavailable"; description = auth.error || "AQUA couldn’t check your session. Please try again."; }
   useEffect(() => { document.title = `${title} | AQUA`; }, [title]);
-  const hasForm = !accountLocked && !complete && !invalidProof && (isSignIn || isRegistration || isRequest || isProof);
+  const hasForm = !accountLocked && !complete && !invalidProof && (isSignIn || (isRegistration && canOfferRegistration) || isRequest || isProof);
   return <section className="auth-card" aria-labelledby="auth-title" aria-busy={busy} data-auth-view={path}>
     <header className="auth-card__header"><h1 id="auth-title" ref={heading} tabIndex={-1}>{title}</h1><p>{description}</p></header>
     {hasForm && <form onSubmit={submit} method="post" action={FORM_ACTIONS[path]} className="auth-form" data-testid="password-auth-form">
@@ -154,12 +167,13 @@ function AuthContent({ path, proof, onNavigate, onProofConsumed, auth }) {
     {signingOut && <p className="auth-note" role="status">Please wait a moment.</p>}
     {logoutFailed && <button className="auth-primary" type="button" onClick={() => void auth.logout()} data-testid="signout-retry">Try signing out again</button>}
     {identityUnavailable && <button className="auth-primary" type="button" onClick={() => void auth.refresh()}>Check connection again</button>}
-    {!accountLocked && (isSignIn || isRegistration) && <><div className="auth-divider"><span>or</span></div><GoogleSignInButton auth={auth} disabled={pending || auth.passwordPending} /></>}
-    {!accountLocked && isSignIn && <p className="auth-account-link">New to AQUA? <LocalLink to="/register" onNavigate={onNavigate}>Create an account</LocalLink></p>}
+    {!accountLocked && (isSignIn || isRegistration) && auth.config?.capabilities?.google_login !== false && <>{hasForm && <div className="auth-divider"><span>or</span></div>}<GoogleSignInButton auth={auth} disabled={pending || auth.passwordPending} /></>}
+    {!accountLocked && isSignIn && canOfferRegistration && <p className="auth-account-link">New to AQUA? <LocalLink to="/register" onNavigate={onNavigate}>Create an account</LocalLink></p>}
+    {!accountLocked && isSignIn && registrationClosed && <p className="auth-account-link">For workspace access, contact your administrator.</p>}
     {isRegistration && <LocalLink to="/signin" onNavigate={onNavigate}>Already have an account? Sign in</LocalLink>}
     {isRequest && <LocalLink to="/signin" onNavigate={onNavigate}>Back to sign in</LocalLink>}
-    {(path === "/check-email" || path === "/registration-sent") && <><p className="auth-note">Check your spam folder too. If no email arrives, wait at least five minutes before requesting another link. Delivery depends on account eligibility and sending limits.</p><LocalLink to="/signin" onNavigate={onNavigate} className="auth-primary">Back to sign in</LocalLink><LocalLink to={path === "/check-email" ? "/forgot-password" : "/register"} onNavigate={onNavigate}>Request another email</LocalLink></>}
-    {invalidProof && !complete && <LocalLink to={isVerification ? "/register" : "/forgot-password"} onNavigate={onNavigate} className="auth-primary">Request a new {isVerification ? "verification" : "reset"} link</LocalLink>}
+    {(path === "/check-email" || path === "/registration-sent") && <><p className="auth-note">Check your spam folder too. {(path === "/check-email" || canOfferRegistration) && "If no email arrives, wait at least five minutes before requesting another link. "}Delivery depends on account eligibility and sending limits.</p><LocalLink to="/signin" onNavigate={onNavigate} className="auth-primary">Back to sign in</LocalLink>{(path === "/check-email" || canOfferRegistration) && <LocalLink to={path === "/check-email" ? "/forgot-password" : "/register"} onNavigate={onNavigate}>Request another email</LocalLink>}</>}
+    {invalidProof && !complete && (!isVerification || canOfferRegistration) && <LocalLink to={isVerification ? "/register" : "/forgot-password"} onNavigate={onNavigate} className="auth-primary">Request a new {isVerification ? "verification" : "reset"} link</LocalLink>}
     {(complete || invalidProof) && <LocalLink to="/signin" onNavigate={onNavigate} className={complete ? "auth-primary" : "auth-link"}>Back to sign in</LocalLink>}
     {isProof && !complete && !invalidProof && <LocalLink to="/signin" onNavigate={onNavigate}>Back to sign in</LocalLink>}
     <Policies onNavigate={onNavigate} />

@@ -68,7 +68,11 @@ export function sessionResponse(body) {
 }
 
 export async function fetchAuthConfig({ signal } = {}) {
-  const body = await request("/api/auth/config", { signal });
+  const body = await request("/api/auth/config", { signal, headers: { "X-Aqua-Login-Options": "1" } });
+  if (body?.capabilities?.google_login === false && typeof body.capabilities.password_registration === "boolean" &&
+      typeof body.capabilities.password_login === "boolean" && Object.keys(body).length === 1) {
+    return { capabilities: capabilitiesResponse(body.capabilities) };
+  }
   if (!body || !["client_id", "nonce", "csrf_token"].every((key) => typeof body[key] === "string" && body[key])) {
     throw new AuthError(502);
   }
