@@ -39,7 +39,7 @@ function TermsOfService({ onNavigate }) {
     <h2>Permitted use</h2>
     <p>Use AQUA lawfully and within the permissions granted by the database owner. Do not attempt to bypass access controls, obtain other users' information, disrupt the service, introduce malicious content, or use the service to change or damage connected databases. You are responsible for having permission to submit your questions and use or share the resulting information.</p>
     <h2>AI-generated queries and results</h2>
-    <p>AQUA generates SQL using AI and applies checks intended to allow read-only queries. AI can misunderstand a question, produce incorrect SQL, or return incomplete or misleading results. Review the SQL and verify important results against reliable records before acting on them. AQUA does not provide professional financial, legal, tax, or accounting advice.</p>
+    <p>AQUA generates SQL using AI and applies checks intended to allow read-only queries. AI can misunderstand a question, produce incorrect SQL, or return incomplete or misleading results. Review the answer and verify important results against reliable records before acting on them. AQUA does not provide professional financial, legal, tax, or accounting advice.</p>
     <h2>Your data and third-party services</h2>
     <p>You and the relevant data owners retain your rights in the information you submit and access. You authorize the processing needed to operate the service and answer your requests, as described in our <LocalLink to="/privacy" onNavigate={onNavigate}>Privacy Policy</LocalLink>. Sign-in, email, hosting, database and AI services may have their own terms. Do not submit data if your obligations prohibit the processing described in that policy.</p>
     <h2>Availability and limits</h2>

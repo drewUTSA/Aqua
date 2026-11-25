@@ -27,8 +27,7 @@ export default function OpalChat({ chat, auth, inputRef, focusRequest, onOpenPro
     const id = chat.startSavedRankDraft({ ownerId: owner, chatId: chat.activeConversationId, projectId: chat.active.projectId,
       replyId: reply.id, requestId: reply.requestId, status: reply.status });
     if (id) {
-      const question = chat.messages.find(message => message.id === reply.replyTo)?.content;
-      const fields = reply.status === "complete" ? savedRankFields(reply.response?.sql, question) : null;
+      const fields = reply.status === "complete" ? savedRankFields(reply.response?.rankFields) : null;
       setRankTarget({ owner, id, status: reply.status, fields });
     }
   } } : null;

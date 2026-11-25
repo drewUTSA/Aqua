@@ -42,9 +42,9 @@ export async function workspaceJourneys({ check, click, clickText, fill, key, wa
   await waitFor("document.querySelector('.desktop-sidebar').textContent.includes('P06 durable first question')", "recents_restored_after_reload");
   await clickText("P06 durable first question");
   await waitFor("document.querySelector('.conversation')?.textContent.includes('P06 durable first question')", "history_restored_after_reload");
-  await check("reload restores submitted history but does not upload an old unsent draft", "document.querySelector('.opal-composer textarea').value===''&&Boolean(document.querySelector('.sql-block'))");
+  await check("reload restores submitted history but does not upload an old unsent draft", "document.querySelector('.opal-composer textarea').value===''&&Boolean(document.querySelector('[data-answer-complete]'))");
   await remapJourneys({ check, click, clickText, fill, waitFor, evaluate, fixture });
-  await clickText("P06 durable first question"); await waitFor("Boolean(document.querySelector('.sql-block'))", "original_chat_restored_after_remap_cases");
+  await clickText("P06 durable first question"); await waitFor("Boolean(document.querySelector('[data-answer-complete]'))", "original_chat_restored_after_remap_cases");
   await grantLossJourneys({ check, click, fill, waitFor, evaluate, fixture });
   await chatAction(ctx, 'P06 durable first question', 'Rename chat');
   await fill(".workspace-editor input:not([type=checkbox])", "P06 renamed private chat");
@@ -72,7 +72,7 @@ export async function workspaceJourneys({ check, click, clickText, fill, key, wa
   await fill('.opal-composer textarea','Draft survives deleted project');
   await projectAction(ctx, 'Private P06 project', 'Delete project'); await clickText('Delete project', 'dialog[open] button');
   await waitFor("!document.querySelector('.workspace-editor')&&!document.querySelector('.desktop-sidebar').textContent.includes('Private P06 project')", "project_deleted");
-  await check("chat deletion removes its readable history and result", "!document.querySelector('.conversation,.sql-block')");
+  await check("chat deletion removes its readable history and result", "!document.querySelector('.conversation,[data-answer-complete]')");
   await check('homepage project deletion preserves its unsent draft while removing the project', "document.querySelector('.opal-composer textarea').value==='Draft survives deleted project'&&!document.querySelector('.desktop-sidebar').textContent.includes('Private P06 project')");
   await fill(".opal-composer textarea", "");
 }
@@ -102,7 +102,7 @@ async function remapJourneys({ check, click, clickText, fill, waitFor, evaluate,
   fixture.holdQuery = false; await fixture.release("query");
   await openDrafts(ctx); await waitFor("document.querySelector('dialog[open]').textContent.includes('Draft from deleted chat')", "late_deleted_response_fenced");
   await clickText("Draft · Draft from deleted chat");
-  await check("confirmed deletion fences a held first response and preserves only its unsent text", "!document.querySelector('.conversation,.sql-block')&&document.querySelector('.opal-composer textarea').value==='Unsent text kept after canonical deletion'");
+  await check("confirmed deletion fences a held first response and preserves only its unsent text", "!document.querySelector('.conversation,[data-answer-complete]')&&document.querySelector('.opal-composer textarea').value==='Unsent text kept after canonical deletion'");
   fixture.queryMessage = previousMessage;
 }
 
@@ -115,10 +115,10 @@ async function grantLossJourneys({ check, click, fill, waitFor, evaluate, fixtur
   await waitFor("Boolean(document.querySelector('.opal-workspace:not([hidden])'))&&document.querySelector('.opal-composer textarea').disabled", "history_grant_loss_confirmed");
   fixture.holdHistory = false; await fixture.release("history");
   await evaluate("new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve(true))))");
-  await check("late authorized history cannot restore SQL after grant loss", "!document.querySelector('.sql-block')&&document.querySelector('.opal-composer textarea').value==='Draft kept after data grant loss'");
+  await check("late authorized history cannot restore SQL after grant loss", "!document.querySelector('[data-answer-complete]')&&document.querySelector('.opal-composer textarea').value==='Draft kept after data grant loss'");
   fixture.canQuery = true; await revalidate();
   await waitFor("!document.querySelector('.opal-composer textarea').disabled", "history_grant_restored");
-  await click("[aria-label='Conversation options']"); await clickTextVisible("Refresh conversation"); await waitFor("Boolean(document.querySelector('.sql-block'))", "granted_history_reloaded");
+  await click("[aria-label='Conversation options']"); await clickTextVisible("Refresh conversation"); await waitFor("Boolean(document.querySelector('[data-answer-complete]'))", "granted_history_reloaded");
   const previousMessage = fixture.queryMessage; fixture.queryMessage = "GRANT_LOSS_SECRET_RESULT"; fixture.holdQuery = true;
   await fill(".opal-composer textarea", "Synthetic grant-race follow-up"); await click("[aria-label='Send message']");
   await waitFor("Boolean(document.querySelector('[aria-label=\"Stop response\"]'))", "authorized_submit_held");
@@ -127,7 +127,7 @@ async function grantLossJourneys({ check, click, fill, waitFor, evaluate, fixtur
   await waitFor("Boolean(document.querySelector('.opal-workspace:not([hidden])'))&&document.querySelector('.opal-composer textarea').disabled", "submit_grant_loss_confirmed");
   fixture.holdQuery = false; await fixture.release("query"); fixture.queryMessage = previousMessage;
   await evaluate("new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve(true))))");
-  await check("late authorized submission cannot restore results after grant loss", "!document.querySelector('.sql-block')&&!document.body.textContent.includes('GRANT_LOSS_SECRET_RESULT')&&document.querySelector('.opal-composer textarea').value==='Newer draft survives revoked request'");
+  await check("late authorized submission cannot restore results after grant loss", "!document.querySelector('[data-answer-complete]')&&!document.body.textContent.includes('GRANT_LOSS_SECRET_RESULT')&&document.querySelector('.opal-composer textarea').value==='Newer draft survives revoked request'");
   fixture.canQuery = true; await revalidate();
   await waitFor("!document.querySelector('.opal-composer textarea').disabled", "submit_grant_restored");
   await clickTextVisible("Check saved request");

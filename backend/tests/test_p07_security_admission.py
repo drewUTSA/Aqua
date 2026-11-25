@@ -190,7 +190,7 @@ def test_legacy_success_keeps_original_json_and_never_creates_hidden_chat(
     reply = client.post(
         "/api/query", json={"question": "One legacy answer", "model": "ollama"}
     )
-    assert reply.status_code == 200 and reply.json() == GOOD
+    assert reply.status_code == 200 and reply.json() == {**GOOD, "sql": ""}
     assert len(security.engine.calls) == 1
     with security.storage.transaction() as conn:
         assert conn.execute("SELECT count(*) FROM app.chats").fetchone() == (0,)

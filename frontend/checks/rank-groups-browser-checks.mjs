@@ -21,10 +21,10 @@ export async function rankGroupsJourney({ navigate, signIn, viewport, click, fil
   await waitFor(`Boolean(${query(".rank-groups summary")})`, "signed_in_rank_action");
   await fill(box, original); await openRank();
   await waitFor(`document.activeElement===${query(scope + ' input[name="source"]')}`, "typed_rank_source_focus");
-  await check("Source and Group by share visible guidance about saved SQL and result aliases", `
+  await check("Source and Group by share visible guidance about authorized saved results", `
     ['source','group'].every(name=>{
       const input=${query(scope)}.elements.namedItem(name), hint=document.getElementById(input.getAttribute('aria-describedby'));
-      return hint?.getClientRects().length && hint.textContent==='If you have a saved ranking, open its SQL to find the source table and grouping column. Result headings may be aliases.';
+      return hint?.getClientRects().length && hint.textContent==='Choose a source and grouping field you can access. A supported saved ranking can fill these in for you.';
     })`);
   await input("source", "readings"); await input("group", "meters");
   await click(scope + ' button[type="button"]');
@@ -91,6 +91,7 @@ export async function rankGroupsJourney({ navigate, signIn, viewport, click, fil
   assert.equal(fixture.queryCount(), 2, "opening_a_saved_rank_and_preparing_its_draft_must_not_submit");
   assert.ok(fixture.calls.slice(beforeReview).every(call => call.method === "GET"), "saved_review_never_writes");
   fixture.querySql = "SELECT meter_id AS meter, SUM(rainfall) AS total FROM public.readings GROUP BY meter_id ORDER BY total ASC LIMIT 2";
+  fixture.rankFields = {source:"readings",group:"meter_id",measure:"total",field:"rainfall",direction:"bottom",number:"2",ties:""};
   await fill(box, "Which are the bottom two meters by total rainfall?");
   await click('[aria-label="Send message"]');
   await waitFor(`Boolean(${query("[data-rank-ties]")})`, "saved_grouped_total_review");
@@ -100,7 +101,7 @@ export async function rankGroupsJourney({ navigate, signIn, viewport, click, fil
     (()=>{const form=${query(scope)}, ties=form.elements.namedItem('ties');
       return Object.entries({source:'readings',group:'meter_id',measure:'total',field:'rainfall',direction:'bottom',number:'2',ties:''})
         .every(([key,value])=>form.elements.namedItem(key).value===value) && form.querySelector('button[type="submit"]').disabled
-        && document.getElementById(ties.getAttribute('aria-describedby'))?.textContent.includes('copied from your saved SQL');})()`);
+        && document.getElementById(ties.getAttribute('aria-describedby'))?.textContent.includes('copied from your saved result');})()`);
   await change("ties", "peers");
   await click(scope + ' button[type="submit"]');
   await check("Reviewing the saved fields prepares a new unsent draft with the selected cutoff policy", `

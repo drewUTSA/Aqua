@@ -1,5 +1,6 @@
 import { assertHistory, bindHistoryIntent, captureHistory, historyHeaders, observeHistory } from "./historyAuthority.js";
 import { questionRetryMessage } from "./questionRetry.js";
+import { savedRankFields as safeRankFields } from "../components/workspace/savedRankFields.js";
 // The real transport: POST /api/query and GET /api/models on the backend.
 // Everything API-specific stays here, so components only ever see the
 // normalized response shape documented in BACKEND_INTEGRATION.md.
@@ -38,7 +39,9 @@ function wellFormed(body) {
 
 export function normalizeResponse(body) {
   if (!wellFormed(body)) return errorResponse("unavailable", UNREACHABLE, true);
-  const sql = typeof body.sql === "string" ? body.sql : "";
+  // Old servers or cached fixtures may still include a statement. Never retain
+  // it in employee state; current servers also strip it before delivery.
+  const sql = "";
   if (body.status === "error") {
     const code = body.error?.code || "unexpected";
     const reason = typeof body.error?.message === "string" ? body.error.message : "";
@@ -48,6 +51,7 @@ export function normalizeResponse(body) {
   return {
     status: "success",
     sql,
+    ...(body.rank_fields ? { rankFields: safeRankFields(body.rank_fields) } : {}),
     // The model that actually answered; differs from the one chosen when
     // the server fell back to Ollama because Gemini was unavailable.
     model: typeof body.model === "string" ? body.model : "",

@@ -43,8 +43,8 @@ export default function RankGroupsComposer({ onApply, onBack, original, reveal =
     }}>
       <p>{original ? "Choose ranking fields for a new draft. Your original question stays in Unsent drafts for this visit."
         : "Rank the groups present in a source you can access."} <span id={nameHint}>{copied
-          ? "Fields were copied from your saved SQL. Review them and choose how to handle ties."
-          : "If you have a saved ranking, open its SQL to find the source table and grouping column. Result headings may be aliases."}</span></p>
+          ? "Fields were copied from your saved result. Review them and choose how to handle ties."
+          : "Choose a source and grouping field you can access. A supported saved ranking can fill these in for you."}</span></p>
       <div className="rank-groups__fields">
         <NameField inputRef={source} name="source" label="Source" value={fields.source} placeholder="e.g. loans" description={nameHint} onChange={value => update("source", value)} />
         <NameField name="group" label="Group by" value={fields.group} placeholder="e.g. branches" description={nameHint} onChange={value => update("group", value)} />

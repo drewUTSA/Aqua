@@ -34,7 +34,7 @@ test("questions go to POST /api/query with the chosen model", async () => {
   assert.equal(calls[0].init.method, "POST");
   assert.deepEqual(JSON.parse(calls[0].init.body), { question: "How many films?", model: "gemini" });
   assert.equal(response.status, "success");
-  assert.equal(response.sql, SUCCESS.sql);
+  assert.equal(response.sql, "");
   assert.equal(response.tables[0].rows[0].films, 1000);
   assert.equal(response.kpis[0].value, 1000);
 });
@@ -46,14 +46,14 @@ test("without a model the server default is used", async () => {
   assert.deepEqual(JSON.parse(calls[0].init.body), { question: "q" });
 });
 
-test("refused queries keep the SQL and explain the refusal", async () => {
+test("refused queries discard generated SQL and explain the refusal", async () => {
   const { fetchImpl } = fakeFetch(jsonReply(200, {
     status: "error", sql: "DELETE FROM film", message: "", tables: [], visualizations: [], kpis: [],
     error: { code: "rejected", message: "Only SELECT queries are allowed, got DELETE.", retryable: false }
   }));
   const response = await queryApi({ prompt: "Delete every film", csrfToken: "t" }, { fetchImpl });
   assert.equal(response.status, "error");
-  assert.equal(response.sql, "DELETE FROM film");
+  assert.equal(response.sql, "");
   assert.equal(response.error.retryable, false);
   assert.match(response.error.message, /isn't allowed to run/);
   assert.match(response.error.message, /got DELETE/);

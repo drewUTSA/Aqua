@@ -24,7 +24,7 @@ export const RESULT_CHECKS = Object.freeze({
   missing_values: "Some returned rows have no value in this field. Decide whether missing values should be excluded or shown separately before comparing.",
   units_unknown: "The field unit is unspecified. Confirm its definition and unit before using it for a financial comparison.",
   freshness_unknown: "Source freshness is unavailable. The saved generation time does not establish how current the source data is.",
-  scope_unknown: "Filters and aggregation are unspecified. Review the original question and SQL before assuming what one returned row represents.",
+  scope_unknown: "Filters and aggregation are unspecified. Confirm the source, period and measure before assuming what one returned row represents.",
   precision_unverified: "This older saved result has no verified precision descriptor. Numeric extrema are unavailable; use its existing table and verify important figures against the source.",
 });
 

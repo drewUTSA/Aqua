@@ -49,6 +49,7 @@ def validated_bytes(source: object) -> bytes:
         or set(value) != FIELDS
         or value["status"] not in {"success", "error"}
         or any(type(value[key]) is not str for key in ("sql", "model", "message"))
+        or value["sql"] != ""
         or any(
             type(value[key]) is not list for key in ("tables", "visualizations", "kpis")
         )

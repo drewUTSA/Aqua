@@ -19,7 +19,7 @@ export async function actualAnalysisWorkspace({ check, click, clickText, fill, w
   await waitFor("Boolean(document.querySelector('.opal-workspace:not([hidden])'))&&!document.querySelector('.opal-composer textarea').disabled", "actual_fake_data_grant_confirmed");
   await check('actual homepage hides New chat before the first submitted conversation', "![...document.querySelectorAll('.new-chat,[aria-label=\"New chat\"]')].some(el=>el.getClientRects().length&&!el.closest('[hidden],[inert]'))");
   await fill(".opal-composer textarea", title); await click("[aria-label='Send message']");
-  await waitFor("Boolean(document.querySelector('.conversation .sql-block'))&&!document.querySelector('[aria-label=\"Stop response\"]')", "actual_durable_first_result");
+  await waitFor("Boolean(document.querySelector('.conversation [data-answer-complete]'))&&!document.querySelector('[aria-label=\"Stop response\"]')", "actual_durable_first_result");
   await check('actual homepage reveals one New chat after the first canonical submission', "[...document.querySelectorAll('.new-chat,[aria-label=\"New chat\"]')].filter(el=>el.getClientRects().length&&!el.closest('[hidden],[inert]')).length===1");
   await fill('.opal-composer textarea','Actual homepage unsent draft');
   await actualHomepageStateChecks({check,click,clickText,fill,waitFor,evaluate,queryCount});
@@ -29,8 +29,9 @@ export async function actualAnalysisWorkspace({ check, click, clickText, fill, w
   const firstPage = await rawRequest("GET", `/api/v1/chats/${chat.id}/messages`); assert.equal(firstPage.status, 200);
   const first = JSON.parse(firstPage.body).items; assert.deepEqual(first.map((item) => item.role), ["user", "aqua"]);
   assert.equal(first[1].reply_to, first[0].id); assert.equal(first[1].status, "complete"); assert.equal(first[1].response.status, "success");
+  assert.equal(first[1].response.sql, "", "saved_employee_API_must_omit_generated_SQL");
   await navigate("/"); await waitFor(`document.querySelector('.desktop-sidebar')?.textContent.includes(${JSON.stringify(title)})`, "actual_durable_recents_after_reload");
-  await clickText(title); await waitFor("Boolean(document.querySelector('.conversation .sql-block'))", "actual_saved_result_after_reload");
+  await clickText(title); await waitFor("Boolean(document.querySelector('.conversation [data-answer-complete]'))", "actual_saved_result_after_reload");
   await check("actual UI first submit restores canonical messages result and title after reload", `document.querySelectorAll('.conversation .message--user').length===1&&document.querySelectorAll('.conversation .message--aqua').length===1&&document.querySelector('.breadcrumb strong').textContent===${JSON.stringify(title)}`);
   await screenshot("p06-actual-restored-owned-history");
   const clientId = randomUUID(), input = { client_request_id: clientId, question: "Actual synthetic independent append", model: "gemini" };
@@ -46,7 +47,7 @@ export async function actualAnalysisWorkspace({ check, click, clickText, fill, w
   assert.equal(messages.filter((item) => item.role === "user").length, 2); assert.deepEqual(messages.map((item) => item.sequence), [1, 2, 3, 4]);
   await navigate("/"); await waitFor(`document.querySelector('.desktop-sidebar')?.textContent.includes(${JSON.stringify(title)})`, "actual_retry_recents_reloaded");
   await clickText(title); await waitFor("document.querySelectorAll('.conversation .message--aqua').length===2", "actual_replayed_history_restored");
-  await check("actual same-operation replay preserves canonical IDs and rejects retry of a successful input", "document.querySelectorAll('.conversation .message--user').length===2&&document.querySelectorAll('.conversation .sql-block').length===2");
+  await check("actual same-operation replay preserves canonical IDs and rejects retry of a successful input", "document.querySelectorAll('.conversation .message--user').length===2&&document.querySelectorAll('.conversation [data-answer-complete]').length===2");
   await recoverAnalysisRates();
   await fill(".opal-composer textarea", "P06 fixture transient failure"); await click("[aria-label='Send message']");
   await waitFor("Boolean([...document.querySelectorAll('.conversation button')].find(item=>item.textContent==='Try again'))&&!document.querySelector('[aria-label=\"Stop response\"]')", "actual_retryable_saved_failure");
@@ -64,16 +65,16 @@ export async function actualAnalysisWorkspace({ check, click, clickText, fill, w
   await navigate("/"); await waitFor(`document.querySelector('.desktop-sidebar')?.textContent.includes(${JSON.stringify(title)})`, "actual_retry_recents_reloaded");
   await clickText(title); await waitFor("document.querySelectorAll('.conversation .message--aqua').length===5", "actual_retry_history_restored");
   const stats = await bridge.send("workspace_stats"); assert.equal(stats.fake_executions, 5); assert.equal(stats.actual_provider_calls, 0);
-  await check("actual Try again creates a saved assistant attempt for the original input without provider work", "document.querySelectorAll('.conversation .message--user').length===3&&document.querySelectorAll('.conversation .sql-block').length===4");
+  await check("actual Try again creates a saved assistant attempt for the original input without provider work", "document.querySelectorAll('.conversation .message--user').length===3&&document.querySelectorAll('.conversation [data-answer-complete]').length===4");
   await actualLifecycleWorkspace({ check, click, clickText, fill, waitFor, navigate, rawRequest, bridge, screenshot, csrf, recoverAnalysisRates, queryCount });
   await navigate("/"); await waitFor(`document.querySelector('.desktop-sidebar')?.textContent.includes(${JSON.stringify(title)})`, "actual_original_history_after_lifecycle");
   await clickText(title); await waitFor("document.querySelectorAll('.conversation .message--aqua').length===5", "actual_original_history_restored");
   await bridge.send("workspace_revoke"); await revalidate();
-  await waitFor("Boolean(document.querySelector('.opal-workspace:not([hidden])'))&&document.querySelector('.opal-composer textarea').disabled&&!document.querySelector('.conversation .sql-block')", "actual_saved_data_revoked");
+  await waitFor("Boolean(document.querySelector('.opal-workspace:not([hidden])'))&&document.querySelector('.opal-composer textarea').disabled&&!document.querySelector('.conversation [data-answer-complete]')", "actual_saved_data_revoked");
   const revokedPage = await rawRequest("GET", `/api/v1/chats/${chat.id}/messages`); assert.equal(revokedPage.status, 200);
   const revoked = JSON.parse(revokedPage.body).items;
   assert.equal(revoked.length, 8); assert.ok(revoked.filter((item) => item.role === "aqua").every((item) => item.response === null && item.content === "" && item.result_unavailable));
   assert.ok(revoked.filter((item) => item.role === "user").every((item) => item.response === null));
-  await check("actual grant revocation withholds every saved result while keeping owned user messages", "!document.querySelector('.conversation .sql-block')&&document.querySelectorAll('.conversation .message--user').length===3");
+  await check("actual grant revocation withholds every saved result while keeping owned user messages", "!document.querySelector('.conversation [data-answer-complete]')&&document.querySelectorAll('.conversation .message--user').length===3");
   return chat.id;
 }

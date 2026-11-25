@@ -26,14 +26,14 @@ export async function actualLifecycleWorkspace({ check, click, clickText, fill, 
   await fill(".opal-composer textarea", "Actual unsent draft retained through cancellation"); await click("[aria-label='Cancel analysis']");
   await waitFor(state("cancelled"), "actual_generation_cancelled_after_child_reaped", 10000); await assertTerminal(generation.id, "cancelled");
   measured = await stats(); assert.equal(measured.physical_active, 0); assert.equal(measured.cancelled_executions, before.cancelled_executions + 1);
-  await check("actual generation cancellation reaps server work and retains the newer unsent draft", "document.querySelector('.opal-composer textarea').value==='Actual unsent draft retained through cancellation'&&!document.querySelector('.conversation .sql-block')");
+  await check("actual generation cancellation reaps server work and retains the newer unsent draft", "document.querySelector('.opal-composer textarea').value==='Actual unsent draft retained through cancellation'&&!document.querySelector('.conversation [data-answer-complete]')");
   await screenshot("p07-actual-server-cancelled-generation");
 
   await recoverAnalysisRates();
   const executionBefore = await stats(), execution = await begin("P07 fixture held execution", "executing");
   await click("[aria-label='Cancel analysis']"); await waitFor(state("cancelled"), "actual_execution_cancelled_after_reap", 10000); await assertTerminal(execution.id, "cancelled");
   measured = await stats(); assert.equal(measured.physical_active, 0); assert.equal(measured.fake_query_cancellations, executionBefore.fake_query_cancellations + 1);
-  await check("actual execution cancellation is confirmed by the saved request and fake-query termination counter", "document.querySelector('.analysis-status').textContent.includes('cancelled on the server')&&!document.querySelector('.conversation .sql-block')");
+  await check("actual execution cancellation is confirmed by the saved request and fake-query termination counter", "document.querySelector('.analysis-status').textContent.includes('cancelled on the server')&&!document.querySelector('.conversation [data-answer-complete]')");
 
   await recoverAnalysisRates();
   const reconnect = await begin("P07 fixture reconnect", "generating"), countBefore = queryCount(), startedBefore = (await stats()).fake_started;
@@ -43,7 +43,7 @@ export async function actualLifecycleWorkspace({ check, click, clickText, fill, 
   await check("actual refresh reconnects to the canonical request using GET without resubmitting", "document.querySelectorAll('.conversation .message--user').length===1&&document.querySelectorAll('.conversation .message--aqua').length===1");
   await bridge.send("workspace_release"); await waitFor(state("complete"), "actual_p07_reconnect_result", 10000); await assertTerminal(reconnect.id, "complete");
   await fill(".opal-composer textarea", "P07 fixture follow-up"); await click("[aria-label='Send message']");
-  await waitFor("document.querySelectorAll('.conversation .sql-block').length===2&&!document.querySelector('[aria-label=\"Cancel analysis\"]')", "actual_p07_follow_up_context", 10000);
+  await waitFor("document.querySelectorAll('.conversation [data-answer-complete]').length===2&&!document.querySelector('[aria-label=\"Cancel analysis\"]')", "actual_p07_follow_up_context", 10000);
   measured = await stats(); assert.ok(measured.last_context_turns >= 1 && measured.last_context_turns <= 8); assert.equal(measured.physical_active, 0);
   await check("actual follow-up uses bounded saved conversation context without a client transcript upload", "document.querySelector('.conversation').textContent.includes('Synthetic follow-up used its earlier saved question.')&&document.querySelectorAll('.conversation .message--user').length===2");
   await screenshot("p07-actual-reconnected-follow-up-history");
@@ -51,10 +51,10 @@ export async function actualLifecycleWorkspace({ check, click, clickText, fill, 
   await recoverAnalysisRates();
   const interrupted = await begin("P07 fixture held generation", "generating"); await bridge.send("workspace_restart");
   await waitFor(state("interrupted"), "actual_p07_restart_truthful_interruption", 10000); await assertTerminal(interrupted.id, "interrupted"); assert.equal((await stats()).physical_active, 0);
-  await check("actual dispatcher restart leaves a saved interrupted request and no fabricated completed result", "!document.querySelector('.conversation .sql-block')&&document.querySelector('.analysis-status').textContent.includes('interrupted')");
+  await check("actual dispatcher restart leaves a saved interrupted request and no fabricated completed result", "!document.querySelector('.conversation [data-answer-complete]')&&document.querySelector('.analysis-status').textContent.includes('interrupted')");
   await clickText("New chat"); await fill(".opal-composer textarea", "P07 fixture queued cancel"); await click("[aria-label='Send message']");
   await waitFor(state("complete"), "actual_p07_dispatcher_recovered", 10000); assert.equal((await stats()).physical_active, 0);
-  await check("actual restarted dispatcher accepts a new request after physical cleanup", "Boolean(document.querySelector('.conversation .sql-block'))");
+  await check("actual restarted dispatcher accepts a new request after physical cleanup", "Boolean(document.querySelector('.conversation [data-answer-complete]'))");
 
   await recoverAnalysisRates();
   const deleted = await begin("P07 fixture held execution", "executing");
@@ -63,7 +63,7 @@ export async function actualLifecycleWorkspace({ check, click, clickText, fill, 
   const absent = await rawRequest("GET", status(deleted.id)); assert.equal(absent.status, 404);
   const stopBy = Date.now() + 8000; do { measured = await stats(); if (!measured.physical_active) break; await new Promise((resolve) => setTimeout(resolve, 60)); } while (Date.now() < stopBy);
   assert.equal(measured.physical_active, 0);
-  await check("actual deletion cancels held work and prevents late saved-status resurrection", "!document.querySelector('.conversation,.sql-block,.analysis-status')");
+  await check("actual deletion cancels held work and prevents late saved-status resurrection", "!document.querySelector('.conversation,[data-answer-complete],.analysis-status')");
   await recoverAnalysisRates();
   await fill(".opal-composer textarea", "P07 fixture exact precision"); await click("[aria-label='Send message']");
   await waitFor(state("complete"), "actual_p07_exact_metadata_result", 10000);
