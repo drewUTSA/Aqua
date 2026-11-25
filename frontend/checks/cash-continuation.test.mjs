@@ -2,6 +2,37 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { cashContinuation } from "../src/features/bankDemo/cashContinuation.js";
 
+test("a cash estimate cannot be offered as an exact input", () => {
+  for (const phrase of ["more than", "above", "at most", "approximately"]) {
+    const result = cashContinuation(`For this day compare ${phrase} USD 412 in available funds with USD 526 in projected payments.`);
+    assert.equal(result?.amounts, undefined);
+    assert.match(result.hint, /exact/);
+  }
+});
+
+test("money already described as a result cannot supply a cash operand", () => {
+  const empty = cashContinuation("Today compare USD 710 of cash surplus with USD 90 in projected payments. Is there enough cash?");
+  assert.equal(empty?.amounts, undefined);
+  assert.match(empty.hint, /already a calculated result/);
+});
+
+test("a separate question about the result preserves all quoted terms", () => {
+  const pair = "Monthly available funds are USD 1228 and projected payments are USD 1022.";
+  assert.equal(cashContinuation(pair + " Is there enough to cover the payments?")?.amounts.length, 2);
+  assert.equal(cashContinuation(pair + " What would be left after the vendor charge?")?.amounts, undefined);
+});
+
+test("a worksheet must include all material conditions in its two final figures", () => {
+  const plain = "For this quarter, compare USD 510 in available cash with USD 429 in projected outflows.";
+  assert.equal(cashContinuation(plain).amounts.length, 2);
+  for (const clause of ["after retaining a third of the cash", "with a separate vendor credit still pending",
+    "once the pledge is released", "before we have accounted for the extra insurance"]) {
+    const value = cashContinuation(plain + " " + clause);
+    assert.equal(value.amounts, undefined);
+    assert.match(value.hint, /final available cash/);
+  }
+});
+
 test("a cash worksheet keeps the exact source and the two amounts unassigned", () => {
   const question = "Our monthly cash is USD 4,097.32 and projected outflows are USD 3,295.08. How much covers them?";
   assert.deepEqual(cashContinuation(question), {

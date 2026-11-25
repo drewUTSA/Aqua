@@ -17,7 +17,7 @@ function Terms({ values }) {
 
 export default function BankCalculator({ context, report, onCalculate, cash }) {
   const prefix = useId(), reviewHeading = useRef(null), request = useRef(null);
-  const [fromQuestion, setFromQuestion] = useState(Boolean(cash));
+  const [fromQuestion, setFromQuestion] = useState(Boolean(cash && !cash.manual));
   const [operation, setOperation] = useState(cash ? "liquidity_coverage" : ""), [useReport, setUseReport] = useState(false);
   const [row, setRow] = useState(""), [field, setField] = useState(""), [values, setValues] = useState({});
   const [draft, setDraft] = useState(null), [result, setResult] = useState(null), [busy, setBusy] = useState(false), [error, setError] = useState("");
