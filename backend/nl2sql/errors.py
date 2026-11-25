@@ -1,6 +1,7 @@
 """Closed diagnostics: database/provider text is never a public repair hint."""
 
 from dataclasses import dataclass
+import re
 
 
 @dataclass(frozen=True)
@@ -10,6 +11,9 @@ class Diagnostic:
 
 
 DIAGNOSTICS = {
+    "missing_source": Diagnostic(
+        "Which connected field or source supplies the missing information for this question?"
+    ),
     "ranking_request_invalid": Diagnostic(
         "Start a new chat and use Rank groups with one source, one group field, "
         "and either row count or the total of one numeric field."
@@ -56,6 +60,24 @@ def public_query_error(code: str | None, message: str | None) -> str:
     """Defense in depth if a future pipeline supplies an unsanitized error."""
     known = {item.message for item in DIAGNOSTICS.values()}
     return message if message in known else diagnostic(code or "query_failed").message
+
+
+def missing_source_message(question: str, label: str | None) -> str:
+    """Only repeat a bounded phrase the employee supplied, never provider text."""
+    if (
+        not label
+        or len(label) > 195
+        or not re.fullmatch(
+            r"[A-Za-z][A-Za-z0-9_]{0,62}(?:\.[A-Za-z][A-Za-z0-9_]{0,62}){0,2}", label
+        )
+    ):
+        return diagnostic("missing_source").message
+    match = re.search(
+        r"(?<![\w@.])" + re.escape(label) + r"(?!\w|[@.]\w)", question, re.I
+    )
+    if not match:
+        return diagnostic("missing_source").message
+    return f"I couldn't identify a source for “{match.group()}” in the connected data. Which field or source supplies it?"
 
 
 class ContextDenied(RuntimeError):

@@ -97,6 +97,92 @@ def test_success_returns_rows_and_provenance(monkeypatch: pytest.MonkeyPatch) ->
 
 
 @pytest.mark.parametrize(
+    ("question", "missing"),
+    [
+        ("Compute a sum using the field named box_receipts.", "box_receipts"),
+        ("Rank productions by public.film.weekly_cost.", "public.film.weekly_cost"),
+        ("Read the film.premiered column for each record.", "film.premiered"),
+        ("Is film.production_year present on every feature?", "film.production_year"),
+        ("For every film, I need its film.archive_code.", "film.archive_code"),
+    ],
+)
+def test_missing_required_catalog_inputs_ask_for_the_source(
+    monkeypatch, question, missing
+):
+    from nl2sql.response import to_response
+
+    calls = fake_model(monkeypatch)
+    reads = fake_database(monkeypatch)
+    answer = answer_question(question, SETTINGS, SCHEMA)
+    visible = to_response(answer)
+    assert not (calls or reads or answer.attempts)
+    assert visible["error"]["code"] == "missing_source"
+    assert missing in visible["error"]["message"]
+    assert not (visible["tables"] or visible["sql"])
+
+
+@pytest.mark.parametrize(
+    "question",
+    [
+        "Read the field named title for each film.",
+        "Show film.title for the films we have.",
+        "If the field named run_cost is missing, just show the title.",
+        "List film titles. Call the output column revenue_total.",
+        "Look for films titled 'film.chronicle' and return their IDs.",
+        "Check the number of films linked to https://film.example.",
+        "Which cast members have an email ending in @film.example?",
+        "Count records whose title contains film.archival_print.",
+        "Find titles matching 'using the field named broadcast_slot'.",
+        "List release years and use film.csv for the file name.",
+        "Return the film IDs as film.example_id.",
+    ],
+)
+def test_other_mentions_delegate_to_the_existing_planner(monkeypatch, question):
+    calls = fake_model(monkeypatch, "SELECT title FROM film")
+    fake_database(monkeypatch, OK)
+    answer = answer_question(question, SETTINGS, SCHEMA)
+    assert len(calls) == 1 and answer.error is None
+
+
+@pytest.mark.parametrize(
+    ("question", "expected"),
+    [
+        (
+            "Ignore film.composer. Sum the amounts in film.license_fee.",
+            "film.license_fee",
+        ),
+        ("Use the field named venue_code. Optionally include the title.", "venue_code"),
+        ("Film IDs are enough; do not use film.stage_name.", None),
+        ("The notes mention film.caption_source. Skip that field.", None),
+        ("Ignore film.draft_mark; which film.title values are filled?", None),
+        (
+            "List film.censor_code even if other output fields are blank.",
+            "film.censor_code",
+        ),
+        ("Look for titles like 'Archived. Use the field named display_text.'", None),
+    ],
+)
+def test_source_requirements_have_local_scope(question, expected):
+    from nl2sql.source_fields import unavailable_named_field
+
+    assert unavailable_named_field(question, SCHEMA) == expected
+
+
+@pytest.mark.parametrize(
+    "question",
+    [
+        "An archived brochure mentions film.promotion_cost. Count the actual film records.",
+        "Tickets formerly used film.offer_name. Return titles.",
+        "My sample string is 'please return film.cue_sheet'. Count films.",
+    ],
+)
+def test_descriptive_mentions_are_never_required_inputs(question):
+    from nl2sql.source_fields import unavailable_named_field
+
+    assert unavailable_named_field(question, SCHEMA) is None
+
+
+@pytest.mark.parametrize(
     ("question", "inclusive"),
     [
         ("Give the top two films by title length, including all ties.", True),
