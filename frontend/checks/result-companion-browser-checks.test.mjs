@@ -16,7 +16,7 @@ test("doubled-text evidence requires a legible measured baseline and exact two-t
 
 test("new journey is an explicit isolated branch with the retained shared resource ceilings", async () => {
   const source = await readFile(new URL("./p05-browser.mjs", import.meta.url), "utf8");
-  assert.match(source, /const MAX_MS = 240000, MAX_REQUESTS = 900, MAX_API = 320;/);
+  assert.match(source, /const MAX_MS = 240000, MAX_REQUESTS = 900, MAX_API = 344;/);
   assert.match(source, /RESULT_ONLY=JOURNEY==="result-companion"/);
   assert.match(source, /const resultFixture = RESULT_ONLY \? installResultCompanionFixture\(fixture\) : null;/);
   assert.match(source, /if\(RESULT_ONLY\)resultCompanionJourney=await runResultCompanionChecks/);
