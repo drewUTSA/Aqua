@@ -10,7 +10,7 @@ CONFIRM = "Confirm cash comparison for "
 CASH = r"(?:available (?:cash|liquidity|funds)|cash(?: (?:available|on hand))?|funds on hand|liquidity on hand)"
 OUT = r"(?:(?:forecast(?:ed)?|expected|projected|net|outgoing|planned|scheduled)\s+)*(?:cash\s+)?(?:outflows?|payments?|disbursements?|payables?)"
 COMPARISON = re.compile(
-    r"\b(?:cover(?:age|ed|s|ing)?|compare|comparison|enough|suffic(?:ient|e|es)|short(?:fall)?|surplus|cushion|difference|left over|leftover|meet|gap|headroom)\b",
+    r"\b(?:cover(?:age|ed|s|ing)?|compare|comparison|enough|suffic(?:ient|e|es)|short(?:fall)?|surplus|cushion|difference|left(?: over)?|leftover|remains?|meet|gap|headroom|ratio)\b",
     re.I,
 )
 OTHER_SOURCE = re.compile(
@@ -53,6 +53,21 @@ RESTRICTED = re.compile(
     r"restricted|encumbered|belongs? to)\b",
     re.I,
 )
+OUTCOME_NOUN = re.compile(
+    r"\b(?:coverage|short(?:fall)?|surplus|cushion|difference|leftover|gap|headroom|ratio|deficit|excess)\b"
+)
+GOAL_CLAUSES = re.compile(
+    r"(?<=[.!?;])\s+(?=[a-z])|,\s+(?=(?:how|what|do|does|is|are|will|can|would)\b)"
+)
+GOAL_WORDS = frozenset("""
+    how much what is are will would do does can could have there anything any it
+    we our available cash funds remain remains remaining left over or
+    missing above below zero exact exactly full stated projected net outflows
+    payments resulting have after that those these the in usd dollars us amount
+    amounts by and of for them enough sufficient cover coverage covered covers
+    ratio short shortfall surplus cushion difference leftover gap headroom
+    deficit excess meet money balance please tell me be
+""".split())
 
 # All meaningful words must belong to the two supported operands, their
 # common calendar window or the requested comparison. Remaining words can
@@ -72,11 +87,25 @@ CONNECTORS = frozenset("""
 def _simple_comparison(text):
     # A stated worksheet is the employee's source for both quoted amounts.
     # The source prefix admits only a short noun phrase and a reporting verb.
+    clauses = []
+    for clause in GOAL_CLAUSES.split(text):
+        # A phrase such as "cash surplus" or "outflow shortfall" describes a
+        # result, even if a cash word is adjacent to an amount. Only discard
+        # outcome vocabulary in a separate, number-free request for a result.
+        if (
+            not NUMBER.search(clause)
+            and re.match(r"(?:how|what|do|does|is|are|will|can|would|please)\b", clause)
+            and set(re.findall(r"[a-z]+", clause)) <= GOAL_WORDS
+        ):
+            continue
+        if NUMBER.search(clause) and OUTCOME_NOUN.search(clause):
+            return False
+        clauses.append(clause)
     residual = re.sub(
         r"^(?:(?:the|our|my)\s+)?(?:(?:daily|monthly|quarterly|annual|treasury|cash|liquidity|funding|maturity|branch|desk)\s+){0,3}"
         r"(?:worksheet|ledger|close sheet)\s+(?:shows|lists|states|records)\s+",
         "",
-        text,
+        " ".join(clauses),
     )
     residual = re.sub(
         r"\b(?:surplus or shortfall|shortfall or surplus|check if|tell me if|"
@@ -133,8 +162,9 @@ def _label(text, match):
     names = set()
     for key, noun in (("cash", "@C@"), ("outflows", "@O@")):
         calendar = r"(?:\s+(?:(?:for|during|over)\s+)?(?:the\s+)?~(?:['’]s)?)?"
+        end_noun = r"(?=\s*(?:$|[.,;:?!~])|\s+(?:and|while|with|versus|against|to|for|in|during|over|would|will|is|are|was|were|covers?|meet)\b)"
         if re.search(rf"{noun}{calendar}{BETWEEN}{MONEY}", marker, re.I) or re.search(
-            rf"{MONEY}{AFTER}{noun}", marker, re.I
+            rf"{MONEY}{AFTER}{noun}{end_noun}", marker, re.I
         ):
             names.add(key)
     return names.pop() if len(names) == 1 else None

@@ -246,3 +246,27 @@ def test_bounds_cannot_produce_an_exact_difference(qualifier):
 def test_cash_receivable_does_not_supply_a_spendable_balance():
     question = "Can USD 609 cash in trust cover USD 804 of forecast payments today?"
     assert "unrestricted" in _terms(question)
+
+
+@pytest.mark.parametrize(
+    "metric",
+    [
+        "cash surplus",
+        "outflow shortfall",
+        "cash coverage gap",
+        "cushion in available cash",
+    ],
+)
+def test_a_result_measure_cannot_be_promoted_to_an_operand(metric):
+    text = f"Can USD 688 in {metric} cover projected outflows of USD 590 today? Our total available cash is unclear."
+    assert not isinstance(_terms(text), dict)
+
+
+def test_a_separate_result_clause_cannot_hide_an_adjustment():
+    text = (
+        "For this quarter, available cash is USD 120 and planned outflows are USD 105."
+    )
+    assert isinstance(_terms(text + " How much money will remain?"), dict)
+    assert not isinstance(
+        _terms(text + " How much money will remain after the dividend?"), dict
+    )

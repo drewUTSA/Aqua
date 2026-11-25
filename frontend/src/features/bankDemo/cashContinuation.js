@@ -8,6 +8,8 @@ const currencyCodes = new Set(Intl.supportedValuesOf?.("currency") || []);
 const currencyHint = "Supply the verified USD amounts for both available cash and projected outflows.";
 const adjustedHint = "Use final available cash and the full projected outflows for the same period, including any reserves, fees or other adjustments.";
 const boundedAmount = /\b(?:at (?:least|most)|(?:no |not )?(?:more|less|greater|fewer) than|up to|approximately|approx|about|around|nearly|roughly|minimum|maximum|range|estimated (?:cash|balance|amount))\b|\b(?:above|below|under|over)\s+(?=usd\b|us dollars?\b|\$|\d)/i;
+const outcomeNoun = /\b(?:coverage|short(?:fall)?|surplus|cushion|difference|leftover|gap|headroom|ratio|deficit|excess)\b/i;
+const clauses = /(?<=[.!?;])\s+(?=[a-z])|,\s+(?=(?:how|what|do|does|is|are|will|can|would)\b)/i;
 // Employees assign the two quoted numbers themselves in this form. Accept
 // ordinary worksheet language, but never discard an unexplained adjustment.
 const worksheetWords = new Set(`
@@ -83,6 +85,8 @@ export function cashContinuation(question) {
     return { hint: "Which single day, month, quarter or year do both cash and forecast outflows cover?" };
   if (boundedAmount.test(question))
     return { hint: "Supply exact USD figures for available cash and projected outflows. A range, estimate or limit cannot determine the exact difference." };
+  if (question.split(clauses).some(clause => /\d/.test(clause) && outcomeNoun.test(clause)))
+    return { hint: "Which USD figure is the spendable cash balance, and which is the full projected outflow? A shortfall, surplus or ratio is already a calculated result." };
   const unsignedText = question.replace(/(?<=[a-z])-(?=[a-z])/gi, "");
   if (/[+\-−–()]/.test(unsignedText) || /\b(?:unknown|missing|pending|unavailable|awaiting|unsure|estimated elsewhere|million|billion|thousand|cents|negative|minus|overdraft|overdrawn|below zero|in the red)\b/i.test(question)
       || /(?:^|[^\d])\.\d|\b(?:only one|partial total|other account|different account)\b/i.test(question))

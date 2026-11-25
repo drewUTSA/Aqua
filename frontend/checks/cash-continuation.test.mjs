@@ -10,6 +10,12 @@ test("a cash estimate cannot be offered as an exact input", () => {
   }
 });
 
+test("money already described as a result cannot supply a cash operand", () => {
+  const empty = cashContinuation("Today compare USD 710 of cash surplus with USD 90 in projected payments. Is there enough cash?");
+  assert.equal(empty?.amounts, undefined);
+  assert.match(empty.hint, /already a calculated result/);
+});
+
 test("a worksheet must include all material conditions in its two final figures", () => {
   const plain = "For this quarter, compare USD 510 in available cash with USD 429 in projected outflows.";
   assert.equal(cashContinuation(plain).amounts.length, 2);
