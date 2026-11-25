@@ -12,6 +12,7 @@ export async function runCompanionToolsChecks(ctx, { emailA, emailB, help }) {
   const held = async () => { const stop = performance.now() + 5500; while (!help.pending.length && performance.now() < stop) await pause(); assert.equal(help.pending.length, 1, "companion_one_bounded_read_held"); };
   fixture.email = null; fixture.canQuery = true; await viewport(1440, 900); await navigate("/signin"); await signIn(emailA);
   await waitFor("document.querySelector('.opal-composer textarea')?.disabled===false", "companion_composer_ready");
+  await check("the Help launcher uses its visible text as its accessible name", "(()=>{const b=document.querySelector('[data-open-companion]');return b?.textContent.trim()==='Help'&&!b.hasAttribute('aria-label')&&!b.hasAttribute('aria-labelledby')})()");
   const before = fixture.queryCount();
   await fill(".opal-composer textarea", "Existing synthetic composer draft");
   await evaluate("window.__companionComposer=document.querySelector('.opal-composer textarea');true");
