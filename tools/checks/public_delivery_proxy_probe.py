@@ -62,7 +62,7 @@ def probe(paths, recovery_sha256):
     policy_hashes = set()
     policy_responses = 0
 
-    def get(path, *, document=False, isolated=False):
+    def get(path, *, document=False, isolated=False, hostname=None):
         nonlocal last, count, policy_responses
         time.sleep(max(0, 0.21 - (time.monotonic() - last)))
         if count >= MAX_REQUESTS or time.monotonic() - started >= MAX_SECONDS:
@@ -71,8 +71,10 @@ def probe(paths, recovery_sha256):
         last = time.monotonic()
         connection = HTTPConnection("127.0.0.1", 5173, timeout=2)
         try:
-            connection.request("GET", path)
+            connection.request("GET", path, headers={"Host": hostname} if hostname else {})
             response = connection.getresponse()
+            if path == "/api":
+                assert response.getheader("Location") is None, "bare_api_redirect"
             body = response.read(MAX_BODY + 1)
             assert len(body) <= MAX_BODY, "delivery_body_budget"
             assert all(
@@ -143,6 +145,10 @@ def probe(paths, recovery_sha256):
     assert status == 200 and body == b"/* synthetic asset */", "asset_delivery"
     status, _, body = get("/fixture-icon.svg", document=True)
     assert status == 200 and body == b"<svg/>", "public_file_delivery"
+    for hostname in ("aqua-ai.us", "api.aqua-ai.us"):
+        status, kind, body = get("/api", isolated=True, hostname=hostname)
+        assert status == 404 and kind.startswith("application/json"), "bare_api_exposed"
+        assert body == b'{"detail":"Not found"}', "bare_api_body_changed"
     status, kind, body = get("/api/ready", isolated=True)
     assert status == 404 and kind.startswith("application/json"), "readiness_exposed"
     assert body == b'{"detail":"Not found"}', "readiness_body_changed"
