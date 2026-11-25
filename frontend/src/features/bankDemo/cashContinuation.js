@@ -32,6 +32,28 @@ const worksheetWords = new Set(`
   stands total totals equals see plain reviewed checked verified remaining
 `.trim().split(/\s+/));
 
+const resultWords = new Set(`
+  how much what is are will would do does can could have there anything any it
+  we our available cash funds remain remains remaining left over or missing above
+  below zero exact exactly full stated projected net outflows payments resulting
+  after that those these the in usd dollars us amount amounts by and of for them
+  enough sufficient cover coverage covered covers ratio short shortfall surplus
+  cushion difference leftover gap headroom deficit excess meet money balance
+  please tell me be to during with alongside from
+`.trim().split(/\s+/));
+
+function quotedTerms(question) {
+  return question.split(clauses).filter(clause => {
+    const words = clause.toLowerCase().match(/[a-z]+/g) || [];
+    // An output question does not describe either input. Keep conditions and
+    // references to missing source facts in the text that must be checked.
+    return /\d/.test(clause) || !/^(?:how|what|do|does|is|are|will|can|would|please)\b/i.test(clause)
+      || /\b(?:after|before|subject to|provided|assuming)\b/i.test(clause)
+      || (/\bmissing\b/i.test(clause) && !/\bleft(?: over)? or missing\b/i.test(clause))
+      || !words.every(word => resultWords.has(word));
+  }).join(" ");
+}
+
 function plainWorksheet(question) {
   const words = question.toLowerCase()
     .replace(/^(?:(?:the|our|my)\s+)?(?:(?:daily|monthly|quarterly|annual|treasury|cash|liquidity|funding|maturity|branch|desk)\s+){0,3}(?:worksheet|ledger|close sheet)\s+(?:shows|lists|states|records)\s+/, "")
@@ -87,8 +109,9 @@ export function cashContinuation(question) {
     return { hint: "Supply exact USD figures for available cash and projected outflows. A range, estimate or limit cannot determine the exact difference." };
   if (question.split(clauses).some(clause => /\d/.test(clause) && outcomeNoun.test(clause)))
     return { hint: "Which USD figure is the spendable cash balance, and which is the full projected outflow? A shortfall, surplus or ratio is already a calculated result." };
-  const unsignedText = question.replace(/(?<=[a-z])-(?=[a-z])/gi, "");
-  if (/[+\-−–()]/.test(unsignedText) || /\b(?:unknown|missing|pending|unavailable|awaiting|unsure|estimated elsewhere|million|billion|thousand|cents|negative|minus|overdraft|overdrawn|below zero|in the red)\b/i.test(question)
+  const terms = quotedTerms(question);
+  const unsignedText = terms.replace(/(?<=[a-z])-(?=[a-z])/gi, "");
+  if (/[+\-−–()]/.test(unsignedText) || /\b(?:unknown|missing|pending|unavailable|awaiting|unsure|estimated elsewhere|million|billion|thousand|cents|negative|minus|overdraft|overdrawn|below zero|in the red)\b/i.test(terms)
       || /(?:^|[^\d])\.\d|\b(?:only one|partial total|other account|different account)\b/i.test(question))
     return { hint: "Supply the final available cash and full projected outflows in USD for that same period." };
   const matches = [...question.matchAll(/\d[\d,.]*(?:[a-z]+)?/gi)];
@@ -103,6 +126,6 @@ export function cashContinuation(question) {
     if (value.length > 16 || Number(value) > 1e12) return null;
     amounts.push({ literal, value });
   }
-  if (!plainWorksheet(question)) return { hint: adjustedHint };
+  if (!plainWorksheet(terms)) return { hint: adjustedHint };
   return { question, period: windows[0][0], amounts };
 }

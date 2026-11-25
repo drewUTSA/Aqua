@@ -95,7 +95,14 @@ def _simple_comparison(text):
         if (
             not NUMBER.search(clause)
             and re.match(r"(?:how|what|do|does|is|are|will|can|would|please)\b", clause)
-            and set(re.findall(r"[a-z]+", clause)) <= GOAL_WORDS
+            and not re.search(
+                r"\b(?:after|before|subject to|provided|assuming)\b", clause
+            )
+            and (
+                "missing" not in clause
+                or re.search(r"\bleft(?: over)? or missing\b", clause)
+            )
+            and set(re.findall(r"[a-z]+", clause)) <= GOAL_WORDS | CONNECTORS
         ):
             continue
         if NUMBER.search(clause) and OUTCOME_NOUN.search(clause):

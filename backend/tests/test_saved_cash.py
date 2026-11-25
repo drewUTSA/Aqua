@@ -267,6 +267,7 @@ def test_a_separate_result_clause_cannot_hide_an_adjustment():
         "For this quarter, available cash is USD 120 and planned outflows are USD 105."
     )
     assert isinstance(_terms(text + " How much money will remain?"), dict)
+    assert isinstance(_terms(text + " Would there be enough to cover them?"), dict)
     assert not isinstance(
         _terms(text + " How much money will remain after the dividend?"), dict
     )

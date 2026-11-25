@@ -16,6 +16,12 @@ test("money already described as a result cannot supply a cash operand", () => {
   assert.match(empty.hint, /already a calculated result/);
 });
 
+test("a separate question about the result preserves all quoted terms", () => {
+  const pair = "Monthly available funds are USD 1228 and projected payments are USD 1022.";
+  assert.equal(cashContinuation(pair + " Is there enough to cover the payments?")?.amounts.length, 2);
+  assert.equal(cashContinuation(pair + " What would be left after the vendor charge?")?.amounts, undefined);
+});
+
 test("a worksheet must include all material conditions in its two final figures", () => {
   const plain = "For this quarter, compare USD 510 in available cash with USD 429 in projected outflows.";
   assert.equal(cashContinuation(plain).amounts.length, 2);
