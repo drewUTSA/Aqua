@@ -32,7 +32,7 @@ class DocumentCsp(unittest.TestCase):
         )
 
     def test_policies_are_document_only_and_no_transport_policy_is_activated(self):
-        self.assertEqual(len(self.headers), 4)
+        self.assertEqual(len(self.headers), 2)
         prefix = self.nginx.split("    # Restricted launch:")[0]
         self.assertNotIn("Content-Security-Policy", prefix)
         for name in (
@@ -41,14 +41,14 @@ class DocumentCsp(unittest.TestCase):
             "Cross-Origin-Embedder-Policy",
         ):
             self.assertNotIn("add_header " + name, self.nginx)
-        self.assertEqual(self.headers[:2], self.headers[2:])
-        self.assertEqual(len(probe.document_policy(Response(self.headers[:2]))), 64)
+        self.assertEqual(self.headers[:1], self.headers[1:])
+        self.assertEqual(len(probe.document_policy(Response(self.headers[:1]))), 64)
 
     def test_actual_header_guard_rejects_missing_weakened_duplicate_and_reporting_authority(
         self,
     ):
-        original = self.headers[:2]
-        changed = [original[:1], original + original[:1]]
+        original = self.headers[:1]
+        changed = [[], original + original, [("Content-Security-Policy-Report-Only", original[0][1])]]
         for before, after in (
             ("script-src 'self'", "script-src 'self' 'unsafe-eval'"),
             ("manifest-src 'self'", "manifest-src 'self'; report-uri /collect"),

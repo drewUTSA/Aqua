@@ -55,7 +55,7 @@ const report = { status: failure ? "failed" : "passed", failure, checked_utc: ne
   content_security_policy: ctx?.csp || null, assets: ctx?.assets || [], checks: ctx?.results || [], screenshots: ctx?.screenshots || [], cleanup: ctx?.cleanup || null,
   observations: ctx ? { requests: ctx.requests, api_requests: ctx.api, external_attempts: ctx.external, runtime_errors: ctx.runtimeErrors, console_leaks: ctx.consoleLeaks, protocol_errors: ctx.errors } : null,
   elapsed_seconds: ctx ? Math.round((performance.now() - ctx.started) / 100) / 10 : null,
-  limitations: ["Two fixed synthetic analyses in a separate disposable fixture; no real provider or business SQL.", "CSP enforcement is fixture-only, not a production TLS or Google provider acceptance claim."] };
+  limitations: ["Two fixed synthetic analyses in a separate disposable fixture; no real provider or business SQL.", "The browser enforces the checked-in nginx document policy on a disposable local origin."] };
 const directory = process.env.AQUA_P08_ARTIFACT_DIR;
 if (directory && path.isAbsolute(directory)) { await mkdir(directory, { recursive: true }); await writeFile(path.join(directory, resultMode ? "saved-result-brief-report.json" : "p08-table-reset-report.json"), JSON.stringify(report, null, 2) + "\n"); }
 process.stdout.write(JSON.stringify({ status: report.status, failure, checks: report.checks.length, fake_jobs_requested: jobs, cleanup: report.cleanup?.backend_resources_removed === true }) + "\n");

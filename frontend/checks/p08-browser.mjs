@@ -51,7 +51,7 @@ const report = { status: failure ? "failed" : "passed", failure, failure_categor
   content_security_policy: ctx?.csp || null,
   runtime_diagnostics: ctx?.runtimeDiagnostics?.snapshot() || null,
   limitations: ["All accounts, rows, grants and analysis are disposable synthetic fixtures; no live provider or business SQL.", "Clipboard and CSV Blob output are captured in memory through real UI callbacks; OS clipboard/download storage is not accessed.",
-    "Full CSP enforcement is fixture-only. The source subresource policy remains report-only; Google SDK/provider and real TLS/HSTS acceptance are not established."] };
+    "This browser enforces the checked-in nginx document policy. Provider credentials and deployment TLS are outside this disposable fixture."] };
 const directory = process.env.AQUA_P08_ARTIFACT_DIR;
 if (directory && path.isAbsolute(directory)) { await mkdir(directory, { recursive: true }); await writeFile(path.join(directory, "p08-browser-report.json"), JSON.stringify(report, null, 2) + "\n"); }
 process.stdout.write(JSON.stringify({ status: report.status, failure, failure_category: report.failure_category, failure_stage: report.failure_stage, checks: report.checks.length, cleanup: report.cleanup?.backend_resources_removed === true }) + "\n");

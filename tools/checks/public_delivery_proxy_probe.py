@@ -17,8 +17,8 @@ def document_policy(response):
     names = [name.lower() for name, _ in headers]
     assert names.count("content-security-policy") == 1, "document_csp_missing"
     assert (
-        names.count("content-security-policy-report-only") == 1
-    ), "document_csp_report_missing"
+        names.count("content-security-policy-report-only") == 0
+    ), "unexpected_report_only_policy"
 
     def directives(name):
         parts = [part.strip().split() for part in response.getheader(name).split(";")]
@@ -32,9 +32,6 @@ def document_policy(response):
         "base-uri": "'none'",
         "frame-ancestors": "'none'",
     }
-    assert (
-        directives("Content-Security-Policy") == baseline
-    ), "document_csp_enforcement_changed"
     candidate = {
         **baseline,
         "default-src": "'none'",
@@ -51,13 +48,10 @@ def document_policy(response):
         "manifest-src": "'self'",
     }
     assert (
-        directives("Content-Security-Policy-Report-Only") == candidate
+        directives("Content-Security-Policy") == candidate
     ), "document_csp_candidate_changed"
     encoded = json.dumps(
-        [
-            response.getheader("Content-Security-Policy"),
-            response.getheader("Content-Security-Policy-Report-Only"),
-        ],
+        [response.getheader("Content-Security-Policy")],
         separators=(",", ":"),
     ).encode()
     return hashlib.sha256(encoded).hexdigest()
