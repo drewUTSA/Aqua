@@ -70,6 +70,7 @@ class NormalGuards(unittest.TestCase):
             "companion/router.py",
             "companion/service.py",
             "bank_demo/__init__.py",
+            "bank_demo/cash_chat.py",
             "bank_demo/policy.py",
             "bank_demo/calculations.py",
             "bank_demo/requirements.py",
@@ -98,7 +99,7 @@ class NormalGuards(unittest.TestCase):
         }
         self.assertTrue(additions <= RUNTIME_FILES.keys())
         self.assertEqual(len(RUNTIME_FILES.keys() - additions), 191)
-        self.assertEqual(len(RUNTIME_FILES), 247)
+        self.assertEqual(len(RUNTIME_FILES), 248)
         self.assertEqual(len(MANIFEST_SHA256), 64)
         self.assertEqual(IMAGE, runner.IMAGE)
         self.assertIn("main.py", RUNTIME_FILES)
