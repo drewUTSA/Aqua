@@ -18,6 +18,12 @@ export default function OpalChat({ chat, auth, inputRef, focusRequest, onOpenPro
   const [rankTarget, setRankTarget] = useState(null);
   const visibility = useRef(visible); visibility.current = visible;
   const owner = auth.user?.id;
+  const last = chat.messages.at(-1);
+  const confirmCash = visible && chat.durable && owner && !auth.demoMode && auth.canQuery
+    && auth.session?.can_query === true && !chat.pending && !chat.uncertain
+    && !chat.active?.archived && !chat.draft.trim() && last?.role === "aqua"
+    && last.response?.cashConfirmation
+    ? { replyId: last.id, run: () => chat.confirmSavedCash(owner, chat.activeConversationId, last.id) } : null;
   const reply = visible && owner && !auth.demoMode && auth.canQuery && auth.session?.can_query === true && chat.rankReply;
   const applyRank = value => visibility.current && chat.applyRankDraft({
     ownerId: owner, chatId: chat.activeConversationId, projectId: chat.active.projectId, original: chat.draft,
@@ -40,7 +46,7 @@ export default function OpalChat({ chat, auth, inputRef, focusRequest, onOpenPro
       {chat.durable && <div className="workspace-history-controls"><ConversationActions chat={chat} />
         {chat.active.olderCursor && <button type="button" disabled={chat.pending || chat.active.historyLoading} onClick={chat.loadOlder}>Load older messages</button>}
         {chat.active.historyLoading && <span role="status">Loading messages…</span>}</div>}
-      <Conversation key={chat.active?.viewId || chat.activeConversationId} messages={chat.messages} preferences={preferences} pending={chat.durable ? chat.submitting : chat.pending} waiting={chat.waiting} onRetry={chat.retry} rankAction={rankAction} onShowVisual={onShowVisual} onUnderstandResult={onUnderstandResult} suspended={!visible}
+      <Conversation key={chat.active?.viewId || chat.activeConversationId} messages={chat.messages} preferences={preferences} pending={chat.durable ? chat.submitting : chat.pending} waiting={chat.waiting} onRetry={chat.retry} rankAction={rankAction} confirmCash={confirmCash} onShowVisual={onShowVisual} onUnderstandResult={onUnderstandResult} suspended={!visible}
         position={scrollPositions?.get(chat.activeConversationId)} onPositionChange={(position) => scrollPositions?.set(chat.activeConversationId, position)} /></>}
     {chat.durable && !active && chat.active.historyLoading && <p role="status">Loading saved conversation…</p>}
     {chat.durable && chat.uncertain && <div className="workspace-request-notice" role="status"><p>This request may still be processing. Stopping this browser request does not cancel work on the server.</p>
@@ -79,7 +85,8 @@ function Composer({ chat, auth, preferences, inputRef, focusRequest, active, vis
   useEffect(() => () => animation.current?.cancel(), []);
   const allowed = auth.canQuery && !!chat.draft.trim() && !chat.pending && !chat.uncertain && !chat.active?.archived && (!chat.durable || !!chat.selectedModelId);
   const cashQuestion = chat.draft.trim() || chat.messages.findLast(message => message.role === "user")?.content;
-  const cash = visible && !auth.demoMode && auth.canQuery && auth.session?.can_query === true && !chat.pending && !chat.uncertain && !chat.active?.archived && onOpenCash && cashContinuation(cashQuestion);
+  const cash = visible && !auth.demoMode && auth.canQuery && auth.session?.can_query === true && !chat.pending && !chat.uncertain && !chat.active?.archived
+    && (chat.draft.trim() || !chat.messages.at(-1)?.response?.cashConfirmation) && onOpenCash && cashContinuation(cashQuestion);
   const serverPending = chat.durable && chat.pending && !chat.submitting;
   const showRank = canStartGroupRank({ auth, chat, visible, active });
   const stop = serverPending ? chat.cancelAnalysis : chat.stop;

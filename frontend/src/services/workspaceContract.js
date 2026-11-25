@@ -31,6 +31,12 @@ export function messageRecord(value) {
     && (value.reply_to === null || validId(value.reply_to)) && ["pending", "complete", "error", "cancelled", "interrupted", "expired"].includes(value.status)
     && typeof value.result_unavailable === "boolean");
   let response = value.result_unavailable || value.response === null ? null : workspacePresentation(workspaceResultMetadata(normalizeResponse(value.response), value.response?.result_metadata), value.response?.presentation);
+  const offer = value.response?.bank_cash_review;
+  if (response?.status === "success" && value.role === "aqua" && isRecord(offer)
+      && /^Confirm cash comparison for [a-z ]{1,32} using USD [0-9]{1,13}\.\d{2} available cash and USD [0-9]{1,13}\.\d{2} projected outflows\.$/.test(offer.confirmation)
+      && /^[a-f0-9]{64}$/.test(offer.source_revision)) {
+    response = { ...response, cashConfirmation: offer.confirmation };
+  }
   if (value.role === "aqua" && !response) response = { status: !value.result_unavailable && value.status === "pending" ? "loading" : "error", sql: "", tables: [], visualizations: [], kpis: [], error: {
     code: value.result_unavailable ? "access_denied" : value.status === "pending" ? "pending" : value.status,
     message: value.result_unavailable ? "This saved result is unavailable with your current data access."

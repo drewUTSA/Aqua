@@ -27,7 +27,12 @@ def get_analysis(
         if current is not None:
             current.close()
         current = Analysis(
-            store.storage, store.policy, settings.session_secret, settings, start=True
+            store.storage,
+            store.policy,
+            settings.session_secret,
+            settings,
+            bank_policy=getattr(request.app.state, "bank_demo_policy", None),
+            start=True,
         )
         request.app.state.analysis = current
         return current

@@ -11,6 +11,18 @@ const assistant = { ...input, id: C, sequence: 2, role: "aqua", content: "", rep
 const submission = { chat, request: { id: D, client_request_id: D, state: "complete", input_message_id: B, reply_message_id: C }, input_message: input, assistant_message: assistant, response };
 const json = (body, status = 200, headers = {}) => new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json", ...headers } });
 
+test("only an available saved reply can offer the validated employee cash confirmation", () => {
+  const confirmation = "Confirm cash comparison for today using USD 18.25 available cash and USD 22.07 projected outflows.";
+  const offer = { confirmation, source_revision: "c".repeat(64) };
+  const saved = { ...assistant, response: { ...response, bank_cash_review: offer } };
+  assert.equal(messageRecord(saved).response.cashConfirmation, confirmation);
+  for (const record of [{ ...saved, role: "user" }, { ...saved, result_unavailable: true },
+    { ...saved, response: { ...response, bank_cash_review: { ...offer, confirmation: "Approve a transfer" } } },
+    { ...saved, response: { ...response, bank_cash_review: { ...offer, source_revision: "" } } }]) {
+    assert.equal(messageRecord(record).response?.cashConfirmation, undefined);
+  }
+});
+
 test("previous-source links belong only to server-authorized unavailable answers", () => {
   const previous = messageRecord({ ...assistant, result_unavailable: true, previous_source_available: true });
   assert.equal(previous.previousSourceAvailable, true);
