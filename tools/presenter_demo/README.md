@@ -21,7 +21,7 @@ Use 64-bit Windows, CPython 3.12 x64, Mozilla Firefox x64 installed under Progra
    ```
 
 4. Enter the fictional email and temporary password shown in that terminal into the Firefox sign-in form. Screen-share the browser window. For Classic, close the demo and start another session with `--shell legacy`.
-5. Choose **Rank groups**, select **trans**, group by **account_id**, count rows, rank highest first, request one rank and include ties. Review the draft, then press **Send**. Both accounts have 500 transactions. Open the saved result and its SQL. Try the analyst's fictional report and add a private context note.
+5. Choose **Rank groups**, select **trans**, group by **account_id**, count rows, rank highest first, request one rank and include ties. Review the draft, then press **Send**. Both accounts have 500 transactions. Open the saved result and select **Understand this result** to check the counts. Try the analyst's fictional report and add a private context note.
 
 The website and both databases stay on this computer. The local Firefox profile trusts the temporary certificate for this session. The guided ranking and built-in analyst reports work offline. Screen sharing works from this PC. Separate viewer devices require the prepared private HTTPS environment described in the sales presenter guide.
 

@@ -295,6 +295,9 @@ def query(
         return workspace_failure(error)
     except StorageUnavailable:
         return workspace_failure(WorkspaceError("service_unavailable", 503))
+    from workspace.result_view import employee_result
+
+    result = employee_result(result)
     return result if status == 200 else JSONResponse(status_code=status, content=result)
 
 

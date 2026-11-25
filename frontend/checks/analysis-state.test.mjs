@@ -60,6 +60,26 @@ test("truthful fixed stage copy separates cancellation requested from server con
   assert.match(analysisConnectionLabel("cancel-unconfirmed"), /could not be confirmed/); assert.equal(analysisLabel({ stage: "PRIVATE_REASONING" }).includes("PRIVATE"), false);
 });
 
+test("a saved missing-source reply asks for information only for its own authorized request", () => {
+  const value = snapshot("error", "error", 4, 3);
+  value.assistant_message.response = {
+    status: "error", message: "", sql: "", tables: [], visualizations: [], kpis: [],
+    error: { code: "missing_source", message: "Which field supplies the requested value?", retryable: false },
+  };
+  const result = analysisSnapshot(value, REQUEST);
+  const state = acceptAnalysis(initial(), result, true);
+  const request = activeAnalysis(state.records[CHAT]);
+  assert.equal(analysisLabel(request, state.records[CHAT].messages), "More information needed");
+  assert.equal(analysisLabel(request, []), "Analysis failed");
+  assert.equal(analysisLabel({ ...request, id: "another-request" }, state.records[CHAT].messages), "Analysis failed");
+  const masked = acceptAnalysis(initial(), result, false);
+  assert.equal(analysisLabel(request, masked.records[CHAT].messages), "Analysis failed");
+  const failed = { ...result.assistant, response: { ...result.assistant.response,
+    error: { code: "timeout", message: "The analysis timed out.", retryable: true } } };
+  assert.equal(analysisLabel(request, [failed]), "Analysis failed");
+  assert.equal(analysisLabel({ ...request, state: "running", stage: "generating" }, [result.assistant]), "Preparing a query");
+});
+
 test("inactive terminal results retain bounded request metadata and drafts without growing transcript caches", () => {
   const state = acceptAnalysis(initial(), saved(), true); state.activeId = "another-chat"; state.records[CHAT].draft = "Keep this unsent text";
   const next = acceptAnalysis(state, saved("complete", "complete", 4, 3), true);

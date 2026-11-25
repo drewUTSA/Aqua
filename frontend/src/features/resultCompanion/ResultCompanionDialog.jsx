@@ -56,7 +56,7 @@ export function ResultCompanionContent({ binding, state, onColumn, onRetry, onIn
     {brief && <><ResultCompanionFacts brief={brief} />
       <section className="result-companion__followup" aria-label="Prepare a follow-up">
         <h3>Prepare a better question</h3>
-        <p>Choose a starting point, then supply the details you know. A new question is not anchored to this saved answer’s exact SQL, filters or period.</p>
+        <p>Choose a starting point, then supply the details you know. A new question does not automatically reuse this saved answer’s source, filters or period.</p>
         <div className="result-companion__intents">{brief.followup_intents.map(intent => <button key={intent} type="button" data-result-intent={intent} onClick={() => onIntent(intent)}>{FOLLOWUPS[intent]}</button>)}</div>
         {guiding && <>
           <GuidedQuestionFields fields={guide.fields} error={guide.error} onField={onField} onPrepare={onPrepare} fieldRefs={fieldRefs} />

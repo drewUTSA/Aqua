@@ -33,7 +33,7 @@ def test_retired_source_history_requires_its_original_owner_and_grant(
     assert reply["response"] is None and GOOD["sql"] not in page.text
     archive = owner_client.get(path)
     assert archive.status_code == 200 and GOOD["message"] in archive.text
-    assert GOOD["sql"] in archive.text and "<td>7</td>" in archive.text
+    assert GOOD["sql"] not in archive.text and "<td>7</td>" in archive.text
     assert "no-store" in archive.headers["cache-control"]
     assert "default-src 'none'" in archive.headers["content-security-policy"]
     assert other_client.get(path).status_code == 404
@@ -67,7 +67,10 @@ def test_atomic_first_submit_replay_conflict_and_restart_history(world):
     assert recent[0]["id"] == saved["chat"]["id"] and recent[0]["message_count"] == 2
     messages = another.get(f"/api/v1/chats/{recent[0]['id']}/messages").json()["items"]
     assert [m["sequence"] for m in messages] == [1, 2]
-    assert messages[0]["response"] is None and messages[1]["response"] == GOOD
+    assert messages[0]["response"] is None and messages[1]["response"] == {
+        **GOOD,
+        "sql": "",
+    }
 
 
 def test_two_user_lists_ids_childlinks_and_foreign_cursors_are_isolated(world):

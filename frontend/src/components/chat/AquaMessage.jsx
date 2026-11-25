@@ -4,34 +4,6 @@ import FinancialTable from "../data/FinancialTable.jsx";
 import ResultMetadata from "../data/ResultMetadata.jsx";
 import { isSavedResultCandidate } from "../../features/resultCompanion/reference.js";
 
-// Every answer shows the exact SQL behind it; a refused query shows the SQL
-// that was blocked, so the user can see why.
-function SqlBlock({ sql, label = "SQL" }) {
-  const [copied, setCopied] = useState(false);
-  const timer = useRef(null);
-  useEffect(() => () => window.clearTimeout(timer.current), []);
-  if (!sql) return null;
-
-  const copySql = async () => {
-    try {
-      await navigator.clipboard.writeText(sql);
-      setCopied(true);
-      window.clearTimeout(timer.current);
-      timer.current = window.setTimeout(() => setCopied(false), 1800);
-    } catch {
-      setCopied(false);
-    }
-  };
-
-  return (
-    <details className="sql-block">
-      <summary>{label}</summary>
-      <pre><code>{sql}</code></pre>
-      <button type="button" className="text-action" onClick={copySql}>{copied ? "Copied" : "Copy SQL"}</button>
-    </details>
-  );
-}
-
 export default function AquaMessage({ message, hidden = false, onRetry, onRankAction, onConfirmCash, onOpenCash, onShowVisual, onUnderstandResult, preferences }) {
   const [copyStatus, setCopyStatus] = useState("");
   const copyTimer = useRef(null);
@@ -69,7 +41,6 @@ export default function AquaMessage({ message, hidden = false, onRetry, onRankAc
             <p><a href={`/api/v1/chats/${message.conversationId}/messages/${message.id}/previous-source`}
               target="_blank" rel="noopener noreferrer">Open saved answer from the previous data source</a></p>
           ) : <p>{response.error?.message || "AQUA couldn't complete that request. Please try again."}</p>}
-          <SqlBlock sql={response.sql} label="SQL that was not run" />
           {response.error?.retryable && (
             <button type="button" className="text-action" onClick={() => onRetry(message.id)}>
               Try again
@@ -82,14 +53,13 @@ export default function AquaMessage({ message, hidden = false, onRetry, onRankAc
   }
 
   return (
-    <article className={`message message--aqua${hidden ? " message--forming" : ""}`} data-message-id={message.id} aria-hidden={hidden || undefined} inert={hidden || undefined}>
+    <article className={`message message--aqua${hidden ? " message--forming" : ""}`} data-answer-complete data-message-id={message.id} aria-hidden={hidden || undefined} inert={hidden || undefined}>
       <div className="message__bubble message__bubble--aqua">
         <span className="status-mark" aria-label="AQUA response">AQUA</span>
         <div className="markdown-response">
           <SafeMarkdown>{response.message || ""}</SafeMarkdown>
           {response.status === "stopped" && <p role="status">Response stopped.</p>}
         </div>
-        <SqlBlock sql={response.sql} />
         {(response.tables?.length > 0 || response.visualizations?.length > 0 || response.kpis?.length > 0) && (
           <div className="response-data">
             <ResultMetadata response={response} preferences={preferences?.account} />

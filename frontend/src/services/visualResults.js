@@ -46,7 +46,7 @@ export function visualResult(message, messages) {
       series: [{ key: y, label: label.slice(0, 80), unit: null }],
       row_indices: table.rows.map((_, index) => index), missing: "gap", reduction: "none", input_rows: table.rows.length,
       output_points: table.rows.length, downsampled: false, approximate: false,
-      compatibility_key: legacyKey([typeof response.sql === "string" ? response.sql : "", key, y, table.rows.map((row) => row[key])]), };
+      compatibility_key: legacyKey([message.requestId || message.id, question, key, y, table.rows.map((row) => row[key])]), };
     validatePresentation({ version: 1, intent: "explicit", default_view: "chart", reason: "requested_visual", charts: [descriptor] }, { ...response, tables: [chartTable] });
     return { response, table: chartTable, descriptor, intent, reason: "requested_visual", question };
   } catch (error) {

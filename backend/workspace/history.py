@@ -9,6 +9,7 @@ from pydantic import BaseModel
 from workspace.cursors import Cursors
 from workspace.database import allocate, one, public, rows
 from workspace.errors import WorkspaceError
+from workspace.result_view import employee_result
 
 CHAT = "id,title,project_id,archived,revision,message_count,last_activity_at,created_at"
 MESSAGE = "m.id,m.chat_id,m.sequence,m.role,m.content,m.request_id,m.reply_to,m.model_id,m.status,m.created_at"
@@ -173,7 +174,7 @@ def previous_result(
     )
     if row is None:
         raise WorkspaceError("not_found")
-    return row["response"]
+    return employee_result(row["response"])
 
 
 def message_public(item: dict, session: UserSession) -> dict:
@@ -188,7 +189,7 @@ def message_public(item: dict, session: UserSession) -> dict:
         result["response"] = None
         result["content"] = ""
     else:
-        result.setdefault("response", None)
+        result["response"] = employee_result(item.get("response"))
     return result
 
 

@@ -69,7 +69,8 @@ def test_success(monkeypatch: pytest.MonkeyPatch) -> None:
     assert response.status_code == 200
     body = response.json()
     assert body["status"] == "success"
-    assert body["sql"] == "SELECT COUNT(*) FROM film LIMIT 1000"
+    assert body["sql"] == ""
+    assert "SELECT COUNT(*) FROM film LIMIT 1000" not in response.text
     assert body["tables"][0]["rows"] == [{"count": 1000}]
 
 

@@ -39,7 +39,7 @@ for (const [name, request] of [["send", sendMessage], ["retry", retryMessage]]) 
     assert.equal(new Headers(init.headers).get("X-CSRF-Token"), "session-csrf");
     assert.deepEqual(JSON.parse(init.body), { question: "How many films?", model: "gemini" });
     assert.equal(response.status, "success");
-    assert.equal(response.sql, RESULT.sql);
+    assert.equal(response.sql, "");
     assert.equal(response.message, RESULT.message);
     assert.deepEqual(response.tables, RESULT.tables);
   });
@@ -59,7 +59,7 @@ test("live requests without CSRF never call the network", async (t) => {
 test("requests use the live API by default", async (t) => {
   const fetch = t.mock.method(globalThis, "fetch", async () => jsonResponse(RESULT));
   const response = await sendMessage({ prompt: "How many films?", csrfToken: "csrf" });
-  assert.equal(response.sql, RESULT.sql);
+  assert.equal(response.sql, "");
   assert.equal(fetch.mock.callCount(), 1);
 });
 
@@ -88,14 +88,13 @@ test("live cancellation is propagated rather than rendered as a failed query", a
   await assert.rejects(sendMessage({ prompt: "q", csrfToken: "csrf", demoMode: false, signal: new AbortController().signal }), (error) => error === cancelled);
 });
 
-test("a rejected SQL result stays an error, keeps its SQL and says why", async (t) => {
-  // The API contract (CLAUDE.md) shows the blocked SQL and the validator's
-  // reason; only the backend's own error message is shown, never other fields.
+test("a rejected result stays an error, omits its SQL and explains the refusal", async (t) => {
+  // Employees receive the refusal explanation, never the generated statement.
   const rejected = { ...RESULT, status: "error", sql: "DELETE FROM film", message: "private rejection detail", tables: [], error: { code: "rejected", message: "Only SELECT queries are allowed, got DELETE.", retryable: false } };
   t.mock.method(globalThis, "fetch", async () => jsonResponse(rejected));
   const response = await sendMessage({ prompt: "Delete films", csrfToken: "csrf", demoMode: false });
   assert.equal(response.status, "error");
-  assert.equal(response.sql, rejected.sql);
+  assert.equal(response.sql, "");
   assert.equal(response.error.code, "rejected");
   assert.equal(response.error.retryable, false);
   assert.match(response.error.message, /got DELETE/);

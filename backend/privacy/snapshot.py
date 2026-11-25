@@ -93,7 +93,7 @@ SELECT jsonb_build_object('id',m.id,'chat_id',m.chat_id,'sequence',m.sequence,'r
  'status',m.status,'model_id',m.model_id,'created_at',m.created_at,
  'result_unavailable',m.role='aqua' AND NOT (%s AND COALESCE(r.dataset_key=%s,false)))::text,
  CASE WHEN m.role='aqua' AND %s AND r.dataset_key=%s AND v.response IS NOT NULL THEN
- jsonb_build_object('status',v.response->'status','sql',v.response->'sql','model',v.response->'model',
+ jsonb_build_object('status',v.response->'status','sql','','model',v.response->'model',
  'message',v.response->'message','tables',v.response->'tables','visualizations',v.response->'visualizations',
  'kpis',v.response->'kpis','error',CASE WHEN jsonb_typeof(v.response->'error')='object' THEN
  jsonb_build_object('code',v.response->'error'->'code','message',v.response->'error'->'message',

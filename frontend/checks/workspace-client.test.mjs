@@ -57,7 +57,7 @@ test("only short analysis submissions use the retry interval as employee-facing 
 test("first durable submit and explicit retry use canonical routes without assistant uploads", async (t) => {
   const calls = []; t.mock.method(globalThis, "fetch", async (url, init) => { calls.push({ url, init }); return json(submission, 201); });
   const result = await submitQuestion({ client_request_id: D, question: "Synthetic question", model: "gemini" }, { csrfToken: "csrf" });
-  assert.equal(result.chat.id, A); assert.equal(result.assistant.replyTo, B); assert.equal(result.assistant.response.sql, "SELECT 1");
+  assert.equal(result.chat.id, A); assert.equal(result.assistant.replyTo, B); assert.equal(result.assistant.response.sql, "");
   await submitQuestion({ chatId: A, retryInputId: B, client_request_id: D }, { csrfToken: "csrf" });
   assert.deepEqual(calls.map((call) => call.url), ["/api/v1/chats", `/api/v1/chats/${A}/messages/${B}/retries`]);
   assert.deepEqual(JSON.parse(calls[1].init.body), { client_request_id: D });
