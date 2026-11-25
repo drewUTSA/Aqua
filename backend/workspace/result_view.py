@@ -13,6 +13,10 @@ FIELDS = frozenset(
         "error",
         "result_metadata",
         "presentation",
+        "bank_cash_reply",
+        "bank_cash_manual",
+        "bank_cash_review",
+        "bank_calculation",
     }
 )
 

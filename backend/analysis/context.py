@@ -5,6 +5,7 @@ import json
 from psycopg import Connection
 
 from analysis.policy import MAX_CONTEXT_BYTES
+from bank_demo.cash_chat import is_private_cash_input
 from workspace.database import rows
 
 
@@ -19,7 +20,14 @@ def encode(value: object) -> bytes:
 
 
 def select(
-    conn: Connection, owner: str, chat: str, sequence: int, dataset: str, grant: int
+    conn: Connection,
+    owner: str,
+    chat: str,
+    sequence: int,
+    dataset: str,
+    grant: int,
+    *,
+    exclude_bank_inputs: bool = False,
 ) -> tuple[list[dict], bytes]:
     candidates = rows(
         conn,
@@ -30,6 +38,7 @@ def select(
             JOIN app.analysis_requests r ON r.user_id=m.user_id AND r.chat_id=m.chat_id AND r.id=m.request_id
             LEFT JOIN app.visual_results v ON v.user_id=r.user_id AND v.chat_id=r.chat_id AND v.request_id=r.id
             WHERE m.user_id=%s AND m.chat_id=%s AND m.role='user' AND m.sequence<%s
+              AND (v.response->'bank_cash_reply') IS DISTINCT FROM 'true'::jsonb
             ORDER BY m.sequence DESC LIMIT 8
         )
         SELECT id, sequence, content,
@@ -44,6 +53,8 @@ def select(
     )
     chosen, sql_count = [], 0
     for item in candidates:
+        if exclude_bank_inputs and is_private_cash_input(item["content"]):
+            continue
         record = {
             "message_id": str(item["id"]),
             "sequence": item["sequence"],

@@ -80,6 +80,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
                 load_auth_policy(configured),
                 configured.session_secret,
                 configured,
+                bank_policy=app.state.bank_demo_policy,
             )
             app.state.analysis = service
     if service is not None and runtime.ready:

@@ -10,6 +10,7 @@ import { useReducedMotion } from "../../hooks/useReducedMotion.js";
 import RankGroupsComposer from "./RankGroupsComposer.jsx";
 import { canStartGroupRank } from "./rankGroupsDraft.js";
 import { cashContinuation } from "../../features/bankDemo/cashContinuation.js";
+import { assertHistory, captureHistory } from "../../services/historyAuthority.js";
 import { savedRankFields } from "./savedRankFields.js";
 
 export default function OpalChat({ chat, auth, inputRef, focusRequest, onOpenPrompts, onOpenCash, preferences, shell = "opal", visible = true, scrollPositions, onShowVisual, onUnderstandResult, visualsHidden = false }) {
@@ -18,6 +19,14 @@ export default function OpalChat({ chat, auth, inputRef, focusRequest, onOpenPro
   const [rankTarget, setRankTarget] = useState(null);
   const visibility = useRef(visible); visibility.current = visible;
   const owner = auth.user?.id;
+  const last = chat.messages.at(-1);
+  const allowSavedCash = visible && chat.durable && owner && !auth.demoMode && auth.canQuery
+    && auth.session?.can_query === true && !chat.pending && !chat.uncertain
+    && !chat.active?.archived && !chat.draft.trim() && last?.role === "aqua";
+  const input = allowSavedCash && last.response?.cashManual && chat.messages.find(message => message.id === last.replyTo && message.role === "user");
+  const confirmCash = allowSavedCash && last.response?.cashConfirmation
+    ? { replyId: last.id, run: () => chat.confirmSavedCash(owner, chat.activeConversationId, last.id) }
+    : input && onOpenCash ? { replyId: last.id, openBlank: () => onOpenCash({ question: input.content, manual: true }) } : null;
   const reply = visible && owner && !auth.demoMode && auth.canQuery && auth.session?.can_query === true && chat.rankReply;
   const applyRank = value => visibility.current && chat.applyRankDraft({
     ownerId: owner, chatId: chat.activeConversationId, projectId: chat.active.projectId, original: chat.draft,
@@ -39,7 +48,7 @@ export default function OpalChat({ chat, auth, inputRef, focusRequest, onOpenPro
       {chat.durable && <div className="workspace-history-controls"><ConversationActions chat={chat} />
         {chat.active.olderCursor && <button type="button" disabled={chat.pending || chat.active.historyLoading} onClick={chat.loadOlder}>Load older messages</button>}
         {chat.active.historyLoading && <span role="status">Loading messages…</span>}</div>}
-      <Conversation key={chat.active?.viewId || chat.activeConversationId} messages={chat.messages} preferences={preferences} pending={chat.durable ? chat.submitting : chat.pending} waiting={chat.waiting} onRetry={chat.retry} rankAction={rankAction} onShowVisual={onShowVisual} onUnderstandResult={onUnderstandResult} suspended={!visible}
+      <Conversation key={chat.active?.viewId || chat.activeConversationId} messages={chat.messages} preferences={preferences} pending={chat.durable ? chat.submitting : chat.pending} waiting={chat.waiting} onRetry={chat.retry} rankAction={rankAction} confirmCash={confirmCash} onShowVisual={onShowVisual} onUnderstandResult={onUnderstandResult} suspended={!visible}
         position={scrollPositions?.get(chat.activeConversationId)} onPositionChange={(position) => scrollPositions?.set(chat.activeConversationId, position)} /></>}
     {chat.durable && !active && chat.active.historyLoading && <p role="status">Loading saved conversation…</p>}
     {chat.durable && chat.uncertain && <div className="workspace-request-notice" role="status"><p>This request may still be processing. Stopping this browser request does not cancel work on the server.</p>
@@ -78,7 +87,30 @@ function Composer({ chat, auth, preferences, inputRef, focusRequest, active, vis
   useEffect(() => () => animation.current?.cancel(), []);
   const allowed = auth.canQuery && !!chat.draft.trim() && !chat.pending && !chat.uncertain && !chat.active?.archived && (!chat.durable || !!chat.selectedModelId);
   const cashQuestion = chat.draft.trim() || chat.messages.findLast(message => message.role === "user")?.content;
-  const cash = visible && !auth.demoMode && auth.canQuery && auth.session?.can_query === true && !chat.pending && !chat.uncertain && !chat.active?.archived && onOpenCash && cashContinuation(cashQuestion);
+  const cash = visible && !auth.demoMode && auth.canQuery && auth.session?.can_query === true && !chat.pending && !chat.uncertain && !chat.active?.archived
+    && (chat.draft.trim() || !chat.messages.at(-1)?.response?.cashReply) && onOpenCash && cashContinuation(cashQuestion);
+  const ownerId = auth.user?.id, csrfToken = auth.csrfToken;
+  const [cashAccess, setCashAccess] = useState(null);
+  const wantsCashReview = Boolean(cash?.amounts);
+  useEffect(() => {
+    if (!wantsCashReview || !ownerId || !csrfToken) return;
+    const controller = new AbortController();
+    let authority;
+    try { authority = captureHistory(csrfToken); } catch { return; }
+    // Only ask for the signed-in employee's scope. Draft text and amounts
+    // stay in the browser until the employee explicitly submits them.
+    import("../../features/bankDemo/api.js").then(({ bankDemoContext }) =>
+      bankDemoContext({ ownerId, csrfToken, historyContext: authority, signal: controller.signal })
+    ).then(context => {
+      if (!controller.signal.aborted && assertHistory(authority).owner === ownerId) {
+        setCashAccess({ ownerId, csrfToken, allowed: context.persona !== "none" });
+      }
+    }).catch(() => {
+      if (!controller.signal.aborted) setCashAccess(null);
+    });
+    return () => controller.abort();
+  }, [wantsCashReview, ownerId, csrfToken]);
+  const allowedCashReview = cashAccess?.ownerId === ownerId && cashAccess?.csrfToken === csrfToken && cashAccess?.allowed;
   const serverPending = chat.durable && chat.pending && !chat.submitting;
   const showRank = canStartGroupRank({ auth, chat, visible, active });
   const stop = serverPending ? chat.cancelAnalysis : chat.stop;
@@ -105,7 +137,7 @@ function Composer({ chat, auth, preferences, inputRef, focusRequest, active, vis
     : serverPending ? "Analysis continues on the server. Cancellation is confirmed by saved status."
       : `${chat.pending ? "Stop ends this browser’s wait; server work may continue. " : ""}${preferences?.device.send_shortcut === "modified_enter" ? "Ctrl/Cmd + Enter" : "Enter"} to ${active ? "send" : "ask"} · ${preferences?.device.send_shortcut === "modified_enter" ? "Enter" : "Shift + Enter"} for a new line`}</p>
     {cash && (cash.hint ? <p className="note" data-cash-clarification>{cash.hint}</p>
-      : <button type="button" className="text-action" data-cash-continuation aria-haspopup="dialog" onClick={() => onOpenCash(cash)}>Review cash coverage in the calculator</button>)}
+      : allowedCashReview && <button type="button" className="text-action" data-cash-continuation aria-haspopup="dialog" onClick={() => onOpenCash(cash)}>Review cash coverage in the calculator</button>)}
     {showRank && <RankGroupsComposer key={`${auth.user?.id}:${chat.activeConversationId}:${chat.active.projectId}`}
       original={chat.draft} reveal={revealRank} onBack={() => textarea.current?.focus()}
       onApply={value => { if (applyRank(value)) textarea.current?.focus(); }} />}

@@ -93,18 +93,26 @@ class Dispatcher:
                         (job["request_id"],),
                     ).fetchone()
                     job["first_chat_input"] = sequence == 1
+                    from bank_demo.cash_chat import saved_cash_response
+
+                    response = saved_cash_response(
+                        conn, job, sequence, question, service.bank_policy
+                    )
                 remaining = float(
                     conn.execute(
                         "SELECT extract(epoch FROM (%s-clock_timestamp()))",
                         (job["deadline_at"],),
                     ).fetchone()[0]
                 )
-            from analysis.process import payload
+            if response is None:
+                from analysis.process import payload
 
-            response, status = service.engine.run(
-                payload(job, question, service.settings, remaining),
-                lambda stage=None: self.check(job, stage),
-            )
+                response, status = service.engine.run(
+                    payload(job, question, service.settings, remaining),
+                    lambda stage=None: self.check(job, stage),
+                )
+            else:
+                status = 200
             self.check(job, "persisting")
         except Halt as error:
             state = error.state

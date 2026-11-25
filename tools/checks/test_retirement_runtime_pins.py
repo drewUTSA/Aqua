@@ -79,8 +79,8 @@ class RuntimePins(unittest.TestCase):
             manifest[name] = {"sha256": digest, "bytes": len(raw)}
             if name in normal.RUNTIME_FILES:
                 self.assertEqual(digest, normal.RUNTIME_FILES[name], name)
-        self.assertEqual(len(names), 247)
-        self.assertEqual(len(manifest), 251)
+        self.assertEqual(len(names), 248)
+        self.assertEqual(len(manifest), 252)
         digest = hashlib.sha256(
             json.dumps(manifest, sort_keys=True, separators=(",", ":")).encode()
         ).hexdigest()
