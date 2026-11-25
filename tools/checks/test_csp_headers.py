@@ -36,8 +36,14 @@ class DocumentCsp(unittest.TestCase):
         prefix = self.nginx.split("    # Restricted launch:")[0]
         self.assertNotIn("Content-Security-Policy", prefix)
         self.assertNotIn("add_header Cross-Origin-Embedder-Policy", self.nginx)
-        self.assertIn('add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;', self.nginx)
-        self.assertIn('add_header Cross-Origin-Opener-Policy "same-origin-allow-popups" always;', self.nginx)
+        self.assertIn(
+            'add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;',
+            self.nginx,
+        )
+        self.assertIn(
+            'add_header Cross-Origin-Opener-Policy "same-origin-allow-popups" always;',
+            self.nginx,
+        )
         self.assertEqual(self.headers[:1], self.headers[1:])
         self.assertEqual(len(probe.document_policy(Response(self.headers[:1]))), 64)
 
@@ -45,7 +51,11 @@ class DocumentCsp(unittest.TestCase):
         self,
     ):
         original = self.headers[:1]
-        changed = [[], original + original, [("Content-Security-Policy-Report-Only", original[0][1])]]
+        changed = [
+            [],
+            original + original,
+            [("Content-Security-Policy-Report-Only", original[0][1])],
+        ]
         for before, after in (
             ("script-src 'self'", "script-src 'self' 'unsafe-eval'"),
             ("manifest-src 'self'", "manifest-src 'self'; report-uri /collect"),

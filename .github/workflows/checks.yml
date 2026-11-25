@@ -152,6 +152,11 @@ jobs:
           docker pull postgres@sha256:3645570cccdfa447589da9f57dd740faa29b30938e861289a5574b6ca6b03826
           docker pull node:24.19.0-bookworm-slim@sha256:a9f5f7c91a432850b2a8a7797adf5eadb6c733ceed61167806cee7ea7fbc29df
           docker pull nginx@sha256:970364228b1e4f932abc22d321932816782cca8a20b85a77552a7cfe9acfb3b5
+      - name: Prove production images run without root, capabilities or writable roots
+        timeout-minutes: 5
+        run: |
+          docker build -t aqua-frontend:hardening frontend
+          python tools/checks/check_container_hardening.py --backend aqua-runtime:check --frontend aqua-frontend:hardening
       - name: Closed operator and native fixture pure guards
         timeout-minutes: 3
         run: |

@@ -98,7 +98,11 @@ def run(output, nginx_image=NGINX):
         docker("exec", proxy, "mkdir", "/usr/share/nginx/html/assets")
         docker("exec", proxy, "mkdir", "/usr/share/nginx/html/.well-known")
         docker(
-            "exec", "-i", proxy, "tee", "/usr/share/nginx/html/.well-known/security.txt",
+            "exec",
+            "-i",
+            proxy,
+            "tee",
+            "/usr/share/nginx/html/.well-known/security.txt",
             data=(ROOT / "frontend/security.txt").read_bytes(),
         )
         docker(

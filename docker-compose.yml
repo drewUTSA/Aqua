@@ -6,11 +6,18 @@ services:
       context: .
       dockerfile: backend/Dockerfile
     network_mode: host
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    tmpfs:
+      - /tmp/aqua:rw,nosuid,nodev,noexec,size=67108864,uid=1000,gid=1000,mode=0700
     env_file:
       - .env
     environment:
       # Only the local nginx peer can supply Uvicorn's normalized visitor address.
       FORWARDED_ALLOW_IPS: "127.0.0.1"
+      # Preserve the image dependency lock in /tmp and the shared mail locks in /run.
+      TMPDIR: /tmp/aqua
     restart: unless-stopped
     # Two bounded analysis children share this service with account APIs.
     # Keep aggregate resources finite; the private DB has its own budget.
@@ -38,6 +45,12 @@ services:
       args:
         AQUA_UI_SHELL: ${AQUA_UI_SHELL:-opal}
     network_mode: host
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    tmpfs:
+      - /tmp:rw,nosuid,nodev,noexec,size=8388608,mode=1777
+      - /var/cache/nginx:rw,nosuid,nodev,noexec,size=16777216,uid=101,gid=101,mode=0700
     restart: unless-stopped
     depends_on:
       backend:

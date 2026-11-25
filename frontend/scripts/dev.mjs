@@ -43,4 +43,4 @@ function stop() {
 process.once("SIGINT", stop);
 process.once("SIGTERM", stop);
 server.once("error", async error => { process.exitCode = 1; console.error(error.message); await stop(); });
-server.listen(5173, "0.0.0.0");
+server.listen(5173, "127.0.0.1");

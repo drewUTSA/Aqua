@@ -24,9 +24,7 @@ async def echo(scope, receive, send):
 
 def observe(socket_peer, hostname, visitor, port=5173):
     # The source address belongs only to this disconnected namespace.
-    conn = HTTPConnection(
-        "127.0.0.1", port, timeout=2, source_address=(socket_peer, 0)
-    )
+    conn = HTTPConnection("127.0.0.1", port, timeout=2, source_address=(socket_peer, 0))
     try:
         conn.request(
             "POST",
@@ -79,11 +77,17 @@ def probe():
         assert status == 200 and data["peer"] == data["forwarded_for"] == other
         for hostname in (apex, alternate):
             status, data = observe("127.0.0.2", hostname, visitor)
-            assert status == 200 and data["peer"] == data["forwarded_for"] == "127.0.0.2"
+            assert (
+                status == 200 and data["peer"] == data["forwarded_for"] == "127.0.0.2"
+            )
             assert data["cloudflare"] is None and data["forwarded"] is None
         direct, data = observe("127.0.0.2", apex, visitor, port=8000)
         assert direct == 200 and data["peer"] == "127.0.0.2"
-        return {"separate_visitors": 2, "hostnames": 2, "untrusted_peer_preserved": True}
+        return {
+            "separate_visitors": 2,
+            "hostnames": 2,
+            "untrusted_peer_preserved": True,
+        }
     finally:
         api.should_exit = True
         thread.join(timeout=5)
