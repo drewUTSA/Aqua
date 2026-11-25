@@ -60,8 +60,8 @@ export function CompanionToolsContent({ state, mode, question, canQuery, onMode,
   </>;
 }
 
-export default function CompanionToolsDialog({ auth, targetId, draft, onApply, onClose }) {
-  const [area, setArea] = useState("aqua");
+export default function CompanionToolsDialog({ auth, targetId, draft, cash, onApply, onClose }) {
+  const [area, setArea] = useState(cash ? "bank" : "aqua");
   const [question, setQuestion] = useState(""), [mode, setMode] = useState("help"), closeRef = useRef(null), originalDraft = useRef(draft);
   const [guide, setGuide] = useState(() => ({ active: false, fields: emptyGuidedQuestion(), dirty: true, error: null, review: "" })), guideRefs = useRef({});
   const tools = useCompanionTools({ ownerId: auth.user?.id, csrfToken: auth.csrfToken, targetId, onClose, onAuthFailure: auth.refresh });
@@ -99,7 +99,7 @@ export default function CompanionToolsDialog({ auth, targetId, draft, onApply, o
       <button type="button" data-bank-demo-open aria-pressed={area === "bank"} onClick={() => changeArea("bank")}>Fictional bank demo</button>
     </fieldset>
     {area === "notes" ? <ContextNotesPanel auth={auth} targetId={targetId} assertParent={tools.current} onClose={onClose} onApply={applyNote} />
-      : area === "bank" ? <BankDemoPanel auth={auth} targetId={targetId} onClose={onClose} /> : <CompanionToolsContent state={tools.state} mode={mode} question={question} canQuery={auth.canQuery}
+      : area === "bank" ? <BankDemoPanel auth={auth} targetId={targetId} onClose={onClose} cash={cash} /> : <CompanionToolsContent state={tools.state} mode={mode} question={question} canQuery={auth.canQuery}
       onMode={changeMode} onQuestion={changeQuestion} onRead={() => tools.ask(question)} onApply={apply} onReload={tools.load}
       guide={guide} onGuide={changeGuide} onGuideField={changeGuideField} onPrepareGuide={prepareGuide} guideRefs={guideRefs} />}
     <div className="settings-dialog-actions"><button type="button" ref={closeRef} data-close-companion onClick={onClose}>Close Aqua tools</button></div>

@@ -88,9 +88,17 @@ function WorkspaceView({ auth, hidden, path, onNavigate, chat }) {
       setCompanionOpen(false); setResultSelection({ messageId, token: binding.token });
     } catch { closeResult(); }
   };
-  const openCompanion = () => {
-    try { companionScope.current = captureHistory(auth.csrfToken); closeResult(); setCompanionOpen(true); } catch { setCompanionOpen(false); }
+  const openCompanion = (cash = null) => {
+    try {
+      companionScope.current = captureHistory(auth.csrfToken); closeResult();
+      setCompanionOpen(cash ? { cash, owner: auth.user?.id, chatId: chat.activeConversationId, csrf: auth.csrfToken } : true);
+    } catch { setCompanionOpen(false); }
   };
+  const currentCash = companionOpen && companionOpen !== true && companionOpen.owner === auth.user?.id
+    && companionOpen.chatId === chat.activeConversationId && companionOpen.csrf === auth.csrfToken
+    && auth.canQuery && auth.session?.can_query === true && !chat.pending && !chat.uncertain && !chat.active?.archived
+    && companionOpen.cash.question === (chat.draft.trim() || chat.messages.findLast(message => message.role === "user")?.content)
+    ? companionOpen.cash : null;
   const applyCompanionDraft = (value, expected) => {
     try { assertHistory(companionScope.current); } catch { return false; }
     if (hidden || settings || !auth.canQuery || expected.targetId !== chat.activeConversationId || expected.draft !== chat.draft) return false;
@@ -146,7 +154,7 @@ function WorkspaceView({ auth, hidden, path, onNavigate, chat }) {
       <span className="breadcrumb"><strong title={caption}>{caption}</strong></span>
       <button type="button" className="workspace-quick-switch" aria-haspopup="dialog" aria-keyshortcuts="Control+k Meta+k" onClick={() => setQuickOpen(true)}>
         <span>Quick switch</span><kbd aria-hidden="true">Ctrl / ⌘ K</kbd></button>
-      {!auth.demoMode && !settings && <button type="button" className="workspace-quick-switch" data-open-companion aria-label="Open Aqua tools" aria-haspopup="dialog" onClick={openCompanion}>Help</button>}
+      {!auth.demoMode && !settings && <button type="button" className="workspace-quick-switch" data-open-companion aria-label="Open Aqua tools" aria-haspopup="dialog" onClick={() => openCompanion()}>Help</button>}
       {(auth.demoMode || !auth.canQuery) && <span className="data-badge">{auth.demoMode ? "Demo data" : "Access pending"}</span>}
     </header>
     {notice && <p className="workspace-notice" role="status">{notice}</p>}
@@ -155,7 +163,7 @@ function WorkspaceView({ auth, hidden, path, onNavigate, chat }) {
     </div>
     {!settings && preferences.error && <p className="workspace-notice" role="alert">{preferences.error} Open Settings to review or retry.</p>}
     <div className="chat-route" hidden={settings} inert={settings || undefined} style={settings ? { display: "none" } : undefined}>
-      <VisualWorkspace chat={chat} auth={auth} preferences={{ account, device }} onDeviceChange={preferences.persistDeviceValue} chartTheme={theme} inputRef={inputRef} focusRequest={focus} onOpenPrompts={openPrompts} onUnderstandResult={resultAllowed && chat.durable ? openResult : undefined} shell={UI_SHELL} visible={!hidden && !settings} scrollPositions={scrollPositions.current} />
+      <VisualWorkspace chat={chat} auth={auth} preferences={{ account, device }} onDeviceChange={preferences.persistDeviceValue} chartTheme={theme} inputRef={inputRef} focusRequest={focus} onOpenPrompts={openPrompts} onOpenCash={openCompanion} onUnderstandResult={resultAllowed && chat.durable ? openResult : undefined} shell={UI_SHELL} visible={!hidden && !settings} scrollPositions={scrollPositions.current} />
     </div>
     {settings && <QuickSwitcherBoundary kind="settings" onClose={() => go("/")}><Suspense fallback={<p role="status">Opening Settings…</p>}><SettingsShell auth={auth} onBack={() => go("/")} onNavigate={go} /></Suspense></QuickSwitcherBoundary>}
     {selectedResult && <QuickSwitcherBoundary key={selectedResult.token} title="Result companion unavailable"
@@ -164,10 +172,10 @@ function WorkspaceView({ auth, hidden, path, onNavigate, chat }) {
       <ResultCompanionHost reference={selectedResult} scope={resultScope.current} chat={chat} auth={auth} onClose={closeResult} onApplied={focusComposer} />
       </Suspense></QuickSwitcherBoundary>}
     {quickOpen && !hidden && <QuickSwitcherBoundary onClose={() => setQuickOpen(false)}><Suspense fallback={<p role="status">Opening workspace shortcuts…</p>}><QuickSwitcher chat={chat} onClose={() => setQuickOpen(false)} onSelect={select} onAction={quickAction} /></Suspense></QuickSwitcherBoundary>}
-    {companionOpen && !hidden && !settings && !auth.demoMode && <QuickSwitcherBoundary title="Aqua tools unavailable"
+    {(companionOpen === true || currentCash) && !hidden && !settings && !auth.demoMode && <QuickSwitcherBoundary title="Aqua tools unavailable"
       message="The optional help window could not open. Your conversation and composer are still available."
       closeLabel="Close Aqua tools" onClose={() => setCompanionOpen(false)}><Suspense fallback={<OptionalDialogLoading title="Aqua tools" closeLabel="Close Aqua tools" onClose={() => setCompanionOpen(false)} />}>
-      <CompanionToolsDialog key={`${auth.user?.id}:${chat.activeConversationId}`} auth={auth} targetId={chat.activeConversationId} draft={chat.draft}
+      <CompanionToolsDialog key={`${auth.user?.id}:${chat.activeConversationId}`} auth={auth} targetId={chat.activeConversationId} draft={chat.draft} cash={currentCash}
         onApply={applyCompanionDraft} onClose={() => setCompanionOpen(false)} /></Suspense></QuickSwitcherBoundary>}
     {searchOpen && !hidden && <SidebarSearchDialog chat={chat} onSelect={select} onClose={() => setSearchOpen(false)} />}
     {promptsOpen && !hidden && !settings && <QuickSwitcherBoundary kind="prompts" onClose={() => setPromptsOpen(false)}><Suspense fallback={<p role="status">Opening saved prompts…</p>}><PromptLibraryDialog chat={chat} suggestions={account.suggestions} onClose={() => setPromptsOpen(false)} onPrompt={(value) => { prompt(value); setPromptsOpen(false); }} /></Suspense></QuickSwitcherBoundary>}

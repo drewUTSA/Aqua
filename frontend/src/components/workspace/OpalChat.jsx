@@ -9,9 +9,10 @@ import { leaveMenuWithTab, useMenuSurface } from "../navigation/useMenuSurface.j
 import { useReducedMotion } from "../../hooks/useReducedMotion.js";
 import RankGroupsComposer from "./RankGroupsComposer.jsx";
 import { canStartGroupRank } from "./rankGroupsDraft.js";
+import { cashContinuation } from "../../features/bankDemo/cashContinuation.js";
 import { savedRankFields } from "./savedRankFields.js";
 
-export default function OpalChat({ chat, auth, inputRef, focusRequest, onOpenPrompts, preferences, shell = "opal", visible = true, scrollPositions, onShowVisual, onUnderstandResult, visualsHidden = false }) {
+export default function OpalChat({ chat, auth, inputRef, focusRequest, onOpenPrompts, onOpenCash, preferences, shell = "opal", visible = true, scrollPositions, onShowVisual, onUnderstandResult, visualsHidden = false }) {
   const active = chat.messages.length > 0 || (chat.durable && chat.active.messageCount > 0);
   const legacy = shell === "legacy";
   const [rankTarget, setRankTarget] = useState(null);
@@ -45,13 +46,13 @@ export default function OpalChat({ chat, auth, inputRef, focusRequest, onOpenPro
     {chat.durable && chat.uncertain && <div className="workspace-request-notice" role="status"><p>This request may still be processing. Stopping this browser request does not cancel work on the server.</p>
       <button type="button" disabled={chat.pending || !auth.canQuery} onClick={chat.checkSaved}>Check saved request</button></div>}
     {chat.durable && !chat.submitting && <AnalysisStatus request={chat.analysis} connection={chat.analysisConnection} onReconnect={chat.reconnectAnalysis} />}
-    <Composer chat={chat} auth={auth} preferences={preferences} inputRef={inputRef} focusRequest={focusRequest} active={active} visible={visible} onOpenPrompts={onOpenPrompts}
+    <Composer chat={chat} auth={auth} preferences={preferences} inputRef={inputRef} focusRequest={focusRequest} active={active} visible={visible} onOpenPrompts={onOpenPrompts} onOpenCash={onOpenCash}
       applyRank={applyRank} revealRank={rankTarget && rankTarget.owner === owner && rankTarget.id === chat.activeConversationId ? rankTarget : null} />
     <p className="opal-disclaimer">Check important figures against your source.</p>
   </main>;
 }
 
-function Composer({ chat, auth, preferences, inputRef, focusRequest, active, visible, onOpenPrompts, applyRank, revealRank }) {
+function Composer({ chat, auth, preferences, inputRef, focusRequest, active, visible, onOpenPrompts, onOpenCash, applyRank, revealRank }) {
   const ownRef = useRef(null), wrap = useRef(null), previous = useRef(null), animation = useRef(null), id = useId();
   const textarea = inputRef || ownRef;
   const reduced = useReducedMotion() || preferences?.device.motion === "reduce";
@@ -77,6 +78,8 @@ function Composer({ chat, auth, preferences, inputRef, focusRequest, active, vis
   }, [active, visible, reduced]);
   useEffect(() => () => animation.current?.cancel(), []);
   const allowed = auth.canQuery && !!chat.draft.trim() && !chat.pending && !chat.uncertain && !chat.active?.archived && (!chat.durable || !!chat.selectedModelId);
+  const cashQuestion = chat.draft.trim() || chat.messages.findLast(message => message.role === "user")?.content;
+  const cash = visible && !auth.demoMode && auth.canQuery && auth.session?.can_query === true && !chat.pending && !chat.uncertain && !chat.active?.archived && onOpenCash && cashContinuation(cashQuestion);
   const serverPending = chat.durable && chat.pending && !chat.submitting;
   const showRank = canStartGroupRank({ auth, chat, visible, active });
   const stop = serverPending ? chat.cancelAnalysis : chat.stop;
@@ -102,6 +105,8 @@ function Composer({ chat, auth, preferences, inputRef, focusRequest, active, vis
   </form><p className="composer-hint" id={`${id}-hint`}>{!auth.canQuery ? "Data access is pending approval." : chat.active?.archived ? "Restore this archived chat before sending another question."
     : serverPending ? "Analysis continues on the server. Cancellation is confirmed by saved status."
       : `${chat.pending ? "Stop ends this browser’s wait; server work may continue. " : ""}${preferences?.device.send_shortcut === "modified_enter" ? "Ctrl/Cmd + Enter" : "Enter"} to ${active ? "send" : "ask"} · ${preferences?.device.send_shortcut === "modified_enter" ? "Enter" : "Shift + Enter"} for a new line`}</p>
+    {cash && (cash.hint ? <p className="note" data-cash-clarification>{cash.hint}</p>
+      : <button type="button" className="text-action" data-cash-continuation aria-haspopup="dialog" onClick={() => onOpenCash(cash)}>Review cash coverage in the calculator</button>)}
     {showRank && <RankGroupsComposer key={`${auth.user?.id}:${chat.activeConversationId}:${chat.active.projectId}`}
       original={chat.draft} reveal={revealRank} onBack={() => textarea.current?.focus()}
       onApply={value => { if (applyRank(value)) textarea.current?.focus(); }} />}

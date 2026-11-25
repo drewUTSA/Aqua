@@ -48,7 +48,7 @@ function ReportLimitation({ limit }) {
   return <p role="status">The requested period is unavailable. This report covers <time dateTime={limit.periodStart}>{limit.periodStart}</time> through <time dateTime={limit.periodEnd}>{limit.periodEnd}</time>.</p>;
 }
 
-export function BankDemoContent({ state, onSelect, onRead, onReload, onCalculate }) {
+export function BankDemoContent({ state, cash, onSelect, onRead, onReload, onCalculate }) {
   const table = useId();
   const [calculatorVersion, setCalculatorVersion] = useState(0);
   function resetCalculator(callback, value) {
@@ -74,7 +74,7 @@ export function BankDemoContent({ state, onSelect, onRead, onReload, onCalculate
             reading={reading} onSelect={value => resetCalculator(onSelect, value)} onRead={value => resetCalculator(onRead, value)} />}
     </>}
     {context && context.persona !== "none" && onCalculate && <BankCalculator key={context.ownerId + context.sourceRevision + calculatorVersion + (report?.reportId ?? "")}
-      context={context} report={report} onCalculate={onCalculate} />}
+      context={context} report={report} onCalculate={onCalculate} cash={calculatorVersion === 0 ? cash : null} />}
     {reading && <p role="status">Reading the selected fictional report…</p>}
     {state.limitation && <ReportLimitation limit={state.limitation} />}
     {report && <article className="bank-demo__report" data-bank-report aria-labelledby={table}>
@@ -101,7 +101,7 @@ export function BankDemoContent({ state, onSelect, onRead, onReload, onCalculate
   </section>;
 }
 
-export default function BankDemoPanel({ auth, targetId, onClose }) {
+export default function BankDemoPanel({ auth, targetId, onClose, cash }) {
   const bank = useBankDemo({ ownerId: auth.user?.id, csrfToken: auth.csrfToken, targetId, onClose, onAuthFailure: auth.refresh });
-  return <BankDemoContent state={bank.state} onSelect={bank.select} onRead={bank.read} onReload={bank.load} onCalculate={bank.calculate} />;
+  return <BankDemoContent state={bank.state} cash={cash} onSelect={bank.select} onRead={bank.read} onReload={bank.load} onCalculate={bank.calculate} />;
 }
