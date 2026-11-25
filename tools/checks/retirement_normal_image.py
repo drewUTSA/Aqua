@@ -1,7 +1,7 @@
 """Pinned application image and compiled file digests for the native recovery rehearsal."""
 
-IMAGE = "sha256:34de2b2b420cadd25d7a4d200b1c0ba2a7f99ddf4cf148bef6d2aaafbeac44e9"
-MANIFEST_SHA256 = "8faaeaf928e735670702aa52b4605ebabfa3f7538771c0f15599d4c77a05c11f"
+IMAGE = "sha256:e8a01efa13bdc86e548ff1c1e6afefc749c7042643f7e2a3a917f190bd866af4"
+MANIFEST_SHA256 = "44fa2c4ff81dc33b4b2b2d99d460c7f2754025942229d4ee9aa17a8bd06d59a5"
 RUNTIME_FILES = {
     "account/__init__.py": "4d300929fcb6d0c0e3a6b92377bfd4648fc336a8ad2bfb3e962d810b3b6f55e0",
     "account/action_contracts.py": "be3becba0a54378a847efdaa76cc833e3b780df3658c90d30f86a7852232a397",
@@ -94,7 +94,7 @@ RUNTIME_FILES = {
     "companion/application.py": "cf4878d65ca1be714b8ba20ea9816e1488e2b8058ca9e6a5af974bd2f40cb46c",
     "companion/choices.py": "302942495e7d7d241f81715cdc9029e745ad6ef682e5616cd22f7e7ef9571fce",
     "companion/context.py": "b61d7c828aaaa894b0587538688d3a7a57e1eb97ead7a0de4af5bfe9cb9bfc79",
-    "companion/data.py": "163cad71fc0e6d0aa64dd4da0ade791692ca130d37f633e720c1c2047c5372b4",
+    "companion/data.py": "93c172c6117ebf7c24573d95d1c92ca2d35541fc729f6d3487f12049f63f824d",
     "companion/data_contract.py": "ac6818af7df6213d3d7644af867e139345a6418b728e668a820fef79ee3eefab",
     "companion/knowledge.py": "7ac82653f2bba49339477b8fcc51c5e369547ced121bef6972567e550e7af652",
     "companion/policy.py": "71fd7f80e5d9c75ddcb2967f220d0a72e9bfa5b1153a460534fc78fbe3ff63c4",
@@ -115,7 +115,7 @@ RUNTIME_FILES = {
     "eval/banking/proposals.py": "36691853c59240fa86ca955e1d7d4051f056a20f23af8416560ebbb16d635b6c",
     "eval/banking/reports.py": "89f8595f2ccbdb13d280b92c77ae52448149a1ad173f42aafa9b98ecf3bc1bc1",
     "eval/banking/scope.py": "d04351dab5a397ffe161ad47e7322f329e1517510a250d71ec3b9b25014d888c",
-    "main.py": "8ecec604332d13415fc377b43946cfe6b5bf95a636569536164d31523db73474",
+    "main.py": "6f13b9033fbc20036a74952f81abe1dac35fe2ce0cd4e38e9dfceee036438d0d",
     "mcp_demo/__init__.py": "10641412ed8d7dda80a2f7713cd9083d62acbd73c9de682b5d40ab1c582c0ce9",
     "mcp_demo/data.py": "0213446283991323991cf18019efc8f3d81e243ea79266677b3426a03bcf7150",
     "mcp_demo/finance.py": "ba39e5383b650db76911f9b0a926b6ef8743af7c1ce67a11abcf35ea496d3548",
@@ -202,14 +202,14 @@ RUNTIME_FILES = {
     "privacy/headers.py": "d98585ea02f0536f8102a3d74d7a1a2fceada7026ed1c1772c4e4450c874f504",
     "privacy/policy.py": "dd2eef02edcbdfe81dcc680aa8abba76c621e8b878f6b8e5ab5d4456615a1cfc",
     "privacy/records.py": "dbaf8cd2d213a4e500a1db2ba293e7c80a7fad1c9ae12cc6984f19de717db4a6",
-    "privacy/result_fragment.py": "efcdd59bc19ea78f5e873066b6b0dbd130075c254a8bd3e39fc27d792bbc16b5",
+    "privacy/result_fragment.py": "a10f42f3a5eb9d9346b72e95d570570fc1e338cab6bb52a35eb0fef6d1864926",
     "privacy/retirement.py": "4570cd22ee3b365bb7d95bc251cb2cc69f99f27996b0115316a5e162b4aee85f",
     "privacy/router.py": "1d718fd39ecbef3f56929d51a9ae2e8a3f3dc1f960d7c00d17d5311faab787ad",
     "privacy/service.py": "a7dedfb8b7c909cd07733273b249e6d67c8cc33bd6e62a27dd3c79a59476ecab",
-    "privacy/snapshot.py": "27d11c43aeec453401cc8f301bc6ba3c5527128df5ffea8bac211ea9879642c7",
+    "privacy/snapshot.py": "726da456b69b9d35514f775a8466dc713249c5f924cadf1aaff27d2664217e2a",
     "privacy/worker.py": "7aaa1abf4fbbdef6fd6a9a07e18b4ad63dce0a430215bdbd9ed3fa852633cba2",
     "result_companion/__init__.py": "9079d75f5325ffaaf3c6422828361965cb1c3efeb84186023f27204153cc12bf",
-    "result_companion/facts.py": "5560e6b34a3da26b20103db00b61140d859e4d9e987022e39a090bc7f799b5a3",
+    "result_companion/facts.py": "eb7ef01ad3ca6cdc56021ca41892cac7182254240cecf4ca298045fb37010ad9",
     "result_companion/router.py": "2c2d0622365f113125974fa0318e2dd95e7770a7a268fc10d53372244ed7f352",
     "result_companion/service.py": "d34e5d5c97b6e6ef7085d5c3fb6aba2077a683933e3e23c15bd784cf5907035a",
     "retirement/__init__.py": "2499b81ec27573e759b3d3db280bacc386acc22a6b972c336b336f866dfed678",
@@ -247,7 +247,9 @@ RUNTIME_FILES = {
     "workspace/database.py": "a354ac0942e27db43c5c16a21ae3664eaeee9edd22609069b48d67813326ac9e",
     "workspace/dependencies.py": "0195ab365dfd3f48260d32fa87ea5ac210e8ebbbeeb23e6f87e6aec7f75ee309",
     "workspace/errors.py": "8c5e144d5e9d7455ae44be159d4c706ae29dc20c31c5dca7a070833c66cd1b07",
-    "workspace/history.py": "27953727287d1380c2bdd863b1a5d0a121737df171dc9692a67b2c255450e89d",
+    "workspace/history.py": "ae9ab73a6b88ccb9f613049c78fb4b5a29d54dae1b2ebb9e99a3d327c70c13b8",
+    "workspace/ranking_fields.py": "c163f3fc2a6ee7a953f000e9054267fd43af62cd3a6ccd408aae90e48770eadd",
+    "workspace/result_view.py": "79b1d5b0ca1ec2dd53ce8d0bfd166bea52a4174e8d4c59852d0d9b76cd237771",
     "workspace/router.py": "8659eb09fcd35b8e03dd38a79b837c226145bdd42aeb5b1a946899255ad4061e",
     "workspace/service.py": "8f6436c7b3a1c424a8187b9bae301d94aa48cbca3af80827b0ee2024b9920d34",
     "workspace/submissions.py": "da19bc7eaf4128498f953d727aa27d2c5e0b035eea84fbf789f944596d2540e4",

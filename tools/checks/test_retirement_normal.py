@@ -96,10 +96,12 @@ class NormalGuards(unittest.TestCase):
             "mcp_demo/protocol.py",
             "mcp_demo/reports.py",
             "mcp_demo/web.py",
+            "workspace/result_view.py",
+            "workspace/ranking_fields.py",
         }
         self.assertTrue(additions <= RUNTIME_FILES.keys())
         self.assertEqual(len(RUNTIME_FILES.keys() - additions), 191)
-        self.assertEqual(len(RUNTIME_FILES), 248)
+        self.assertEqual(len(RUNTIME_FILES), 250)
         self.assertEqual(len(MANIFEST_SHA256), 64)
         self.assertEqual(IMAGE, runner.IMAGE)
         self.assertIn("main.py", RUNTIME_FILES)
