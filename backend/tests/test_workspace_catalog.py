@@ -2,6 +2,46 @@
 
 from uuid import uuid4
 
+import pytest
+
+from workspace import catalog
+
+
+@pytest.mark.parametrize(
+    ("route", "key", "fields"),
+    [
+        ("/api/v1/projects", "project", {"name": "Fixture plan"}),
+        (
+            "/api/v1/me/saved-prompts",
+            "saved_prompt",
+            {"label": "Fixture", "prompt": "Count rows"},
+        ),
+    ],
+)
+def test_global_active_cap_recovers_across_owners_after_delete(
+    world, monkeypatch, route, key, fields
+):
+    monkeypatch.setattr(catalog, "GLOBAL_ACTIVE_ROW_CAP", 1)
+    first, _ = world.client("A", grant=False)
+    second, _ = world.client("B", grant=False)
+    original = {"client_request_id": str(uuid4()), **fields}
+    following = {"client_request_id": str(uuid4()), **fields}
+    created = first.post(route, json=original)
+    assert created.status_code == 201
+    item = created.json()[key]
+    denied = second.post(route, json=following)
+    assert (
+        denied.status_code == 429
+        and denied.json()["error"]["code"] == "capacity_reached"
+    )
+    assert first.post(route, json=original).json()[key] == item
+    assert (
+        first.delete(f"{route}/{item['id']}?revision={item['revision']}").status_code
+        == 204
+    )
+    assert first.post(route, json=original).status_code == 404
+    assert second.post(route, json=following).status_code == 201
+
 
 def test_project_crud_foreign_assignment_archive_and_detach_preserve_chat(world):
     a, _ = world.client("A")
