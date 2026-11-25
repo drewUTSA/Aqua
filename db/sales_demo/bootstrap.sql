@@ -67,4 +67,6 @@ GRANT SELECT ON public.district, public.account, public.client, public.disp,
     public.card, public.loan, public."order", public.trans TO aqua_sales_demo_reader;
 ALTER ROLE aqua_sales_demo_reader IN DATABASE aqua_sales_demo SET default_transaction_read_only = on;
 ALTER ROLE aqua_sales_demo_reader IN DATABASE aqua_sales_demo SET statement_timeout = '10s';
+ALTER ROLE aqua_sales_demo_reader IN DATABASE aqua_sales_demo SET work_mem = '4MB';
+ALTER ROLE aqua_sales_demo_reader IN DATABASE aqua_sales_demo SET temp_file_limit = '64MB';
 COMMIT;

@@ -18,6 +18,9 @@ BEGIN
         OR NOT EXISTS (SELECT FROM pg_settings WHERE name = 'statement_timeout' AND setting = '10000' AND unit = 'ms') THEN
         RAISE EXCEPTION 'Sales demo reader requires read-only transactions by default and a 10-second statement timeout';
     END IF;
+    IF current_setting('work_mem') <> '4MB' OR current_setting('temp_file_limit') <> '64MB' THEN
+        RAISE EXCEPTION 'Sales demo reader requires 4 MB work_mem and a 64 MB temporary file limit';
+    END IF;
     SELECT array_agg(c.relname::text ORDER BY c.relname) INTO tables
     FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
     WHERE n.nspname = 'public' AND c.relkind IN ('r', 'p', 'v', 'm', 'f')

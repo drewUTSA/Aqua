@@ -11,6 +11,14 @@
 -- Safe to run again, for example to change the password.
 
 \set ON_ERROR_STOP on
+-- Check before changing an existing reader's password or table grants.
+DO $limits$
+BEGIN
+    IF NOT pg_catalog.has_parameter_privilege(current_user, 'temp_file_limit', 'SET') THEN
+        RAISE EXCEPTION 'Reader setup requires permission to set temp_file_limit';
+    END IF;
+END
+$limits$;
 \prompt 'Password for nl2sql_reader: ' reader_password
 
 SELECT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'nl2sql_reader') AS role_exists \gset
@@ -39,3 +47,5 @@ REVOKE CREATE ON SCHEMA public FROM PUBLIC;
 ALTER ROLE nl2sql_reader SET default_transaction_read_only = on;
 -- Cancel any single query that runs longer than 10 seconds.
 ALTER ROLE nl2sql_reader SET statement_timeout = '10s';
+ALTER ROLE nl2sql_reader SET work_mem = '4MB';
+ALTER ROLE nl2sql_reader SET temp_file_limit = '64MB';

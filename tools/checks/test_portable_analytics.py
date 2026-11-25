@@ -34,7 +34,28 @@ class PortableAnalyticsSource(unittest.TestCase):
                 "7f65eca66c5d39e8a304220a0a3a934d680bf026f55be6495967b41876dd616d",
             ),
         ):
-            self.assertEqual(digest(read(name)), expected, name)
+            source = read(name)
+            if name == "03_users.sql":
+                # Pin the complete reviewed script as well as the original
+                # password handling and grants after removing only the additions.
+                self.assertEqual(
+                    digest(source),
+                    "69a923852b8ccdf0e109cf9202379f7dcebda43e421e5467fc6256117af763a5",
+                )
+                source, count = re.subn(
+                    r"(?ms)^-- Check before changing an existing reader's password or table grants\.\n"
+                    r"DO \$limits\$\n.*?^\$limits\$;\n",
+                    "",
+                    source,
+                )
+                self.assertEqual(count, 1)
+                limits = (
+                    "ALTER ROLE nl2sql_reader SET work_mem = '4MB';\n"
+                    "ALTER ROLE nl2sql_reader SET temp_file_limit = '64MB';\n"
+                )
+                self.assertTrue(source.endswith(limits))
+                source = source.removesuffix(limits)
+            self.assertEqual(digest(source), expected, name)
 
     def test_shared_retrieval_ddl_and_grants_preserve_the_legacy_body(self):
         source = read("04_retrieval.sql")
