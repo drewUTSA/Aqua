@@ -154,7 +154,7 @@ function WorkspaceView({ auth, hidden, path, onNavigate, chat }) {
       <span className="breadcrumb"><strong title={caption}>{caption}</strong></span>
       <button type="button" className="workspace-quick-switch" aria-haspopup="dialog" aria-keyshortcuts="Control+k Meta+k" onClick={() => setQuickOpen(true)}>
         <span>Quick switch</span><kbd aria-hidden="true">Ctrl / ⌘ K</kbd></button>
-      {!auth.demoMode && !settings && <button type="button" className="workspace-quick-switch" data-open-companion aria-label="Open Aqua tools" aria-haspopup="dialog" onClick={() => openCompanion()}>Help</button>}
+      {!auth.demoMode && !settings && <button type="button" className="workspace-quick-switch" data-open-companion aria-haspopup="dialog" onClick={() => openCompanion()}>Help</button>}
       {(auth.demoMode || !auth.canQuery) && <span className="data-badge">{auth.demoMode ? "Demo data" : "Access pending"}</span>}
     </header>
     {notice && <p className="workspace-notice" role="status">{notice}</p>}
