@@ -26,7 +26,12 @@ def physical_tables(statement: exp.Query) -> list[exp.Table]:
     """Return only actual relations; a CTE in an unrelated scope grants nothing."""
     tables = []
     for scope in traverse_scope(statement):
-        for table in scope.tables:
+        # In a parenthesized join sqlglot creates a relation scope. Its
+        # left-hand table is the scope root, absent from the descendant list.
+        relations = scope.tables
+        if isinstance(scope.expression, exp.Table):
+            relations = [scope.expression, *relations]
+        for table in relations:
             source = scope.sources.get(table.alias_or_name)
             if isinstance(source, Scope) and not table.db and not table.catalog:
                 continue

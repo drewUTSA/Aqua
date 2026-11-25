@@ -205,6 +205,20 @@ APP_SCHEMAS: frozenset[str] = frozenset({"retrieval", "app", "aqua_app"})
 HIDDEN_COLUMNS: frozenset[tuple[str, str]] = frozenset(
     {("staff", "password"), ("staff", "picture")}
 )
+HIDDEN_TABLES = frozenset(table for table, _ in HIDDEN_COLUMNS)
+
+
+def _renames_relation_columns(table: exp.Table) -> bool:
+    if table.alias_column_names:
+        return True
+    # A parenthesized join exposes the underlying fields as one relation.
+    # A SELECT establishes its own projection and terminates this walk.
+    parent = table.parent
+    while isinstance(parent, (exp.Table, exp.Join, exp.Paren, exp.Subquery)):
+        if isinstance(parent, exp.Subquery) and parent.alias_column_names:
+            return True
+        parent = parent.parent
+    return False
 
 
 def _check_tables(
@@ -227,6 +241,11 @@ def _check_tables(
             raise UnsafeQueryError(
                 f"Query uses a table that is not allowed: {name}.", fixable=True
             )
+        if name.lower() in HIDDEN_TABLES and _renames_relation_columns(table):
+            raise UnsafeQueryError(
+                "Use the original column names on this table instead of a column alias list.",
+                fixable=True,
+            )
         if dialect == "postgres" and allowed is not None:
             # Resolve the validated relation explicitly; search_path cannot redirect it.
             table.set("db", exp.to_identifier("public"))
@@ -240,18 +259,17 @@ def _check_hidden_columns(statement: exp.Query) -> None:
     could be guessed one character at a time), a star that would expand
     to it, and the whole row as one value, as in row_to_json(s).
     """
-    hidden_tables = {table for table, _ in HIDDEN_COLUMNS}
     hidden_names = {column for _, column in HIDDEN_COLUMNS}
     row_names: set[str] = set()  # the table's name and every alias for it
     for table in statement.find_all(exp.Table):
-        if table.name.lower() in hidden_tables:
+        if table.name.lower() in HIDDEN_TABLES:
             row_names.add(table.name.lower())
             if table.alias:
                 row_names.add(table.alias.lower())
     if not row_names:
         return
 
-    shown = ", ".join(sorted(hidden_tables))
+    shown = ", ".join(sorted(HIDDEN_TABLES))
     for column in statement.find_all(exp.Column):
         if isinstance(column.this, exp.Star):
             raise UnsafeQueryError(
