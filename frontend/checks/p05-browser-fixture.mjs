@@ -65,7 +65,8 @@ export function makeFixture() {
       if (url.pathname === "/api/auth/config" && request.method === "GET") {
         const finish = () => reply(this.google === "error" ? 503 : 200, this.google === "error" ? { detail: "private-server" } : {
           client_id: "fixture.apps.googleusercontent.com", nonce: "fixture-google-nonce", csrf_token: "fixture-google-csrf",
-          capabilities: { google_login: true, password_login: this.passwordEnabled, durable_sessions: true }
+          capabilities: { google_login: true, password_login: this.passwordEnabled, durable_sessions: true,
+            ...(this.registrationEnabled === undefined ? {} : { password_registration: this.registrationEnabled }) }
         });
         if (this.google === "hold") { this.held.push({ kind: "google", finish }); return; }
         return finish();
