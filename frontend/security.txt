@@ -1,0 +1,3 @@
+# Owner: replace the reserved contact and renew the expiry before publishing.
+Contact: mailto:security@example.invalid
+Expires: 2027-05-25T00:00:00Z

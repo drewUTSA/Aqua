@@ -63,6 +63,11 @@ def probe(baseline: bool = False) -> dict:
         try:
             conn.request(method, path, body=body, headers=headers or {})
             reply = conn.getresponse()
+            if not baseline:
+                assert reply.getheader("Strict-Transport-Security") == "max-age=31536000; includeSubDomains"
+                assert reply.getheader("Cross-Origin-Opener-Policy") == "same-origin-allow-popups"
+                assert reply.getheader("Cross-Origin-Resource-Policy") == "same-origin"
+                assert "microphone=()" in (reply.getheader("Permissions-Policy") or "").split(", ")
             result = {
                 "status": reply.status,
                 "retry_after": reply.getheader("Retry-After"),

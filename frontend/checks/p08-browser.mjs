@@ -13,7 +13,16 @@ let ctx, failure = null, stats = null, workload = null, failureState = null, fai
 try {
   ctx = await openP08Browser({ cspEnforcedFixture: true }); ctx.secrets.add(PASSWORD);
   ctx.runtimePhase = "authentication";
-  await ctx.navigate("/register"); await ctx.fill("#auth-email", EMAIL); await ctx.click("[data-testid=password-auth-submit]");
+  await ctx.navigate("/register");
+  await ctx.check("document_permissions_deny_unused_preserve_copy_and_identity", `(() => {
+    const policy = document.featurePolicy;
+    const supported = new Set(policy.features());
+    const unused = ["accelerometer", "autoplay", "bluetooth", "browsing-topics", "camera", "captured-surface-control", "clipboard-read", "compute-pressure", "deferred-fetch", "deferred-fetch-minimal", "digital-credentials-create", "digital-credentials-get", "display-capture", "encrypted-media", "fullscreen", "gamepad", "geolocation", "gyroscope", "hid", "idle-detection", "interest-cohort", "keyboard-map", "language-detector", "language-model", "local-fonts", "local-network", "local-network-access", "loopback-network", "magnetometer", "media-playback-while-not-visible", "microphone", "midi", "on-device-speech-recognition", "otp-credentials", "payment", "picture-in-picture", "private-state-token-issuance", "private-state-token-redemption", "publickey-credentials-create", "publickey-credentials-get", "screen-wake-lock", "serial", "speaker-selection", "summarizer", "sync-xhr", "translator", "usb", "web-app-installation", "window-management", "xr-spatial-tracking"];
+    return supported.has('camera') && supported.has('clipboard-write') && policy.allowsFeature('clipboard-write')
+      && (!supported.has('identity-credentials-get') || policy.allowsFeature('identity-credentials-get'))
+      && unused.every(name => !supported.has(name) || !policy.allowsFeature(name));
+  })()`);
+  await ctx.fill("#auth-email", EMAIL); await ctx.click("[data-testid=password-auth-submit]");
   await ctx.waitFor("location.pathname==='/registration-sent'", "registration_acknowledged");
   const mail = await ctx.bridge.send("mailbox", { purpose: "verify_email" });
   const proof = mail.proof; if (mail.found !== true || typeof proof !== "string" || !/^[A-Za-z0-9_-]{43}$/.test(proof)) throw Error("synthetic_proof_invalid"); ctx.secrets.add(proof);

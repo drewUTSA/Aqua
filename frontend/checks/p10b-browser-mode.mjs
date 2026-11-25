@@ -28,6 +28,6 @@ export function staticFixtureResponse(files, url, cspMode = "source", policies =
   const type = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".woff2": "font/woff2", ".svg": "image/svg+xml" }[extension] || "application/octet-stream";
   return { status, headers: [{ name: "Content-Type", value: type }, { name: "Cache-Control", value: "no-store" },
     { name: "X-Content-Type-Options", value: "nosniff" }, { name: "Referrer-Policy", value: "no-referrer" },
-    ...(extension === ".html" ? documentPolicyHeaders(cspMode, policies) : [])],
+    ...(extension === ".html" ? [{ name: "Permissions-Policy", value: policies.permissions }, ...documentPolicyHeaders(cspMode, policies)] : [])],
     ...(status === 204 ? {} : { body: bytes ? bytes.toString("base64") : "" }) };
 }

@@ -96,6 +96,11 @@ def run(output, nginx_image=NGINX):
             data=b"stock error page",
         )
         docker("exec", proxy, "mkdir", "/usr/share/nginx/html/assets")
+        docker("exec", proxy, "mkdir", "/usr/share/nginx/html/.well-known")
+        docker(
+            "exec", "-i", proxy, "tee", "/usr/share/nginx/html/.well-known/security.txt",
+            data=(ROOT / "frontend/security.txt").read_bytes(),
+        )
         docker(
             "exec",
             "-i",

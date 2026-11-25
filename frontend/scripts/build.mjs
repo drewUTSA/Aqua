@@ -53,6 +53,7 @@ export function makeCompiler({ directory = dist, deletionFixture = false, dev = 
       new rspack.HtmlRspackPlugin({ ...html, scriptLoading: "defer" }),
       ...(deletionFixture ? [] : [new rspack.CopyRspackPlugin({ patterns: [
         { from: "src/assets/brand/*.png", to: "assets/[name][ext]" },
+        { from: "security.txt", to: ".well-known/security.txt" },
       ] })]),
     ],
     // Preserve the logical name of each separately fallible view and chart.

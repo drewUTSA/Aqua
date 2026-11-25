@@ -2,6 +2,8 @@
 
 > **November 25 source update.** Both document locations now enforce the complete policy. The password and synthetic Google sign-in checks run on both layouts with the source headers. The November 16–17 design and acceptance notes below describe the earlier report-only rollout.
 
+> The source also sends one year of HSTS with subdomains, an explicit device permissions policy, same-origin resource protection and popup-compatible opener isolation. Anonymous Google SDK loading and a cross-origin popup were checked in fresh local browser profiles. Before release, the owner must populate the reserved contact in `frontend/security.txt` and renew its expiry.
+
 > **Historical session: stopped November 17 UTC.** Read the [complete next-chat handoff](PERSONAL_COMPUTER_RESUME_20261117.md).
 > Production remains on schema 8; the current operator is unfinished. Earlier sections retain their historical scope.
 

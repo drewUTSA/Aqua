@@ -133,7 +133,8 @@ export async function openP08Browser(options) {
       if (!key) { response.writeHead(pathname === "/favicon.ico" ? 204 : 404); response.end(); return; }
       const type = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".woff2": "font/woff2", ".svg": "image/svg+xml" }[path.extname(key)] || "application/octet-stream";
       response.writeHead(200, { "Content-Type": type, "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff", "Referrer-Policy": "no-referrer",
-        ...(path.extname(key) === ".html" ? Object.fromEntries(documentPolicyHeaders(cspMode, policies).map(({ name, value }) => [name, value])) : {}) }); response.end(files.get(key)); });
+        ...(path.extname(key) === ".html" ? { "Permissions-Policy": policies.permissions,
+          ...Object.fromEntries(documentPolicyHeaders(cspMode, policies).map(({ name, value }) => [name, value])) } : {}) }); response.end(files.get(key)); });
     await new Promise((resolve) => ctx.server.listen(0, "127.0.0.1", resolve)); ctx.origin = `http://127.0.0.1:${ctx.server.address().port}`;
     }
     ctx.runtimeDiagnostics = new RuntimeDiagnostics({ origin: ctx.origin, assets: ctx.assets, canarySha256: createHash("sha256").update(CSP_PROBE_SOURCE).digest("hex") });

@@ -32,7 +32,9 @@ export function readDocumentPolicies(source) {
   const enforced = select("Content-Security-Policy"), reportOnly = select("Content-Security-Policy-Report-Only");
   if (enforced.length !== 2 || reportOnly.length !== 0 || enforced[0] !== enforced[1]) throw Error("document_csp_invalid");
   requirePolicy(enforced[0], DOCUMENT_POLICY);
-  return Object.freeze({ enforced: enforced[0],
+  const permissions = source.match(/^\s*set \$aqua_permissions_policy "([a-z0-9-]+=\(\)(?:, [a-z0-9-]+=\(\))*)";$/m);
+  if (!permissions) throw Error("document_permissions_policy_invalid");
+  return Object.freeze({ enforced: enforced[0], permissions: permissions[1],
     sha256: createHash("sha256").update(JSON.stringify([enforced[0]])).digest("hex") });
 }
 

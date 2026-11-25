@@ -12,7 +12,7 @@ import run_public_delivery_proxy as fixture
 
 ROOT = Path(__file__).resolve().parents[2]
 PROTECTED_PREFIX_SHA256 = (
-    "f0362eb481bbc6e08a83e119286cba168bfa9165c240729f2c85466a0d5637ac"
+    "ddb5477c2f82a2549338fdab53e56a64b5023917e92136b855d07671b6db4584"
 )
 
 
@@ -77,10 +77,13 @@ class PublicDeliveryRoutes(unittest.TestCase):
         self.assertIn("try_files /index.html =404;", nginx)
 
     def test_all_previous_api_rate_export_security_and_asset_bytes_are_unchanged(self):
-        source = (ROOT / "frontend/nginx.conf").read_bytes()
+        source = (
+            (ROOT / "frontend/nginx.conf").read_text(encoding="utf-8").encode("utf-8")
+        )
         prefix = source.split(b"    # Restricted launch:")[0]
-        # Computed independently from c62baaa before editing; includes all maps,
-        # auth/API/export/rate/stream locations and the immutable-assets location.
+        # Hash the canonical Git text, including all rate, auth, export, stream
+        # and cache boundaries. November 25 adds trusted tunnel peers, the bare
+        # API response and the four response headers; retain the full prefix pin.
         self.assertEqual(hashlib.sha256(prefix).hexdigest(), PROTECTED_PREFIX_SHA256)
 
     def test_restricted_html_metadata_is_explicit_and_unambiguous(self):
