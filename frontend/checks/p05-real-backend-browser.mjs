@@ -236,7 +236,7 @@ try {
   await cdp.send("Page.addScriptToEvaluateOnNewDocument", { source: `(()=>{let config;window.google={accounts:{id:{initialize(value){config=value},disableAutoSelect(){},renderButton(parent){const button=document.createElement('button');button.type='button';button.textContent='Continue with Google';button.dataset.testid='fixture-google-button';button.onclick=()=>config.callback({credential:JSON.stringify({nonce:config.nonce})});parent.append(button)}}}}})();` });
   await cdp.send("Emulation.setDeviceMetricsOverride", { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
 
-  await navigate("/register"); await waitFor("!document.querySelector('#auth-email').disabled", "registration_ready");
+  await navigate("/register"); await waitFor("document.querySelector('#auth-email')?.disabled === false", "registration_ready");
   await fill("#auth-email", EMAIL); await click("[data-testid=password-auth-submit]");
   await waitFor("location.pathname==='/registration-sent'", "actual_registration_ack");
   const verification = await mailbox("verify_email");

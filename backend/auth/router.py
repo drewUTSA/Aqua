@@ -81,6 +81,16 @@ def login_config(
     settings: Settings = Depends(get_settings),
     store: IdentityStore = Depends(get_store),
 ) -> dict[str, Any]:
+    capabilities = _capabilities(settings)
+    # Older clients expect a Google challenge or an error. The sign-in page
+    # also needs the registration policy when Google is intentionally disabled.
+    if request.headers.get("x-aqua-login-options") == "1":
+        capabilities["password_registration"] = (
+            capabilities["password_login"]
+            and os.environ.get("PASSWORD_REGISTRATION_ENABLED") == "true"
+        )
+        if not capabilities["google_login"]:
+            return {"capabilities": capabilities}
     ensure_configured(settings, google=True)
     redirect = redirect_path(settings)
     token = new_token()
@@ -102,7 +112,7 @@ def login_config(
         "client_id": settings.google_client_id,
         "nonce": bound_value(settings, token, "google-nonce"),
         "csrf_token": csrf,
-        "capabilities": _capabilities(settings),
+        "capabilities": capabilities,
         **({"redirect_path": redirect} if redirect else {}),
     }
 

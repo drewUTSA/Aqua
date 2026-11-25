@@ -11,6 +11,40 @@ from nl2sql.schema import Schema
 from _auth_test_helpers import EMAIL, ORIGIN, SUBJECT, forbid_pipeline, headers, login
 
 
+@pytest.mark.parametrize("google", [True, False])
+@pytest.mark.parametrize(
+    ("password", "registration", "offered"),
+    [
+        ("true", "true", True),
+        ("true", "false", False),
+        ("false", "true", False),
+    ],
+)
+def test_signin_options_match_registration_policy(
+    browser, monkeypatch, google, password, registration, offered
+):
+    client, _, _ = browser
+    if not google:
+        monkeypatch.setattr(
+            main.app.state,
+            "settings",
+            replace(main.app.state.settings, google_client_id=""),
+        )
+    monkeypatch.setenv("PASSWORD_AUTH_ENABLED", password)
+    monkeypatch.setenv("PASSWORD_REGISTRATION_ENABLED", registration)
+    response = client.get("/api/auth/config", headers={"X-Aqua-Login-Options": "1"})
+    assert response.status_code == 200
+    body = response.json()
+    assert body["capabilities"]["password_registration"] is offered
+    assert body["capabilities"]["google_login"] is google
+    if google:
+        assert body["nonce"] and body["csrf_token"]
+    else:
+        assert set(body) == {"capabilities"}
+        assert "set-cookie" not in response.headers
+        assert client.get("/api/auth/config").status_code == 503
+
+
 @pytest.mark.parametrize(
     ("email", "hosted_domain", "allow_email", "allow_sub", "allowed"),
     [

@@ -1,7 +1,7 @@
 """Pinned application image and compiled file digests for the native recovery rehearsal."""
 
-IMAGE = "sha256:0f277c8afbe2d9f17e486ce441e245f608728d195cc799ce7a7aaf4521c3cd88"
-MANIFEST_SHA256 = "e917e7d0a168d8d111513c5054627c8e1d3d7497d8515bc3a0eb39e533d614a6"
+IMAGE = "sha256:fb6684bea6f8b8ceeb2a8146f183c0d7c71b2888dbfe4d48a4bddc6bc141d92c"
+MANIFEST_SHA256 = "bb59e7989c4948e1a9f65ba0745633b965b4a8579efa7605757b77f4e20ec72b"
 RUNTIME_FILES = {
     "account/__init__.py": "4d300929fcb6d0c0e3a6b92377bfd4648fc336a8ad2bfb3e962d810b3b6f55e0",
     "account/action_contracts.py": "be3becba0a54378a847efdaa76cc833e3b780df3658c90d30f86a7852232a397",
@@ -78,7 +78,7 @@ RUNTIME_FILES = {
     "auth/password_sessions.py": "1b56ae442f9d7e2fdaf29e67ec63aaae1e4ab133e0209fe344b1967c597e63de",
     "auth/password_settings.py": "5e112c9b894096721576d926eea7b51af914375e1d5ed846c09b11c305c3868d",
     "auth/passwords.py": "e034fa19103ac71079c6314330e2bd1c8042516c2cf82857bc913401c7f38c3c",
-    "auth/router.py": "036a5e6329e49a4b4ac1e6afd895d7bd1081327a46ac931e663a43b5089adf1f",
+    "auth/router.py": "ee6620211fa5359d0d7d8140edc8eefa8a7c614c96b752dc77a8bae5758e4976",
     "auth/security.py": "434fbdcccfd93cda6b8f0440c072a9ee12a027f7defe1d73a3be03d3e3d27dc1",
     "auth/sessions.py": "1af1a3b2c58d651ba65d14eb790245cb87948ce91af9c7f226defa901af848a6",
     "auth/store.py": "c03948eef3ca7a47de192d450e18be1aafde40a8faf49a73ad5cdada37460ec6",
