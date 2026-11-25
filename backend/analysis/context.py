@@ -5,6 +5,7 @@ import json
 from psycopg import Connection
 
 from analysis.policy import MAX_CONTEXT_BYTES
+from bank_demo.cash_chat import is_private_cash_input
 from workspace.database import rows
 
 
@@ -19,7 +20,14 @@ def encode(value: object) -> bytes:
 
 
 def select(
-    conn: Connection, owner: str, chat: str, sequence: int, dataset: str, grant: int
+    conn: Connection,
+    owner: str,
+    chat: str,
+    sequence: int,
+    dataset: str,
+    grant: int,
+    *,
+    exclude_bank_inputs: bool = False,
 ) -> tuple[list[dict], bytes]:
     candidates = rows(
         conn,
@@ -45,6 +53,8 @@ def select(
     )
     chosen, sql_count = [], 0
     for item in candidates:
+        if exclude_bank_inputs and is_private_cash_input(item["content"]):
+            continue
         record = {
             "message_id": str(item["id"]),
             "sequence": item["sequence"],

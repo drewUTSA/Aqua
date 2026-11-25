@@ -86,6 +86,7 @@ class Analysis:
                     saved["sequence"],
                     current.dataset_key,
                     current.grant_version,
+                    exclude_bank_inputs=self.bank_policy.enabled,
                 )
                 records.insert(
                     conn,

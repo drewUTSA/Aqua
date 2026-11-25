@@ -13,9 +13,25 @@ COMPARISON = re.compile(
     r"\b(?:cover(?:age|ed|s|ing)?|compare|comparison|enough|suffic(?:ient|e|es)|short(?:fall)?|surplus|cushion|difference|left(?: over)?|leftover|remains?|meet|gap|headroom|ratio)\b",
     re.I,
 )
-OTHER_SOURCE = re.compile(
-    r"\b(?:reports?|snapshot|database|dataset|portfolio|transactions?|records?|table|rows?|branches|rank|group by|aggregate|average|chart|plot|graph|historical|retrieve|look up|look it up|pull|from the bank|regulatory|regulation|regulator|official|filing|lcr|approve|authorize|execute|transfer|wire|send money|move funds|pay the|credit line|customer quote)\b",
+SOURCE_NOUN = re.compile(
+    r"\b(?:reports?|snapshot|database|dataset|portfolio|transactions?|records?|table|rows?|branches)\b",
     re.I,
+)
+OTHER_OPERATION = re.compile(
+    r"\b(?:rank|group by|aggregate|average|chart|plot|graph|historical|retrieve|look up|look it up|pull|from the bank|regulatory|regulation|regulator|official|filing|lcr|approve|authorize|execute|transfer|wire|send money|move funds|pay the|credit line|customer quote)\b"
+)
+SOURCE_QUERY = re.compile(
+    r"\b(?:(?:how many|which|count|number of|query|search|filter|select|fetch|read|use|check|open|find|show|list)\s+"
+    r"(?:(?:me|in|up|of|from|the|my|our|all|a|each|matching|current|previous|latest|deposit|cash|bank|account|lending)\s+){0,5}"
+    r"(?:reports?|snapshots?|database|dataset|portfolio|transactions?|records?|tables?|rows?|branches)|"
+    r"(?:rows?|records?|transactions?|branches)\s+(?:where|whose|with|having))\b"
+)
+# A source already supplying the quoted figures and an instruction to query
+# that source have different meanings. Ignore only this declarative header
+# when classifying source references; keep calendar words for period checks.
+SUPPLIED_HEADER = re.compile(
+    r"^(?:(?:the|our|my|this)\s+)?(?:(?:daily|monthly|quarterly|annual|treasury|cash|liquidity|funding|maturity|branch|desk|close)\s+){0,4}"
+    r"(?:worksheet|ledger|close sheet|report|snapshot|notes?)\s+(?:shows|lists|states|records|reports|gives|contains|reads|says)\b\s*[:=]?\s*"
 )
 NUMBER = re.compile(
     r"(?<![\w.])(?:[1-9][0-9]{0,2}(?:,[0-9]{3})+|0|[1-9][0-9]*)(?:\.[0-9]{1,2})?(?![\w]|[.,][0-9])"
@@ -109,12 +125,7 @@ def _simple_comparison(text):
         if NUMBER.search(clause) and OUTCOME_NOUN.search(clause):
             return False
         clauses.append(clause)
-    residual = re.sub(
-        r"^(?:(?:the|our|my)\s+)?(?:(?:daily|monthly|quarterly|annual|treasury|cash|liquidity|funding|maturity|branch|desk)\s+){0,3}"
-        r"(?:worksheet|ledger|close sheet)\s+(?:shows|lists|states|records)\s+",
-        "",
-        " ".join(clauses),
-    )
+    residual = SUPPLIED_HEADER.sub("", " ".join(clauses), count=1)
     residual = re.sub(
         r"\b(?:surplus or shortfall|shortfall or surplus|check if|tell me if|"
         r"is there (?:any|anything) (?:left(?: over)?|remaining)|(?:anything|what) remains)\b",
@@ -193,10 +204,13 @@ def _terms(question):
     if (
         not re.search(rf"\b{OUT}\b", text)
         or not re.search(r"\d", text)
-        or OTHER_SOURCE.search(text)
+        or OTHER_OPERATION.search(text)
     ):
         return None
-    if not COMPARISON.search(text):
+    has_source_noun = SOURCE_NOUN.search(SUPPLIED_HEADER.sub("", text, count=1))
+    if has_source_noun and SOURCE_QUERY.search(text):
+        return None
+    if has_source_noun or not COMPARISON.search(text):
         # A clearly supplied pair is a private worksheet even when the
         # employee has not requested a specific operation. No model needs
         # these amounts merely to ask which task they want to perform.
@@ -301,6 +315,11 @@ def _terms(question):
         "period": window[0],
         "window": window[1],
     }
+
+
+def is_private_cash_input(question):
+    """Also recognize owned pre-upgrade turns whose stored reply has no bank marker."""
+    return question.startswith(CONFIRM) or _terms(question) is not None
 
 
 def _answer(message, **extra):

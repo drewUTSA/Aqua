@@ -304,3 +304,58 @@ def test_unspecified_private_worksheet_never_reaches_the_analytical_engine(
         "response"
     ]
     assert ordinary["sql"] == "SELECT 7" and len(world.calls) == 1
+
+
+@pytest.mark.parametrize(
+    "header", ["My monthly worksheet records", "Our close report lists"]
+)
+def test_heading_supplies_figures_without_requesting_a_database(header):
+    submitted = f"{header} USD 55 of available cash and USD 70 of projected outflows for this month."
+    assert _terms(submitted) == TASK_HINT
+    assert _terms(submitted + " Does cash cover them?") == {
+        "cash": "55.00",
+        "outflows": "70.00",
+        "period": "month",
+        "window": "this month",
+    }
+    assert _terms(submitted + " Find the matching transaction records.") is None
+    assert (
+        _terms(
+            "Count the records with available cash above USD 55 and projected outflows below USD 70."
+        )
+        is None
+    )
+
+
+def test_unmarked_historical_worksheet_excluded_while_dataset_query_remains(
+    world, monkeypatch
+):
+    employee, owner = world.client()
+    initial = "The figures in my report are USD 66 available cash and USD 69 projected outflows."
+    source = world.submit(employee, initial)
+    assert not source["response"].get("bank_cash_reply")
+    path = f"/api/v1/chats/{source['chat']['id']}/messages"
+    earlier_filter = "Count the records whose available cash exceeds USD 64 and projected outflows exceed USD 71."
+    assert employee.post(path, json=world.body(earlier_filter)).status_code == 202
+    assert world.analysis.tick()
+    monkeypatch.setattr(
+        world.analysis,
+        "bank_policy",
+        BankDemoPolicy(True, "none", ((owner, "analyst"),)),
+    )
+    payloads = []
+    run = world.analysis.engine.run
+
+    def observed(payload, control):
+        payloads.append(payload)
+        return run(payload, control)
+
+    monkeypatch.setattr(world.analysis.engine, "run", observed)
+    assert (
+        employee.post(path, json=world.body("Count the dataset rows")).status_code
+        == 202
+    )
+    assert world.analysis.tick()
+    assert len(payloads) == 1 and [
+        row["question"] for row in payloads[0]["context"]
+    ] == [earlier_filter]
