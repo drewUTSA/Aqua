@@ -22,8 +22,11 @@ def run(
     *,
     identity_actions: bool = False,
     personal_exports: bool = False,
+    trusted_ingress: bool = False,
 ) -> int:
     """No host mounts/ports/sockets; only the synthetic upstream shares the netns."""
+    if trusted_ingress and (baseline or identity_actions or personal_exports):
+        raise ValueError("trusted_ingress_requires_a_separate_fixture")
     if baseline and identity_actions:
         raise ValueError("identity_actions_have_no_unsafe_baseline")
     if personal_exports and (baseline or identity_actions):
@@ -33,6 +36,8 @@ def run(
         if personal_exports
         else "p10c_proxy_probe.py" if identity_actions else "proxy_probe.py"
     )
+    if trusted_ingress:
+        probe_name = "trusted_ingress_probe.py"
     name = "aqua-proxy-check-" + secrets.token_hex(12)
     containers = []
     report = {"name": name, "network": "none", "status": "failed", "cleanup": "pending"}
@@ -155,6 +160,7 @@ if __name__ == "__main__":
     parser.add_argument("--nginx-image", default=NGINX)
     parser.add_argument("--identity-actions", action="store_true")
     parser.add_argument("--personal-exports", action="store_true")
+    parser.add_argument("--trusted-ingress", action="store_true")
     args = parser.parse_args()
     if args.baseline and args.identity_actions:
         parser.error("identity-actions cannot use an unsafe baseline")
@@ -168,5 +174,6 @@ if __name__ == "__main__":
             args.nginx_image,
             identity_actions=args.identity_actions,
             personal_exports=args.personal_exports,
+            trusted_ingress=args.trusted_ingress,
         )
     )

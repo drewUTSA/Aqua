@@ -211,6 +211,8 @@ jobs:
         run: python tools/checks/storage_deployment.py --image aqua-runtime:check
       - name: Rate-limit bypass, denial and recovery checks in an isolated proxy
         run: python tools/checks/run_proxy.py
+      - name: Check trusted visitor identities through nginx and Uvicorn
+        run: python tools/checks/run_proxy.py --trusted-ingress --output .check-results/trusted-ingress.json
       - name: Identity action aliases, denial and recovery in a separate isolated proxy
         run: python tools/checks/run_proxy.py --identity-actions
       - name: Restricted discovery and exact SPA routes in an isolated proxy
