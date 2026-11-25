@@ -1,0 +1,9 @@
+# Password sign-in after the address budget is exhausted
+
+**Proposal for owner approval.** Aqua currently permits five password login attempts per normalized address in a 60-second window. It also enforces peer and global limits and a bounded Argon2 work pool. Unrelated attempts can exhaust the address budget even when the account holder has another active session.
+
+Start with existing sessions. The ordinary sign-in screen can resume a valid session. When a sensitive operation actually requires a fresh password, offer a separate owner-bound reauthentication path. Validate the current opaque session against storage, its owner, account status, authentication epoch and expiry. Check CSRF and the exact origin. Obtain the verified address from that owner’s account. This path could use a separate small per-account budget in place of the anonymous address counter, while charging the existing peer, global and hash-slot budgets. A correct fresh password would still be required.
+
+For signed-out devices, an optional later design could issue a short-lived, high-entropy, host-only Secure/HttpOnly/SameSite cookie after successful authentication and explicit device enrollment. Store only its digest, owner, expiry and authentication epoch. Limit enrollment per owner. Revoke it on password reset, account closure and device removal. It would authorize only the same rate-limited password attempt for its bound owner. Cookie possession alone would confer no session or data access.
+
+Approval should specify whether to adopt session-based reauthentication alone or also introduce device enrollment. Acceptance would cover a legitimately exhausted address budget, two different owners, expired and revoked proofs, password failure, concurrent attempts and unchanged anonymous responses. Verify that the shared hash pool and the account-specific alternate budget still bound the work.
