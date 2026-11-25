@@ -69,7 +69,8 @@ function AuthContent({ path, proof, onNavigate, onProofConsumed, auth }) {
   const busy = pending || auth.passwordPending || authBusy;
   const registrationClosed = auth.config?.capabilities?.password_registration === false;
   const checkingOptions = !auth.config && !auth.googleError && (auth.status === "loading" || auth.status === "signedout");
-  const canOfferRegistration = !registrationClosed && !checkingOptions;
+  const optionsUnavailable = !auth.config && Boolean(auth.googleError);
+  const canOfferRegistration = Boolean(auth.config) && !registrationClosed;
   const disabledByPolicy = isSignIn && auth.config?.capabilities?.password_login === false;
   const disabled = busy || retrySeconds > 0 || unavailable || disabledByPolicy || (isRegistration && !canOfferRegistration);
   useEffect(() => { mounted.current = true; heading.current?.focus({ preventScroll: true }); return () => { mounted.current = false; active.current?.abort(); }; }, []);
@@ -130,6 +131,7 @@ function AuthContent({ path, proof, onNavigate, onProofConsumed, auth }) {
   if (isRegistration && !canOfferRegistration) {
     title = "Account access";
     description = checkingOptions ? "Checking available sign-in options…" : "Contact your workspace administrator for access, or sign in with an existing account.";
+    if (optionsUnavailable) description = "We couldn’t check whether registration is open. Try again later or contact your workspace administrator.";
   }
   if (isRequest) { title = "Reset your password"; description = "Enter your email address and we’ll send a link if your account is eligible for password recovery."; }
   if (path === "/check-email") { title = "Check your inbox"; description = "If this address is eligible, you’ll receive password-reset instructions shortly."; }
@@ -137,7 +139,7 @@ function AuthContent({ path, proof, onNavigate, onProofConsumed, auth }) {
   if (isVerification) { title = "Create your password"; description = "Choose a unique password to finish verifying your email."; }
   if (isReset) { title = "Choose a new password"; description = "Set a new password for your AQUA account."; }
   if (invalidProof) { title = "Request a new link"; description = "This link is missing, invalid, expired or already used. Request a new email to continue."; }
-  if (isVerification && invalidProof && registrationClosed) {
+  if (isVerification && invalidProof && (registrationClosed || optionsUnavailable)) {
     title = "Verification link unavailable";
     description = "Contact your workspace administrator for access.";
   }

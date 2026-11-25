@@ -383,6 +383,7 @@ try {
 
   fixture.email = null; fixture.canQuery = true; fixture.google = "error"; await navigate();
   await waitFor("document.body.textContent.includes('Google sign-in is temporarily unavailable')", "google_failed");
+  await check("an unavailable login policy keeps registration closed and password recovery available", `!document.querySelector('a[href="/register"]') && Boolean(document.querySelector('a[href="/forgot-password"]'))`);
   fixture.holdLogin = true; await fill("#auth-email", EMAIL_A); await fill("#auth-password", PASSWORD);
   const loginBefore = fixture.count("/api/v1/auth/password-login");
   await evaluate("(()=>{const button=document.querySelector('[data-testid=password-auth-submit]');button.click();button.click();return true})()");
