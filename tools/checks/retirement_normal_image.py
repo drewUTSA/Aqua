@@ -1,7 +1,7 @@
 """Pinned application image and compiled file digests for the native recovery rehearsal."""
 
-IMAGE = "sha256:fb6684bea6f8b8ceeb2a8146f183c0d7c71b2888dbfe4d48a4bddc6bc141d92c"
-MANIFEST_SHA256 = "bb59e7989c4948e1a9f65ba0745633b965b4a8579efa7605757b77f4e20ec72b"
+IMAGE = "sha256:49032f07aa36454172b72eb6460c99544bf5f32fd257d6a7e70ce1e073cb6f42"
+MANIFEST_SHA256 = "18c33701387b3eab98b06569b4be4b535bd9f2a50978613946738e2f1d227cd1"
 RUNTIME_FILES = {
     "account/__init__.py": "4d300929fcb6d0c0e3a6b92377bfd4648fc336a8ad2bfb3e962d810b3b6f55e0",
     "account/action_contracts.py": "be3becba0a54378a847efdaa76cc833e3b780df3658c90d30f86a7852232a397",
@@ -33,9 +33,9 @@ RUNTIME_FILES = {
     "analysis/admission.py": "5fe6d6b1f483d6d8a973bd2fefed68212a56bbe6c263bafc028d10b67c68ba3e",
     "analysis/child.py": "85ceefcbd280ca24b166a5a7635ab31878e70653086439cff354b7c4bb5cd4ec",
     "analysis/child_payload.py": "8eb7372fae6e810f80d1bf9797eb29bae105742d2294aad696ee60f7b155ea16",
-    "analysis/context.py": "dda2eb2ad1acbb071170c5e1e0534c6e0a7fb67ac2cc0ccad2e01deb0c69e37b",
-    "analysis/dependencies.py": "540bcdde73fa0943cae3d6cdf6324f9d5e103709173a215b430547bf0e0b0b4c",
-    "analysis/dispatch.py": "78a01201aaa7df7e26b2af0c0e43687a21846728d5840d4bb7eecad237158273",
+    "analysis/context.py": "b5f7e3478c53bbe6035493377e27f141cbaa1a715179ac88e3d1d5e959aeb416",
+    "analysis/dependencies.py": "ff1e32d581e22ba1d86a203fedb58c9f6a4e7550f884f7121b9e9888917832a6",
+    "analysis/dispatch.py": "31b252afb6e715387b01b8ff9971629fd5e2a05cf47775c0343a30b646df4ce5",
     "analysis/engine.py": "df8977a4ce2d12699ae5f62cb4513924dd375216d4a5746548055c633f98a2dc",
     "analysis/events.py": "35d6cb6f4bdfd792d3774fef1297baa31e133feb7d455d8033f81e545ecdbfe0",
     "analysis/lifecycle.py": "faed00739c6865b1f13476795086079edf9cd99034e73e2771b7f4b62fa3a3c3",
@@ -45,7 +45,7 @@ RUNTIME_FILES = {
     "analysis/queue.py": "c2569fed5ecfc2e0e7844745e9db375a915fb74e2863a5b42b98fb5f21ea716d",
     "analysis/records.py": "2637482129aeee51675871f82e8c0d6d33f14879becbb6e5a180b0351704b99a",
     "analysis/router.py": "e574e70d0347bc55f5b625340a6bbad3f2349b5c34f8f3e70af1fd84514c4d2f",
-    "analysis/service.py": "347a3ad1a8c9aee5f317c2b0224d4d9c405ed1b43b97b0a431097d33083d0590",
+    "analysis/service.py": "d25db037f88651526a4579e5f5088bbb7510b7015de39bfb879922027fd1705a",
     "analysis/settlement.py": "1868582143dd8a88c65d54b26e4fb13d12814c7e7fe3d3e5bc409107e237056a",
     "analysis/streams.py": "af92e53dc0f87eeef1d305884222f049aee0b4b90e6574c84a2a1214c5fa8732",
     "auth/__init__.py": "6b04c7bc22cb311c88fcd9e769cc0648a63af9e6177d7b3b7483f2834d8b57dc",
@@ -84,6 +84,7 @@ RUNTIME_FILES = {
     "auth/store.py": "c03948eef3ca7a47de192d450e18be1aafde40a8faf49a73ad5cdada37460ec6",
     "bank_demo/__init__.py": "5c8af141a4e035d06af3f434fbcba33fe7864a07564935996bd25fce351da968",
     "bank_demo/calculations.py": "b74e1684c2a588aee4397db6826e0553b0095a2dba7d03d2de04bf3ca9d22a31",
+    "bank_demo/cash_chat.py": "7e7a202a82bd9233337a6777901ffa3603d9d05dacc8d4d42e95f8f93f99832f",
     "bank_demo/policy.py": "8d5dd8dd57758eaf6b2fe4aff04cb79c0654e194d388100ba0b67cb0798df5d6",
     "bank_demo/requirements.py": "71b89cfa4e51540a8d405cd0e6a60a55e9c0b47fe85d95868735e4038c1e049c",
     "bank_demo/router.py": "e07c83c50dc487d9c394718effd6b3094b3c580485d384ca3cb36d2352bf037d",
@@ -114,7 +115,7 @@ RUNTIME_FILES = {
     "eval/banking/proposals.py": "36691853c59240fa86ca955e1d7d4051f056a20f23af8416560ebbb16d635b6c",
     "eval/banking/reports.py": "89f8595f2ccbdb13d280b92c77ae52448149a1ad173f42aafa9b98ecf3bc1bc1",
     "eval/banking/scope.py": "d04351dab5a397ffe161ad47e7322f329e1517510a250d71ec3b9b25014d888c",
-    "main.py": "bdeadd02fb1183aeaf3428bb3202502be76ef767f37116ae23e8e543671aadca",
+    "main.py": "8ecec604332d13415fc377b43946cfe6b5bf95a636569536164d31523db73474",
     "mcp_demo/__init__.py": "10641412ed8d7dda80a2f7713cd9083d62acbd73c9de682b5d40ab1c582c0ce9",
     "mcp_demo/data.py": "0213446283991323991cf18019efc8f3d81e243ea79266677b3426a03bcf7150",
     "mcp_demo/finance.py": "ba39e5383b650db76911f9b0a926b6ef8743af7c1ce67a11abcf35ea496d3548",
