@@ -125,8 +125,19 @@ def test_owned_saved_confirmation_and_current_grant(world, monkeypatch):
     assert second.status_code == 202 and world.analysis.tick()
     assert "bank_calculation" not in alice.get(path).json()["items"][-1]["response"]
     assert len(calls) == 1 and len(world.calls) == 1
-    # These locally handled banking numbers must never become prompt context
-    # for an unrelated analytical provider on the next turn.
+
+
+def test_locally_handled_numbers_are_excluded_from_analytical_context(world, monkeypatch):
+    alice, owner = world.client()
+    monkeypatch.setattr(
+        world.analysis, "bank_policy", BankDemoPolicy(True, "none", ((owner, "analyst"),))
+    )
+    review = world.submit(alice, QUESTION)
+    path = f"/api/v1/chats/{review['chat']['id']}/messages"
+    terms = review["response"]["bank_cash_review"]["confirmation"]
+    confirmed = alice.post(path, json=world.body(terms))
+    assert confirmed.status_code == 202 and world.analysis.tick()
+    assert "bank_calculation" in alice.get(path).json()["items"][-1]["response"]
     payloads = []
     original_run = world.analysis.engine.run
 
