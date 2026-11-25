@@ -29,7 +29,8 @@ import { LOCAL_PATHS } from "../src/services/routes.js";
 import { makeFixture, GOOGLE_STUB, EMAIL_A, EMAIL_B, PASSWORD, VERIFY_PROOF, RESET_PROOF } from "./p05-browser-fixture.mjs";
 import { EXPECTED_SHELL, assertShell, assertLoginDelivery, capturePerformance, assertEssentialControls, assertSafeAreaStyles, enlargeText, captureControlBounds } from "./p05-shell-browser-checks.mjs";
 
-const MAX_MS = 240000, MAX_REQUESTS = 900, MAX_API = 320;
+// Include two additional saved-analysis submissions and their bounded status/list reads.
+const MAX_MS = 240000, MAX_REQUESTS = 900, MAX_API = 344;
 const JOURNEY=new URL(import.meta.url).searchParams.get("journey");
 const NOTICE_ONLY=JOURNEY==="c-notices", RELIABILITY_ONLY=RELIABILITY_JOURNEYS.includes(JOURNEY), COMPANION_ONLY=JOURNEY==="companion-tools", BANK_ONLY=JOURNEY==="bank-demo", RESULT_ONLY=JOURNEY==="result-companion";
 const NOTES_ONLY=JOURNEY==="context-notes";

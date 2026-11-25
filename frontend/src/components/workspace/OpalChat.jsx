@@ -45,7 +45,7 @@ export default function OpalChat({ chat, auth, inputRef, focusRequest, onOpenPro
     {chat.durable && !active && chat.active.historyLoading && <p role="status">Loading saved conversation…</p>}
     {chat.durable && chat.uncertain && <div className="workspace-request-notice" role="status"><p>This request may still be processing. Stopping this browser request does not cancel work on the server.</p>
       <button type="button" disabled={chat.pending || !auth.canQuery} onClick={chat.checkSaved}>Check saved request</button></div>}
-    {chat.durable && !chat.submitting && <AnalysisStatus request={chat.analysis} connection={chat.analysisConnection} onReconnect={chat.reconnectAnalysis} />}
+    {chat.durable && !chat.submitting && <AnalysisStatus request={chat.analysis} messages={chat.messages} connection={chat.analysisConnection} onReconnect={chat.reconnectAnalysis} />}
     <Composer chat={chat} auth={auth} preferences={preferences} inputRef={inputRef} focusRequest={focusRequest} active={active} visible={visible} onOpenPrompts={onOpenPrompts} onOpenCash={onOpenCash}
       applyRank={applyRank} revealRank={rankTarget && rankTarget.owner === owner && rankTarget.id === chat.activeConversationId ? rankTarget : null} />
     <p className="opal-disclaimer">Check important figures against your source.</p>

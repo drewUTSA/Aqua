@@ -27,6 +27,22 @@ export async function analysisJourneys({ check, click, clickText, fill, waitFor,
   assert.equal(fixture.count(`/api/v1/analysis-requests/${id}/cancel`), 1);
   await screenshot("p07-server-confirmed-cancel");
 
+  const clarification = await begin("P07 missing input column");
+  const clarified = fixture.analysisRequests.get(clarification).result;
+  clarified.assistant_message.response = clarified.response = {
+    status: "error", message: "", sql: "", tables: [], visualizations: [], kpis: [],
+    error: { code: "missing_source", message: "Which source supplies the requested field?", retryable: false },
+  };
+  fixture.analysisChange(clarification, "error");
+  await waitFor("document.querySelector('.analysis-status')?.textContent.includes('More information needed')", "p07_source_clarification");
+  await check("missing source requests more information while retaining the employee draft",
+    "document.querySelector('.conversation').textContent.includes('Which source supplies the requested field?')&&document.querySelector('.opal-composer textarea').value==='P07 missing input column'");
+  const failure = await begin("P07 ordinary analysis failure");
+  fixture.analysisChange(failure, "error");
+  await waitFor(state("error"), "p07_genuine_failure");
+  await check("genuine failure keeps its failure status after an earlier clarification",
+    "document.querySelector('.analysis-status').textContent.includes('Analysis failed')");
+
   const reconnect = await begin("P07 reconnect to saved analysis"), replayCount = fixture.queryCount();
   fixture.analysisChange(reconnect, "running", "executing"); await waitFor(stage("executing"), "p07_execution_stage");
   await navigate("/"); await waitFor("document.querySelector('.desktop-sidebar')?.textContent.includes('P07 reconnect to saved analysis')", "p07_reload_recents");
@@ -65,5 +81,5 @@ export async function analysisJourneys({ check, click, clickText, fill, waitFor,
   await evaluate("(()=>{URL.createObjectURL=window.__p07CreateURL;HTMLAnchorElement.prototype.click=window.__p07AnchorClick;delete window.__p07CreateURL;delete window.__p07AnchorClick;delete window.__p07ExportBlob;delete window.__p07ExportClick;return true})()");
   await screenshot("p07-exact-table-and-result-details");
   await clickText("New chat"); await fill(".opal-composer textarea", "");
-  assert.equal(fixture.queryCount(), count + 5, "lifecycle_observation_never_submits_analysis"); fixture.closeAnalysisStreams();
+  assert.equal(fixture.queryCount(), count + 7, "lifecycle_observation_never_submits_analysis"); fixture.closeAnalysisStreams();
 }
