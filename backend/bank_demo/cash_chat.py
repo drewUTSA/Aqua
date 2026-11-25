@@ -207,6 +207,7 @@ def _terms(question):
 
 def _answer(message, **extra):
     return {
+        "bank_cash_reply": True,
         "status": "success",
         "message": message,
         "sql": "",

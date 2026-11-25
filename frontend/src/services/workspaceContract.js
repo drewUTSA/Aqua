@@ -31,6 +31,9 @@ export function messageRecord(value) {
     && (value.reply_to === null || validId(value.reply_to)) && ["pending", "complete", "error", "cancelled", "interrupted", "expired"].includes(value.status)
     && typeof value.result_unavailable === "boolean");
   let response = value.result_unavailable || value.response === null ? null : workspacePresentation(workspaceResultMetadata(normalizeResponse(value.response), value.response?.result_metadata), value.response?.presentation);
+  if (response?.status === "success" && value.role === "aqua" && value.response.bank_cash_reply === true) {
+    response = { ...response, cashReply: true };
+  }
   const offer = value.response?.bank_cash_review;
   if (response?.status === "success" && value.role === "aqua" && isRecord(offer)
       && /^Confirm cash comparison for [a-z ]{1,32} using USD [0-9]{1,13}\.\d{2} available cash and USD [0-9]{1,13}\.\d{2} projected outflows\.$/.test(offer.confirmation)

@@ -6,6 +6,38 @@ const periods = {
 };
 const currencyCodes = new Set(Intl.supportedValuesOf?.("currency") || []);
 const currencyHint = "Supply the verified USD amounts for both available cash and projected outflows.";
+const adjustedHint = "Use final available cash and the full projected outflows for the same period, including any reserves, fees or other adjustments.";
+// Employees assign the two quoted numbers themselves in this form. Accept
+// ordinary worksheet language, but never discard an unexplained adjustment.
+const worksheetWords = new Set(`
+  a an the s i we our my us you they it these those that them this who both all
+  in on of to by at as for during over with against versus and while from
+  is are was were be been has have had will ll would can could do does should
+  how what whether please check calculate tell me show work out want much now
+  cash liquidity liquid funds fund available spend on hand worksheet
+  ledger close sheet amount amounts figures values sums balance surplus excess
+  short shortfall cushion difference gap room headroom exactly equal above zero
+  projected project projecting projections forecast forecasted estimated estimate
+  expected expect outgoing going net outflow outflows disbursements disbursement
+  payment payments payable payables needs enough sufficient suffice suffices
+  cover covers covering coverage covered compare comparison meet leave leaves
+  scenario illustration illustrative business one single same current next last
+  period day daily today tomorrow tonight yesterday month monthly quarter quarterly
+  year annual annually yearly january february march april may june july august
+  september october november december monday tuesday wednesday thursday friday
+  saturday sunday dollars dollar usd us desk branch company full note comes
+  stands total totals equals see plain reviewed checked verified
+`.trim().split(/\s+/));
+
+function plainWorksheet(question) {
+  const words = question.toLowerCase()
+    .replace(/^\p{L}+\s+(?=(?:reviewed|checked|verified)\s+(?:all|these|the)\s+(?:figures|amounts)\b)/u, "")
+    .replace(/\b(?:surplus or shortfall|shortfall or (?:surplus|excess)|check if|tell me if)\b/g, " ")
+    .replace(/\bu\.s\./g, "us").replace(/['’]s\b/g, "").replace(/\bwe['’]ll\b/g, "we will")
+    .replace(/\d[\d,.]*/g, " ").replace(/(?<=[a-z])-(?=[a-z])/g, " ");
+  if (/[^\sa-z.,:;!?$]/.test(words)) return false;
+  return (words.match(/[a-z]+/g) || []).every(word => worksheetWords.has(word));
+}
 
 function explicitDollars(question, match) {
   return /(?:\bUSD|\bUS\$|\bU\.S\.\s*dollars?)\s*$/i.test(question.slice(0, match.index))
@@ -50,7 +82,7 @@ export function cashContinuation(question) {
   const unsignedText = question.replace(/(?<=[a-z])-(?=[a-z])/gi, "");
   if (/[+\-−–()]/.test(unsignedText) || /\b(?:unknown|missing|pending|unavailable|awaiting|unsure|estimated elsewhere|million|billion|thousand|cents|negative|minus|overdraft|overdrawn|below zero|in the red)\b/i.test(question)
       || /(?:^|[^\d])\.\d|\b(?:only one|partial total|other account|different account)\b/i.test(question))
-    return { hint: "Supply the full available cash and projected outflows in USD for that same period." };
+    return { hint: "Supply the final available cash and full projected outflows in USD for that same period." };
   const matches = [...question.matchAll(/\d[\d,.]*(?:[a-z]+)?/gi)];
   if (matches.length !== 2) return { hint: "Supply one available cash amount and one projected outflow for the same period." };
   const sharedDollars = /\b(?:both|all) (?:amounts |figures |values |sums )?(?:(?:are in|are|in) )?USD\b|\b(?:USD|US dollar) (?:cash )?(?:worksheet|ledger|figures|amounts|close sheet)\b/i.test(question);
@@ -63,5 +95,6 @@ export function cashContinuation(question) {
     if (value.length > 16 || Number(value) > 1e12) return null;
     amounts.push({ literal, value });
   }
+  if (!plainWorksheet(question)) return { hint: adjustedHint };
   return { question, period: windows[0][0], amounts };
 }

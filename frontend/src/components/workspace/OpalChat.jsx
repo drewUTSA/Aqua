@@ -10,6 +10,7 @@ import { useReducedMotion } from "../../hooks/useReducedMotion.js";
 import RankGroupsComposer from "./RankGroupsComposer.jsx";
 import { canStartGroupRank } from "./rankGroupsDraft.js";
 import { cashContinuation } from "../../features/bankDemo/cashContinuation.js";
+import { assertHistory, captureHistory } from "../../services/historyAuthority.js";
 import { savedRankFields } from "./savedRankFields.js";
 
 export default function OpalChat({ chat, auth, inputRef, focusRequest, onOpenPrompts, onOpenCash, preferences, shell = "opal", visible = true, scrollPositions, onShowVisual, onUnderstandResult, visualsHidden = false }) {
@@ -86,7 +87,29 @@ function Composer({ chat, auth, preferences, inputRef, focusRequest, active, vis
   const allowed = auth.canQuery && !!chat.draft.trim() && !chat.pending && !chat.uncertain && !chat.active?.archived && (!chat.durable || !!chat.selectedModelId);
   const cashQuestion = chat.draft.trim() || chat.messages.findLast(message => message.role === "user")?.content;
   const cash = visible && !auth.demoMode && auth.canQuery && auth.session?.can_query === true && !chat.pending && !chat.uncertain && !chat.active?.archived
-    && (chat.draft.trim() || !chat.messages.at(-1)?.response?.cashConfirmation) && onOpenCash && cashContinuation(cashQuestion);
+    && (chat.draft.trim() || !chat.messages.at(-1)?.response?.cashReply) && onOpenCash && cashContinuation(cashQuestion);
+  const ownerId = auth.user?.id, csrfToken = auth.csrfToken;
+  const [cashAccess, setCashAccess] = useState(null);
+  const wantsCashReview = Boolean(cash?.amounts);
+  useEffect(() => {
+    if (!wantsCashReview || !ownerId || !csrfToken) return;
+    const controller = new AbortController();
+    let authority;
+    try { authority = captureHistory(csrfToken); } catch { return; }
+    // Only ask for the signed-in employee's scope. Draft text and amounts
+    // stay in the browser until the employee explicitly submits them.
+    import("../../features/bankDemo/api.js").then(({ bankDemoContext }) =>
+      bankDemoContext({ ownerId, csrfToken, historyContext: authority, signal: controller.signal })
+    ).then(context => {
+      if (!controller.signal.aborted && assertHistory(authority).owner === ownerId) {
+        setCashAccess({ ownerId, csrfToken, allowed: context.persona !== "none" });
+      }
+    }).catch(() => {
+      if (!controller.signal.aborted) setCashAccess(null);
+    });
+    return () => controller.abort();
+  }, [wantsCashReview, ownerId, csrfToken]);
+  const allowedCashReview = cashAccess?.ownerId === ownerId && cashAccess?.csrfToken === csrfToken && cashAccess?.allowed;
   const serverPending = chat.durable && chat.pending && !chat.submitting;
   const showRank = canStartGroupRank({ auth, chat, visible, active });
   const stop = serverPending ? chat.cancelAnalysis : chat.stop;
@@ -113,7 +136,7 @@ function Composer({ chat, auth, preferences, inputRef, focusRequest, active, vis
     : serverPending ? "Analysis continues on the server. Cancellation is confirmed by saved status."
       : `${chat.pending ? "Stop ends this browser’s wait; server work may continue. " : ""}${preferences?.device.send_shortcut === "modified_enter" ? "Ctrl/Cmd + Enter" : "Enter"} to ${active ? "send" : "ask"} · ${preferences?.device.send_shortcut === "modified_enter" ? "Enter" : "Shift + Enter"} for a new line`}</p>
     {cash && (cash.hint ? <p className="note" data-cash-clarification>{cash.hint}</p>
-      : <button type="button" className="text-action" data-cash-continuation aria-haspopup="dialog" onClick={() => onOpenCash(cash)}>Review cash coverage in the calculator</button>)}
+      : allowedCashReview && <button type="button" className="text-action" data-cash-continuation aria-haspopup="dialog" onClick={() => onOpenCash(cash)}>Review cash coverage in the calculator</button>)}
     {showRank && <RankGroupsComposer key={`${auth.user?.id}:${chat.activeConversationId}:${chat.active.projectId}`}
       original={chat.draft} reveal={revealRank} onBack={() => textarea.current?.focus()}
       onApply={value => { if (applyRank(value)) textarea.current?.focus(); }} />}

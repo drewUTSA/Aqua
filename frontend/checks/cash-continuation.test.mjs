@@ -2,6 +2,17 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { cashContinuation } from "../src/features/bankDemo/cashContinuation.js";
 
+test("a worksheet must include all material conditions in its two final figures", () => {
+  const plain = "For this quarter, compare USD 510 in available cash with USD 429 in projected outflows.";
+  assert.equal(cashContinuation(plain).amounts.length, 2);
+  for (const clause of ["after retaining a third of the cash", "with a separate vendor credit still pending",
+    "once the pledge is released", "before we have accounted for the extra insurance"]) {
+    const value = cashContinuation(plain + " " + clause);
+    assert.equal(value.amounts, undefined);
+    assert.match(value.hint, /final available cash/);
+  }
+});
+
 test("a cash worksheet keeps the exact source and the two amounts unassigned", () => {
   const question = "Our monthly cash is USD 4,097.32 and projected outflows are USD 3,295.08. How much covers them?";
   assert.deepEqual(cashContinuation(question), {
